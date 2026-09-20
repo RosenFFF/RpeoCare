@@ -1,0 +1,14 @@
+import type { Metadata } from "next";
+import { appearanceBootstrap } from "@/lib/appearance";
+import "./globals.css";
+import "./appearance.css";
+
+export const metadata: Metadata = {
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
+  title: "RepoCare · 开源维护工作台",
+  description: "面向开源项目维护者的工作台：项目体检、Issue 分诊、PR 检查与协作规范改进。",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="zh-CN" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head><body>{children}</body></html>;
+}
