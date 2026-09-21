@@ -33,4 +33,4 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 - 浏览器 cookie 隔离任务与模型连接；保持同一访问域名和端口可以继续使用原有浏览器会话。
 - `.next`、`node_modules`、测试临时文件和本地运行数据不属于版本化源码。
 
-当前认证、Issue、PR 和规范改进仍有演示边界，详见根目录 README 和 [认证接入说明](AUTH_INTEGRATION.md)。
+认证、Issue、PR 与规范改进已接入真实业务 API。模型、OAuth、SMTP 和公网部署仍需外部配置。新模块见 server/auth、server/github、server/workbench 以及 features/workbench；旧演示组件保留但不作为工作台默认页面。

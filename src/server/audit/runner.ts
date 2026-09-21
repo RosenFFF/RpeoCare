@@ -1,10 +1,13 @@
+import { ownsTask, resumeInterrupted } from './queue';
+import { withGithubOwner } from '../github/connection';
+import { getSnapshot, saveSnapshot } from '../workbench/store';
 import { getRepository, collectRepository } from './github';
 import { runRules } from './rules';
 import { analyzeWithAgent } from './agent';
-import { getRun, getRunConnection, updateRun } from './store';
+import { getRun, getRunConnection, updateRun, runOwner } from './store';
 import { isTerminal, type AuditNode, type AuditReport, type CheckResult, type NodeId } from '../../contracts/audit';
 
-export async function executeRun(id: string, shutdown?: AbortSignal) {
+export async function executeRun(id: string, shutdown?: AbortSignal, worker?: string) {
   const controller = new AbortController();
   const cancel = () => controller.abort();
   shutdown?.addEventListener('abort', cancel, { once: true });
@@ -16,6 +19,7 @@ export async function executeRun(id: string, shutdown?: AbortSignal) {
   let current: NodeId = 'repository';
   const guard = () => {
     controller.signal.throwIfAborted();
+    if (worker && !ownsTask(worker, id)) throw new Error('任务已由其他执行服务接管。');
     const run = getRun(id);
     if (!run || run.cancelRequested || isTerminal(run.status)) throw new Error('任务已停止。');
   };
@@ -34,15 +38,18 @@ export async function executeRun(id: string, shutdown?: AbortSignal) {
   try {
     guard();
     start('repository', '正在读取公开仓库信息与默认分支');
-    const repository = await getRepository(getRun(id)!.repoUrl, controller.signal);
+    const owner = runOwner(id)!;
+    const checkpoint = getSnapshot(id);
+    const repository = checkpoint?.repository || await withGithubOwner(owner, () => getRepository(getRun(id)!.repoUrl, controller.signal, getRun(id)!.branch));
     guard();
     updateRun(id, run => { if (!isTerminal(run.status)) run.repository = repository; });
     done('repository', `已锁定 ${repository.fullName} · ${repository.sha.slice(0, 7)}`);
 
     start('collect', '正在读取目录和维护相关文件');
-    const snapshot = await collectRepository(repository, controller.signal, (message, completed, total) => {
+    const snapshot = checkpoint || await withGithubOwner(owner, () => collectRepository(repository, controller.signal, (message, completed, total) => {
       node('collect', { message, completed, total });
-    });
+    }));
+    saveSnapshot(id, snapshot);
     node('collect', { evidence: snapshot.contents.map(file => ({
       path: file.path, note: file.error || (file.truncated ? '已截取部分内容' : '已读取'),
       url: `${repository.url}/blob/${repository.sha}/${file.path.split('/').map(encodeURIComponent).join('/')}`,
@@ -66,7 +73,7 @@ export async function executeRun(id: string, shutdown?: AbortSignal) {
             const events = run.agentEvents ??= [];
             if (events.length < 64) events.push({ ...event, at: new Date().toISOString(), index: events.length + 1 });
           });
-        });
+        }, owner);
         guard();
         checks.push(...findings);
         agentStatus = 'completed';
@@ -88,7 +95,7 @@ export async function executeRun(id: string, shutdown?: AbortSignal) {
       runId: id, repository, generatedAt: new Date().toISOString(), checks,
       warnings: snapshot.warnings, agentStatus,
       model: getRun(id)?.model,
-      scope: '公开仓库默认分支的固定提交快照；维护文档与配置检查，不执行仓库代码，不代表测试通过或代码安全审计。',
+      scope: '所选仓库分支的固定提交快照；维护文档与配置检查，不执行仓库代码，不代表测试通过或代码安全审计。',
     };
     guard();
     updateRun(id, run => {
@@ -100,7 +107,9 @@ export async function executeRun(id: string, shutdown?: AbortSignal) {
       run.status = 'completed';
     });
   } catch (error) {
+    if (worker && !ownsTask(worker, id)) return;
     const run = getRun(id);
+    if (shutdown?.aborted && run?.status === 'running') { resumeInterrupted(id); return; }
     if (run && !isTerminal(run.status)) {
       const message = shutdown?.aborted ? '后台执行已停止。已有记录已保留，可重新体检。'
         : controller.signal.aborted ? '体检超时或执行已中断，请重新体检。'

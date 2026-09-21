@@ -13,8 +13,8 @@ export function publicSelection(connection: RuntimeConnection): ModelSelection {
     source: connection.id === 'environment' ? 'environment' : 'settings' };
 }
 
-export function createConfiguredRun(owner: string, repoUrl: string, retryOf?: string) {
+export function createConfiguredRun(owner: string, repoUrl: string, retryOf?: string, branch?: string) {
   // Capture at enqueue time, before the worker can claim it. Later edits/deletions
   // do not change this job, and even queued jobs keep their selected revision.
-  return createRun(owner, repoUrl, retryOf, selectedConnection(owner));
+  return createRun(owner, repoUrl, retryOf, selectedConnection(owner), branch);
 }

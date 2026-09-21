@@ -15,7 +15,7 @@ export interface RepoSnapshot { repository: Repository; files: RepoFile[]; treeT
 export interface AuditNode { id: NodeId; label: string; status: NodeStatus; message: string; startedAt?: string; finishedAt?: string; completed?: number; total?: number; evidence?: Evidence[] }
 export interface ToolProgress extends AgentProgress { at: string; index: number }
 export interface AuditReport { runId: string; repository: Repository; generatedAt: string; checks: CheckResult[]; warnings: string[]; agentStatus: 'completed' | 'disabled' | 'failed'; scope: string; model?: ModelSelection }
-export interface AuditRun { id: string; repoUrl: string; status: RunStatus; createdAt: string; updatedAt: string; nodes: AuditNode[]; repository?: Repository; error?: string; report?: AuditReport; seq: number; cancelRequested: boolean; retryOf?: string; model?: ModelSelection; agentEvents?: ToolProgress[] }
+export interface AuditRun { id: string; repoUrl: string; branch?: string; status: RunStatus; createdAt: string; updatedAt: string; nodes: AuditNode[]; repository?: Repository; error?: string; report?: AuditReport; seq: number; cancelRequested: boolean; retryOf?: string; model?: ModelSelection; agentEvents?: ToolProgress[] }
 export interface AuditEvent { seq: number; runId: string; type: 'snapshot'; run: AuditRun }
 export interface AuditCapabilities { workerOnline: boolean; agentConfigured: boolean; githubAuthenticated: boolean; model?: ModelSelection; modelError?: string }
 

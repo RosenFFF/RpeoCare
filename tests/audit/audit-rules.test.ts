@@ -64,9 +64,10 @@ test('truncated trees cannot establish missing files, but observed files remain 
   assert.ok(checks.filter(check => check.id !== 'readme').every(check => check.status === 'unknown'));
 });
 
-test('unsupported languages and monorepos have bounded conclusions', () => {
+test('Python test presence is recognized while unsupported config and monorepos remain bounded', () => {
   const python = runRules(snapshot(['pyproject.toml', 'tests/test_main.py']));
-  assert.equal(python.find(check => check.id === 'test-entry')!.status, 'unknown');
+  assert.equal(python.find(check => check.id === 'test-entry')!.status, 'pass');
+  assert.match(python.find(check => check.id === 'test-entry')!.summary, /未执行/);
   assert.equal(python.find(check => check.id === 'code-style')!.status, 'unknown');
   for (const data of [snapshot(['package.json'], '{"workspaces":["packages/*"]}'), snapshot(['package.json', 'packages/api/package.json'], '{}')]) {
     assert.equal(runRules(data).find(check => check.id === 'test-entry')!.status, 'unknown');

@@ -27,8 +27,8 @@ export function AuthPanel({ mode, onChange }: { mode: Exclude<EntryView, "welcom
     if (registration && String(fields.get("name") || "").trim().length < 2) { setError("称呼至少需要 2 个非空字符。"); form.current?.querySelector<HTMLInputElement>('[name="name"]')?.focus(); return; }
     if (registration && fields.get("password") !== fields.get("confirm")) { setError("两次输入的密码不一致。"); form.current?.querySelector<HTMLInputElement>('[name="confirm"]')?.focus(); return; }
     setPending("email");
-    try { const result = await submitEmailAuth(mode); setNotice(result.message); setPassword(""); form.current?.reset(); }
-    catch { setNotice("暂时无法连接账号服务，请稍后再试。"); }
+    try { const result = await submitEmailAuth(mode, { email: String(fields.get('email') || ''), ...(mode !== 'reset' ? { password: String(fields.get('password') || '') } : {}), ...(registration ? { name: String(fields.get('name') || '') } : {}) }); setNotice(result.message); setPassword(""); form.current?.reset(); }
+    catch (cause) { setNotice(cause instanceof Error ? cause.message : "暂时无法连接账号服务，请稍后再试。"); }
     finally { setPending(null); }
   }
   return <div className={`entry-auth ${registration ? "entry-auth-register" : ""}`}>
@@ -42,12 +42,12 @@ export function AuthPanel({ mode, onChange }: { mode: Exclude<EntryView, "welcom
     <form ref={form} onSubmit={submit} className="entry-form">
       {registration && <label htmlFor="entry-name">怎么称呼你<input id="entry-name" name="name" autoComplete="nickname" required minLength={2} maxLength={40} placeholder="你的名字或开源昵称" /></label>}
       <label htmlFor="entry-email">邮箱地址<div className="entry-input-wrap"><input id="entry-email" type="email" name="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" /></div></label>
-      {!resetting && <><div className="entry-field"><div className="entry-label-row"><label htmlFor="entry-password">密码</label>{!registration && <button type="button" onClick={() => onChange("reset")}>忘记密码？</button>}</div><div className="entry-input-wrap entry-password"><input id="entry-password" name="password" type={visible ? "text" : "password"} autoComplete={registration ? "new-password" : "current-password"} required minLength={registration ? 8 : 1} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} placeholder={registration ? "至少 8 位，建议混合字母与数字" : "输入你的密码"} aria-describedby={registration ? "entry-password-hint" : undefined}/><button type="button" aria-label={visible ? "隐藏密码" : "显示密码"} onClick={() => setVisible(value => !value)}>{visible ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></div>{registration && <><p id="entry-password-hint" className={`entry-password-hint ${password.length >= 8 ? "is-valid" : ""}`}><Check size={12}/>至少 8 个字符</p><label htmlFor="entry-confirm">确认密码<input id="entry-confirm" name="confirm" type={visible ? "text" : "password"} autoComplete="new-password" required minLength={8} maxLength={128} placeholder="再输入一次密码" aria-describedby={error ? "entry-form-error" : undefined}/></label></>}</>}
+      {!resetting && <><div className="entry-field"><div className="entry-label-row"><label htmlFor="entry-password">密码</label>{!registration && <button type="button" onClick={() => onChange("reset")}>忘记密码？</button>}</div><div className="entry-input-wrap entry-password"><input id="entry-password" name="password" type={visible ? "text" : "password"} autoComplete={registration ? "new-password" : "current-password"} required minLength={registration ? 10 : 1} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} placeholder={registration ? "至少 10 位，建议混合字母与数字" : "输入你的密码"} aria-describedby={registration ? "entry-password-hint" : undefined}/><button type="button" aria-label={visible ? "隐藏密码" : "显示密码"} onClick={() => setVisible(value => !value)}>{visible ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></div>{registration && <><p id="entry-password-hint" className={`entry-password-hint ${password.length >= 10 ? "is-valid" : ""}`}><Check size={12}/>至少 10 个字符</p><label htmlFor="entry-confirm">确认密码<input id="entry-confirm" name="confirm" type={visible ? "text" : "password"} autoComplete="new-password" required minLength={10} maxLength={128} placeholder="再输入一次密码" aria-describedby={error ? "entry-form-error" : undefined}/></label></>}</>}
       {error && <p id="entry-form-error" className="entry-form-error" role="alert">{error}</p>}
-      {notice && <div className="entry-auth-notice" role="status">{notice}<Link href="/overview">体验演示</Link></div>}
+      {notice && <div className="entry-auth-notice" role="status">{notice}<Link href="/overview">进入工作区</Link></div>}
       <button type="submit" className="entry-primary entry-submit" disabled={!!pending}>{pending === "email" ? <LoaderCircle size={17} className="entry-spin"/> : null}{registration ? "创建账号" : resetting ? "发送重置邮件" : "立即登录"}</button>
     </form>
     <p className="entry-auth-switch">{registration ? "已有账号？" : "还没有账号？"}<button type="button" onClick={() => onChange(registration ? "login" : "register")}>{registration ? "去登录" : "邮箱注册"}</button></p>
-    <p className="entry-preview-note">账号服务尚未开通，可先<Link href="/overview">体验演示</Link></p>
+    <p className="entry-preview-note">GitHub／邮箱登录需服务端配置，也可先<Link href="/overview">体验演示</Link></p>
   </div>;
 }

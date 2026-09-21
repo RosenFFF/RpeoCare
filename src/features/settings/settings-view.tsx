@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, Check, FileCheck2, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, Monitor, Puzzle, RotateCcw, Save, ShieldCheck } from 'lucide-react';
 import './settings-view.css';
+import { GithubConnection } from '@/features/workbench/project-overview';
 import { ModelSettings } from './model-settings';
 
 type PluginId = 'issue-triage' | 'project-audit' | 'docs-generator' | 'pr-check';
@@ -244,7 +245,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
           </div>
         </footer>
       </form>
-      <ModelSettings />
+      <GithubConnection /><ModelSettings />
     </div>
   );
 }

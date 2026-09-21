@@ -1,4 +1,4 @@
-import { workerOnline } from '@/server/audit/store';
+import { poolOnline as workerOnline } from '@/server/audit/queue';
 import { jsonResponse, session } from '@/server/audit/http';
 import { publicSelection, selectedConnection } from '@/server/models/run-config';
 import { NextRequest } from 'next/server';

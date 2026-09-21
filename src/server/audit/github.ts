@@ -1,3 +1,4 @@
+import { githubScope } from '../github/connection';
 import type { FileContent, RepoFile, Repository, RepoSnapshot } from '../../contracts/audit';
 
 const API_ORIGIN = 'https://api.github.com';
@@ -62,7 +63,7 @@ async function request(path: string, signal: AbortSignal, maxBytes = 256_000): P
       'X-GitHub-Api-Version': '2022-11-28',
       'User-Agent': 'RepoCare-Audit',
     };
-    const token = process.env.REPOCARE_GITHUB_TOKEN?.trim();
+    const token = githubScope.getStore()?.token || process.env.REPOCARE_GITHUB_TOKEN?.trim();
     if (token) headers.Authorization = `Bearer ${token}`;
     try {
       const response = await fetch(url, { headers, signal: AbortSignal.any([signal, timeout]), redirect: 'error', cache: 'no-store' });
@@ -91,12 +92,12 @@ async function request(path: string, signal: AbortSignal, maxBytes = 256_000): P
   throw new GitHubRequestError('GitHub 请求未完成。');
 }
 
-export async function getRepository(input: string, signal: AbortSignal): Promise<Repository> {
+export async function getRepository(input: string, signal: AbortSignal, requestedBranch?: string): Promise<Repository> {
   const parsed = parseRepositoryUrl(input);
   const prefix = `/repos/${encodeURIComponent(parsed.owner)}/${encodeURIComponent(parsed.name)}`;
   const metadata = object(await request(prefix, signal));
-  if (metadata.private !== false) throw new Error('当前体检仅支持公开 GitHub 仓库。');
-  const branch = typeof metadata.default_branch === 'string' ? metadata.default_branch : '';
+  if (metadata.private !== false && !githubScope.getStore()?.allowPrivate) throw new Error('当前体检仅支持公开 GitHub 仓库。');
+  const branch = requestedBranch || (typeof metadata.default_branch === 'string' ? metadata.default_branch : '');
   if (!branch) throw new Error('仓库没有默认分支，请先推送代码。');
   const commits = await request(`${prefix}/commits?sha=${encodeURIComponent(branch)}&per_page=1`, signal);
   const commit = object(Array.isArray(commits) ? commits[0] : undefined);
@@ -117,7 +118,7 @@ function priority(path: string): number {
   if (/^(?:\.github\/|docs\/)?readme(?:\.(?:md|markdown|rst|txt|adoc))?$/.test(lower)) return 1;
   if (/^(?:\.github\/|docs\/)?contributing(?:\.(?:md|markdown|rst|txt|adoc))?$/.test(lower)) return 2;
   if (/^(?:license|licence|copying)(?:\.[a-z0-9_-]+)?$/.test(lower)) return 3;
-  if (lower === 'pyproject.toml') return 4;
+  if (/^(pyproject\.toml|pytest\.ini|tox\.ini|cargo\.toml|go\.mod|pom\.xml|build\.gradle(?:\.kts)?)$/.test(lower)) return 4;
   if (/^\.github\/issue_template(?:\.(?:md|yml|yaml)|\/.*\.(?:md|yml|yaml))$/.test(lower)) return 5;
   if (/^(?:\.github\/|docs\/)?pull_request_template(?:\.md|\/.*\.md)$/.test(lower)) return 6;
   if (/^\.github\/workflows\/[^/]+\.ya?ml$/.test(lower)) return 7;

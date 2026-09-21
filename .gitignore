@@ -11,3 +11,6 @@ coverage/
 *.log
 .DS_Store
 Thumbs.db
+backups/
+test-results/
+playwright-report/

@@ -1,4 +1,5 @@
 import type { Category, CheckResult, Evidence, RepoSnapshot } from '../../contracts/audit';
+import { languageConfiguration } from './languages';
 
 function fileUrl(snapshot: RepoSnapshot, path: string): string {
   return `${snapshot.repository.url}/blob/${snapshot.repository.sha}/${path.split('/').map(encodeURIComponent).join('/')}`;
@@ -41,6 +42,8 @@ function scripts(data: Record<string, unknown>): Record<string, string> {
 }
 
 function configurationCheck(snapshot: RepoSnapshot, type: 'test' | 'lint'): CheckResult {
+  const language = languageConfiguration(snapshot, type);
+  if (language) return language;
   const isTest = type === 'test';
   const base = { id: isTest ? 'test-entry' : 'code-style', title: isTest ? '测试入口' : '代码规范配置', category: '工程' as const, source: 'rule' as const };
   if (!isTest) {

@@ -22,6 +22,7 @@ npm run dev
 ## 验证命令
 
 ```sh
+npm run lint
 npm run typecheck
 npm test
 npm run build
@@ -30,6 +31,8 @@ npm run check
 ```
 
 `typecheck` 先运行 `next typegen`，因此新克隆也能生成路由类型。测试使用临时目录和 mock 模型，不应调用付费模型或修改用户数据库。GitHub Actions 在 main 推送和 PR 时运行完整检查。
+
+浏览器回归：先运行 `npm run build`，再运行 `npm run test:e2e`。测试启动独立的 3100 端口生产服务，数据库位于已忽略的 `test-results/e2e.sqlite`，不会复用当前开发服务器。CI 安装 Chromium 并运行这些用例，失败时保留 trace。工作区测试还覆盖 OAuth/PKCE 回调、防重复发布、账户隔离、邮件令牌、Worker 接管和快照恢复。
 
 ## 本会话自动同步规则
 

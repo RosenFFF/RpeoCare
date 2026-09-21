@@ -12,7 +12,6 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
       let lastSeq = -1, closed = false;
-      let timer: ReturnType<typeof setInterval> | undefined;
       const close = () => {
         if (closed) return;
         closed = true;
@@ -35,7 +34,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
           if (isTerminal(run.status)) close();
         } catch { close(); }
       };
-      timer = setInterval(tick, 500);
+      const timer = setInterval(tick, 500);
       tick();
       if (request.signal.aborted) close();
     },

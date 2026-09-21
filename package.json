@@ -10,9 +10,13 @@
     "dev:web": "next dev --hostname 127.0.0.1",
     "worker": "tsx scripts/audit-worker.ts",
     "start:web": "next start --hostname 127.0.0.1",
-    "test": "tsx --test tests/audit/*.test.ts tests/models/*.test.ts",
+    "test": "tsx --test tests/audit/*.test.ts tests/models/*.test.ts tests/workbench/*.test.ts",
     "agent:models": "tsx scripts/agent-models.ts",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "lint": "eslint src scripts tests --quiet",
+    "backup": "tsx scripts/backup.ts",
+    "cleanup": "tsx scripts/cleanup.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@mariozechner/pi-agent-core": "0.73.1",
@@ -20,6 +24,8 @@
     "@next/env": "16.3.5",
     "lucide-react": "1.46.0",
     "next": "16.3.5",
+    "nodemailer": "^10.0.10",
+    "oauth4webapi": "^3.8.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.186.0",
@@ -27,13 +33,19 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/three": "^0.186.0",
     "concurrently": "^10.0.5",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "tsx": "^4.23.13",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.70.0"
   },
   "engines": {
     "node": ">=24.0.0"

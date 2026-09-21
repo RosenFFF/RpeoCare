@@ -1,150 +1,83 @@
 # RepoCare · 开源项目维护工作台
 
-面向开源项目维护者的工作台。项目体检已接入真实公开 GitHub 仓库、后台任务、实时执行轨迹和可配置的 pi-agent；其余模块仍为前端原型。以浅色背景、清晰的深色文字与日夜主题为视觉基调，采用任务列表、证据详情、草稿审阅组成的轻量工作台。
+围绕真实 GitHub 仓库开展体检、报告追问、Issue 分诊、PR 审阅和改进草稿。AI 生成建议，用户审阅后明确确认发布。
 
-## 运行
+## 本地启动
 
-需要 Node.js 24 或更高版本（使用内置 node:sqlite）。
+需要 Node.js 24。复制 .env.example 到 .env.local，按需配置模型、GitHub OAuth 和 SMTP。
 
-在此目录打开终端：
-
-```bash
+```sh
 npm ci
 npm run dev
 ```
 
-打开 http://127.0.0.1:3000/audit 。`npm run dev` 同时启动 Next.js 和独立体检 Worker。模型未配置时，可直接进行真实规则体检。
+访问 http://127.0.0.1:3000/overview，连接仓库。公开仓库和基础规则无需模型；追问、内容分析和草稿需要模型。GitHub 登录及写回需要自己的 OAuth 应用；邮箱验证和重置需要 SMTP。
 
-如果端口被占用，分别在两个终端运行：
+## 功能
 
-```bash
-npm run dev:web -- --port 3001
-# 另一个终端
-npm run worker
-```
+| 模块 | 当前能力 |
+| --- | --- |
+| 统一项目 | 连接真实仓库、指定分支、概览与历史任务、草稿统计 |
+| 体检 | 固定提交快照、8 项基础检查、pi Agent 分析、文件证据、报告导出 |
+| 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
+| 报告追问 | 持久化对话，基于报告和已采集文件回答 |
+| Issue / PR | 真实开放列表、分页、原文与 patch、模型分析评论草稿 |
+| 改进 | 从报告生成 README / CONTRIBUTING / Issue / PR 模板，前后对照、编辑、下载 |
+| GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
+| 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
+| 模型 | 多协议配置、加密密钥、工具往返测试、调用及 token 用量 |
+| 运维 | Lint、类型检查、单元/集成测试、浏览器回归脚本、CI、容器配置、健康检查、备份、清理 |
 
-生产构建与类型检查：
+## 使用流程
 
-```bash
-npm run typecheck
-npm run build
-npm start
-```
+1. 在概览连接仓库；私有仓库先在设置中授权 GitHub 仓库访问。
+2. 在设置配置模型，运行连接测试。
+3. 体检完成后阅读报告，在任务对话追问；报告页自动收起执行轨迹。
+4. 在规范改进中选择检查项生成草稿，编辑并保存，核对前后内容。
+5. 授权具有写入权限的账户后，点击审阅发布，再明确确认目标和内容。
+6. Issue / PR 页面生成的回复草稿也在规范改进中审阅。写入前检查 PR / 默认分支是否已有新提交。
 
-## 当前范围
-
-`/audit` 使用真实公开 GitHub 数据，保存到本地 SQLite；其余模块仍使用虚构的 `repocare-demo / csv-kit`。体检结果不会改变演示 Issue、PR 或概览统计。
-
-| 页面 | 路由 | 已实现交互 |
-|---|---|---|
-| 产品首页 | `/` | 独立 C 形品牌雕塑、拖动与视角跟随、日夜主题、开始使用、演示入口 |
-| 登录 / 注册 | `/?auth=login`、`/?auth=register` | GitHub/Gitee/GitLab 入口、邮箱表单校验、密码显隐、未开通提示 |
-| 项目概览 | `/overview` | 待办分类、统计、直达条目、改进建议 |
-| 项目体检 | `/audit` | 公开仓库读取、固定提交快照、8 项规则、可选 Agent、实时节点、取消/重试、历史报告和导出 |
-| Issue 分诊 | `/issues` | 搜索、筛选、原文、结构化详情、编辑草稿、本地确认 |
-| PR 检查 | `/pull-requests` | 搜索、筛选、Diff、检查结果、审核意见、确认记录 |
-| 规范改进 | `/improvements` | 3 份文件草稿、Diff、接受/恢复、下载真实文件 |
-| 工作区设置 | `/settings` | 工作区偏好、模型连接管理、默认模型、密钥加密保存、工具调用连接测试 |
-
-还包括：全局快速跳转（Ctrl/⌘ + K）、通知面板、使用指南、仓库连接草稿、移动导航、空状态、操作反馈和键盘焦点管理。
-
-## 外观与导航
-
-- 全站共用冷灰白、石墨色与低饱和松绿：`--action` / `--action-hover` / `--on-action` 控制主要操作，`--accent` 用于品牌与选中状态，`--focus` 控制键盘焦点。夜间主按钮为浅银灰。配色集中在 `src/app/appearance.css`，首页不再单独硬编码按钮颜色。
-- 顶栏左侧的侧栏按钮可收起/展开桌面导航。收起后保留图标、待办数量与悬停名称。
-- 顶栏右侧太阳／月亮图标一键切换白天与夜晚模式。页面背景、侧栏、弹窗、表单、标签和 Diff 同步适配。
-- 主题与桌面侧栏状态保存在 `openbridge.appearance.v1`，刷新、切换页面后保留。手机继续使用完整的抽屉导航。
-- 切换按钮支持键盘 Enter / Space；旧三色主题偏好自动按白天模式显示，保留侧栏状态。
-
-深链接示例：`/issues?issue=39`、`/pull-requests?pr=45`、`/improvements?draft=bug-template`。
-
-## 数据和演示边界
-
-- 首页与登录注册使用同一展示布局；`/login`、`/register` 会重定向到对应表单。忘记密码入口为 `/?auth=reset`。
-- **认证仅完成界面与本地校验，未接入 OAuth、数据库或邮件服务。** 提交不会创建账号、发送邮件或授予登录状态，不会将输入的邮箱、密码写入浏览器存储或发送到服务器。
-- 可通过“体验演示”进入 `/overview`；该路由是公开演示，不是受认证保护的用户工作区。真实认证的接入范围见 [说明](docs/AUTH_INTEGRATION.md)。
-- 未接入用户 OAuth；公开仓库体检通过服务端 GitHub API 读取。可配置服务端 GitHub Token 提升请求额度。当前明确拒绝私有仓库。
-- 体检在独立 Worker 执行，SSE 推送真实节点状态；配置模型后使用 pi-agent 分析已收集文件，未配置会跳过并标注。Issue/PR 分析仍是静态示例。
-- “确认”“接受”只更新浏览器状态，不会发送评论、修改仓库或合并 PR。
-- 下载按钮会生成所选 `.md`/`.yml` 文件；文件内容仍是演示草稿，需要按实际项目核对。
-- 设置页的插件与语言偏好仍是演示配置；模型连接独立保存在服务端，默认连接用于新体检，无默认连接时回退到服务端环境变量。
-- 项目名称、连接草稿、偏好使用 `localStorage`；Issue/PR/规范的草稿与确认使用 `sessionStorage`，关闭当前浏览会话后可重置。
-- 未登录账户；Maintainer 头像代表本地演示身份。
-
-## 技术栈
-
-- Next.js 16 App Router / React 19 / TypeScript。
-- Lucide 图标、RepoCare 品牌标志和 Three.js 交互维护地图。
-- 原生 CSS，自定义色彩、间距、响应式和组件样式，无外部字体或图片请求。
-- Next.js Route Handlers + Node.js Worker + SQLite + SSE；执行轨迹展示实际阶段；pi-agent 提供三个只读工具。
-
-## 代码结构
+## 工程结构
 
 ```text
-src/
-  app/                 Next.js 页面入口、API 路由和全局样式
-  components/workspace/ 工作台外壳与导航组合
-  features/            按功能组织的页面组件及样式
-    audit/             项目体检、任务对话和报告
-    settings/          工作区设置和模型连接界面
-    overview/          概览与 3D 展示
-    issues/            Issue 分诊
-    pull-requests/     PR 检查
-    improvements/      规范改进
-    landing/           产品首页
-    auth/              认证界面
-  server/              仅服务端使用的业务、持久化和集成
-    audit/             GitHub 快照、规则、Agent、Worker 存储
-    models/            模型适配、加密和连接配置
-  contracts/           前后端共享类型与纯数据定义
-  shared/              复用组件、浏览器工具和共用样式
-tests/                 按 audit / models 分组的测试
-scripts/               Worker 和模型目录工具
-docs/                  架构、开发、配置、验证与迁移说明
-public/                静态资源
-.github/workflows/     GitHub 自动检查
-data/                  本地数据库与模型密钥（不提交）
+src/app/                 页面与 API 入口
+src/components/workspace/ 工作台外壳
+src/features/            功能界面（workbench 为真实项目功能）
+src/server/audit/        快照、规则、Agent、任务和 Worker 队列
+src/server/auth/         邮箱认证和邮件
+src/server/github/       GitHub OAuth、读取、写回
+src/server/workbench/    项目、对话、草稿和模型使用量
+src/server/models/       模型连接、加密与协议适配
+src/contracts/           共享数据类型
+src/shared/              共用组件、样式与浏览器工具
+tests/                   audit、models、workbench、e2e
+scripts/                 Worker、备份、清理和模型目录工具
+docs/                    开发、架构、配置、验收边界
 ```
 
-## 真实体检与 Agent
+## 验证与维护
 
-完整启动、配置、接口、执行边界与部署说明见 [AUDIT_SETUP.md](docs/AUDIT_SETUP.md)。
+```sh
+npm run check
+npm run test:e2e
+npm run backup
+npm run cleanup
+# 完成备份并确认后，才执行实际清理
+npm run cleanup -- --apply
+```
 
-- 复制 `.env.example` 为 `.env.local`，可填写 GitHub Token 和模型配置；不设置密钥也能运行基础规则。
-- `npm run agent:models` 查看 pi 支持的 provider，`npm run agent:models -- deepseek` 查看该 provider 的模型 ID。
-- `npm run test` 运行规则、引用校验、任务取消/恢复和 mock Agent 工具调用测试，不调用付费模型。
-- `data/repocare.sqlite` 保存任务和报告，已加入忽略规则。前端仅保存最后打开的任务编号。
-- 当前采用浏览器会话隔离，是本机开发 MVP，不是已完成账户登录的多租户产品。
+测试使用临时数据库和 mock 模型/GitHub，不发布测试内容。GitHub Actions 安装 Chromium 后执行浏览器回归。历史验证记录见 [QA](docs/QA.md)。
 
-后续继续接入真实 Issue 分诊、PR 检查、用户认证；所有写入 GitHub 的能力需单独实现服务端权限和审核流程。
+自动 Git 同步规则见 [AGENTS.md](AGENTS.md)。密钥、数据库、备份和构建产物不提交。
 
-## 项目体检 Agent 工作台
+## 配置与边界
 
-`/audit` 提供任务对话和体检报告两个视图。在任务对话底部输入公开 GitHub 仓库地址发起体检；中间显示任务请求、真实阶段状态、工具活动及结果摘要；右侧查看执行轨迹、模型、提交版本和节点证据。历史任务支持恢复，运行中可以停止，完成后可以重新体检最新提交。
+- [部署与运行](docs/DEPLOYMENT.md)
+- [账户配置](docs/AUTH_INTEGRATION.md)
+- [体检范围](docs/AUDIT_SETUP.md)
+- [实现与验收清单](docs/IMPLEMENTATION_STATUS.md)
+- [架构](docs/ARCHITECTURE.md) / [开发约定](docs/DEVELOPMENT.md)
 
-任务对话是现有体检任务的对话式呈现，当前不支持任意自然语言追问或多轮聊天。阶段消息来自真实任务状态，未配置模型时会明确显示基础规则模式。手机端执行轨迹排列在对话区下方，保留全部操作。
+当前不会运行被检查仓库的代码；工程检查只确认配置、文件及命令声明。多语言支持是配置识别，不是全语言静态分析。报告追问与草稿未经原体检报告的逐条引用校验，须审阅。旧任务没有文件快照时仍能阅读报告和追问报告，生成替换草稿需重新体检。
 
-## 维护建议
-
-- 不在组件内硬编码 API 密钥。
-- 保留 `package-lock.json`，其他机器优先用 `npm ci` 复现。
-- 本地演示状态不适合作为正式数据库；实际用户数据需由服务端管理。
-- 浏览器检查记录见 [说明](docs/QA.md)。
-
-## RepoCare 品牌与 3D 概览
-
-- 新 Logo 结合仓库分支节点与环抱形 C，侧栏、概览和浏览器图标保持一致。
-- 概览使用本地生成的 Three.js 模型：带夹层与代码符号的立体文件夹、开放 C 形金属环，以及气泡、合并分支、折角文档、盾牌四种维护造型。
-- 拖动旋转、节点/底部按钮选择、摘要跳转、暂停/继续、视角复位；任务数量沿用已有演示会话数据。
-- 三维材质随日夜模式更新。Three.js 按需加载，像素比例限制为 1.6；离屏及隐藏标签页停止绘制，卸载释放资源。
-- 遵循减少动态效果设置；WebGL 不可用或丢失时保留可操作的简洁视图。触屏画布允许纵向页面滚动。
-- 代码：`src/features/overview/project-showcase.tsx`、`project-showcase.css`、`repo-scene.ts`、`brand-mark.tsx`。
-- 该场景呈现演示维护分类，不代表后台 Agent 正在执行任务。
-
-## 开发与维护
-
-- [架构说明](docs/ARCHITECTURE.md)
-- [开发约定与自动同步](docs/DEVELOPMENT.md)
-- [本次目录迁移记录](docs/MIGRATION.md)
-- 统一检查命令：`npm run check`。GitHub 在推送和 Pull Request 时运行相同检查。
-- 体检报告会自动平滑收起执行轨迹，切回任务对话恢复。
+GitHub、邮箱和匿名本地会话目前为独立身份空间，不按同名邮箱自动合并。Gitee/GitLab 尚未接入。多 Worker 只支持同机共享数据库，跨主机分布式部署尚需独立数据库和队列。公网部署必须配置 HTTPS、认证与反向代理限流。

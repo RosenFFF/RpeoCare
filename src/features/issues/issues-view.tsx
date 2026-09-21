@@ -51,7 +51,7 @@ const ISSUES: Issue[] = [
     missing: ['有代表性的分号分隔样例', '识别失败时希望采用的回退行为'],
     labels: ['enhancement', 'needs-discussion'],
     sources: [
-      { quote: '“I currently pass delimiter=\";\" every time”', note: '来自 Issue 正文 · 当前行为' },
+      { quote: '“I currently pass delimiter=";" every time”', note: '来自 Issue 正文 · 当前行为' },
       { quote: '“detect this from the first few rows”', note: '来自 Issue 正文 · 期望行为' },
     ],
     draft: '感谢建议！自动识别分隔符确实可以简化导入流程。可以提供一份有代表性的分号分隔 CSV 样例吗？\n\n另外，如果前几行不足以确定分隔符，你更希望回退为逗号，还是提示用户手动选择？我们会结合现有接口讨论兼容的实现方式。',

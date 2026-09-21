@@ -61,7 +61,7 @@ export function updateRun(id: string, change: (run: AuditRun) => void): AuditRun
   });
 }
 
-export function createRun(owner: string, repoUrl: string, retryOf?: string, connection?: RuntimeConnection | null): AuditRun {
+export function createRun(owner: string, repoUrl: string, retryOf?: string, connection?: RuntimeConnection | null, branch?: string): AuditRun {
   return transaction(() => {
     const active = db().prepare("SELECT COUNT(*) AS n FROM audit_runs WHERE owner = ? AND status IN ('queued', 'running')").get(owner) as { n: number };
     if (active.n >= 2) throw new Error('已有两个待完成任务，请等待完成或取消后再试。');
@@ -72,7 +72,7 @@ export function createRun(owner: string, repoUrl: string, retryOf?: string, conn
     if (recent.n >= 30) throw new Error('本小时体检次数已达到上限，请稍后重试。');
     const now = new Date().toISOString();
     const run: AuditRun = {
-      id: randomUUID(), repoUrl, status: 'queued', createdAt: now, updatedAt: now,
+      id: randomUUID(), repoUrl, ...(branch ? { branch } : {}), status: 'queued', createdAt: now, updatedAt: now,
       seq: 1, cancelRequested: false, retryOf,
       nodes: nodeDefinitions.map(node => ({ ...node, status: 'pending', message: '等待执行' })),
       ...(connection ? { model: {
@@ -152,3 +152,5 @@ export function claimRun(owner: string): AuditRun | undefined {
     return persist(run);
   });
 }
+
+export function runOwner(id: string): string | undefined { return (db().prepare('SELECT owner FROM audit_runs WHERE id=?').get(id) as { owner: string } | undefined)?.owner; }

@@ -1,37 +1,25 @@
 import { loadEnvConfig } from '@next/env';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { acquireWorker, heartbeat, claimRun, releaseWorker } from '../src/server/audit/store';
+import { claimTask, pulseWorker, releaseTask, stopWorker } from '../src/server/audit/queue';
 import { executeRun } from '../src/server/audit/runner';
-
 loadEnvConfig(process.cwd());
-const controller = new AbortController();
-const identity = randomUUID();
+const controller = new AbortController(), identity = randomUUID();
 process.once('SIGINT', () => controller.abort());
 process.once('SIGTERM', () => controller.abort());
-
 async function main() {
-  let waiting = false;
-  while (!controller.signal.aborted && !acquireWorker(identity)) {
-    if (!waiting) console.log('[audit-worker] Waiting for the active worker lease. Queued tasks remain saved.');
-    waiting = true;
-    await delay(1000, undefined, { signal: controller.signal }).catch(() => {});
-  }
-  if (controller.signal.aborted) return;
-  console.log('[audit-worker] Ready. Public repository audits run read-only.');
-  const pulse = setInterval(() => {
-    try { if (!heartbeat(identity)) controller.abort(); }
-    catch { controller.abort(); }
-  }, 5000);
+  pulseWorker(identity);
+  const timer = setInterval(() => { try { pulseWorker(identity); } catch { controller.abort(); } }, 5000);
+  console.log('[audit-worker] Ready. Snapshot checkpoints and shared-database worker pool enabled.');
   try {
     while (!controller.signal.aborted) {
-      const run = claimRun(identity);
-      if (run) {
-        console.log(`[audit-worker] Starting ${run.id}`);
-        await executeRun(run.id, controller.signal);
-        console.log(`[audit-worker] Finished ${run.id}`);
-      } else await delay(500, undefined, { signal: controller.signal }).catch(() => {});
+      const run = claimTask(identity);
+      if (!run) { await delay(500, undefined, { signal: controller.signal }).catch(() => {}); continue; }
+      console.log(JSON.stringify({ event: 'audit_started', runId: run.id }));
+      await executeRun(run.id, controller.signal, identity);
+      releaseTask(identity, run.id);
+      console.log(JSON.stringify({ event: 'audit_finished', runId: run.id }));
     }
-  } finally { clearInterval(pulse); releaseWorker(identity); }
+  } finally { clearInterval(timer); stopWorker(identity); }
 }
-main().catch(() => { console.error('[audit-worker] Worker stopped unexpectedly. Restart to recover queued tasks.'); process.exitCode = 1; });
+main().catch(() => { console.error('[audit-worker] Unexpected failure. Restart to recover queued tasks.'); process.exitCode = 1; });

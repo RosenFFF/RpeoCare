@@ -9,6 +9,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const run = ownedRun(request, (await context.params).id);
     if (!run) return errorResponse('未找到此任务。', 404);
     if (!isTerminal(run.status)) return errorResponse('任务仍在执行，请等待完成或取消。', 409);
-    return jsonResponse(createConfiguredRun(session(request)!, run.repoUrl, run.id), 202);
+    const next = createConfiguredRun(session(request)!, run.repoUrl, run.id, run.branch);
+    return jsonResponse(next, 202);
   } catch (error) { return errorResponse(error instanceof Error ? error.message : '无法重新体检。'); }
 }

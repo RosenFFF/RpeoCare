@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { executeRun } from '../../src/server/audit/runner';
 import { cancelRun, createRun, db, getRun, updateRun } from '../../src/server/audit/store';
+import { saveSnapshot } from '../../src/server/workbench/store';
 
 const directory = mkdtempSync(join(tmpdir(), 'repocare-runner-test-'));
 const keys = ['REPOCARE_DB_PATH', 'REPOCARE_AI_PROVIDER', 'REPOCARE_AI_MODEL', 'REPOCARE_AI_API_KEY'] as const;
@@ -84,6 +85,19 @@ test('an inaccessible repository fails without a fabricated report or success no
   assert.ok(!failed.error!.includes('private response detail'));
   assert.equal(failed.nodes[0].status, 'failed');
   assert.ok(failed.nodes.slice(1).every(node => node.status === 'skipped'));
+});
+
+test('recovery uses persisted snapshot even when GitHub is unavailable', async t => {
+  const remote = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Recovery must not refetch the repository'); });
+  const run = running('checkpoint-owner');
+  saveSnapshot(run.id, {
+    repository: { owner: 'example', name: 'project', fullName: 'example/project', url: run.repoUrl, description: '', branch: 'main', sha, language: 'TypeScript' },
+    files: [], contents: [], warnings: [], treeTruncated: false,
+  });
+  await executeRun(run.id);
+  assert.equal(getRun(run.id)?.status, 'completed');
+  assert.equal(getRun(run.id)?.report?.repository.sha, sha);
+  assert.equal(remote.mock.callCount(), 0);
 });
 
 test('cancelling while an active content request is pending aborts it and preserves cancellation', async t => {
