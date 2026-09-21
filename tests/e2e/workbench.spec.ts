@@ -10,9 +10,10 @@ test('report hides inspector and composer; conversation restores them', async ({
   await expect(page.locator('.as-composer')).toBeVisible();
   await expect(page.locator('.as-inspector-shell')).not.toHaveAttribute('inert', '');
 });
-test('overview starts with honest empty real project state', async ({ page }) => {
+test('overview keeps the original 3d project showcase', async ({ page }) => {
   await page.goto('/overview');
-  await expect(page.getByRole('heading', { name: '连接你的第一个项目' })).toBeVisible();
-  await expect(page.getByLabel('GitHub 仓库地址')).toBeVisible();
-  await expect(page.getByText('repocare-demo / csv-kit', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '你的项目，照料有序。' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '项目维护地图' })).toBeVisible();
+  await expect(page.getByText('3D 交互', { exact: true })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: '查看项目体检' })).toBeVisible();
 });
