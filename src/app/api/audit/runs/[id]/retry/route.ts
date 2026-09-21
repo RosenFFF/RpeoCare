@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
-import { createConfiguredRun } from '@/lib/models/run-config';
-import { isTerminal } from '@/lib/audit/types';
-import { ensureSameOrigin, errorResponse, jsonResponse, ownedRun, session } from '@/lib/audit/http';
+import { createConfiguredRun } from '@/server/models/run-config';
+import { isTerminal } from '@/contracts/audit';
+import { ensureSameOrigin, errorResponse, jsonResponse, ownedRun, session } from '@/server/audit/http';
 export const runtime = 'nodejs';
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {

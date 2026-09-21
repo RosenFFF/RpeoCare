@@ -6,3 +6,8 @@ node_modules/
 .playwright-cli/
 output/
 data/
+next-env.d.ts
+coverage/
+*.log
+.DS_Store
+Thumbs.db

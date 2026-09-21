@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { errorResponse, jsonResponse, ownedRun } from '@/lib/audit/http';
+import { errorResponse, jsonResponse, ownedRun } from '@/server/audit/http';
 export const runtime = 'nodejs';
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const run = ownedRun(request, (await context.params).id);

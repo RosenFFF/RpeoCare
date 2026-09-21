@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { ownedRun, errorResponse } from '@/lib/audit/http';
-import { isTerminal } from '@/lib/audit/types';
+import { ownedRun, errorResponse } from '@/server/audit/http';
+import { isTerminal } from '@/contracts/audit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

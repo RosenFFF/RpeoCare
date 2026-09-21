@@ -1,6 +1,6 @@
 # RepoCare · 开源项目维护工作台
 
-面向开源项目维护者的工作台。项目体检已接入真实公开 GitHub 仓库、后台任务、实时流程图和可配置的 pi-agent；其余模块仍为前端原型。以浅色背景、清晰的深色文字与日夜主题为视觉基调，采用任务列表、证据详情、草稿审阅组成的轻量工作台。
+面向开源项目维护者的工作台。项目体检已接入真实公开 GitHub 仓库、后台任务、实时执行轨迹和可配置的 pi-agent；其余模块仍为前端原型。以浅色背景、清晰的深色文字与日夜主题为视觉基调，采用任务列表、证据详情、草稿审阅组成的轻量工作台。
 
 ## 运行
 
@@ -62,7 +62,7 @@ npm start
 
 - 首页与登录注册使用同一展示布局；`/login`、`/register` 会重定向到对应表单。忘记密码入口为 `/?auth=reset`。
 - **认证仅完成界面与本地校验，未接入 OAuth、数据库或邮件服务。** 提交不会创建账号、发送邮件或授予登录状态，不会将输入的邮箱、密码写入浏览器存储或发送到服务器。
-- 可通过“体验演示”进入 `/overview`；该路由是公开演示，不是受认证保护的用户工作区。真实认证的接入范围见 `AUTH_INTEGRATION.md`。
+- 可通过“体验演示”进入 `/overview`；该路由是公开演示，不是受认证保护的用户工作区。真实认证的接入范围见 [说明](docs/AUTH_INTEGRATION.md)。
 - 未接入用户 OAuth；公开仓库体检通过服务端 GitHub API 读取。可配置服务端 GitHub Token 提升请求额度。当前明确拒绝私有仓库。
 - 体检在独立 Worker 执行，SSE 推送真实节点状态；配置模型后使用 pi-agent 分析已收集文件，未配置会跳过并标注。Issue/PR 分析仍是静态示例。
 - “确认”“接受”只更新浏览器状态，不会发送评论、修改仓库或合并 PR。
@@ -76,46 +76,39 @@ npm start
 - Next.js 16 App Router / React 19 / TypeScript。
 - Lucide 图标、RepoCare 品牌标志和 Three.js 交互维护地图。
 - 原生 CSS，自定义色彩、间距、响应式和组件样式，无外部字体或图片请求。
-- Next.js Route Handlers + Node.js Worker + SQLite + SSE；React Flow 展示执行过程；pi-agent 提供三个只读工具。
+- Next.js Route Handlers + Node.js Worker + SQLite + SSE；执行轨迹展示实际阶段；pi-agent 提供三个只读工具。
 
 ## 代码结构
 
 ```text
 src/
-  app/
-    layout.tsx               页面元数据与全局样式
-    page.tsx                 首页
-    [view]/page.tsx           其余视图路由与404检查
-    globals.css              主题、导航、首页、弹窗、响应式
-    appearance.css           配色变量、收起侧栏、日夜按钮
-  components/
-    landing-page.tsx          产品首页与账号面板切换
-    landing-page.css          首页、表单、响应式视觉
-    auth-panel.tsx            登录 / 注册 / 找回密码表单
-    brand-sculpture.tsx       首页独立品牌雕塑组件
-    brand-scene.ts           开放 C 形缎带建模与按需渲染
-    repo-exhibit.tsx          工作台概览的维护地图展示
-    workspace.tsx            工作台壳、导航、弹窗、toast
-    theme-picker.tsx         可键盘操作的日夜切换按钮
-    views/
-      overview-view.tsx       概览与待办
-      audit-view.tsx          项目体检
-      issues-view.tsx         Issue列表和详情
-      pull-requests-view.tsx  PR列表和审核
-      improvements-view.tsx   文件Diff与下载
-      settings-view.tsx       浏览器设置
-      *-views.css             各页面样式
-  lib/
-    auth-client.ts           未配置认证适配边界（当前不发起网络请求）
-    navigation.ts            导航与视图类型
-    use-demo-counts.ts       共享演示统计
-    appearance.ts            配色定义、存储与首屏初始化
-    use-appearance.ts        外观偏好与跨标签页同步
+  app/                 Next.js 页面入口、API 路由和全局样式
+  components/workspace/ 工作台外壳与导航组合
+  features/            按功能组织的页面组件及样式
+    audit/             项目体检、任务对话和报告
+    settings/          工作区设置和模型连接界面
+    overview/          概览与 3D 展示
+    issues/            Issue 分诊
+    pull-requests/     PR 检查
+    improvements/      规范改进
+    landing/           产品首页
+    auth/              认证界面
+  server/              仅服务端使用的业务、持久化和集成
+    audit/             GitHub 快照、规则、Agent、Worker 存储
+    models/            模型适配、加密和连接配置
+  contracts/           前后端共享类型与纯数据定义
+  shared/              复用组件、浏览器工具和共用样式
+tests/                 按 audit / models 分组的测试
+scripts/               Worker 和模型目录工具
+docs/                  架构、开发、配置、验证与迁移说明
+public/                静态资源
+.github/workflows/     GitHub 自动检查
+data/                  本地数据库与模型密钥（不提交）
 ```
 
 ## 真实体检与 Agent
 
-完整启动、配置、接口、执行边界与部署说明见 [AUDIT_SETUP.md](AUDIT_SETUP.md)。
+完整启动、配置、接口、执行边界与部署说明见 [AUDIT_SETUP.md](docs/AUDIT_SETUP.md)。
 
 - 复制 `.env.example` 为 `.env.local`，可填写 GitHub Token 和模型配置；不设置密钥也能运行基础规则。
 - `npm run agent:models` 查看 pi 支持的 provider，`npm run agent:models -- deepseek` 查看该 provider 的模型 ID。
@@ -127,7 +120,7 @@ src/
 
 ## 项目体检 Agent 工作台
 
-`/audit` 提供任务对话、体检报告和流程图三个视图。底部输入公开 GitHub 仓库地址发起体检；中间显示任务请求、真实阶段状态、工具活动及结果摘要；右侧查看执行轨迹、模型、提交版本和节点证据。历史任务支持恢复，运行中可以停止，完成后可以重新体检最新提交。
+`/audit` 提供任务对话和体检报告两个视图。在任务对话底部输入公开 GitHub 仓库地址发起体检；中间显示任务请求、真实阶段状态、工具活动及结果摘要；右侧查看执行轨迹、模型、提交版本和节点证据。历史任务支持恢复，运行中可以停止，完成后可以重新体检最新提交。
 
 任务对话是现有体检任务的对话式呈现，当前不支持任意自然语言追问或多轮聊天。阶段消息来自真实任务状态，未配置模型时会明确显示基础规则模式。手机端执行轨迹排列在对话区下方，保留全部操作。
 
@@ -136,7 +129,7 @@ src/
 - 不在组件内硬编码 API 密钥。
 - 保留 `package-lock.json`，其他机器优先用 `npm ci` 复现。
 - 本地演示状态不适合作为正式数据库；实际用户数据需由服务端管理。
-- 浏览器检查记录见 `QA.md`。
+- 浏览器检查记录见 [说明](docs/QA.md)。
 
 ## RepoCare 品牌与 3D 概览
 
@@ -145,5 +138,13 @@ src/
 - 拖动旋转、节点/底部按钮选择、摘要跳转、暂停/继续、视角复位；任务数量沿用已有演示会话数据。
 - 三维材质随日夜模式更新。Three.js 按需加载，像素比例限制为 1.6；离屏及隐藏标签页停止绘制，卸载释放资源。
 - 遵循减少动态效果设置；WebGL 不可用或丢失时保留可操作的简洁视图。触屏画布允许纵向页面滚动。
-- 代码：`src/components/project-showcase.tsx`、`project-showcase.css`、`repo-scene.ts`、`brand-mark.tsx`。
+- 代码：`src/features/overview/project-showcase.tsx`、`project-showcase.css`、`repo-scene.ts`、`brand-mark.tsx`。
 - 该场景呈现演示维护分类，不代表后台 Agent 正在执行任务。
+
+## 开发与维护
+
+- [架构说明](docs/ARCHITECTURE.md)
+- [开发约定与自动同步](docs/DEVELOPMENT.md)
+- [本次目录迁移记录](docs/MIGRATION.md)
+- 统一检查命令：`npm run check`。GitHub 在推送和 Pull Request 时运行相同检查。
+- 体检报告会自动平滑收起执行轨迹，切回任务对话恢复。

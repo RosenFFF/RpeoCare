@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/lib/audit/http';
-import { getRuntime, recordTest } from '@/lib/models/store';
-import { testConnection } from '@/lib/models/adapter';
+import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
+import { getRuntime, recordTest } from '@/server/models/store';
+import { testConnection } from '@/server/models/adapter';
 export const runtime = 'nodejs';
 const running = new Set<string>();
 export async function POST(request: NextRequest) {

@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { listRuns } from '@/lib/audit/store';
-import { createConfiguredRun } from '@/lib/models/run-config';
-import { parseRepositoryUrl } from '@/lib/audit/github';
-import { ensureSameOrigin, errorResponse, jsonResponse, ownerOrNew, session, smallJson } from '@/lib/audit/http';
+import { listRuns } from '@/server/audit/store';
+import { createConfiguredRun } from '@/server/models/run-config';
+import { parseRepositoryUrl } from '@/server/audit/github';
+import { ensureSameOrigin, errorResponse, jsonResponse, ownerOrNew, session, smallJson } from '@/server/audit/http';
 
 export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {

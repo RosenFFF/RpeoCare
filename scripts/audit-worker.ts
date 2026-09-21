@@ -1,8 +1,8 @@
 import { loadEnvConfig } from '@next/env';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { acquireWorker, heartbeat, claimRun, releaseWorker } from '../src/lib/audit/store';
-import { executeRun } from '../src/lib/audit/runner';
+import { acquireWorker, heartbeat, claimRun, releaseWorker } from '../src/server/audit/store';
+import { executeRun } from '../src/server/audit/runner';
 
 loadEnvConfig(process.cwd());
 const controller = new AbortController();

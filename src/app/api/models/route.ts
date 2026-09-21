@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { ensureSameOrigin, errorResponse, jsonResponse, ownerOrNew, smallJson } from '@/lib/audit/http';
-import { deleteConnection, listSettings, saveConnection, setDefault } from '@/lib/models/store';
+import { ensureSameOrigin, errorResponse, jsonResponse, ownerOrNew, smallJson } from '@/server/audit/http';
+import { deleteConnection, listSettings, saveConnection, setDefault } from '@/server/models/store';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const command = z.discriminatedUnion('action', [

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { appearanceBootstrap } from "@/lib/appearance";
+import { appearanceBootstrap } from "@/shared/lib/appearance";
 import "./globals.css";
 import "./appearance.css";
 

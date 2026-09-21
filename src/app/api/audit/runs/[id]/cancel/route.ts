@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { cancelRun } from '@/lib/audit/store';
-import { ensureSameOrigin, errorResponse, jsonResponse, ownedRun } from '@/lib/audit/http';
+import { cancelRun } from '@/server/audit/store';
+import { ensureSameOrigin, errorResponse, jsonResponse, ownedRun } from '@/server/audit/http';
 export const runtime = 'nodejs';
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {

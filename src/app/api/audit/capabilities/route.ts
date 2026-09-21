@@ -1,6 +1,6 @@
-import { workerOnline } from '@/lib/audit/store';
-import { jsonResponse, session } from '@/lib/audit/http';
-import { publicSelection, selectedConnection } from '@/lib/models/run-config';
+import { workerOnline } from '@/server/audit/store';
+import { jsonResponse, session } from '@/server/audit/http';
+import { publicSelection, selectedConnection } from '@/server/models/run-config';
 import { NextRequest } from 'next/server';
 
 export const runtime = 'nodejs';
