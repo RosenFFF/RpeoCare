@@ -107,3 +107,18 @@
 - 白天 3D 展示区保留原浅色背景；夜间工作台也使用独立层级变量。
 - 浏览器检查六个工作台路由的白天背景、分隔线和布局；检查夜间概览、390px 手机概览及登录页配色隔离，全部通过。手机宽度检查等待侧栏布局过渡完成。
 - 截图与脚本：既有 QA 目录的 workspace-contrast-*.png、check-workspace-contrast.js。
+
+## 真实仓库体检与 Agent 工作流（2026-09-20）
+
+- `/audit` 已替换静态检查数据：真实公开 GitHub API、固定 commit 快照、8 条规则、独立 Worker、SQLite 任务/报告、SSE 状态推送。
+- `npm run test`：36 项通过，覆盖 URL 输入限制、只读 GitHub 请求与重试/取消、缺失/截断/配置解析、任务归属/租约恢复、取消竞态、同源请求、JSON 大小限制，以及 pi SDK 的真实 Agent loop + mock provider。
+- pi Agent 测试包含快照工具执行、轮数/工具调用上限、取消、输出 schema、原文引用校验及 provider 错误脱敏。没有真实模型密钥，尚未验证付费在线模型调用；未配置时节点明确跳过。
+- 真实公开 `octocat/Hello-World`（`7fd1a60`）完成体检：1 项通过、5 项待完善、2 项无法判断。`RosenFFF/RpeoCare` 匿名 API 返回 404，未作为成功案例。
+- 浏览器验证：创建任务、完成后报告展示、页面刷新恢复、历史记录、类别筛选、固定 SHA 文件链接、JSON/Markdown 下载、取消后不显示报告、仓库 404 不显示预设结果、重新体检产生独立任务。
+- 新浏览器会话无法读取原会话任务或 SSE（404）；跨站 Origin 请求被拒绝。修复 Next 内部 localhost 与浏览器 127.0.0.1 导致同源请求误拒绝的问题。
+- 验证任务取消不会被迟到的响应覆盖；Worker 重启时等待有效租约，不会导致 `concurrently --kill-others` 关闭 Web。
+- 日夜主题及 390px 页面检查，无横向溢出；概览、首页与登录界面保留原布局。
+- 浏览器脚本和截图位于原工作区 `work/frontend-qa/output/playwright/`：`check-audit-real.js`、`check-audit-cancel.js`、`check-audit-fail-isolation.js`、`audit-real-*.png`。API 错误场景会产生预期 400/404 网络记录；成功流程未捕获应用 pageerror。
+
+- 最终流程图使用受控视口，修复初始 fit 与横竖屏切换的偏移/裁切；桌面节点约 172px，390px 手机节点约 152px 且居中，节点按钮可真实点击。最终截图 `audit-final-desktop.png` / `audit-final-mobile.png`。
+- `npm run typecheck` 与生产构建通过；Node 内置 SQLite 有实验性提示，不影响本次运行验证。

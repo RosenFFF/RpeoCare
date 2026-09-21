@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, Check, FileCheck2, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, Monitor, Puzzle, RotateCcw, Save, ShieldCheck } from 'lucide-react';
 import './settings-view.css';
+import { ModelSettings } from './model-settings';
 
 type PluginId = 'issue-triage' | 'project-audit' | 'docs-generator' | 'pr-check';
 
@@ -229,7 +230,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
 
         <div className="sv-storage-note">
           <Info size={16} aria-hidden="true" />
-          <p>配置仅保存在当前浏览器。清除浏览器数据会恢复默认设置；此页面不需要 API 密钥或仓库授权。</p>
+          <p>以上偏好仅保存在当前浏览器；下方模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p>
         </div>
         {error && <p className="sv-error" role="alert">{error}</p>}
         <footer className="sv-actions">
@@ -243,6 +244,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
           </div>
         </footer>
       </form>
+      <ModelSettings />
     </div>
   );
 }

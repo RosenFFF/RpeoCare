@@ -1,0 +1,28 @@
+.ms-section .ms-note { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.ms-connections { margin: 20px 0; }
+.ms-connection { padding: 18px 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
+.ms-connection-copy { flex: 1 1 250px; min-width: 0; overflow-wrap: anywhere; }
+.ms-connection-copy strong { font-size: 14px; font-weight: 600; }
+.ms-connection-copy p { margin: 7px 0 0; font-size: 12px; color: var(--muted); line-height: 1.7; }
+.ms-default { margin-left: 10px; color: var(--accent); background: var(--accent-tint); padding: 3px 7px; border-radius: 4px; font-size: 11px; }
+.ms-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ms-section button { cursor: pointer; }
+.ms-row-actions button, .ms-editor-heading button, .ms-fallback, .ms-delete button { background: transparent; border: 0; padding: 6px 0; color: var(--accent); font: inherit; font-size: 12px; }
+.ms-section button:disabled { cursor: wait; opacity: .55; }
+.ms-section button:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+.ms-selected { border-bottom-color: var(--accent); }
+.ms-delete { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; font-size: 12px; }
+.ms-editor-heading { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 20px; }
+.ms-editor-heading h3 { margin: 0; font-size: 14px; }
+.ms-editor-heading button { display: inline-flex; gap: 5px; align-items: center; }
+.ms-section fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+.ms-fields { padding-left: 0; gap: 20px 24px; }
+.ms-fields select, .ms-preset select { padding-left: 12px; }
+.ms-preset { max-width: 300px; margin-bottom: 22px; }
+.ms-full { grid-column: 1 / -1; }
+.ms-save { display: flex; justify-content: flex-end; margin-top: 24px; }
+.ms-save .button { display: inline-flex; align-items: center; gap: 7px; }
+.ms-section .ms-success { color: var(--success); font-size: 12px; line-height: 1.7; }
+.ms-section .ms-test-failed { color: var(--error); }
+.ms-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 720px) { .ms-row-actions { width: 100%; } .ms-default { display: inline-block; } }

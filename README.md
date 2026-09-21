@@ -1,22 +1,26 @@
 # RepoCare · 开源项目维护工作台
 
-面向开源项目维护者的前端原型。以浅色背景、清晰的深色文字与日夜主题为视觉基调，采用任务列表、证据详情、草稿审阅组成的轻量工作台。
+面向开源项目维护者的工作台。项目体检已接入真实公开 GitHub 仓库、后台任务、实时流程图和可配置的 pi-agent；其余模块仍为前端原型。以浅色背景、清晰的深色文字与日夜主题为视觉基调，采用任务列表、证据详情、草稿审阅组成的轻量工作台。
 
 ## 运行
 
-需要 Node.js 20.9 或更高版本（本次使用 Node.js 24 验证）。
+需要 Node.js 24 或更高版本（使用内置 node:sqlite）。
 
 在此目录打开终端：
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-打开 http://localhost:3000 。如果端口被占用：
+打开 http://127.0.0.1:3000/audit 。`npm run dev` 同时启动 Next.js 和独立体检 Worker。模型未配置时，可直接进行真实规则体检。
+
+如果端口被占用，分别在两个终端运行：
 
 ```bash
-npm run dev -- --port 3001
+npm run dev:web -- --port 3001
+# 另一个终端
+npm run worker
 ```
 
 生产构建与类型检查：
@@ -29,14 +33,14 @@ npm start
 
 ## 当前范围
 
-这是可以点击、编辑、筛选和下载的**前端壳**，数据来自虚构的 `repocare-demo / csv-kit`，不是已接入真实仓库的产品。
+`/audit` 使用真实公开 GitHub 数据，保存到本地 SQLite；其余模块仍使用虚构的 `repocare-demo / csv-kit`。体检结果不会改变演示 Issue、PR 或概览统计。
 
 | 页面 | 路由 | 已实现交互 |
 |---|---|---|
 | 产品首页 | `/` | 独立 C 形品牌雕塑、拖动与视角跟随、日夜主题、开始使用、演示入口 |
 | 登录 / 注册 | `/?auth=login`、`/?auth=register` | GitHub/Gitee/GitLab 入口、邮箱表单校验、密码显隐、未开通提示 |
 | 项目概览 | `/overview` | 待办分类、统计、直达条目、改进建议 |
-| 项目体检 | `/audit` | 12 条预置检查、分类、证据展开、演示刷新 |
+| 项目体检 | `/audit` | 公开仓库读取、固定提交快照、8 项规则、可选 Agent、实时节点、取消/重试、历史报告和导出 |
 | Issue 分诊 | `/issues` | 搜索、筛选、原文、结构化详情、编辑草稿、本地确认 |
 | PR 检查 | `/pull-requests` | 搜索、筛选、Diff、检查结果、审核意见、确认记录 |
 | 规范改进 | `/improvements` | 3 份文件草稿、Diff、接受/恢复、下载真实文件 |
@@ -59,11 +63,11 @@ npm start
 - 首页与登录注册使用同一展示布局；`/login`、`/register` 会重定向到对应表单。忘记密码入口为 `/?auth=reset`。
 - **认证仅完成界面与本地校验，未接入 OAuth、数据库或邮件服务。** 提交不会创建账号、发送邮件或授予登录状态，不会将输入的邮箱、密码写入浏览器存储或发送到服务器。
 - 可通过“体验演示”进入 `/overview`；该路由是公开演示，不是受认证保护的用户工作区。真实认证的接入范围见 `AUTH_INTEGRATION.md`。
-- 没有 GitHub/Gitee OAuth、Token 请求、远程同步、模型调用、测试执行或后端服务。
-- 体检、AI 分析和 PR 检查是明确标注的静态示例。刷新体检只刷新预置结果和演示时间。
+- 未接入用户 OAuth；公开仓库体检通过服务端 GitHub API 读取。可配置服务端 GitHub Token 提升请求额度。当前明确拒绝私有仓库。
+- 体检在独立 Worker 执行，SSE 推送真实节点状态；配置模型后使用 pi-agent 分析已收集文件，未配置会跳过并标注。Issue/PR 分析仍是静态示例。
 - “确认”“接受”只更新浏览器状态，不会发送评论、修改仓库或合并 PR。
 - 下载按钮会生成所选 `.md`/`.yml` 文件；文件内容仍是演示草稿，需要按实际项目核对。
-- 插件与语言偏好是后端接入前的配置界面；当前不加载 Agent 插件，也不会翻译页面。
+- 设置页的插件与语言偏好仍是演示配置，不控制体检 Agent；真实模型配置通过服务端环境变量管理。
 - 项目名称、连接草稿、偏好使用 `localStorage`；Issue/PR/规范的草稿与确认使用 `sessionStorage`，关闭当前浏览会话后可重置。
 - 未登录账户；Maintainer 头像代表本地演示身份。
 
@@ -72,7 +76,7 @@ npm start
 - Next.js 16 App Router / React 19 / TypeScript。
 - Lucide 图标、RepoCare 品牌标志和 Three.js 交互维护地图。
 - 原生 CSS，自定义色彩、间距、响应式和组件样式，无外部字体或图片请求。
-- 独立视图文件，后续可逐步替换为 FastAPI 返回的数据。
+- Next.js Route Handlers + Node.js Worker + SQLite + SSE；React Flow 展示执行过程；pi-agent 提供三个只读工具。
 
 ## 代码结构
 
@@ -109,14 +113,17 @@ src/
     use-appearance.ts        外观偏好与跨标签页同步
 ```
 
-## 后端接入建议
+## 真实体检与 Agent
 
-1. 保留视图，将 `checks`、`ISSUES`、`PULL_REQUESTS`、`drafts` 逐步移到统一的数据访问层。
-2. 先接只读仓库/Issue API，再接真实的体检与分诊任务状态。
-3. 让每条分析结果具有来源、时间、真实状态（完成/失败/无法判断），替换演示文案。
-4. 接入 FastAPI 的异步任务或 SSE 后，才把演示刷新替换为真实任务执行。
-5. 所有对外写操作单独设置服务端授权、审批与审计；前端确认不能代替后端权限校验。
-6. 当前不需要 Python–pi-agent 桥接代码；后续应先核实具体 pi 包和运行时，再确定后端边界。
+完整启动、配置、接口、执行边界与部署说明见 [AUDIT_SETUP.md](AUDIT_SETUP.md)。
+
+- 复制 `.env.example` 为 `.env.local`，可填写 GitHub Token 和模型配置；不设置密钥也能运行基础规则。
+- `npm run agent:models` 查看 pi 支持的 provider，`npm run agent:models -- deepseek` 查看该 provider 的模型 ID。
+- `npm run test` 运行规则、引用校验、任务取消/恢复和 mock Agent 工具调用测试，不调用付费模型。
+- `data/repocare.sqlite` 保存任务和报告，已加入忽略规则。前端仅保存最后打开的任务编号。
+- 当前采用浏览器会话隔离，是本机开发 MVP，不是已完成账户登录的多租户产品。
+
+后续继续接入真实 Issue 分诊、PR 检查、用户认证；所有写入 GitHub 的能力需单独实现服务端权限和审核流程。
 
 ## 维护建议
 
