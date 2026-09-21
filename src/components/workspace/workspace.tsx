@@ -8,10 +8,10 @@ import { ArrowDownLeft, ArrowRight, Bell, BookOpen, Check, ChevronDown, ChevronR
 import { ThemePicker } from "../../shared/components/theme-picker";
 import { useAppearance } from "@/shared/lib/use-appearance";
 import { navigation, type ViewId } from "@/shared/lib/navigation";
-import { ProjectOverview } from "@/features/workbench/project-overview";
 import { GitItems } from "@/features/workbench/git-items";
 import { DraftWorkspace } from "@/features/workbench/draft-workspace";
 import { api, changed, useWorkbench } from "@/features/workbench/client";
+import { OverviewView } from "../../features/overview/overview-view";
 import { AuditView } from "../../features/audit/audit-view";
 import { SettingsView } from "../../features/settings/settings-view";
 
@@ -125,7 +125,7 @@ export function Workspace({ view }: { view: ViewId }) {
     <div className="main-shell">
       <header className="topbar"><div className="breadcrumb"><button type="button" className="icon-button sidebar-toggle" aria-label={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} aria-expanded={!appearance.sidebarCollapsed} aria-controls="workspace-sidebar" onClick={() => updateAppearance({ sidebarCollapsed: !appearance.sidebarCollapsed })}>{appearance.sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button><button type="button" className="icon-button mobile-menu" aria-label="打开导航" aria-controls="workspace-sidebar" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Menu size={19} /></button><span className="breadcrumb-project"><GitFork size={16} /><span>{workspaceName}</span></span><ChevronRight size={13} /><span>{current.label}</span></div><div className="topbar-actions"><span className="demo-badge"><span />{workbench?.project ? "真实项目工作区" : "等待连接项目"}</span><button type="button" className="search-button" aria-label="快速跳转" onClick={() => { setQuery(""); setModal("search"); }}><Search size={16} /><span>快速跳转</span><kbd>Ctrl K</kbd></button><ThemePicker theme={appearance.theme} onChange={theme => updateAppearance({ theme })} /><div className="topbar-divider"/><button type="button" className="icon-button notification-button" aria-label="查看通知" onClick={() => { setModal("notifications"); setNotificationRead(true); }}><Bell size={18}/>{!notificationRead && <span />}</button><span className="header-avatar">M</span></div></header>
       <main id="main-content" className={`main-content view-${view}`} tabIndex={-1}>
-        {view === "overview" && <ProjectOverview />}
+        {view === "overview" && <OverviewView onNotify={notify} />}
         {view === "audit" && <AuditView onNotify={notify} />}
         {view === "issues" && <GitItems kind="issues" />}
         {view === "pull-requests" && <GitItems kind="pulls" />}
@@ -146,3 +146,4 @@ export function Workspace({ view }: { view: ViewId }) {
 }
 
 function SettingsIcon() { const Icon = navigation[5].icon; return <Icon size={18} strokeWidth={1.7}/>; }
+
