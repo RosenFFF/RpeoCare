@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { db } from '../../src/server/audit/store';
 import { accountSession, saveGithubAccount, withGithubOwner } from '../../src/server/github/connection';
-import { publishDraft } from '../../src/server/github/api';
+import { publishDraft, repositoryCounts } from '../../src/server/github/api';
 import { getRepository } from '../../src/server/audit/github';
 import type { Draft } from '../../src/contracts/workbench';
 
@@ -37,4 +37,25 @@ test('private repositories require user-scoped token; requested branch remains p
   await assert.rejects(getRepository(draft.repoUrl, new AbortController().signal), /仅支持公开/);
   const repo = await withGithubOwner(owner, () => getRepository(draft.repoUrl, new AbortController().signal, 'release/test'));
   assert.equal(repo.branch, 'release/test'); assert.ok(calls.some(path => path.includes('release%2Ftest')));
+});
+
+test('counts exclude PRs from Issues, handle pagination, and share the PR request', async t => {
+  const calls: string[] = [];
+  t.mock.method(globalThis, 'fetch', async (input: URL | Request | string) => {
+    calls.push(String(input));
+    if (String(input).includes('/pulls?')) return Response.json([{}], { headers: { link: '<https://api.github.com/repos/example/project/pulls?state=open&per_page=1&page=42>; rel="last"' } });
+    return Response.json({ open_issues_count: 50 });
+  });
+  const counts = await repositoryCounts('anonymous', draft.repoUrl);
+  assert.equal(counts.issues, 8); assert.equal(counts.pulls, 42); assert.equal(calls.length, 2);
+});
+test('count failures stay unknown while a successful zero remains zero', async t => {
+  t.mock.method(globalThis, 'fetch', async (input: URL | Request | string) => String(input).includes('/pulls?') ? Response.json([]) : new Response('', { status: 403 }));
+  const counts = await repositoryCounts('anonymous', draft.repoUrl);
+  assert.equal(counts.issues, null); assert.equal(counts.pulls, 0); assert.ok(counts.issuesError);
+});
+test('failed PR count never presents the combined GitHub total as Issue count', async t => {
+  t.mock.method(globalThis, 'fetch', async (input: URL | Request | string) => String(input).includes('/pulls?') ? new Response('', { status: 503 }) : Response.json({ open_issues_count: 5 }));
+  const counts = await repositoryCounts('anonymous', draft.repoUrl);
+  assert.equal(counts.issues, null); assert.equal(counts.pulls, null);
 });

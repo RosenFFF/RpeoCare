@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const identity = await response.json();
     if (!Number.isSafeInteger(identity.id) || typeof identity.login !== 'string') throw new Error('GitHub 身份格式异常。');
     const session = saveGithubAccount(String(identity.id), identity.login, token, !!row.write_access && (tokens.scope || '').split(/[ ,]+/).includes('repo'));
-    const result = NextResponse.redirect(`${origin}/overview`);
+    const result = NextResponse.redirect(`${origin}/workspace`);
     result.cookies.set('repocare_login', session, { httpOnly: true, sameSite: 'lax', secure: origin.startsWith('https:'), path: '/', maxAge: 30 * 86400 });
     result.cookies.delete('repocare_oauth_state'); return result;
   } catch { return errorResponse('GitHub 授权未完成，请检查回调地址和配置后重新登录。', 400); }

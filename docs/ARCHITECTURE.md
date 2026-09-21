@@ -33,4 +33,6 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 - 浏览器 cookie 隔离任务与模型连接；保持同一访问域名和端口可以继续使用原有浏览器会话。
 - `.next`、`node_modules`、测试临时文件和本地运行数据不属于版本化源码。
 
-项目概览保留原有 3D 维护地图与演示型项目引导；项目体检、Issue、PR 与规范改进页面接入真实业务 API。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。
+工作台入口 `/workspace` 按当前项目状态跳转：没有报告时进入项目体检，已有报告时进入项目概览。概览仅显示当前仓库与分支的最近成功报告；首次未完成时显示引导，重新体检、失败或取消时保留上次成功结果。报告直接按项目查询，不受历史列表分页影响。
+
+项目概览保留原有 3D 维护地图，检查项来自真实报告，草稿数量来自当前项目。Issue / PR 数量通过独立 GitHub 请求获取，区分加载、零值和不可用，不阻塞报告展示；概览定时刷新并响应工作区切换与体检完成事件。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。

@@ -44,10 +44,10 @@ export function AuthPanel({ mode, onChange }: { mode: Exclude<EntryView, "welcom
       <label htmlFor="entry-email">邮箱地址<div className="entry-input-wrap"><input id="entry-email" type="email" name="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" /></div></label>
       {!resetting && <><div className="entry-field"><div className="entry-label-row"><label htmlFor="entry-password">密码</label>{!registration && <button type="button" onClick={() => onChange("reset")}>忘记密码？</button>}</div><div className="entry-input-wrap entry-password"><input id="entry-password" name="password" type={visible ? "text" : "password"} autoComplete={registration ? "new-password" : "current-password"} required minLength={registration ? 10 : 1} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} placeholder={registration ? "至少 10 位，建议混合字母与数字" : "输入你的密码"} aria-describedby={registration ? "entry-password-hint" : undefined}/><button type="button" aria-label={visible ? "隐藏密码" : "显示密码"} onClick={() => setVisible(value => !value)}>{visible ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></div>{registration && <><p id="entry-password-hint" className={`entry-password-hint ${password.length >= 10 ? "is-valid" : ""}`}><Check size={12}/>至少 10 个字符</p><label htmlFor="entry-confirm">确认密码<input id="entry-confirm" name="confirm" type={visible ? "text" : "password"} autoComplete="new-password" required minLength={10} maxLength={128} placeholder="再输入一次密码" aria-describedby={error ? "entry-form-error" : undefined}/></label></>}</>}
       {error && <p id="entry-form-error" className="entry-form-error" role="alert">{error}</p>}
-      {notice && <div className="entry-auth-notice" role="status">{notice}<Link href="/overview">进入工作区</Link></div>}
+      {notice && <div className="entry-auth-notice" role="status">{notice}<Link href="/workspace">进入工作区</Link></div>}
       <button type="submit" className="entry-primary entry-submit" disabled={!!pending}>{pending === "email" ? <LoaderCircle size={17} className="entry-spin"/> : null}{registration ? "创建账号" : resetting ? "发送重置邮件" : "立即登录"}</button>
     </form>
     <p className="entry-auth-switch">{registration ? "已有账号？" : "还没有账号？"}<button type="button" onClick={() => onChange(registration ? "login" : "register")}>{registration ? "去登录" : "邮箱注册"}</button></p>
-    <p className="entry-preview-note">GitHub／邮箱登录需服务端配置，也可先<Link href="/overview">体验演示</Link></p>
+    <p className="entry-preview-note">GitHub／邮箱登录需服务端配置，也可先<Link href="/workspace">进入工作台</Link></p>
   </div>;
 }

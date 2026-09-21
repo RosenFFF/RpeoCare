@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-`dev` 同时运行 Web 和 Worker，访问 `http://127.0.0.1:3000/audit`。执行正式体检需要 Worker 在线。环境变量见 [体检部署说明](AUDIT_SETUP.md)。
+`dev` 同时运行 Web 和 Worker，访问 `http://127.0.0.1:3000/workspace`，首次进入体检，已有成功报告时进入概览。执行正式体检需要 Worker 在线。环境变量见 [体检部署说明](AUDIT_SETUP.md)。
 
 ## 代码组织
 

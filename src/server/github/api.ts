@@ -36,6 +36,38 @@ export async function listItems(owner: string, url: string, kind: 'issues' | 'pu
   if (!Array.isArray(rows)) throw new Error('GitHub 列表格式异常。');
   return rows.filter(row => kind === 'pulls' || !row.pull_request).map(item);
 }
+
+async function countOpenPulls(owner: string, url: string): Promise<number> {
+  const path = `${repoPath(url)}/pulls?state=open&per_page=1`;
+  const account = githubAccount(owner);
+  const response = await fetch(`https://api.github.com${path}`, { headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'RepoCare', ...(account?.token ? { Authorization: `Bearer ${account.token}` } : {}) }, redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(20_000) });
+  if (!response.ok) { await response.body?.cancel(); throw new Error(`GitHub 请求失败（${response.status}）。`); }
+  const link = response.headers.get('link');
+  const last = link?.match(/[?&]page=(\d+)>; rel="last"/);
+  if (last) {
+    await response.body?.cancel();
+    const count = Number(last[1]);
+    if (!Number.isSafeInteger(count) || count < 1) throw new Error('GitHub 计数响应格式异常。');
+    return count;
+  }
+  const rows = await response.json();
+  if (!Array.isArray(rows)) throw new Error('GitHub 计数响应格式异常。');
+  return rows.length;
+}
+
+export async function repositoryCounts(owner: string, url: string) {
+  // open_issues_count includes PRs. Share a single PR request and preserve partial failures.
+  const [metadata, pulls] = await Promise.allSettled([githubApi(owner, repoPath(url)), countOpenPulls(owner, url)]);
+  const total = metadata.status === 'fulfilled' ? metadata.value.open_issues_count : null;
+  const pullCount = pulls.status === 'fulfilled' ? pulls.value : null;
+  const issues = Number.isSafeInteger(total) && pullCount !== null && total >= pullCount ? total - pullCount : null;
+  return {
+    repoUrl: url, issues, pulls: pullCount,
+    ...(issues === null ? { issuesError: 'Issue 数量暂时无法读取，请刷新重试。' } : {}),
+    ...(pullCount === null ? { pullsError: 'PR 数量暂时无法读取，请刷新重试。' } : {}),
+    fetchedAt: new Date().toISOString(),
+  };
+}
 export async function getItem(owner: string, url: string, kind: 'issues' | 'pulls', number: number): Promise<GitItem> {
   const prefix = repoPath(url), result = item(await githubApi(owner, `${prefix}/${kind}/${number}`));
   if (kind === 'pulls') {

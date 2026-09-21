@@ -7,4 +7,4 @@ export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/')) return NextResponse.json({ error: '请先登录账户。' }, { status: 401 });
   return NextResponse.redirect(new URL('/?auth=login', request.url));
 }
-export const config = { matcher: ['/overview', '/audit', '/issues', '/pull-requests', '/improvements', '/settings', '/api/audit/:path*', '/api/models/:path*', '/api/workbench/:path*'] };
+export const config = { matcher: ['/workspace', '/overview', '/audit', '/issues', '/pull-requests', '/improvements', '/settings', '/api/audit/:path*', '/api/models/:path*', '/api/workbench/:path*'] };

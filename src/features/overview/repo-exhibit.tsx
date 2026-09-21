@@ -14,7 +14,7 @@ export const maintenanceSections = [
 const sections = maintenanceSections;
 type Scene = ReturnType<typeof import("./repo-scene").createRepoScene>;
 
-export function RepoExhibit({ selected, onSelect, totals = [3, 2, 3, 4] }: { selected: number; onSelect: (index: number) => void; totals?: number[] }) {
+export function RepoExhibit({ selected, onSelect, totals, projectName, branch }: { selected: number; onSelect: (index: number) => void; totals: (number | null)[]; projectName: string; branch: string }) {
   const [paused,setPaused]=useState(false);
   const [status,setStatus]=useState<"loading"|"ready"|"fallback">("loading");
   const host=useRef<HTMLDivElement>(null);
@@ -39,10 +39,10 @@ export function RepoExhibit({ selected, onSelect, totals = [3, 2, 3, 4] }: { sel
   useEffect(()=>{scene.current?.select(selected);},[selected,status]);
   useEffect(()=>{scene.current?.pause(paused);},[paused,status]);
   return <div className="care-exhibit">
-      <div className="care-exhibit-heading"><span>csv-kit <span>/ 维护地图</span></span><span className="care-mode">{status==="ready"?"3D 交互":status==="loading"?"正在准备场景":"简洁视图"}</span></div>
+      <div className="care-exhibit-heading"><span>{projectName} <span>/ {branch}</span></span><span className="care-mode">{status==="ready"?"3D 交互":status==="loading"?"正在准备场景":"简洁视图"}</span></div>
       <div ref={host} className={`care-stage ${status!=="ready"?"care-stage-fallback":""}`}>
-        {status!=="ready"&&<div className="care-fallback-core" aria-hidden="true"><BrandMark size={58}/><span>csv-kit</span></div>}
-        {sections.map((item,i)=><button type="button" ref={el=>{labels.current[i]=el;}} key={item.name} className={`care-node care-node-${i} ${selected===i?"is-selected":""}`} aria-pressed={selected===i} aria-label={`查看${item.name}`} onClick={()=>onSelect(i)}><item.icon size={14}/><span>{item.short}</span><b>{totals[i]}</b></button>)}
+        {status!=="ready"&&<div className="care-fallback-core" aria-hidden="true"><BrandMark size={58}/><span>{projectName}</span></div>}
+        {sections.map((item,i)=><button type="button" ref={el=>{labels.current[i]=el;}} key={item.name} className={`care-node care-node-${i} ${selected===i?"is-selected":""}`} aria-pressed={selected===i} aria-label={`查看${item.name}`} onClick={()=>onSelect(i)}><item.icon size={14}/><span>{item.short}</span><b>{totals[i] ?? '—'}</b></button>)}
       </div>
       <div className="care-exhibit-bottom"><span><Move size={13}/>{status==="ready"?"拖动旋转 · 点击节点探索":"点击节点查看维护任务"}</span><div><button type="button" className="icon-button" disabled={status!=="ready"} title={paused?"继续场景动效":"暂停场景动效"} aria-label={paused?"继续场景动效":"暂停场景动效"} onClick={()=>setPaused(v=>!v)}>{paused?<Play size={15}/>:<Pause size={15}/>}</button><button type="button" className="icon-button" disabled={status!=="ready"} title="复位视角" aria-label="复位视角" onClick={()=>scene.current?.reset()}><RotateCcw size={15}/></button></div></div>
       <div className="care-legend" aria-label="选择维护模块">{sections.map((item,i)=><button type="button" key={item.name} aria-pressed={selected===i} onClick={()=>onSelect(i)}><span className={`care-dot care-dot-${i}`}/>{item.name}</button>)}</div>
