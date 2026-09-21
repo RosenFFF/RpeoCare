@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Background, Controls, Handle, MarkerType, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
-import { Check, ChevronDown, CircleDashed, CircleHelp, Clock3, Download, FileText, GitBranch, History, Info, LoaderCircle, Play, RefreshCw, ShieldCheck, Square, X } from 'lucide-react';
+import { ArrowUp, Bot, Check, ChevronDown, CircleDashed, CircleHelp, Clock3, Download, FileText, GitBranch, History, Info, ListTree, LoaderCircle, MessageSquare, Plus, RefreshCw, ShieldCheck, Square, X } from 'lucide-react';
 import { isTerminal, nodeDefinitions, type AuditCapabilities, type AuditNode, type AuditReport, type AuditRun, type Evidence, type NodeId, type NodeStatus, type RunStatus } from '@/lib/audit/types';
 import '@xyflow/react/dist/style.css';
 import './maintenance-views.css';
 import './audit-workflow.css';
+import './audit-studio.css';
 import type { ModelSelection } from '@/lib/models/types';
 
 const lastRunKey = 'repocare.audit.last-run';
@@ -180,6 +181,8 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [panel, setPanel] = useState<'conversation' | 'report' | 'workflow'>('conversation');
+  const [historyOpen, setHistoryOpen] = useState(false);
   const selectedRunId = useRef<string | null>(null);
   const busy = useRef(false);
   const loadVersion = useRef(0);
@@ -204,7 +207,7 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
 
   const loadRun = useCallback(async (id: string) => {
     const version = ++loadVersion.current;
-    selectedRunId.current = id; setLoading(true); setError(''); setRun(null); setConnected(false);
+    selectedRunId.current = id; setLoading(true); setError(''); setRun(null); setConnected(false); setPanel('conversation'); setHistoryOpen(false);
     try {
       const snapshot = await request<AuditRun>(`/api/audit/runs/${encodeURIComponent(id)}`);
       if (version !== loadVersion.current) return;
@@ -272,6 +275,7 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
     try {
       const snapshot = await request<AuditRun>(retryId ? `/api/audit/runs/${encodeURIComponent(retryId)}/retry` : '/api/audit/runs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: retryId ? undefined : JSON.stringify({ repoUrl: repoUrl.trim() }) });
       ++loadVersion.current; rememberRun(snapshot.id); setRun(snapshot); updateSnapshot(snapshot); setSelected('repository'); setConnected(false); setLoading(false);
+      setPanel('conversation');
       onNotify('体检任务已创建，将按真实执行进度更新。');
     } catch (cause) { setError(cause instanceof Error ? cause.message : '无法创建体检任务，请重试。'); }
     finally { busy.current = false; setSubmitting(false); }
@@ -292,15 +296,51 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
   const finished = run?.nodes.filter(item => ['succeeded', 'skipped', 'cancelled', 'failed'].includes(item.status)).length || 0;
   const report = run && isTerminal(run.status) ? run.report : undefined;
 
-  return <div className="mv-page aw-page">
-    <div className="page-heading mv-heading"><div><span className="eyebrow">项目体检</span><h1>看清项目，维护有据。</h1><p>检查真实仓库的文档、协作规范与工程配置，每一步都有迹可循。</p></div><span className="aw-readonly"><ShieldCheck size={15} aria-hidden="true" />只读检查</span></div>
-    <section className="aw-repo-entry" aria-labelledby="aw-repo-title"><div className="aw-entry-intro"><h2 id="aw-repo-title">从一个 GitHub 仓库开始</h2><p>支持公开仓库，检查默认分支的当前提交。</p></div><form className="aw-repo-form" onSubmit={event => void submit(event)}><div><label htmlFor="aw-repo-url">仓库地址</label><div className="aw-repo-input"><GitBranch size={17} aria-hidden="true" /><input id="aw-repo-url" type="url" value={repoUrl} onChange={event => setRepoUrl(event.target.value)} placeholder="https://github.com/owner/repository" required disabled={active || submitting} spellCheck={false} autoComplete="url" aria-describedby="aw-repo-help" /></div></div><button type="submit" className="button button-primary" disabled={active || submitting || loading}>{submitting && !active ? <LoaderCircle size={15} className="aw-spin" aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}{active ? '体检进行中' : submitting ? '正在创建…' : '开始体检'}</button></form><div id="aw-repo-help" className="aw-capabilities"><span><span className={`aw-state-dot ${capabilities?.workerOnline && !capabilityError ? 'aw-state-online' : ''}`} />{capabilityError ? '执行服务状态暂时不可用' : capabilities ? capabilities.workerOnline ? '执行服务已连接' : '执行服务离线，任务将在启动后执行' : '正在连接执行服务…'}</span><span>{capabilities ? capabilities.agentConfigured ? '已启用 Agent 内容分析' : capabilities.model ? '默认模型配置待补全' : '仅规则检查 · Agent 未配置' : '正在读取检查能力'}</span>{capabilities && !capabilities.githubAuthenticated && <span>公开接口额度有限</span>}</div></section>
-    <div className="aw-model-selection"><div>{capabilities?.model ? <><span>新任务使用</span><ModelStamp model={capabilities.model} /></> : <span>添加模型连接，启用文档内容分析。</span>}{capabilities?.modelError && <p role="status">{capabilities.modelError}</p>}</div><a href="/settings">模型设置</a></div>
-    {error && <div className="aw-notice aw-notice-error" role="alert"><Info size={16} aria-hidden="true" /><p>{error}</p>{!run && selectedRunId.current && <button type="button" onClick={() => void loadRun(selectedRunId.current!)}>重新读取</button>}</div>}
-    <div className="aw-history"><label htmlFor="aw-history-select"><History size={15} aria-hidden="true" />最近体检</label><select id="aw-history-select" value={run?.id || ''} disabled={submitting || loading || history.length === 0} onChange={event => { if (event.target.value) void loadRun(event.target.value); }}><option value="">{loading ? '正在恢复任务…' : history.length ? '选择一份执行记录' : '尚无体检记录'}</option>{history.map(item => <option key={item.id} value={item.id}>{item.repository?.fullName || item.repoUrl.replace('https://github.com/', '')} · {dateLabel(item.createdAt)} · {runLabels[item.status]}</option>)}</select>{run && <span className="aw-run-id">任务 {run.id.slice(0, 8)}</span>}</div>
-    {loading && <div className="aw-loading" role="status"><LoaderCircle size={19} className="aw-spin" aria-hidden="true" />正在读取体检记录…</div>}
-    {!loading && !run && <section className="aw-empty" aria-labelledby="aw-empty-title"><div className="aw-empty-symbol"><GitBranch size={29} strokeWidth={1.4} aria-hidden="true" /></div><h2 id="aw-empty-title">让每一项结论，都能回到项目本身。</h2><p>输入仓库地址后，系统会读取文件、核对规则，并将结果整理为可追溯的报告。</p><ol>{nodeDefinitions.map((item, index) => <li key={item.id}><span>{index + 1}</span>{item.label}</li>)}</ol><span className="aw-empty-caption">执行完成前不展示预设结果。未配置 Agent 时，仍可完成基础规则检查。</span></section>}
-    {run && <section className="aw-execution" aria-labelledby="aw-execution-title"><div className="aw-execution-heading"><div><h2 id="aw-execution-title">{runLabels[run.status]}</h2><p role="status" aria-live="polite">{run.cancelRequested && active ? '正在结束当前操作，取消完成后将保留执行记录。' : currentNode ? `${currentNode.label}：${currentNode.message}` : run.status === 'queued' ? '任务已保存，正在等待执行服务领取。' : run.status === 'completed' ? '执行记录已保存，报告已生成。' : run.error || '你可以重新发起一次体检。'}</p></div><div className="aw-execution-actions">{active ? <button className="button button-secondary" onClick={() => void cancel()} disabled={submitting || run.cancelRequested}><Square size={13} aria-hidden="true" />{run.cancelRequested ? '取消中…' : '取消体检'}</button> : <button className="button button-secondary" onClick={() => void submit(undefined, run.id)} disabled={submitting}><RefreshCw size={14} aria-hidden="true" />重新体检</button>}</div></div><div className="aw-execution-meta"><span>{finished} / {run.nodes.length} 节点已结束</span><ModelStamp model={run.model} />{run.repository && <span><GitBranch size={12} aria-hidden="true" />{run.repository.fullName} / {run.repository.branch}<code>{run.repository.sha.slice(0, 7)}</code></span>}{active && <span className={connected ? '' : 'aw-reconnecting'}>{connected ? '实时进度已连接' : '正在重新连接 · 定期同步状态'}</span>}</div><Workflow run={run} selected={selected} onSelect={setSelected} />{selectedNode && <div className="aw-node-detail"><div><span className={`aw-node-detail-status aw-text-${selectedNode.status}`}><StatusIcon status={selectedNode.status} />{statusLabels[selectedNode.status]}</span><h3>{selectedNode.label}</h3><p>{selectedNode.message || '此节点将在前置步骤完成后执行。'}</p>{selectedNode.startedAt && <span className="aw-node-time">开始于 {dateLabel(selectedNode.startedAt)}{selectedNode.finishedAt ? `，用时 ${Math.max(0, (Date.parse(selectedNode.finishedAt) - Date.parse(selectedNode.startedAt)) / 1000).toFixed(1)} 秒` : ''}</span>}</div><div>{selected === 'agent' && <AgentActivity run={run} />}<span className="aw-detail-label">执行依据</span><EvidenceList evidence={selectedNode.evidence || []} /></div></div>}{run.error && <div className="aw-run-error" role="alert"><Info size={15} aria-hidden="true" />{run.error}</div>}</section>}
-    {report && <Report key={report.runId} report={report} onNotify={onNotify} />}
+  function newTask() {
+    if (active || submitting) return;
+    ++loadVersion.current; selectedRunId.current = null;
+    setRun(null); setRepoUrl(''); setError(''); setLoading(false); setPanel('conversation'); setHistoryOpen(false);
+    try { localStorage.removeItem(lastRunKey); } catch { /* Optional preference. */ }
+    const url = new URL(window.location.href); url.searchParams.delete('run'); window.history.replaceState(window.history.state, '', url);
+    window.setTimeout(() => document.getElementById('as-repo-url')?.focus(), 0);
+  }
+  const stages = run?.nodes || nodeDefinitions.map(item => ({ ...item, status: 'pending' as const, message: '等待发起任务' }));
+  const summary = report ? `${report.checks.length} 项检查已完成，${report.checks.filter(item => item.status === 'needs_attention').length} 项待完善，${report.checks.filter(item => item.status === 'unknown').length} 项需要进一步确认。` : '';
+
+  return <div className="mv-page aw-page as-studio">
+    <header className="as-header">
+      <div className="as-title"><span className="as-agent-icon"><Bot size={22} /></span><div><h1>项目体检 Agent</h1><p>从仓库出发，让每一步分析都有依据。</p></div></div>
+      <div className="as-header-actions"><button type="button" className="button button-secondary" aria-expanded={historyOpen} aria-controls="as-history" onClick={() => setHistoryOpen(value => !value)}><History size={15} />历史任务</button><button type="button" className="button button-secondary" disabled={active || submitting} onClick={newTask}><Plus size={15} />新任务</button></div>
+    </header>
+    {historyOpen && <section className="as-history-panel" id="as-history" aria-label="历史体检任务"><div><h2>最近任务</h2><button type="button" className="icon-button" aria-label="关闭历史任务" onClick={() => setHistoryOpen(false)}><X size={16} /></button></div>{history.length ? history.map(item => <button type="button" key={item.id} disabled={loading || submitting} aria-current={run?.id === item.id ? 'true' : undefined} onClick={() => void loadRun(item.id)}><GitBranch size={15} /><span><strong>{item.repository?.fullName || item.repoUrl.replace('https://github.com/', '')}</strong><small>{dateLabel(item.createdAt)} · {runLabels[item.status]}</small></span></button>) : <p>完成第一次体检后，可以在这里找回执行记录。</p>}</section>}
+    <div className="as-workspace">
+      <section className="as-main" aria-label="体检任务工作区">
+        <div className="as-toolbar"><nav aria-label="任务视图">{([{ id: 'conversation', label: '任务对话', icon: MessageSquare }, { id: 'report', label: '体检报告', icon: FileText }, { id: 'workflow', label: '流程图', icon: ListTree }] as const).map(({ id, label, icon: Icon }) => <button type="button" key={id} aria-pressed={panel === id} onClick={() => setPanel(id)}><Icon size={15} />{label}{id === 'report' && report && <span>{report.checks.length}</span>}</button>)}</nav><span className="as-readonly"><ShieldCheck size={13} />只读</span></div>
+        <div className="as-content" key={`${run?.id || 'new'}-${panel}`}>
+          {loading ? <div className="aw-loading" role="status"><LoaderCircle size={19} className="aw-spin" />正在恢复任务…</div> : panel === 'report' ? report ? <Report key={report.runId} report={report} onNotify={onNotify} /> : <div className="as-placeholder"><FileText size={26} /><h2>报告会在这里汇总</h2><p>{active ? '体检正在进行。完成后可查看每项结论、原始证据并导出报告。' : '发起一次体检，获得有文件依据的维护建议。'}</p><button type="button" onClick={() => setPanel('conversation')}>返回任务对话</button></div> : panel === 'workflow' ? run ? <><div className="as-flow-heading"><h2>执行流程</h2><p>选择节点，在执行轨迹中查看详情。</p></div><Workflow run={run} selected={selected} onSelect={setSelected} /></> : <div className="as-placeholder"><ListTree size={26} /><h2>从读取仓库到生成报告</h2><p>任务开始后，五个阶段会显示实际执行状态。</p></div> : !run ? <div className="as-welcome"><span className="as-welcome-icon"><Bot size={30} strokeWidth={1.5} /></span><h2>一起看看，这个项目还缺什么。</h2><p>发送一个公开 GitHub 仓库地址。<br />我会检查维护文档与工程配置，并整理可核对的改进建议。</p><div className="as-scope"><span><FileText size={16} />文档与贡献指南</span><span><GitBranch size={16} />协作模板</span><span><ShieldCheck size={16} />工程规范</span></div><button type="button" className="as-example" onClick={() => { setRepoUrl('https://github.com/octocat/Hello-World'); document.getElementById('as-repo-url')?.focus(); }}>试填示例仓库 <span>octocat/Hello-World</span></button></div> : <div className="as-conversation">
+            <article className="as-message as-user-message"><div className="as-message-meta">你 <time>{dateLabel(run.createdAt)}</time></div><div className="as-user-bubble"><p>请检查这个项目的文档、协作规范和工程配置。</p><a href={run.repoUrl} target="_blank" rel="noopener noreferrer"><GitBranch size={15} />{run.repoUrl.replace('https://github.com/', '')}</a></div></article>
+            <article className="as-message as-agent-message"><span className="as-avatar"><Bot size={19} /></span><div className="as-message-body"><div className="as-message-meta">RepoCare <span>执行记录</span></div><p>{run.status === 'queued' ? '任务已收到，等待执行服务领取。' : '本次检查会固定到同一提交版本，所有文件引用都对应这个版本。'}</p>{run.repository && <div className="as-commit"><GitBranch size={13} /><span>{run.repository.branch}</span><code>{run.repository.sha.slice(0, 7)}</code></div>}
+              <div className="as-stage-messages">{run.nodes.filter(item => item.status !== 'pending').map(item => <button type="button" className={`as-stage-message aw-text-${item.status}`} key={item.id} onClick={() => setSelected(item.id)} aria-pressed={selected === item.id}><StatusIcon status={item.status} /><span><strong>{item.label}</strong><small>{item.message}</small></span><span className="as-stage-label">{statusLabels[item.status]}</span></button>)}</div>
+              {run.agentEvents && run.agentEvents.length > 0 && <details className="as-tools"><summary>查看 {run.agentEvents.filter(event => event.kind === 'tool_start').length} 次工具调用与模型轮次</summary><AgentActivity run={run} /></details>}
+              {active && <p className="as-live-status" role="status"><LoaderCircle size={14} className="aw-spin" />{currentNode?.message || '正在等待执行…'}</p>}
+              {report && <div className="as-result"><div><FileText size={19} /><strong>{report.agentStatus === 'failed' ? '规则报告已生成，AI 分析未完成' : report.agentStatus === 'disabled' ? '基础规则报告已生成' : '体检报告已生成'}</strong></div><p>{summary}</p>{report.agentStatus !== 'completed' && <p className="as-result-note">{report.agentStatus === 'disabled' ? '本次未启用模型，未包含 AI 内容分析。' : run.nodes.find(item => item.id === 'agent')?.message}</p>}<button type="button" className="button button-secondary" onClick={() => setPanel('report')}>打开完整报告 <FileText size={14} /></button></div>}
+              {run.error && <p className="as-error" role="alert">{run.error}</p>}{run.status === 'cancelled' && <p>任务已取消，已有执行记录保留。可以重新发起体检。</p>}
+              {!active && <button type="button" className="as-retry" disabled={submitting} onClick={() => void submit(undefined, run.id)}><RefreshCw size={13} />重新体检最新提交</button>}
+            </div></article>
+          </div>}
+        </div>
+        <div className="as-composer-area">
+          {error && <div className="aw-notice aw-notice-error" role="alert"><Info size={15} /><p>{error}</p>{!run && selectedRunId.current && <button type="button" onClick={() => void loadRun(selectedRunId.current!)}>重新读取</button>}</div>}
+          <form className="as-composer" onSubmit={event => void submit(event)}><label htmlFor="as-repo-url">{active ? '任务执行中' : '发送仓库，开始体检'}</label><div className="as-input-row"><input id="as-repo-url" type="url" value={repoUrl} onChange={event => setRepoUrl(event.target.value)} placeholder="https://github.com/owner/repository" required disabled={active || submitting || loading} autoComplete="off" spellCheck={false} aria-describedby="as-input-help" />{active ? <button type="button" className="as-send" aria-label="停止体检" title="停止体检" disabled={submitting || run?.cancelRequested} onClick={() => void cancel()}><Square size={16} /></button> : <button type="submit" className="as-send" aria-label="发送仓库并开始体检" title="开始体检" disabled={submitting || loading || !repoUrl.trim()}>{submitting ? <LoaderCircle size={18} className="aw-spin" /> : <ArrowUp size={20} />}</button>}</div><div className="as-composer-meta"><span><Bot size={13} />{capabilities?.model?.modelId || '基础规则模式'}</span><a href="/settings">配置模型</a></div></form>
+          <p id="as-input-help" className="as-input-help">当前支持仓库体检任务 · 仅接受公开 GitHub 仓库地址</p>
+        </div>
+      </section>
+      <aside className="as-inspector" aria-label="执行轨迹与证据"><header><h2><ListTree size={16} />执行轨迹</h2><span>{finished} / 5</span></header><div className="as-service" role="status"><span className={`aw-state-dot ${capabilities?.workerOnline && !capabilityError ? 'aw-state-online' : ''}`} />{capabilityError ? '服务状态暂不可用' : capabilities?.workerOnline ? '执行服务在线' : '等待执行服务连接'}{active && <small>{connected ? '进度实时更新' : '正在重连进度'}</small>}</div>
+        <ol className="as-timeline">{stages.map((item, index) => <li key={item.id}><button type="button" disabled={!run} aria-pressed={!!run && selected === item.id} onClick={() => setSelected(item.id)}><span className={`as-step-icon aw-text-${item.status}`}><StatusIcon status={item.status} /></span><span><strong>{item.label}</strong><small>{!run ? `步骤 ${index + 1}` : statusLabels[item.status]}</small></span></button></li>)}</ol>
+        <section className="as-context"><h3>本次上下文</h3><dl><dt>仓库</dt><dd>{run?.repository?.fullName || run?.repoUrl.replace('https://github.com/', '') || '等待选择'}</dd><dt>模型</dt><dd>{run ? run.model?.modelId || '未启用，规则检查' : capabilities?.model?.modelId || '未配置'}</dd>{run?.repository && <><dt>提交</dt><dd><code>{run.repository.sha.slice(0, 7)}</code></dd></>}</dl>{capabilities?.modelError && <p className="as-warning">{capabilities.modelError}</p>}<a href="/settings">管理模型连接</a></section>
+        {selectedNode && <section className="as-evidence"><h3>{selectedNode.label}<span className={`aw-text-${selectedNode.status}`}>{statusLabels[selectedNode.status]}</span></h3><p>{selectedNode.message}</p>{selectedNode.startedAt && <time>{dateLabel(selectedNode.startedAt)}{selectedNode.finishedAt && ` · ${Math.max(0, (Date.parse(selectedNode.finishedAt) - Date.parse(selectedNode.startedAt)) / 1000).toFixed(1)} 秒`}</time>}{selected === 'agent' && <AgentActivity run={run!} />}<h4>文件依据</h4><EvidenceList evidence={selectedNode.evidence || []} /></section>}
+        {!run && <div className="as-boundary"><ShieldCheck size={18} /><p>读取公开文件，保留引用依据。<br />不会修改仓库或运行项目脚本。</p></div>}
+      </aside>
+    </div>
   </div>;
 }
