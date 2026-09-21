@@ -7,9 +7,9 @@
 .overview-run-status a{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;color:var(--accent)}
 .overview-data-note{font-size:11px;color:var(--muted);line-height:1.9;margin:12px 0 20px}
 .overview-data-note button{font:inherit;color:var(--accent);margin-left:12px;cursor:pointer;text-decoration:underline}
-.view-overview .task-icon.pass,.view-overview .status-tag.pass{background:var(--accent-tint);color:var(--accent)}
+.view-overview .task-icon.pass,.view-overview .status-tag.pass{background:var(--success-bg);color:var(--success)}
 .view-overview .task-icon.unknown,.view-overview .status-tag.unknown{background:var(--surface-subtle);color:var(--muted)}
-.view-overview .task-icon.attention,.view-overview .status-tag.attention{background:var(--surface-subtle);color:var(--ink)}
+.view-overview .task-icon.attention,.view-overview .status-tag.attention{background:var(--warning-bg);color:var(--warning)}
 .care-intro>p,.care-trust,.repo-heading h3,.repo-heading>div>span,.overview-heading p{overflow-wrap:anywhere}
 .care-exhibit-heading>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .care-mode{flex-shrink:0}
