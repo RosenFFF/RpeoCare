@@ -35,6 +35,7 @@ test('report draft and explicit publish form a persistent isolated flow', async 
     const response = await drafts(request('/api/workbench/drafts', { action: 'file', runId: run.id, checkId: 'contributing' }));
     assert.equal(response.status, 200); const { draft } = await response.json();
     assert.equal(draft.status, 'draft'); assert.equal(draft.path, 'CONTRIBUTING.md');
+    assert.deepEqual(draft.source, { type: 'audit-check', runId: run.id, checkId: 'contributing', checkTitle: '贡献指南', evidence: [] });
     assert.equal((await drafts(request('/api/workbench/drafts', { action: 'publish', id: draft.id, revision: 1, confirmed: false }))).status, 400);
     const calls: { url: string; body: any }[] = [];
     t.mock.method(globalThis, 'fetch', async (input: URL | Request | string, init?: RequestInit) => {
