@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, Monitor, PlugZap, Puzzle, RotateCcw, Save, Settings2, ShieldCheck, UserCheck } from 'lucide-react';
+import { Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, PlugZap, Puzzle, RotateCcw, Save, Settings2, ShieldCheck, UserCheck } from 'lucide-react';
 import './settings-view.css';
 import { GithubConnection } from '@/features/workbench/project-overview';
 import { ModelSettings } from './model-settings';
@@ -91,6 +91,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const [error, setError] = useState('');
   const [savedAt, setSavedAt] = useState('');
   const [activeSection, setActiveSection] = useState<SettingsSection>('workspace');
+  const [visited, setVisited] = useState<SettingsSection[]>(['workspace']);
 
   useEffect(() => {
     try {
@@ -113,8 +114,9 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
 
   function persist(next: WorkspaceSettings, message: string) {
     if (!next.projectName.trim()) {
+      setActiveSection('workspace');
       setError('请填写项目显示名，方便识别当前工作区。');
-      document.getElementById('sv-project-name')?.focus();
+      requestAnimationFrame(() => document.getElementById('sv-project-name')?.focus());
       return;
     }
     const normalized = readSettings(next);
@@ -137,7 +139,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
 
   function selectSection(section: SettingsSection) {
     setActiveSection(section);
-    setError('');
+    setVisited(current => current.includes(section) ? current : [...current, section]);
   }
 
   function renderLocalSection() {
@@ -182,7 +184,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
       {renderLocalSection()}
       <div className="sv-storage-note"><Info size={16} aria-hidden="true" /><p>以上偏好仅保存在当前浏览器；模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p></div>
       {error && <p className="sv-error" role="alert">{error}</p>}
-      <footer className="sv-actions"><div className="sv-save-state" aria-live="polite">{dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}{savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}</div><div className="sv-action-buttons"><button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button><button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置 <ArrowUpRight size={15} aria-hidden="true" /></button></div></footer>
+      <footer className="sv-actions"><div className="sv-save-state" aria-live="polite">{dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}{savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}</div><div className="sv-action-buttons"><button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button><button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置</button></div></footer>
     </form>;
   }
 
@@ -190,24 +192,24 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
     <div className="sv-page">
       <header className="page-heading sv-heading">
         <div>
-          <p className="eyebrow">WORKSPACE / SETTINGS</p>
           <h1>工作区设置</h1>
-          <p className="sv-intro">按你的维护习惯，配置一个恰到好处的工作区。</p>
+          <p className="sv-intro">管理工作区偏好、GitHub 授权和模型连接。</p>
         </div>
-        <span className="chip sv-local-chip"><Monitor size={13} aria-hidden="true" /> 本地演示</span>
       </header>
 
       <div className="sv-settings-shell">
         <nav className="sv-module-nav" aria-label="设置模块">
           <p className="sv-nav-label">设置模块</p>
-          <div className="sv-nav-list" role="tablist" aria-orientation="vertical">
-            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} role="tab" aria-selected={activeSection === id} aria-controls={`sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
+          <div className="sv-nav-list">
+            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} id={`sv-nav-${id}`} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} aria-pressed={activeSection === id} aria-controls={id === 'workspace' || id === 'plugins' || id === 'review' ? 'sv-panel-local' : `sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
           </div>
-          <p className="sv-nav-hint">分模块管理设置，切换后不会丢失当前未保存的修改。</p>
+          <p className="sv-nav-hint">切换模块保留填写内容，保存后生效。</p>
         </nav>
-        <main className="sv-module-main" id={`sv-panel-${activeSection}`} role="tabpanel" aria-label={SETTINGS_SECTIONS.find(section => section.id === activeSection)?.label}>
-          {localSection ? renderLocalForm() : activeSection === 'github' ? <GithubConnection /> : <ModelSettings />}
-        </main>
+        <div className="sv-module-content">
+          <div className="sv-module-main" id="sv-panel-local" hidden={!localSection} inert={!localSection} role="region" aria-label="本地偏好">{renderLocalForm()}</div>
+          <div className="sv-module-main" id="sv-panel-github" hidden={activeSection !== 'github'} inert={activeSection !== 'github'} role="region" aria-labelledby="sv-nav-github">{visited.includes('github') && <GithubConnection />}</div>
+          <div className="sv-module-main" id="sv-panel-models" hidden={activeSection !== 'models'} inert={activeSection !== 'models'} role="region" aria-labelledby="sv-nav-models">{visited.includes('models') && <ModelSettings />}</div>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,16 @@
+.main-content.view-settings {
+  max-width: none;
+  padding: 28px clamp(20px, 2.4vw, 48px) 0;
+}
+
 .sv-page {
   --sv-ink: var(--ink);
   --sv-muted: var(--muted);
   --sv-green: var(--accent);
   --sv-border: var(--line);
-  width: min(100%, 890px);
-  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   color: var(--sv-ink);
 }
 
@@ -13,10 +19,10 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 39px;
+  margin-bottom: 24px;
 }
 
-.sv-heading h1 { margin: 8px 0 10px; }
+.sv-heading h1 { margin: 0 0 6px; font-size: 26px; }
 .sv-intro { margin: 0; color: var(--sv-muted); font-size: 14px; line-height: 1.8; }
 .sv-local-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 33px; white-space: nowrap; }
 .sv-section { padding: 27px 0 30px; border-top: 1px solid var(--sv-border); }
@@ -90,15 +96,16 @@
    while the selected module gets the full width of the content pane. */
 .sv-settings-shell {
   display: grid;
-  grid-template-columns: 216px minmax(0, 1fr);
-  gap: 34px;
+  grid-template-columns: 196px minmax(0, 1fr);
+  gap: 28px;
   align-items: start;
 }
 .sv-module-nav {
   position: sticky;
   top: 24px;
   min-width: 0;
-  padding: 5px 0 16px;
+  padding: 8px 18px 16px 0;
+  border-right: 1px solid var(--line);
 }
 .sv-nav-label {
   margin: 0 0 12px;
@@ -129,31 +136,54 @@
 .sv-nav-item-active { border-color: var(--accent-border); background: var(--accent-tint); color: var(--sv-ink); }
 .sv-nav-item-active > svg { color: var(--accent); }
 .sv-nav-copy { display: grid; min-width: 0; gap: 3px; }
-.sv-nav-copy strong { overflow: hidden; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.sv-nav-copy small { overflow: hidden; color: var(--subtle); font-size: 10px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.sv-nav-copy strong { font-size: 13px; font-weight: 600; }
+.sv-nav-copy small { color: var(--subtle); font-size: 11px; line-height: 1.5; }
 .sv-nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; margin-left: auto; border-radius: 10px; background: var(--surface); color: var(--subtle); font-size: 10px; }
 .sv-nav-item-active .sv-nav-badge { background: var(--surface); color: var(--accent); }
 .sv-nav-hint { margin: 20px 11px 0; color: var(--subtle); font-size: 10px; line-height: 1.7; }
-.sv-module-main { min-width: 0; }
+.sv-module-main { min-width: 0; padding: 26px 28px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.sv-module-main[hidden] { display: none; }
+.sv-module-content { min-width: 0; }
+.sv-module-main .sv-fields, .sv-module-main .sv-plugin-list { padding-left: 0; }
+.sv-module-main .sv-original-row, .sv-module-main .sv-plugin-note, .sv-module-main .sv-review-row { margin-left: 0; }
+.sv-module-main .sv-section-heading { margin-bottom: 22px; }
+.sv-module-main .sv-section-number { display: none; }
+.sv-module-main .sv-field input, .sv-module-main .sv-field select { background: var(--bg); }
+.sv-module-main .sv-fields { gap: 22px; }
+.sv-module-main .sv-storage-note { border: 0; border-radius: 0; background: transparent; padding: 14px 0 0; border-top: 1px solid var(--line); }
+.sv-module-main .sv-actions { flex-wrap: wrap; padding: 0; gap: 12px; }
+.sv-module-main .sv-action-buttons { margin-left: auto; }
+.sv-module-main .sv-save-state { flex-wrap: wrap; }
+.sv-module-main .wb-github { padding: 0; margin: 0; border: 0; background: transparent; }
+.sv-module-main .ms-section { padding-bottom: 0; }
 .sv-module-main > .sv-section:first-child,
 .sv-module-main > .wb-card:first-child { margin-top: 0; }
 .sv-module-main .sv-panel-section { padding-top: 0; border-top: 0; }
 .sv-module-main .ms-section { padding-top: 0; border-top: 0; }
 .sv-module-main > .wb-card { margin-bottom: 0; }
 .sv-module-main > form { margin: 0; }
-.sv-module-main .sv-storage-note { margin-top: 30px; }
-.sv-module-main .sv-actions { margin-top: 21px; }
+.sv-module-main .sv-storage-note { margin-top: 8px; }
+.sv-module-main .sv-actions { margin-top: 18px; }
+
+@media (max-width: 1100px) {
+  .sv-settings-shell { grid-template-columns: 174px minmax(0, 1fr); gap: 20px; }
+  .sv-module-main { padding: 22px; }
+  .sv-module-main .sv-fields { grid-template-columns: 1fr; }
+  .sv-module-main .sv-plugin-status { display: none; }
+}
 
 @media (max-width: 720px) {
   .sv-settings-shell { grid-template-columns: 1fr; gap: 22px; }
-  .sv-module-nav { position: static; padding: 0; }
+  .main-content.view-settings { padding: 22px 18px 0; }
+  .sv-module-nav { position: static; padding: 0; border-right: 0; }
+  .sv-module-main { padding: 20px 18px; }
   .sv-nav-label { margin-bottom: 9px; }
   .sv-nav-list { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: thin; }
   .sv-nav-item { flex: 0 0 auto; width: auto; min-width: 132px; padding: 9px 10px; }
   .sv-nav-copy small { display: none; }
   .sv-nav-badge { margin-left: 4px; }
   .sv-nav-hint { display: none; }
-  .sv-heading { margin-bottom: 28px; gap: 12px; }
+  .sv-heading { margin-bottom: 22px; gap: 12px; }
   .sv-local-chip { font-size: 11px; margin-top: 31px; }
   .sv-section { padding: 24px 0; }
   .sv-fields { grid-template-columns: 1fr; gap: 20px; }
