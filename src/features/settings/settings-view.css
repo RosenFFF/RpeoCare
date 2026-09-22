@@ -86,7 +86,73 @@
 .sv-reset-button:hover { background: var(--surface-subtle); border-color: var(--accent); }
 .sv-save-button > svg:last-child { margin-left: 6px; }
 
+/* The settings page is organised as a small workbench: navigation stays visible
+   while the selected module gets the full width of the content pane. */
+.sv-settings-shell {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+.sv-module-nav {
+  position: sticky;
+  top: 24px;
+  min-width: 0;
+  padding: 5px 0 16px;
+}
+.sv-nav-label {
+  margin: 0 0 12px;
+  color: var(--subtle);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.sv-nav-list { display: grid; gap: 4px; }
+.sv-nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sv-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s, border-color .16s, color .16s;
+}
+.sv-nav-item > svg { flex: 0 0 auto; color: var(--subtle); }
+.sv-nav-item:hover { background: var(--surface-subtle); color: var(--sv-ink); }
+.sv-nav-item:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sv-nav-item-active { border-color: var(--accent-border); background: var(--accent-tint); color: var(--sv-ink); }
+.sv-nav-item-active > svg { color: var(--accent); }
+.sv-nav-copy { display: grid; min-width: 0; gap: 3px; }
+.sv-nav-copy strong { overflow: hidden; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.sv-nav-copy small { overflow: hidden; color: var(--subtle); font-size: 10px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.sv-nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; margin-left: auto; border-radius: 10px; background: var(--surface); color: var(--subtle); font-size: 10px; }
+.sv-nav-item-active .sv-nav-badge { background: var(--surface); color: var(--accent); }
+.sv-nav-hint { margin: 20px 11px 0; color: var(--subtle); font-size: 10px; line-height: 1.7; }
+.sv-module-main { min-width: 0; }
+.sv-module-main > .sv-section:first-child,
+.sv-module-main > .wb-card:first-child { margin-top: 0; }
+.sv-module-main .sv-panel-section { padding-top: 0; border-top: 0; }
+.sv-module-main .ms-section { padding-top: 0; border-top: 0; }
+.sv-module-main > .wb-card { margin-bottom: 0; }
+.sv-module-main > form { margin: 0; }
+.sv-module-main .sv-storage-note { margin-top: 30px; }
+.sv-module-main .sv-actions { margin-top: 21px; }
+
 @media (max-width: 720px) {
+  .sv-settings-shell { grid-template-columns: 1fr; gap: 22px; }
+  .sv-module-nav { position: static; padding: 0; }
+  .sv-nav-label { margin-bottom: 9px; }
+  .sv-nav-list { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: thin; }
+  .sv-nav-item { flex: 0 0 auto; width: auto; min-width: 132px; padding: 9px 10px; }
+  .sv-nav-copy small { display: none; }
+  .sv-nav-badge { margin-left: 4px; }
+  .sv-nav-hint { display: none; }
   .sv-heading { margin-bottom: 28px; gap: 12px; }
   .sv-local-chip { font-size: 11px; margin-top: 31px; }
   .sv-section { padding: 24px 0; }

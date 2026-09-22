@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, FileCheck2, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, Monitor, Puzzle, RotateCcw, Save, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, Monitor, PlugZap, Puzzle, RotateCcw, Save, Settings2, ShieldCheck, UserCheck } from 'lucide-react';
 import './settings-view.css';
 import { GithubConnection } from '@/features/workbench/project-overview';
 import { ModelSettings } from './model-settings';
@@ -33,6 +33,16 @@ const PLUGINS = [
   { id: 'project-audit' as const, name: '项目体检', description: '检查项目文档与协作配置，梳理维护待办。', icon: HeartPulse },
   { id: 'docs-generator' as const, name: '规范生成', description: '准备贡献指南、Issue 模板与可审核的文档建议。', icon: FileCheck2 },
   { id: 'pr-check' as const, name: 'PR 检查', description: '核对变更说明、测试信息与项目贡献规范。', icon: ShieldCheck },
+];
+
+type SettingsSection = 'workspace' | 'plugins' | 'review' | 'github' | 'models';
+
+const SETTINGS_SECTIONS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
+  { id: 'workspace', label: '本地工作区', description: '项目名称与语言偏好', icon: Settings2 },
+  { id: 'plugins', label: '官方插件', description: '管理辅助能力', icon: Puzzle },
+  { id: 'review', label: '维护者审核', description: '发布前的安全边界', icon: UserCheck },
+  { id: 'github', label: 'GitHub 账户', description: '仓库访问与发布权限', icon: GitFork },
+  { id: 'models', label: '模型连接', description: '体检与 Agent 模型', icon: PlugZap },
 ];
 
 function readSettings(value: unknown): WorkspaceSettings {
@@ -80,6 +90,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [savedAt, setSavedAt] = useState('');
+  const [activeSection, setActiveSection] = useState<SettingsSection>('workspace');
 
   useEffect(() => {
     try {
@@ -122,6 +133,59 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
     }
   }
 
+  const localSection = activeSection === 'workspace' || activeSection === 'plugins' || activeSection === 'review';
+
+  function selectSection(section: SettingsSection) {
+    setActiveSection(section);
+    setError('');
+  }
+
+  function renderLocalSection() {
+    if (activeSection === 'workspace') {
+      return <section className="sv-section sv-panel-section" aria-labelledby="sv-workspace-heading">
+        <div className="sv-section-heading">
+          <span className="sv-section-number" aria-hidden="true">01</span>
+          <div><h2 id="sv-workspace-heading">本地工作区</h2><p>设置项目的显示方式与内容偏好。</p></div>
+        </div>
+        <div className="sv-fields">
+          <div className="sv-field">
+            <label htmlFor="sv-project-name">项目显示名</label>
+            <input id="sv-project-name" type="text" value={settings.projectName} onChange={(event) => { setSettings((current) => ({ ...current, projectName: event.target.value })); setError(''); }} maxLength={64} disabled={!ready} autoComplete="off" aria-describedby="sv-project-name-help" />
+            <p id="sv-project-name-help">仅用于本地标识，不会重命名远程仓库。</p>
+          </div>
+          <div className="sv-field">
+            <label htmlFor="sv-language">内容语言偏好</label>
+            <div className="sv-select-wrap"><Globe2 size={17} aria-hidden="true" /><select id="sv-language" value={settings.language} onChange={(event) => setSettings((current) => ({ ...current, language: event.target.value as WorkspaceSettings['language'] }))} disabled={!ready} aria-describedby="sv-language-help"><option value="zh-CN">简体中文</option><option value="en">English</option></select></div>
+            <p id="sv-language-help">保存分析与草稿的语言偏好；演示界面仍使用中文。</p>
+          </div>
+        </div>
+        <div className="sv-setting-row sv-original-row"><div><h3>保留原始内容</h3><p id="sv-original-help">翻译时保留原文，便于核对技术术语、错误信息与代码片段。</p></div><Toggle checked={settings.keepOriginal} onChange={(value) => setSettings((current) => ({ ...current, keepOriginal: value }))} label="保留原始内容" describedBy="sv-original-help" disabled={!ready} /></div>
+      </section>;
+    }
+
+    if (activeSection === 'plugins') {
+      return <section className="sv-section sv-plugin-section sv-panel-section" aria-labelledby="sv-plugins-heading">
+        <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">02</span><div><h2 id="sv-plugins-heading">官方插件</h2><p>保留需要的辅助能力，让维护工作更专注。</p></div><span className="sv-plugin-count">{enabledCount} / 4 已启用</span></div>
+        <div className="sv-plugin-list">{PLUGINS.map(({ id, name, description, icon: Icon }) => <div className={`sv-plugin-row${settings.plugins[id] ? '' : ' sv-plugin-off'}`} key={id}><span className="sv-plugin-icon"><Icon size={20} strokeWidth={1.7} aria-hidden="true" /></span><div className="sv-plugin-text"><div className="sv-plugin-title"><h3>{name}</h3><span>官方</span></div><p id={`sv-${id}-help`}>{description}</p></div><span className="sv-plugin-status">{settings.plugins[id] ? '已启用' : '已停用'}</span><Toggle checked={settings.plugins[id]} onChange={(value) => setSettings((current) => ({ ...current, plugins: { ...current.plugins, [id]: value } }))} label={`${name}插件`} describedBy={`sv-${id}-help`} disabled={!ready} /></div>)}</div>
+        <p className="sv-plugin-note"><Puzzle size={14} aria-hidden="true" /> 此处保存演示插件配置，不会安装软件或连接 GitHub。</p>
+      </section>;
+    }
+
+    return <section className="sv-section sv-review-section sv-panel-section" aria-labelledby="sv-review-heading">
+      <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">03</span><div><h2 id="sv-review-heading">维护者审核</h2><p>建议由 Agent 准备，决定始终由你作出。</p></div></div>
+      <div className="sv-setting-row sv-review-row"><div className="sv-review-copy"><span className="sv-review-icon"><LockKeyhole size={18} aria-hidden="true" /></span><div><h3>发布前必须审核 <span className="sv-required">始终开启</span></h3><p id="sv-review-help">对外回复、标签变更与文档修改必须经过维护者确认，此设置不可关闭。</p></div></div><Toggle checked label="发布前必须由维护者审核，始终开启" describedBy="sv-review-help" disabled /></div>
+    </section>;
+  }
+
+  function renderLocalForm() {
+    return <form onSubmit={(event) => { event.preventDefault(); persist(settings, '工作区设置已保存在当前浏览器。'); }}>
+      {renderLocalSection()}
+      <div className="sv-storage-note"><Info size={16} aria-hidden="true" /><p>以上偏好仅保存在当前浏览器；模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p></div>
+      {error && <p className="sv-error" role="alert">{error}</p>}
+      <footer className="sv-actions"><div className="sv-save-state" aria-live="polite">{dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}{savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}</div><div className="sv-action-buttons"><button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button><button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置 <ArrowUpRight size={15} aria-hidden="true" /></button></div></footer>
+    </form>;
+  }
+
   return (
     <div className="sv-page">
       <header className="page-heading sv-heading">
@@ -133,119 +197,18 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
         <span className="chip sv-local-chip"><Monitor size={13} aria-hidden="true" /> 本地演示</span>
       </header>
 
-      <form onSubmit={(event) => { event.preventDefault(); persist(settings, '工作区设置已保存在当前浏览器。'); }}>
-        <section className="sv-section" aria-labelledby="sv-workspace-heading">
-          <div className="sv-section-heading">
-            <span className="sv-section-number" aria-hidden="true">01</span>
-            <div>
-              <h2 id="sv-workspace-heading">本地工作区</h2>
-              <p>设置项目的显示方式与内容偏好。</p>
-            </div>
+      <div className="sv-settings-shell">
+        <nav className="sv-module-nav" aria-label="设置模块">
+          <p className="sv-nav-label">设置模块</p>
+          <div className="sv-nav-list" role="tablist" aria-orientation="vertical">
+            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} role="tab" aria-selected={activeSection === id} aria-controls={`sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
           </div>
-          <div className="sv-fields">
-            <div className="sv-field">
-              <label htmlFor="sv-project-name">项目显示名</label>
-              <input
-                id="sv-project-name"
-                type="text"
-                value={settings.projectName}
-                onChange={(event) => { setSettings((current) => ({ ...current, projectName: event.target.value })); setError(''); }}
-                maxLength={64}
-                disabled={!ready}
-                autoComplete="off"
-                aria-describedby="sv-project-name-help"
-              />
-              <p id="sv-project-name-help">仅用于本地标识，不会重命名远程仓库。</p>
-            </div>
-            <div className="sv-field">
-              <label htmlFor="sv-language">内容语言偏好</label>
-              <div className="sv-select-wrap">
-                <Globe2 size={17} aria-hidden="true" />
-                <select
-                  id="sv-language"
-                  value={settings.language}
-                  onChange={(event) => setSettings((current) => ({ ...current, language: event.target.value as WorkspaceSettings['language'] }))}
-                  disabled={!ready}
-                  aria-describedby="sv-language-help"
-                >
-                  <option value="zh-CN">简体中文</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-              <p id="sv-language-help">保存分析与草稿的语言偏好；演示界面仍使用中文。</p>
-            </div>
-          </div>
-          <div className="sv-setting-row sv-original-row">
-            <div>
-              <h3>保留原始内容</h3>
-              <p id="sv-original-help">翻译时保留原文，便于核对技术术语、错误信息与代码片段。</p>
-            </div>
-            <Toggle checked={settings.keepOriginal} onChange={(value) => setSettings((current) => ({ ...current, keepOriginal: value }))} label="保留原始内容" describedBy="sv-original-help" disabled={!ready} />
-          </div>
-        </section>
-
-        <section className="sv-section sv-plugin-section" aria-labelledby="sv-plugins-heading">
-          <div className="sv-section-heading">
-            <span className="sv-section-number" aria-hidden="true">02</span>
-            <div>
-              <h2 id="sv-plugins-heading">官方插件</h2>
-              <p>保留需要的辅助能力，让维护工作更专注。</p>
-            </div>
-            <span className="sv-plugin-count">{enabledCount} / 4 已启用</span>
-          </div>
-          <div className="sv-plugin-list">
-            {PLUGINS.map(({ id, name, description, icon: Icon }) => (
-              <div className={`sv-plugin-row${settings.plugins[id] ? '' : ' sv-plugin-off'}`} key={id}>
-                <span className="sv-plugin-icon"><Icon size={20} strokeWidth={1.7} aria-hidden="true" /></span>
-                <div className="sv-plugin-text">
-                  <div className="sv-plugin-title"><h3>{name}</h3><span>官方</span></div>
-                  <p id={`sv-${id}-help`}>{description}</p>
-                </div>
-                <span className="sv-plugin-status">{settings.plugins[id] ? '已启用' : '已停用'}</span>
-                <Toggle checked={settings.plugins[id]} onChange={(value) => setSettings((current) => ({ ...current, plugins: { ...current.plugins, [id]: value } }))} label={`${name}插件`} describedBy={`sv-${id}-help`} disabled={!ready} />
-              </div>
-            ))}
-          </div>
-          <p className="sv-plugin-note"><Puzzle size={14} aria-hidden="true" /> 此处保存演示插件配置，不会安装软件或连接 GitHub。</p>
-        </section>
-
-        <section className="sv-section sv-review-section" aria-labelledby="sv-review-heading">
-          <div className="sv-section-heading">
-            <span className="sv-section-number" aria-hidden="true">03</span>
-            <div>
-              <h2 id="sv-review-heading">维护者审核</h2>
-              <p>建议由 Agent 准备，决定始终由你作出。</p>
-            </div>
-          </div>
-          <div className="sv-setting-row sv-review-row">
-            <div className="sv-review-copy">
-              <span className="sv-review-icon"><LockKeyhole size={18} aria-hidden="true" /></span>
-              <div>
-                <h3>发布前必须审核 <span className="sv-required">始终开启</span></h3>
-                <p id="sv-review-help">对外回复、标签变更与文档修改必须经过维护者确认，此设置不可关闭。</p>
-              </div>
-            </div>
-            <Toggle checked label="发布前必须由维护者审核，始终开启" describedBy="sv-review-help" disabled />
-          </div>
-        </section>
-
-        <div className="sv-storage-note">
-          <Info size={16} aria-hidden="true" />
-          <p>以上偏好仅保存在当前浏览器；下方模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p>
-        </div>
-        {error && <p className="sv-error" role="alert">{error}</p>}
-        <footer className="sv-actions">
-          <div className="sv-save-state" aria-live="polite">
-            {dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}
-            {savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}
-          </div>
-          <div className="sv-action-buttons">
-            <button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button>
-            <button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置 <ArrowUpRight size={15} aria-hidden="true" /></button>
-          </div>
-        </footer>
-      </form>
-      <GithubConnection /><ModelSettings />
+          <p className="sv-nav-hint">分模块管理设置，切换后不会丢失当前未保存的修改。</p>
+        </nav>
+        <main className="sv-module-main" id={`sv-panel-${activeSection}`} role="tabpanel" aria-label={SETTINGS_SECTIONS.find(section => section.id === activeSection)?.label}>
+          {localSection ? renderLocalForm() : activeSection === 'github' ? <GithubConnection /> : <ModelSettings />}
+        </main>
+      </div>
     </div>
   );
 }
