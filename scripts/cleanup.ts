@@ -10,7 +10,7 @@ const rows = database.prepare("SELECT id FROM audit_runs WHERE status IN ('compl
 if (!process.argv.includes('--apply')) console.log(`Dry run: ${rows.length} terminal audits older than ${days} days. Pass --apply after backup.`);
 else {
   database.exec('BEGIN IMMEDIATE');
-  try { for (const { id } of rows) { database.prepare('DELETE FROM snapshots WHERE run_id=?').run(id); database.prepare('DELETE FROM conversations WHERE run_id=?').run(id); database.prepare('DELETE FROM audit_run_models WHERE run_id=?').run(id); database.prepare('DELETE FROM audit_runs WHERE id=?').run(id); } database.exec('COMMIT'); console.log(`Removed ${rows.length} expired audits.`); }
+  try { for (const { id } of rows) { database.prepare('DELETE FROM snapshots WHERE run_id=?').run(id); database.prepare('DELETE FROM audit_run_models WHERE run_id=?').run(id); database.prepare('DELETE FROM audit_runs WHERE id=?').run(id); } database.exec('COMMIT'); console.log(`Removed ${rows.length} expired audits.`); }
   catch (error) { database.exec('ROLLBACK'); throw error; }
 }
 db().close();

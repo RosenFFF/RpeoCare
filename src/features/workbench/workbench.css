@@ -7,7 +7,7 @@
 .wb-card { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 22px; margin: 18px 0; }
 .wb-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 .wb-form label { display: grid; gap: 8px; flex: 1; min-width: 160px; font-size: 12px; color: var(--muted); }
-.wb-page input, .wb-page textarea, .wb-chat textarea { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg); color: var(--ink); width: 100%; font: inherit; }
+.wb-page input, .wb-page textarea { padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg); color: var(--ink); width: 100%; font: inherit; }
 .wb-page textarea { min-height: 240px; line-height: 1.8; font-size: 12px; resize: vertical; }
 .wb-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
 .wb-stats strong { font-size: 30px; font-weight: 500; }
@@ -19,13 +19,6 @@
 .wb-diff pre { min-height: 240px; max-height: 520px; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; overflow: auto; }
 .wb-error { color: var(--error) !important; }
 .wb-confirm { border: 1px solid var(--accent-border); background: var(--accent-tint); padding: 18px; margin-top: 16px; border-radius: 8px; }
-.wb-chat { margin: 20px 24px; border-top: 1px solid var(--line); padding-top: 16px; }
-.wb-chat h3 { font-size: 14px; }
-.wb-chat article { white-space: pre-wrap; overflow-wrap: anywhere; padding: 14px; margin: 12px 0; background: var(--bg); border-radius: 8px; font-size: 12px; line-height: 1.9; }
-.wb-chat article strong { display: block; color: var(--accent); }
-.wb-chat textarea { min-height: 80px; resize: vertical; }
-.wb-chat button { margin-top: 10px; }
-@media (max-width: 760px) { .wb-diff, .wb-stats { grid-template-columns: 1fr; } .wb-card { padding: 16px; } .wb-chat { margin-inline: 14px; } }
 .main-content:is(.view-overview, .view-issues, .view-pull-requests, .view-improvements) { max-width: none; padding-inline: clamp(20px, 2.4vw, 48px); }
 .wb-overview-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .wb-overview-header h1 { margin: 0 0 8px; font-size: clamp(24px, 2vw, 30px); letter-spacing: -.6px; overflow-wrap: anywhere; }

@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { db, createRun, getRun, updateRun } from '../../src/server/audit/store';
-import { createDraft, getDraft, getMessages, saveMessages, saveProject, getProject, updateDraft, withOperation } from '../../src/server/workbench/store';
+import { createDraft, getDraft, saveProject, getProject, updateDraft, withOperation } from '../../src/server/workbench/store';
 import { claimTask, pulseWorker } from '../../src/server/audit/queue';
 import { accountSession, authDb, saveGithubAccount, githubAccount } from '../../src/server/github/connection';
 import { passwordHash, verifyPassword, emailDb, redeem } from '../../src/server/auth/email';
@@ -16,7 +16,7 @@ const directory = mkdtempSync(join(tmpdir(), 'repocare-workbench-'));
 process.env.REPOCARE_DB_PATH = join(directory, 'test.sqlite');
 after(() => { db().close(); rmSync(directory, { recursive: true, force: true }); });
 
-test('projects, drafts and conversations isolate owners; edits require exact revisions', () => {
+test('projects and drafts isolate owners; edits require exact revisions', () => {
   saveProject('alice', { repoUrl: 'https://github.com/example/project', fullName: 'example/project' });
   assert.equal(getProject('bob'), null);
   const draft = createDraft('alice', { kind: 'file', repoUrl: 'https://github.com/example/project', baseSha: 'a'.repeat(40), path: 'README.md', title: 'docs', before: '', content: 'first' });
@@ -25,13 +25,11 @@ test('projects, drafts and conversations isolate owners; edits require exact rev
   assert.equal(edited.revision, 2); assert.throws(() => updateDraft('alice', draft.id, 1, { content: 'stale' }));
   updateDraft('alice', draft.id, 2, { status: 'published' });
   assert.throws(() => updateDraft('alice', draft.id, 3, { content: 'changed' }));
-  saveMessages('alice', 'run', [{ role: 'user', content: 'question', at: 'now' }]);
-  assert.equal(getMessages('bob', 'run').length, 0);
 });
 test('operation lock prevents simultaneous duplicate work and releases after failure', async () => {
-  await withOperation('alice', 'chat', async () => { await assert.rejects(withOperation('alice', 'chat', async () => 1), /正在执行/); });
-  await assert.rejects(withOperation('alice', 'chat', async () => { throw new Error('failure'); }));
-  assert.equal(await withOperation('alice', 'chat', async () => 2), 2);
+  await withOperation('alice', 'draft', async () => { await assert.rejects(withOperation('alice', 'draft', async () => 1), /正在执行/); });
+  await assert.rejects(withOperation('alice', 'draft', async () => { throw new Error('failure'); }));
+  assert.equal(await withOperation('alice', 'draft', async () => 2), 2);
 });
 test('worker pool claims each task once and requeues stale execution up to a bound', () => {
   pulseWorker('worker-a'); pulseWorker('worker-b');

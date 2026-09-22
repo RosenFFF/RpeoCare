@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { ChatMessage, Draft, Project, Usage } from '../../contracts/workbench';
+import type { Draft, Project, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -10,7 +10,6 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS snapshots (run_id TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS drafts (id TEXT PRIMARY KEY, owner TEXT NOT NULL, state TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS drafts_owner ON drafts(owner);
-    CREATE TABLE IF NOT EXISTS conversations (owner TEXT NOT NULL, run_id TEXT NOT NULL, state TEXT NOT NULL, PRIMARY KEY(owner, run_id));
     CREATE TABLE IF NOT EXISTS model_usage (id TEXT PRIMARY KEY, owner TEXT NOT NULL, at INTEGER NOT NULL, purpose TEXT NOT NULL, input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL, failed INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS operation_locks (key TEXT PRIMARY KEY, expires INTEGER NOT NULL);
   `);
@@ -58,13 +57,6 @@ export function updateDraft(owner: string, id: string, revision: number, change:
     database.prepare('UPDATE drafts SET state=? WHERE id=? AND owner=?').run(JSON.stringify(next), id, owner);
     database.exec('COMMIT'); return next;
   } catch (error) { database.exec('ROLLBACK'); throw error; }
-}
-export function getMessages(owner: string, runId: string): ChatMessage[] {
-  const row = workbenchDb().prepare('SELECT state FROM conversations WHERE owner=? AND run_id=?').get(owner, runId) as { state: string } | undefined;
-  return row ? JSON.parse(row.state) : [];
-}
-export function saveMessages(owner: string, runId: string, messages: ChatMessage[]) {
-  workbenchDb().prepare('INSERT INTO conversations VALUES (?, ?, ?) ON CONFLICT(owner,run_id) DO UPDATE SET state=excluded.state').run(owner, runId, JSON.stringify(messages.slice(-40)));
 }
 export function recordUsage(owner: string, purpose: string, input = 0, output = 0, failed = false) {
   workbenchDb().prepare('INSERT INTO model_usage VALUES (?, ?, ?, ?, ?, ?, ?)').run(randomUUID(), owner, Date.now(), purpose, input, output, Number(failed));

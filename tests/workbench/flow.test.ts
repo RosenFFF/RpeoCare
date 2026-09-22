@@ -7,8 +7,7 @@ import type { AssistantMessage } from '@mariozechner/pi-ai';
 import { NextRequest } from 'next/server';
 import { db, createRun, updateRun } from '../../src/server/audit/store';
 import { saveConnection } from '../../src/server/models/store';
-import { saveSnapshot, getMessages, usage, getDraft } from '../../src/server/workbench/store';
-import { POST as chat } from '../../src/app/api/workbench/chat/route';
+import { saveSnapshot, getDraft } from '../../src/server/workbench/store';
 import { POST as drafts } from '../../src/app/api/workbench/drafts/route';
 import { accountSession, saveGithubAccount } from '../../src/server/github/connection';
 import type { RepoSnapshot } from '../../src/contracts/audit';
@@ -17,7 +16,7 @@ const directory = mkdtempSync(join(tmpdir(), 'repocare-flow-'));
 process.env.REPOCARE_DB_PATH = join(directory, 'test.sqlite');
 after(() => { db().close(); rmSync(directory, { recursive: true, force: true }); });
 
-test('report chat, editable file draft and explicit publish form a persistent isolated flow', async t => {
+test('report draft and explicit publish form a persistent isolated flow', async t => {
   const token = saveGithubAccount('flow-owner', 'flow', 'test-token', true), owner = accountSession(token)!;
   saveConnection(owner, { name: 'mock', provider: 'custom', protocol: 'openai-completions', baseUrl: 'https://model.example/v1', modelId: 'mock', apiKey: 'mock-secret', keyAction: 'replace', contextWindow: 128000, maxTokens: 4096 });
   const sha = 'a'.repeat(40), repoUrl = 'https://github.com/example/project';
@@ -33,9 +32,6 @@ test('report chat, editable file draft and explicit publish form a persistent is
   sdk.registerApiProvider({ api: 'openai-completions', stream, streamSimple: stream });
   const request = (path: string, body: unknown, cookie = token) => new NextRequest(`http://localhost${path}`, { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost', cookie: `repocare_login=${cookie}` }, body: JSON.stringify(body) });
   try {
-    assert.equal((await chat(request('/api/workbench/chat', { runId: run.id, message: '如何完善？' }))).status, 200);
-    assert.equal(getMessages(owner, run.id).length, 2); assert.equal(usage(owner).outputTokens, 20);
-    assert.equal((await chat(request('/api/workbench/chat', { runId: run.id, message: '其他账户' }, '0'.repeat(64)))).status, 400);
     const response = await drafts(request('/api/workbench/drafts', { action: 'file', runId: run.id, checkId: 'contributing' }));
     assert.equal(response.status, 200); const { draft } = await response.json();
     assert.equal(draft.status, 'draft'); assert.equal(draft.path, 'CONTRIBUTING.md');

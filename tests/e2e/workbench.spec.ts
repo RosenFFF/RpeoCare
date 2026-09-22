@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test('report hides inspector and composer; conversation restores them', async ({ page }) => {
+test('report hides inspector and all input composers', async ({ page }) => {
   await page.goto('/audit?new=1');
   await expect(page.getByRole('button', { name: '体检报告', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '体检报告', exact: true }).click();
   await expect(page.locator('.as-inspector-shell')).toHaveAttribute('inert', '');
   await expect(page.locator('.as-composer')).toHaveCount(0);
   await page.getByRole('button', { name: '任务对话', exact: true }).click();
-  await expect(page.locator('.as-composer')).toBeVisible();
+  await expect(page.locator('.as-composer')).toHaveCount(0);
+  await expect(page.locator('.wb-chat')).toHaveCount(0);
   await expect(page.locator('.as-inspector-shell')).not.toHaveAttribute('inert', '');
 });
 const report = {
