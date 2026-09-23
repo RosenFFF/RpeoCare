@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { appearanceBootstrap } from "@/shared/lib/appearance";
 import "./globals.css";
 import "./appearance.css";
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head><body>{children}</body></html>;
+  return <html lang="zh-CN" suppressHydrationWarning><head><Script id="appearance-bootstrap" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head><body>{children}</body></html>;
 }
