@@ -269,10 +269,17 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
               <div className="as-stage-messages">{run.nodes.filter(item => item.status !== 'pending').map(item => <button type="button" className={`as-stage-message aw-text-${item.status}`} key={item.id} onClick={() => setSelected(item.id)} aria-pressed={selected === item.id}><StatusIcon status={item.status} /><span><strong>{item.label}</strong><small>{item.message}</small></span><span className="as-stage-label">{statusLabels[item.status]}</span></button>)}</div>
               {run.agentEvents && run.agentEvents.length > 0 && <details className="as-tools"><summary>查看 {run.agentEvents.filter(event => event.kind === 'tool_start').length} 次工具调用与模型轮次</summary><AgentActivity run={run} /></details>}
               {active && <p className="as-live-status" role="status"><LoaderCircle size={14} className="aw-spin" />{currentNode?.message || '正在等待执行…'}</p>}
-              {report && <div className="as-result"><div className="as-result-heading"><span className="as-result-icon"><FileText size={18} /></span><div><strong>{report.agentStatus === 'failed' ? '规则报告已生成，AI 分析未完成' : report.agentStatus === 'disabled' ? '基础规则报告已生成' : '体检报告已生成'}</strong><p>{summary}</p></div></div>{report.agentStatus !== 'completed' && <p className="as-result-note">{report.agentStatus === 'disabled' ? '本次未启用模型，未包含 AI 内容分析。' : run.nodes.find(item => item.id === 'agent')?.message}</p>}<div className="as-result-actions"><button type="button" className="button button-secondary" onClick={() => setPanel('report')}>打开完整报告 <FileText size={14} /></button><Link className="button button-primary" href="/overview">查看项目概览</Link><Link className="button button-secondary" href="/improvements">生成改进草稿</Link></div></div>}
               {run.error && <p className="as-error" role="alert">{run.error}</p>}{run.status === 'cancelled' && <p>任务已取消，已有执行记录保留。可以重新发起体检。</p>}
-              {!active && <button type="button" className="as-retry" disabled={submitting} onClick={() => void submit(undefined, run.id)}><RefreshCw size={13} />重新体检最新提交</button>}
+              {!active && !report && <button type="button" className="as-retry" disabled={submitting} onClick={() => void submit(undefined, run.id)}><RefreshCw size={13} />重新体检最新提交</button>}
             </div></article>
+            {report && <section className="as-result" aria-labelledby="as-result-title">
+              <div className="as-result-heading"><span className="as-result-icon"><FileText size={24} aria-hidden="true" /></span><h2 id="as-result-title">{report.agentStatus === 'failed' ? '规则报告已生成，AI 分析未完成' : report.agentStatus === 'disabled' ? '基础规则报告已生成' : '体检报告已生成'}</h2></div>
+              <p className="as-result-summary">{summary}</p>
+              {report.agentStatus !== 'completed' && <p className="as-result-note">{report.agentStatus === 'disabled' ? '本次未启用模型，未包含 AI 内容分析。' : run.nodes.find(item => item.id === 'agent')?.message}</p>}
+              <div className="as-result-actions"><button type="button" className="button button-primary" onClick={() => setPanel('report')}><FileText size={16} aria-hidden="true" />打开完整报告</button><Link className="button button-secondary" href="/overview">查看项目概览</Link><Link className="button button-secondary" href="/improvements">生成改进草稿</Link></div>
+              <footer className="as-result-footer"><span>仓库有新提交？可重新体检更新报告。</span><button type="button" className="as-retry" disabled={submitting} onClick={() => void submit(undefined, run.id)}><RefreshCw size={14} aria-hidden="true" />{submitting ? '正在创建任务…' : '重新体检最新提交'}</button></footer>
+              {error && <p className="as-error" role="alert">{error}</p>}
+            </section>}
           </div>}
         </div>
         {panel === 'conversation' && !report && <div className="as-composer-area">
