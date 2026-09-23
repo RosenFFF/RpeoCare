@@ -35,7 +35,7 @@
 .as-composer-meta > span { display: flex; align-items: center; gap: 6px; overflow-wrap: anywhere; min-width: 0; }
 .as-composer-meta a { color: var(--accent); white-space: nowrap; }
 .as-input-help { font-size: 10px; color: var(--subtle); text-align: center; margin: 8px 0 0; }
-.as-inspector { box-sizing: border-box; width: var(--as-inspector-width); height: 100%; border-left: 1px solid color-mix(in srgb, var(--line) 55%, transparent); background: transparent; padding: 19px 18px; overflow-y: auto; min-width: 0; }
+.as-inspector { box-sizing: border-box; width: var(--as-inspector-width); height: 100%; border-left: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 65%, var(--bg)); padding: 19px 18px; overflow-y: auto; min-width: 0; }
 .as-inspector > header { display: flex; justify-content: space-between; align-items: center; }
 .as-inspector h2 { margin: 0; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
 .as-inspector > header > span { color: var(--subtle); font-size: 10px; }
@@ -51,7 +51,7 @@
 .as-step-icon { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; color: var(--subtle); }
 .as-timeline strong { display: block; font-size: 12px; font-weight: 500; }
 .as-timeline small { display: block; color: var(--subtle); font-size: 10px; margin-top: 5px; }
-.as-context, .as-evidence { padding-top: 18px; margin-top: 19px; }
+.as-context, .as-evidence { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 24px; }
 .as-context h3, .as-evidence h3 { margin: 0 0 15px; font-size: 12px; font-weight: 600; }
 .as-context dl { margin: 0; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px 10px; font-size: 11px; line-height: 1.7; }
 .as-context dt { color: var(--subtle); }
@@ -70,7 +70,7 @@
 .as-boundary p { margin: 0; font-size: 10px; line-height: 1.9; }
 .as-conversation { padding: 28px 24px 40px; min-width: 0; }
 .as-message { margin-bottom: 0; }
-.as-task-context { margin-bottom: 32px; padding-left: 36px; }
+.as-task-context { margin-bottom: 28px; padding: 0 0 24px 36px; border-bottom: 1px solid var(--line); }
 .as-task-context .as-message-meta { color: var(--muted); font-weight: 400; }
 .as-task-context h1 { margin: 0; font-size: clamp(20px, 1.7vw, 26px); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
 .as-task-context h1 a { color: var(--ink); text-decoration: none; }
@@ -98,9 +98,9 @@
 .as-tools summary { font-size: 11px; color: var(--muted); cursor: pointer; }
 .as-tools .aw-agent-activity { margin: 17px 0 0; }
 .as-live-status { display: flex; align-items: center; gap: 7px; }
-.as-result { position: relative; padding: 0 0 0 36px; margin-top: 36px; }
+.as-result { position: relative; padding: 28px 0 0 36px; margin-top: 28px; border-top: 1px solid var(--line); }
 .as-result-heading { display: flex; align-items: center; }
-.as-result-icon { position: absolute; left: 0; top: 5px; display: grid; place-items: center; width: 24px; height: 24px; color: var(--accent); }
+.as-result-icon { position: absolute; left: 0; top: 33px; display: grid; place-items: center; width: 24px; height: 24px; color: var(--accent); }
 .as-result-heading h2 { margin: 0; color: var(--ink); font-size: 22px; line-height: 1.5; font-weight: 600; }
 .as-result-summary { margin: 14px 0 0; font-size: 14px; line-height: 1.9; }
 .as-result-note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
@@ -133,7 +133,7 @@
 
 .as-toolbar-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
 @media (max-width: 760px) {
-  .as-result { padding: 0 0 0 32px; margin-top: 30px; }
+  .as-result { padding: 28px 0 0 32px; margin-top: 26px; }
   .as-task-context { padding-left: 32px; }
   .as-result-heading h2 { font-size: 18px; }
   .as-result-actions { gap: 8px 18px; }
