@@ -274,3 +274,9 @@
 .issue-maintenance-confirm p { color:var(--warning); font-size:10px !important; line-height:1.5 !important; }
 .issue-maintenance-confirm > div { display:flex; gap:6px; margin-top:8px; }
 .issue-maintenance-confirm .button { flex:1; min-height:29px; padding:5px 7px; font-size:10px; }
+.issue-content-grid { transition: grid-template-columns .38s cubic-bezier(.22,.8,.24,1), gap .38s ease; }
+.issue-content-grid.is-focused { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.issue-content-grid.is-focused .issue-list-panel { min-width: 0; max-width: 0; max-height: 0; margin: 0; padding: 0; border-width: 0; opacity: 0; transform: translateX(-18px); pointer-events: none; overflow: hidden; }
+.issue-content-grid.is-focused .issue-detail-panel { grid-column: 1; }
+.issue-show-list { display:inline-flex; align-items:center; gap:6px; }
+@media (prefers-reduced-motion: reduce) { .issue-content-grid, .issue-content-grid.is-focused .issue-list-panel { transition: none; } }
