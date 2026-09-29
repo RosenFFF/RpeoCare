@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { Draft, Project, Usage } from '../../contracts/workbench';
+import type { Draft, IssueTriage, IssueWorkflowStatus, Project, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -9,6 +9,8 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS projects (owner TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS snapshots (run_id TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS drafts (id TEXT PRIMARY KEY, owner TEXT NOT NULL, state TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS issue_triage (owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (owner, repo_url, number));
+    CREATE INDEX IF NOT EXISTS issue_triage_owner_repo ON issue_triage(owner, repo_url);
     CREATE INDEX IF NOT EXISTS drafts_owner ON drafts(owner);
     CREATE TABLE IF NOT EXISTS model_usage (id TEXT PRIMARY KEY, owner TEXT NOT NULL, at INTEGER NOT NULL, purpose TEXT NOT NULL, input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL, failed INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS operation_locks (key TEXT PRIMARY KEY, expires INTEGER NOT NULL);
@@ -40,6 +42,25 @@ export function getDraft(owner: string, id: string): Draft {
 }
 export function listDrafts(owner: string): Draft[] {
   return (workbenchDb().prepare('SELECT id FROM drafts WHERE owner=? ORDER BY rowid DESC LIMIT 100').all(owner) as { id: string }[]).map(row => getDraft(owner, row.id));
+}
+export function getIssueTriage(owner: string, repoUrl: string, number: number): IssueTriage | null {
+  const row = workbenchDb().prepare('SELECT state FROM issue_triage WHERE owner=? AND repo_url=? AND number=?').get(owner, repoUrl, number) as { state: string } | undefined;
+  return row ? JSON.parse(row.state) as IssueTriage : null;
+}
+export function listIssueTriages(owner: string, repoUrl: string, numbers?: number[]): IssueTriage[] {
+  if (!numbers?.length) return (workbenchDb().prepare('SELECT state FROM issue_triage WHERE owner=? AND repo_url=? ORDER BY number').all(owner, repoUrl) as { state: string }[]).map(row => JSON.parse(row.state) as IssueTriage);
+  const placeholders = numbers.map(() => '?').join(',');
+  return (workbenchDb().prepare(`SELECT state FROM issue_triage WHERE owner=? AND repo_url=? AND number IN (${placeholders})`).all(owner, repoUrl, ...numbers) as { state: string }[]).map(row => JSON.parse(row.state) as IssueTriage);
+}
+export function saveIssueTriage(owner: string, repoUrl: string, triage: IssueTriage): IssueTriage {
+  workbenchDb().prepare('INSERT INTO issue_triage (owner, repo_url, number, state, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(owner, repo_url, number) DO UPDATE SET state=excluded.state, updated_at=excluded.updated_at').run(owner, repoUrl, triage.number, JSON.stringify(triage), triage.analyzedAt);
+  return triage;
+}
+export function updateIssueWorkflowStatus(owner: string, repoUrl: string, number: number, status: IssueWorkflowStatus): IssueTriage {
+  const current = getIssueTriage(owner, repoUrl, number);
+  if (!current) throw new Error('请先完成一次 Issue 分析，再更新处理状态。');
+  const next = { ...current, workflowStatus: status };
+  return saveIssueTriage(owner, repoUrl, next);
 }
 export function createDraft(owner: string, input: Omit<Draft, 'id' | 'revision' | 'status' | 'createdAt'>): Draft {
   const draft: Draft = { ...input, id: randomUUID(), revision: 1, status: 'draft', createdAt: new Date().toISOString() };

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { db } from '../../src/server/audit/store';
 import { accountSession, saveGithubAccount, withGithubOwner } from '../../src/server/github/connection';
-import { publishDraft, repositoryCounts } from '../../src/server/github/api';
+import { getItem, publishDraft, repositoryCounts, updateIssue } from '../../src/server/github/api';
 import { getRepository } from '../../src/server/audit/github';
 import type { Draft } from '../../src/contracts/workbench';
 
@@ -58,4 +58,24 @@ test('failed PR count never presents the combined GitHub total as Issue count', 
   t.mock.method(globalThis, 'fetch', async (input: URL | Request | string) => String(input).includes('/pulls?') ? new Response('', { status: 503 }) : Response.json({ open_issues_count: 5 }));
   const counts = await repositoryCounts('anonymous', draft.repoUrl);
   assert.equal(counts.issues, null); assert.equal(counts.pulls, null);
+});
+
+test('issue details include comments and explicit maintenance updates', async t => {
+  const owner = accountSession(saveGithubAccount('issue-maintenance', 'issue-maintainer', 'issue-token', true))!;
+  const calls: { url: string; method: string; body: any }[] = [];
+  t.mock.method(globalThis, 'fetch', async (input: URL | Request | string, init?: RequestInit) => {
+    const url = String(input), method = init?.method || 'GET', body = init?.body ? JSON.parse(String(init.body)) : null;
+    calls.push({ url, method, body });
+    if (url.endsWith('/issues/42') && method === 'GET') return Response.json({ number: 42, title: 'Bug', body: 'Broken', html_url: url, state: 'open', updated_at: '2026-09-29T00:00:00Z', user: { login: 'reporter' }, labels: [], assignees: [], comments: 1 });
+    if (url.includes('/issues/42/comments')) return Response.json([{ id: 7, body: 'Please help', html_url: `${url}#comment-7`, user: { login: 'maintainer' }, created_at: '2026-09-29T01:00:00Z', updated_at: '2026-09-29T01:00:00Z' }]);
+    if (url.endsWith('/issues/42') && method === 'PATCH') return Response.json({ number: 42, title: 'Bug', body: 'Broken', html_url: url, state: 'closed', updated_at: '2026-09-29T02:00:00Z', user: { login: 'reporter' }, labels: [{ name: 'bug' }], assignees: [{ login: 'maintainer' }] });
+    throw new Error(`Unexpected GitHub call: ${method} ${url}`);
+  });
+  const item = await getItem(owner, draft.repoUrl, 'issues', 42);
+  assert.equal(item.comments?.[0]?.id, 7);
+  assert.equal(item.commentCount, 1);
+  const updated = await updateIssue(owner, draft.repoUrl, 42, { state: 'closed', labels: ['bug'], assignees: ['maintainer'] });
+  assert.equal(updated.state, 'closed');
+  assert.deepEqual(updated.labels, ['bug']);
+  assert.ok(calls.some(call => call.method === 'PATCH' && call.body.state === 'closed' && call.body.labels[0] === 'bug'));
 });

@@ -1,6 +1,6 @@
 import { githubAccount } from './connection';
 import { parseRepositoryUrl } from '../audit/github';
-import type { Draft, GitItem } from '../../contracts/workbench';
+import type { Draft, GitComment, GitItem } from '../../contracts/workbench';
 
 export class PublishPreconditionError extends Error {}
 
@@ -29,7 +29,10 @@ export async function githubApi(owner: string, path: string, options: { method?:
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 function item(value: Record<string, any>): GitItem {
-  return { number: value.number, title: value.title, body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), headSha: value.head?.sha };
+  return { number: value.number, title: String(value.title || ''), body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), commentCount: Number.isSafeInteger(value.comments) ? value.comments : undefined, assignees: (value.assignees || []).map((person: any) => person.login).filter(Boolean), milestone: value.milestone?.title || null, headSha: value.head?.sha };
+}
+function comment(value: Record<string, any>): GitComment {
+  return { id: Number(value.id), body: String(value.body || '').slice(0, 12_000), url: value.html_url, author: value.user?.login || '', createdAt: value.created_at, updatedAt: value.updated_at || value.created_at };
 }
 export async function listItems(owner: string, url: string, kind: 'issues' | 'pulls', page = 1): Promise<GitItem[]> {
   const rows = await githubApi(owner, `${repoPath(url)}/${kind}?state=open&per_page=30&page=${page}`);
@@ -68,13 +71,28 @@ export async function repositoryCounts(owner: string, url: string) {
     fetchedAt: new Date().toISOString(),
   };
 }
-export async function getItem(owner: string, url: string, kind: 'issues' | 'pulls', number: number): Promise<GitItem> {
-  const prefix = repoPath(url), result = item(await githubApi(owner, `${prefix}/${kind}/${number}`));
+export async function getItem(owner: string, url: string, kind: 'issues' | 'pulls', number: number, signal?: AbortSignal): Promise<GitItem> {
+  const prefix = repoPath(url), result = item(await githubApi(owner, `${prefix}/${kind}/${number}`, { signal }));
+  if (kind === 'issues') {
+    const comments = await githubApi(owner, `${prefix}/issues/${number}/comments?per_page=100&page=1`, { signal });
+    if (!Array.isArray(comments)) throw new Error('GitHub 评论列表格式异常。');
+    result.comments = comments.slice(0, 100).map(comment);
+  }
   if (kind === 'pulls') {
-    const files = await githubApi(owner, `${prefix}/pulls/${number}/files?per_page=100`);
+    const files = await githubApi(owner, `${prefix}/pulls/${number}/files?per_page=100`, { signal });
     result.files = files.map((file: any) => ({ path: file.filename, status: file.status, additions: file.additions, deletions: file.deletions, patch: file.patch?.slice(0, 12_000) }));
   }
   return result;
+}
+export async function updateIssue(owner: string, url: string, number: number, input: { state?: 'open' | 'closed'; labels?: string[]; assignees?: string[] }, signal?: AbortSignal): Promise<GitItem> {
+  if (!input.state && !input.labels && !input.assignees) throw new Error('没有可保存的 Issue 变更。');
+  const prefix = repoPath(url);
+  const value = await githubApi(owner, `${prefix}/issues/${number}`, { method: 'PATCH', write: true, signal, body: {
+    ...(input.state ? { state: input.state } : {}),
+    ...(input.labels ? { labels: input.labels } : {}),
+    ...(input.assignees ? { assignees: input.assignees } : {}),
+  } });
+  return item(value);
 }
 export async function publishDraft(owner: string, draft: Draft): Promise<string> {
   const prefix = repoPath(draft.repoUrl);
