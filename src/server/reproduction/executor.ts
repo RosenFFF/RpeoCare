@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { resolve, relative, dirname } from 'node:path';
-import type { ReproductionArtifact, ReproductionAttempt, ReproductionJob, ReproductionResult } from '@/contracts/workbench';
+import type { ReproductionArtifact, ReproductionAttempt, ReproductionJob, ReproductionPhase, ReproductionResult } from '@/contracts/workbench';
 import { parseRepositoryUrl } from '@/server/audit/github';
 import { updateReproductionJob } from '@/server/workbench/store';
 import { renewReproductionLease } from './queue';
@@ -64,7 +64,7 @@ function requiresDependencyNetwork(job: ReproductionJob) {
   });
 }
 
-async function runSandbox(job: ReproductionJob, workspace: string, outputDir: string, phase: 'dependencies' | 'execution', network: 'none' | 'bridge') {
+async function runSandbox(owner: string, job: ReproductionJob, workspace: string, outputDir: string, phase: 'dependencies' | 'execution', network: 'none' | 'bridge') {
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true });
   const planPath = resolve(outputDir, 'plan.json');
@@ -79,21 +79,37 @@ async function runSandbox(job: ReproductionJob, workspace: string, outputDir: st
     image(),
   ];
   if (typeof process.getuid === 'function' && typeof process.getgid === 'function') args.splice(args.length - 1, 0, '--user', `${process.getuid()}:${process.getgid()}`);
-  const executed = await run('docker', args, { timeout: timeoutMs() + 30_000 });
-  const resultPath = resolve(outputDir, 'result.json');
-  try { return JSON.parse(await readFile(resultPath, 'utf8')) as { reproduced?: boolean; summary?: string; durationMs?: number; error?: string }; }
-  catch { return { error: executed.stderr || 'Runner 未生成结果。' }; }
+  const progressPath = resolve(outputDir, 'progress.json');
+  let lastProgress = '';
+  const progressTimer = setInterval(async () => {
+    try {
+      const raw = await readFile(progressPath, 'utf8');
+      if (raw === lastProgress) return;
+      lastProgress = raw;
+      const progress = JSON.parse(raw) as { phase?: ReproductionPhase; currentStep?: number; totalSteps?: number; currentStepLabel?: string };
+      updateReproductionJob(owner, job.id, { phase: progress.phase || phase, currentAttempt: job.currentAttempt, currentStep: progress.currentStep, totalSteps: progress.totalSteps || job.totalSteps, currentStepLabel: progress.currentStepLabel, progress: progress.currentStepLabel || `正在执行第 ${progress.currentStep || 0}/${progress.totalSteps || job.totalSteps || 0} 步` });
+    } catch { /* Runner may not have written progress yet. */ }
+  }, 750);
+  try {
+    const executed = await run('docker', args, { timeout: timeoutMs() + 30_000 });
+    const resultPath = resolve(outputDir, 'result.json');
+    try {
+      const result = JSON.parse(await readFile(resultPath, 'utf8')) as { reproduced?: boolean; summary?: string; durationMs?: number; error?: string; progress?: { currentStep?: number; totalSteps?: number; currentStepLabel?: string } };
+      return result;
+    } catch { return { error: executed.stderr || 'Runner 未生成结果。' }; }
+  } finally { clearInterval(progressTimer); }
 }
 
 async function executeAttempt(owner: string, job: ReproductionJob, workspace: string, attemptDir: string, index: number) {
   if (requiresDependencyNetwork(job)) {
     if (process.env.REPOCARE_REPRO_ALLOW_NETWORK !== 'true') throw new Error('复现计划需要安装依赖，但沙箱网络默认关闭。确认依赖来源可信后设置 REPOCARE_REPRO_ALLOW_NETWORK=true。');
-    updateReproductionJob(owner, job.id, { phase: 'dependencies', progress: `第 ${index}/3 次验证：正在受限联网准备依赖` });
-    const dependency = await runSandbox(job, workspace, resolve(attemptDir, 'dependencies'), 'dependencies', 'bridge');
+    updateReproductionJob(owner, job.id, { phase: 'dependencies', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在准备测试依赖', progress: `第 ${index}/3 次验证：正在受限联网准备依赖` });
+    const dependency = await runSandbox(owner, job, workspace, resolve(attemptDir, 'dependencies'), 'dependencies', 'bridge');
     if (dependency.error) throw new Error(dependency.error);
   }
-  updateReproductionJob(owner, job.id, { phase: 'execution', progress: `第 ${index}/3 次验证：执行期网络已关闭` });
-  const result = await runSandbox(job, workspace, resolve(attemptDir, 'execution'), 'execution', 'none');
+  updateReproductionJob(owner, job.id, { phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在启动隔离 Runner', progress: `第 ${index}/3 次验证：执行期网络已关闭` });
+  const result = await runSandbox(owner, job, workspace, resolve(attemptDir, 'execution'), 'execution', 'none');
+  updateReproductionJob(owner, job.id, { currentAttempt: index, currentStep: result.progress?.currentStep ?? job.plan.setup.length + job.plan.steps.length, currentStepLabel: result.progress?.currentStepLabel || '本次验证已完成', progress: `第 ${index}/3 次验证已完成，正在整理机器判据` });
   const reproductionResult: ReproductionResult = result.reproduced ? 'reproduced' : result.error ? 'failed' : 'not-reproduced';
   return { result: reproductionResult, summary: result.summary || result.error || '未返回摘要。', durationMs: result.durationMs || 0 };
 }
@@ -149,10 +165,10 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
   const lease = setInterval(() => renewReproductionLease(worker, job.id), 30_000);
   try {
     const dockerVersion = await ensureDocker();
-    job = updateReproductionJob(owner, job.id, { phase: 'source', progress: '正在获取仓库并锁定提交版本', environment: { docker: dockerVersion, runnerImage: image(), network: requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK === 'true' ? 'dependency preparation only; execution disabled' : 'disabled', isolation: 'read-only rootfs, no capabilities, resource limits' } });
+    job = updateReproductionJob(owner, job.id, { phase: 'source', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '正在获取仓库并锁定提交版本', progress: '正在获取仓库并锁定提交版本', environment: { docker: dockerVersion, runnerImage: image(), network: requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK === 'true' ? 'dependency preparation only; execution disabled' : 'disabled', isolation: 'read-only rootfs, no capabilities, resource limits' } });
     const source = await prepareSource(job, workspace, job.branch);
     await writeFile(resolve(jobDir, 'source.log'), source.log, 'utf8');
-    job = updateReproductionJob(owner, job.id, { commitSha: source.commitSha, phase: 'execution', progress: '固定提交已准备，正在进行 3 次独立验证' });
+    job = updateReproductionJob(owner, job.id, { commitSha: source.commitSha, phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '固定提交已准备，等待第一次验证', progress: '固定提交已准备，正在进行 3 次独立验证' });
     const history: ReproductionAttempt[] = [];
     for (let index = 1; index <= 3; index++) {
       await resetWorkspace(workspace, source.commitSha);
@@ -161,17 +177,17 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
       const finishedAt = new Date().toISOString();
       history.push({ index, result: outcome.result, durationMs: outcome.durationMs, summary: outcome.summary, startedAt, finishedAt });
       const reproduced = history.filter(item => item.result === 'reproduced').length;
-      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, phase: 'execution', progress: `已完成 ${index}/3 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
+      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, phase: 'execution', currentAttempt: index, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: `第 ${index} 次验证已完成`, progress: `已完成 ${index}/3 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
     }
     const reproduced = history.filter(item => item.result === 'reproduced').length;
     const failures = history.filter(item => item.result === 'failed').length;
     const result: ReproductionResult = reproduced >= 2 ? 'reproduced' : failures === 3 ? 'failed' : 'not-reproduced';
     const status = result;
     const artifacts = await collectArtifacts(jobDir);
-    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', progress: reproduced >= 2 ? `稳定复现：3 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：3 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
+    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: 3, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: reproduced >= 2 ? `稳定复现：3 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：3 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
   } catch (error) {
     const message = error instanceof Error ? error.message : '复现执行失败。';
     const blocked = /尚未启用|Docker|Runner 镜像|仓库快照|沙箱网络默认关闭/.test(message);
-    updateReproductionJob(owner, job.id, { status: blocked ? 'blocked' : 'failed', result: blocked ? 'blocked' : 'failed', error: message, progress: message, finishedAt: new Date().toISOString(), artifacts: await collectArtifacts(jobDir).catch(() => []) });
+    updateReproductionJob(owner, job.id, { status: blocked ? 'blocked' : 'failed', result: blocked ? 'blocked' : 'failed', error: message, currentStepLabel: '执行已停止', progress: message, finishedAt: new Date().toISOString(), artifacts: await collectArtifacts(jobDir).catch(() => []) });
   } finally { clearInterval(lease); }
 }

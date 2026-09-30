@@ -143,6 +143,40 @@ const REPRO_STATUS: Record<ReproductionJob['status'], { label: string; tone: str
 const REPRO_MODE: Record<ReproductionJob['plan']['mode'], string> = { browser: '浏览器交互', http: 'HTTP 接口', test: '项目测试', command: '命令验证' };
 const EVIDENCE_LABEL: Record<string, string> = { stdout: '标准输出', stderr: '错误输出', screenshot: '页面截图', trace: '浏览器 Trace', video: '操作视频', network: '网络记录', console: '控制台', stacktrace: '堆栈', 'test-result': '测试结果', plan: '执行计划', result: '机器结果', 'source-log': '源码快照日志' };
 
+const REPRO_PHASES: { id: NonNullable<ReproductionJob['phase']>; label: string; detail: string }[] = [
+  { id: 'planning', label: '方案确认', detail: '审阅机器判据、风险和执行步骤' },
+  { id: 'source', label: '准备固定版本', detail: '获取仓库并锁定提交 SHA' },
+  { id: 'dependencies', label: '准备测试依赖', detail: '按计划准备项目依赖' },
+  { id: 'execution', label: '隔离执行验证', detail: '在 Runner 中执行测试步骤' },
+  { id: 'evidence', label: '整理证据报告', detail: '收集日志、截图并生成结论' },
+];
+const REPRO_PHASE_ORDER = new Map(REPRO_PHASES.map((phase, index) => [phase.id, index]));
+const RUNNING_REPRO_STATUSES: ReproductionJob['status'][] = ['queued', 'running'];
+const TERMINAL_REPRO_STATUSES: ReproductionJob['status'][] = ['reproduced', 'not-reproduced', 'blocked', 'unsafe', 'failed', 'cancelled'];
+
+function phaseState(job: ReproductionJob, phase: typeof REPRO_PHASES[number]['id']) {
+  const current = job.phase || 'planning';
+  const currentIndex = REPRO_PHASE_ORDER.get(current) ?? 0;
+  const phaseIndex = REPRO_PHASE_ORDER.get(phase) ?? 0;
+  if (TERMINAL_REPRO_STATUSES.includes(job.status)) {
+    if (job.status === 'reproduced' || job.status === 'not-reproduced') return phase === 'evidence' ? 'done' : phaseIndex <= 4 ? 'done' : 'pending';
+    if (job.status === 'blocked' || job.status === 'failed' || job.status === 'unsafe' || job.status === 'cancelled') return phaseIndex < currentIndex ? 'done' : phase === current ? 'error' : 'pending';
+  }
+  if (phase === current) return 'active';
+  return phaseIndex < currentIndex ? 'done' : 'pending';
+}
+
+function ReproductionTimeline({ job }: { job: ReproductionJob }) {
+  const currentStep = job.currentStep || 0;
+  const totalSteps = job.totalSteps || job.plan.setup.length + job.plan.steps.length;
+  const stepPercent = totalSteps ? Math.min(100, Math.round(currentStep / totalSteps * 100)) : 0;
+  return <section className="issue-repro-timeline" aria-label="复现执行流程">
+    <div className="issue-repro-timeline-heading"><div><span>执行流程</span><strong>{job.status === 'running' ? '后台正在执行隔离验证' : job.status === 'queued' ? '已进入执行队列' : job.status === 'awaiting-confirmation' ? '等待维护者确认' : job.status === 'reproduced' || job.status === 'not-reproduced' ? '验证流程已完成' : '流程已停止'}</strong></div><span>{job.currentAttempt ? `第 ${job.currentAttempt} / ${job.totalAttempts || 3} 次` : '尚未开始'}</span></div>
+    <ol className="issue-repro-timeline-list">{REPRO_PHASES.map(phase => { const state = phaseState(job, phase.id); return <li key={phase.id} className={`is-${state}`}><span className="issue-repro-timeline-marker" aria-hidden="true">{state === 'done' ? '✓' : state === 'error' ? '!' : REPRO_PHASES.indexOf(phase) + 1}</span><div><strong>{phase.label}</strong><small>{state === 'active' ? (job.currentStepLabel || job.progress || phase.detail) : phase.detail}</small></div></li>; })}</ol>
+    {(RUNNING_REPRO_STATUSES.includes(job.status) || job.phase === 'dependencies' || job.phase === 'execution') && <div className="issue-repro-live-progress"><div className="issue-repro-live-progress-top"><span>{job.currentStepLabel || job.progress || '正在执行'}</span><strong>{currentStep}/{totalSteps} 步</strong></div><div className="issue-repro-progress-track"><i style={{ width: `${stepPercent}%` }} /></div><small>{job.phase === 'dependencies' ? '依赖准备阶段可能需要更长时间；执行期会自动关闭网络。' : '页面每 2 秒同步一次 Worker 状态，离开页面后任务仍会继续。'}</small></div>}
+  </section>;
+}
+
 function ReproductionPanel({ jobs, selectedId, workerOnline, sandboxConfigured, busy, onAction, onSelect }: {
   jobs: ReproductionJob[];
   selectedId: string | null;
@@ -155,13 +189,14 @@ function ReproductionPanel({ jobs, selectedId, workerOnline, sandboxConfigured, 
   const job = jobs.find(item => item.id === selectedId) || jobs[0];
   if (!job) return null;
   const status = REPRO_STATUS[job.status];
-  const terminal = ['reproduced', 'not-reproduced', 'blocked', 'unsafe', 'failed', 'cancelled'].includes(job.status);
+  const terminal = TERMINAL_REPRO_STATUSES.includes(job.status);
   return <section className={`issue-repro-panel is-${job.status}`}>
     <div className="issue-repro-heading">
       <div><span className="issue-section-kicker">REPRODUCTION LAB / EVIDENCE FIRST</span><h3><FlaskConical size={17} />Bug 复现实验</h3></div>
       <div className="issue-repro-state"><span className={`issue-worker-dot ${workerOnline ? 'is-online' : ''}`} />{workerOnline ? '队列 Worker 在线' : '队列 Worker 离线'}<Badge tone={sandboxConfigured ? 'green' : 'amber'}>{sandboxConfigured ? 'Docker 沙箱已启用' : 'Docker 沙箱关闭'}</Badge><Badge tone={status.tone}>{status.label}</Badge></div>
     </div>
     {jobs.length > 1 && <div className="issue-repro-history" aria-label="复现任务历史">{jobs.map(item => <button type="button" key={item.id} className={item.id === job.id ? 'is-active' : ''} onClick={() => onSelect(item.id)} aria-pressed={item.id === job.id}><span>#{item.issueNumber} · {new Date(item.createdAt).toLocaleString('zh-CN')}</span><Badge tone={REPRO_STATUS[item.status].tone}>{REPRO_STATUS[item.status].label}</Badge></button>)}</div>}
+    <ReproductionTimeline job={job} />
     <div className="issue-repro-overview"><div><span>固定提交</span><strong>{job.commitSha ? job.commitSha.slice(0, 12) : '已记录于计划'}</strong></div><div><span>复现策略</span><strong>{REPRO_MODE[job.plan.mode]}</strong></div><div><span>置信度</span><strong>{job.plan.confidence === 'high' ? '高' : job.plan.confidence === 'medium' ? '中' : '低'}</strong></div><div><span>机器判据</span><strong>{job.plan.oracle.type} = {job.plan.oracle.value}</strong></div><div><span>稳定性</span><strong>{job.attempts ? `${job.successfulAttempts}/${job.attempts} 次命中` : '等待执行'}</strong></div></div>
     <p className="issue-repro-summary">{job.plan.summary}</p>
     {(job.progress || job.error) && <div className={`issue-repro-progress ${job.error ? 'is-error' : ''}`}><span>{job.phase ? `阶段 · ${job.phase}` : '状态'}</span><p>{job.error || job.progress}</p></div>}
@@ -181,7 +216,6 @@ function ReproductionPanel({ jobs, selectedId, workerOnline, sandboxConfigured, 
     </div>
   </section>;
 }
-
 function IssueDetail({ item, busy, canWrite, reproductions, reproductionSelectedId, reproductionWorkerOnline, reproductionSandboxConfigured, onReproduction, onSelectReproduction, onAnalyze, onDraft, onStatus, onUpdate, onShowList }: { item: GitItem; busy: boolean; canWrite: boolean; reproductions: ReproductionJob[]; reproductionSelectedId: string | null; reproductionWorkerOnline: boolean; reproductionSandboxConfigured: boolean; onReproduction: (action: 'plan' | 'confirm' | 'cancel' | 'refresh', jobId?: string) => void; onSelectReproduction: (id: string) => void; onAnalyze: (force?: boolean) => void; onDraft: () => void; onStatus: (status: IssueWorkflowStatus) => void; onUpdate: (change: { state?: 'open' | 'closed'; labels?: string[]; assignees?: string[] }) => void; onShowList: () => void }) {
   const triage = item.triage;
   const category = triage?.category ? CATEGORY_META[triage.category] : null;

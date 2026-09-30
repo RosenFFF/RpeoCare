@@ -12,6 +12,10 @@ const plan = JSON.parse(await readFile(planPath, 'utf8'));
 const started = Date.now();
 const output = { phase, stdout: '', stderr: '', console: [], network: [], steps: [], reproduced: false, summary: '' };
 const background = [];
+const totalSteps = plan.setup.length + plan.steps.length;
+async function writeProgress(currentStep, currentStepLabel) {
+  await writeFile(`${artifacts}/progress.json`, JSON.stringify({ phase, currentStep, totalSteps, currentStepLabel, updatedAt: new Date().toISOString() }), 'utf8').catch(() => {});
+}
 const allowedScripts = /^(?:test(?::[a-z0-9:_-]+)?|lint|typecheck|check|dev|start|serve)$/i;
 
 function tokens(command) {
@@ -93,7 +97,7 @@ function locator(page, target) {
   if (target.startsWith('css=')) return page.locator(target.slice(4));
   return page.locator(target);
 }
-async function browserSteps(steps) {
+async function browserSteps(steps, offset = 0) {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ recordVideo: plan.evidence.includes('video') ? { dir: artifacts } : undefined });
   if (plan.evidence.includes('trace')) await context.tracing.start({ screenshots: true, snapshots: true });
@@ -103,6 +107,8 @@ async function browserSteps(steps) {
   page.on('response', response => output.network.push({ url: response.url(), method: response.request().method(), status: response.status() }));
   try {
     for (const [index, step] of steps.entries()) {
+      const currentStep = offset + index + 1;
+      await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`);
       let result = {};
       if (step.type === 'goto') { const url = await waitFor(step.target); await page.goto(url, { waitUntil: 'domcontentloaded' }); result = { url }; }
       else if (step.type === 'click') await locator(page, step.target).click();
@@ -112,6 +118,7 @@ async function browserSteps(steps) {
         if (step.expected && !(await item.innerText()).includes(step.expected)) throw new Error(`Expected text not found: ${step.expected}`);
       } else result = await commandStep(step);
       output.steps.push({ index, type: step.type, ...result, ok: true });
+      await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`);
     }
     if (plan.evidence.includes('screenshot')) await page.screenshot({ path: `${artifacts}/screenshot.png`, fullPage: true });
     output.finalUrl = page.url();
@@ -133,17 +140,24 @@ function observedOracle() {
 
 try {
   await mkdir(artifacts, { recursive: true });
+  await writeProgress(0, phase === 'dependencies' ? '正在进入依赖准备阶段' : '正在进入隔离执行阶段');
   if (phase === 'dependencies') {
     const installs = plan.setup.filter(step => (step.type === 'run-command' || step.type === 'run-test') && isInstall(step.command));
-    for (const step of installs) { const result = await run(step.command, false, true); output.steps.push({ type: step.type, ...result, ok: result.code === 0 }); if (result.code !== 0) throw new Error('Dependency installation failed.'); }
+    await writeProgress(0, installs.length ? '正在准备测试依赖' : '项目无需单独准备依赖');
+    for (const [index, step] of installs.entries()) { const currentStep = index + 1; await writeProgress(currentStep, `正在安装依赖：${step.command}`); const result = await run(step.command, false, true); output.steps.push({ type: step.type, ...result, ok: result.code === 0 }); if (result.code !== 0) throw new Error('Dependency installation failed.'); await writeProgress(currentStep, `依赖准备完成：${step.command}`); }
     output.summary = installs.length ? 'Dependencies installed without lifecycle scripts.' : 'No dependency installation was required.';
   } else {
-    for (const step of plan.setup) {
+    await writeProgress(0, '正在启动隔离 Runner');
+    for (const [index, step] of plan.setup.entries()) {
       if ((step.type === 'run-command' || step.type === 'run-test') && isInstall(step.command)) continue;
+      const currentStep = index + 1;
+      await writeProgress(currentStep, `正在准备：${step.command || step.target || step.path || step.type}`);
       const result = await commandStep(step); output.steps.push({ type: step.type, ...result, ok: true });
+      await writeProgress(currentStep, `准备完成：${step.command || step.target || step.path || step.type}`);
     }
-    if (plan.mode === 'browser') await browserSteps(plan.steps);
-    else for (const [index, step] of plan.steps.entries()) { const result = await commandStep(step); output.steps.push({ index, type: step.type, ...result, ok: true }); }
+    if (plan.mode === 'browser') await browserSteps(plan.steps, plan.setup.length);
+    else for (const [index, step] of plan.steps.entries()) { const currentStep = plan.setup.length + index + 1; await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`); const result = await commandStep(step); output.steps.push({ index, type: step.type, ...result, ok: true }); await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`); }
+    await writeProgress(totalSteps, '本次验证步骤已完成，正在判断机器判据');
     output.reproduced = observedOracle();
     output.summary = output.reproduced ? 'Observed the plan oracle.' : 'The plan completed without observing the oracle.';
   }

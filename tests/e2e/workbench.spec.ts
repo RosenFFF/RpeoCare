@@ -77,7 +77,7 @@ test('issue focus mode expands details and presents an auditable reproduction pl
   await expect(page.locator('.issue-content-grid')).toHaveClass(/is-focused/);
   await expect(page.locator('.issue-list-panel')).toHaveAttribute('inert', '');
   await expect(page.getByRole('heading', { name: 'Bug 复现实验' })).toBeVisible();
-  await expect(page.getByText('机器判据')).toBeVisible();
+  await expect(page.getByText('机器判据', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /确认隔离执行/ })).toBeVisible();
   await page.getByRole('button', { name: /显示 Issue 列表/ }).click();
   await expect(page.locator('.issue-content-grid')).not.toHaveClass(/is-focused/);

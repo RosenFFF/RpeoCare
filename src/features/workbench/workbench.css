@@ -289,6 +289,31 @@
 .issue-repro-state { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; white-space:nowrap; }
 .issue-worker-dot { width:7px; height:7px; border-radius:50%; background:var(--subtle); box-shadow:0 0 0 4px color-mix(in srgb,var(--subtle) 12%,transparent); }
 .issue-worker-dot.is-online { background:#18855b; box-shadow:0 0 0 4px rgba(24,133,91,.12); }
+.issue-repro-timeline { margin-top: 16px; padding: 14px 15px 15px; border: 1px solid var(--line); border-radius: 9px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 92%, var(--accent-soft)), var(--surface)); }
+.issue-repro-timeline-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.issue-repro-timeline-heading div { display:grid; gap:3px; }
+.issue-repro-timeline-heading span { color:var(--subtle); font-size:9px; }
+.issue-repro-timeline-heading strong { color:var(--ink); font-size:11px; }
+.issue-repro-timeline-heading > span { color:var(--accent); font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace); font-size:10px; font-weight:700; white-space:nowrap; }
+.issue-repro-timeline-list { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; margin:0; padding:0; list-style:none; }
+.issue-repro-timeline-list li { position:relative; display:grid; grid-template-rows:24px auto; gap:7px; min-width:0; }
+.issue-repro-timeline-list li:not(:last-child)::after { content:""; position:absolute; top:11px; left:24px; right:0; height:1px; background:var(--line); }
+.issue-repro-timeline-list li.is-done:not(:last-child)::after { background:color-mix(in srgb, var(--accent) 65%, var(--line)); }
+.issue-repro-timeline-marker { position:relative; z-index:1; display:grid; place-items:center; width:24px; height:24px; border:1px solid var(--line); border-radius:50%; color:var(--subtle); background:var(--surface); font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace); font-size:9px; font-weight:700; }
+.issue-repro-timeline-list li.is-active .issue-repro-timeline-marker { border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); animation:issue-repro-pulse 1.8s ease-in-out infinite; }
+.issue-repro-timeline-list li.is-done .issue-repro-timeline-marker { border-color:var(--accent); color:var(--surface); background:var(--accent); }
+.issue-repro-timeline-list li.is-error .issue-repro-timeline-marker { border-color:var(--danger); color:var(--danger); background:var(--surface); }
+.issue-repro-timeline-list li > div { display:grid; gap:3px; padding-right:10px; }
+.issue-repro-timeline-list strong { color:var(--ink); font-size:10px; line-height:1.3; }
+.issue-repro-timeline-list small { min-height:26px; color:var(--subtle); font-size:9px; line-height:1.4; }
+.issue-repro-timeline-list li.is-active small { color:var(--accent); }
+.issue-repro-live-progress { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+.issue-repro-live-progress-top { display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:10px; }
+.issue-repro-live-progress-top strong { color:var(--accent); font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace); font-size:9px; }
+.issue-repro-progress-track { height:5px; margin-top:8px; overflow:hidden; border-radius:999px; background:var(--line); }
+.issue-repro-progress-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#54b7a4)); transition:width 420ms ease; }
+.issue-repro-live-progress small { display:block; margin-top:7px; color:var(--subtle); font-size:9px; line-height:1.45; }
+@keyframes issue-repro-pulse { 50% { box-shadow:0 0 0 7px transparent; } }
 .issue-repro-overview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:17px; border:1px solid var(--line); border-radius:8px; background:color-mix(in srgb,var(--surface) 88%,transparent); overflow:hidden; }
 .issue-repro-overview > div { min-width:0; padding:11px 13px; border-right:1px solid var(--line); }
 .issue-repro-overview > div:last-child { border-right:0; }
@@ -336,5 +361,5 @@
 .issue-repro-actions { display:flex; align-items:center; gap:8px; margin-top:15px; }
 .issue-repro-actions .button { min-height:32px; font-size:10px; }
 .issue-repro-actions > span { margin-left:auto; max-width:520px; color:var(--subtle); font-size:9px; line-height:1.5; text-align:right; }
-@media (max-width:900px) { .issue-repro-overview { grid-template-columns:repeat(2,minmax(0,1fr)); }.issue-repro-overview > div:nth-child(2) { border-right:0; }.issue-repro-overview > div:nth-child(-n+2) { border-bottom:1px solid var(--line); }.issue-repro-columns { grid-template-columns:1fr; }.issue-repro-evidence { grid-template-columns:1fr; } }
-@media (max-width:650px) { .issue-repro-panel { margin-inline:17px; padding:14px; }.issue-repro-heading,.issue-repro-actions { align-items:stretch; flex-direction:column; }.issue-repro-state { flex-wrap:wrap; }.issue-repro-overview { grid-template-columns:1fr; }.issue-repro-overview > div { border-right:0; border-bottom:1px solid var(--line); }.issue-repro-overview > div:last-child { border-bottom:0; }.issue-repro-progress { grid-template-columns:1fr; }.issue-repro-attempts { grid-template-columns:1fr; }.issue-repro-actions > span { margin-left:0; text-align:left; } }
+@media (max-width:900px) { .issue-repro-timeline-list { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 0; }.issue-repro-timeline-list li:nth-child(3)::after { display:none; }.issue-repro-overview { grid-template-columns:repeat(2,minmax(0,1fr)); }.issue-repro-overview > div:nth-child(2) { border-right:0; }.issue-repro-overview > div:nth-child(-n+2) { border-bottom:1px solid var(--line); }.issue-repro-columns { grid-template-columns:1fr; }.issue-repro-evidence { grid-template-columns:1fr; } }
+@media (max-width:650px) { .issue-repro-timeline-list { grid-template-columns:1fr; gap:0; }.issue-repro-timeline-list li { grid-template-columns:24px minmax(0,1fr); grid-template-rows:auto; gap:10px; padding-bottom:13px; }.issue-repro-timeline-list li:not(:last-child)::after { top:24px; bottom:0; left:11px; right:auto; width:1px; height:auto; }.issue-repro-timeline-list li:nth-child(3)::after { display:block; }.issue-repro-timeline-list small { min-height:0; }.issue-repro-panel { margin-inline:17px; padding:14px; }.issue-repro-heading,.issue-repro-actions { align-items:stretch; flex-direction:column; }.issue-repro-state { flex-wrap:wrap; }.issue-repro-overview { grid-template-columns:1fr; }.issue-repro-overview > div { border-right:0; border-bottom:1px solid var(--line); }.issue-repro-overview > div:last-child { border-bottom:0; }.issue-repro-progress { grid-template-columns:1fr; }.issue-repro-attempts { grid-template-columns:1fr; }.issue-repro-actions > span { margin-left:0; text-align:left; } }

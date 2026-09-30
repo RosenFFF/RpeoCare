@@ -68,7 +68,7 @@ export function updateIssueWorkflowStatus(owner: string, repoUrl: string, number
 }
 export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan }): ReproductionJob {
   const now = new Date().toISOString();
-  const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
+  const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: '复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
   workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, job.issueNumber, job.status, JSON.stringify(job), now, now);
   return job;
 }
@@ -97,7 +97,7 @@ export function queueReproductionJob(owner: string, id: string, repoUrl: string)
     if (job.status !== 'awaiting-confirmation') throw new Error('复现任务不在等待确认状态。');
     const active = database.prepare("SELECT COUNT(*) AS n FROM reproduction_jobs WHERE owner=? AND repo_url=? AND status IN ('queued','running')").get(owner, repoUrl) as { n: number };
     if (active.n >= 2) throw new Error('每个项目最多同时排队或执行 2 个复现任务。');
-    const next: ReproductionJob = { ...job, status: 'queued', phase: 'source', progress: '已确认，等待隔离执行服务', updatedAt: new Date().toISOString() };
+    const next: ReproductionJob = { ...job, status: 'queued', phase: 'source', progress: '已确认，等待隔离执行服务', phaseStartedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     database.prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
     database.exec('COMMIT');
     return next;

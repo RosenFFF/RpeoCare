@@ -99,6 +99,12 @@ export interface ReproductionJob {
   result?: ReproductionResult;
   commitSha?: string;
   environment?: Record<string, string>;
+  currentAttempt?: number;
+  totalAttempts?: number;
+  currentStep?: number;
+  totalSteps?: number;
+  currentStepLabel?: string;
+  phaseStartedAt?: string;
   artifacts: ReproductionArtifact[];
   error?: string;
   createdAt: string;
