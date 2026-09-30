@@ -54,6 +54,23 @@ test('overview updates after first completion and preserves report after retry f
 });
 
 
+
+test('issue triage shows readiness and maintainer review controls', async ({ page }) => {
+  const project = { repoUrl: 'https://github.com/example/real-project', fullName: 'example/real-project', branch: 'main', updatedAt: '2026-09-30T00:00:00Z' };
+  const issue = { number: 238, title: 'Submit button returns 500', body: 'Open /login, enter valid credentials, and click submit. The request returns 500.', url: 'https://github.com/example/real-project/issues/238', state: 'open', author: 'reporter', updatedAt: '2026-09-30T00:00:00Z', labels: ['bug'], commentCount: 1, assignees: [], milestone: null, comments: [] };
+  const triage = { repoUrl: project.repoUrl, number: 238, sourceUpdatedAt: issue.updatedAt, category: 'bug', priority: 'medium', confidence: 'high', needsMoreInfo: false, language: 'English', titleZh: '提交按钮返回 500', summaryZh: '具备基本复现信息。', bodyZh: '点击提交后返回错误。', actualBehavior: '返回 500', expectedBehavior: '提交成功', environment: 'Node.js 24、Chrome', providedInformation: ['页面和操作步骤'], missingInformation: [], suggestedLabels: ['bug'], suggestedAction: 'investigate', workflowStatus: 'ready-to-reproduce', readinessScore: 85, readinessLevel: 'ready', readinessBlockers: [], rationale: ['已识别实际行为', '已识别预期行为'], commentsZh: [], analyzedAt: issue.updatedAt };
+  await page.route('**/api/workbench', route => route.fulfill({ json: { project, runs: [], drafts: [], usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 }, github: null } }));
+  await page.route('**/api/workbench/items**', route => route.fulfill({ json: route.request().url().includes('number=238') ? { item: { ...issue, triage } } : { items: [{ ...issue, triage }] } }));
+  await page.route('**/api/workbench/reproduction?number=238', route => route.fulfill({ json: { jobs: [], workerOnline: true, sandboxConfigured: true } }));
+  await page.goto('/issues');
+  await page.getByRole('button', { name: /#238 Submit button returns 500/ }).click();
+  await expect(page.getByText('处理准备度', { exact: true })).toBeVisible();
+  await expect(page.getByText('85', { exact: true })).toBeVisible();
+  await expect(page.locator('.issue-readiness-card').getByRole('button', { name: '生成复现方案', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '维护者确认' })).toBeVisible();
+  await expect(page.getByText('待确认', { exact: true })).toBeVisible();
+});
+
 test('issue focus mode expands details and presents an auditable reproduction plan', async ({ page }) => {
   const project = { repoUrl: 'https://github.com/example/real-project', fullName: 'example/real-project', branch: 'main', updatedAt: '2026-09-29T00:00:00Z' };
   const issue = { number: 237, title: 'Submit button crashes', body: 'Clicking submit shows an internal error.', url: 'https://github.com/example/real-project/issues/237', state: 'open', author: 'reporter', updatedAt: '2026-09-29T00:00:00Z', labels: ['bug'], commentCount: 0, assignees: [], milestone: null, comments: [] };

@@ -8,6 +8,13 @@ export type IssueConfidence = 'high' | 'medium' | 'low';
 export type IssueAction = 'request-information' | 'reply' | 'investigate' | 'consider-feature' | 'close' | 'manual-review';
 export type IssueWorkflowStatus = 'untriaged' | 'needs-info' | 'ready-to-reproduce' | 'ready-to-reply' | 'investigate' | 'replied' | 'manual-review';
 export type IssueReadinessLevel = 'ready' | 'partial' | 'insufficient';
+export interface IssueTriageReview {
+  category?: IssueCategory;
+  priority?: IssuePriority;
+  workflowStatus?: IssueWorkflowStatus;
+  note?: string;
+  confirmedAt: string;
+}
 export interface IssueTriage {
   repoUrl: string;
   number: number;
@@ -32,6 +39,7 @@ export interface IssueTriage {
   readinessLevel?: IssueReadinessLevel;
   readinessBlockers?: string[];
   rationale?: string[];
+  review?: IssueTriageReview;
   commentsZh: { id: number; bodyZh: string }[];
   analyzedAt: string;
 }

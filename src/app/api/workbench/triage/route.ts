@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
-import { getProject, updateIssueWorkflowStatus } from '@/server/workbench/store';
+import { getProject, updateIssueTriageReview, updateIssueWorkflowStatus } from '@/server/workbench/store';
 import { getItem } from '@/server/github/api';
 import { analyzeIssue } from '@/server/workbench/triage';
 import { withOperation } from '@/server/workbench/store';
@@ -9,7 +9,8 @@ import { withOperation } from '@/server/workbench/store';
 const inputSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('analyze'), number: z.number().int().positive(), force: z.boolean().optional() }),
   z.object({ action: z.literal('batch'), numbers: z.array(z.number().int().positive()).min(1).max(12), force: z.boolean().optional() }),
-  z.object({ action: z.literal('status'), number: z.number().int().positive(), status: z.enum(['untriaged', 'needs-info', 'ready-to-reproduce', 'ready-to-reply', 'investigate', 'replied', 'manual-review']) }),
+  z.object({ action: z.literal('status'), number: z.number().int().positive(), status: z.enum(['untriaged', 'needs-info', 'ready-to-reproduce', 'ready-to-reply', 'investigate', 'replied', 'manual-review']), note: z.string().max(1000).optional() }),
+  z.object({ action: z.literal('review'), number: z.number().int().positive(), category: z.enum(['bug', 'feature', 'question', 'documentation', 'performance', 'compatibility', 'security', 'other']), priority: z.enum(['high', 'medium', 'low', 'unknown']), status: z.enum(['untriaged', 'needs-info', 'ready-to-reproduce', 'ready-to-reply', 'investigate', 'replied', 'manual-review']), note: z.string().max(1000).optional() }),
 ]);
 
 export async function POST(request: NextRequest) {
@@ -21,7 +22,8 @@ export async function POST(request: NextRequest) {
     if (!project) return errorResponse('请先连接项目。', 404);
     const input = inputSchema.parse(await smallJson(request, 40_000));
     return await withOperation(owner, input.action === 'batch' ? 'issue-triage-batch' : input.action === 'status' ? `issue-triage-status:${input.number}` : `issue-triage:${input.number}`, async () => {
-      if (input.action === 'status') return jsonResponse({ triage: updateIssueWorkflowStatus(owner, project.repoUrl, input.number, input.status) });
+      if (input.action === 'status') return jsonResponse({ triage: updateIssueWorkflowStatus(owner, project.repoUrl, input.number, input.status, input.note) });
+      if (input.action === 'review') return jsonResponse({ triage: updateIssueTriageReview(owner, project.repoUrl, input.number, { category: input.category, priority: input.priority, workflowStatus: input.status, note: input.note }) });
       if (input.action === 'analyze') {
         const item = await getItem(owner, project.repoUrl, 'issues', input.number, request.signal);
         return jsonResponse({ triage: await analyzeIssue(owner, project.repoUrl, item, request.signal, input.force === true) });

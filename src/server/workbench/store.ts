@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { Draft, IssueTriage, IssueWorkflowStatus, Project, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
+import type { Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -10,6 +10,7 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS snapshots (run_id TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS drafts (id TEXT PRIMARY KEY, owner TEXT NOT NULL, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS issue_triage (owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (owner, repo_url, number));
+    CREATE TABLE IF NOT EXISTS issue_triage_events (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, source TEXT NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS reproduction_jobs (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, issue_number INTEGER NOT NULL, status TEXT NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS reproduction_owner_repo ON reproduction_jobs(owner, repo_url, issue_number);
     CREATE TABLE IF NOT EXISTS reproduction_leases (job_id TEXT PRIMARY KEY, worker TEXT NOT NULL, expires INTEGER NOT NULL, attempts INTEGER NOT NULL);
@@ -56,15 +57,26 @@ export function listIssueTriages(owner: string, repoUrl: string, numbers?: numbe
   const placeholders = numbers.map(() => '?').join(',');
   return (workbenchDb().prepare(`SELECT state FROM issue_triage WHERE owner=? AND repo_url=? AND number IN (${placeholders})`).all(owner, repoUrl, ...numbers) as { state: string }[]).map(row => JSON.parse(row.state) as IssueTriage);
 }
-export function saveIssueTriage(owner: string, repoUrl: string, triage: IssueTriage): IssueTriage {
-  workbenchDb().prepare('INSERT INTO issue_triage (owner, repo_url, number, state, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(owner, repo_url, number) DO UPDATE SET state=excluded.state, updated_at=excluded.updated_at').run(owner, repoUrl, triage.number, JSON.stringify(triage), triage.analyzedAt);
+export function saveIssueTriage(owner: string, repoUrl: string, triage: IssueTriage, source: 'ai' | 'maintainer' = 'ai'): IssueTriage {
+  const database = workbenchDb();
+  database.prepare('INSERT INTO issue_triage (owner, repo_url, number, state, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(owner, repo_url, number) DO UPDATE SET state=excluded.state, updated_at=excluded.updated_at').run(owner, repoUrl, triage.number, JSON.stringify(triage), triage.analyzedAt);
+  database.prepare('INSERT INTO issue_triage_events VALUES (?, ?, ?, ?, ?, ?, ?)').run(randomUUID(), owner, repoUrl, triage.number, source, JSON.stringify(triage), new Date().toISOString());
   return triage;
 }
-export function updateIssueWorkflowStatus(owner: string, repoUrl: string, number: number, status: IssueWorkflowStatus): IssueTriage {
+export function updateIssueWorkflowStatus(owner: string, repoUrl: string, number: number, status: IssueWorkflowStatus, note?: string): IssueTriage {
   const current = getIssueTriage(owner, repoUrl, number);
   if (!current) throw new Error('请先完成一次 Issue 分析，再更新处理状态。');
-  const next = { ...current, workflowStatus: status };
-  return saveIssueTriage(owner, repoUrl, next);
+  const next = { ...current, workflowStatus: status, review: { ...current.review, workflowStatus: status, note: note || current.review?.note, confirmedAt: new Date().toISOString() } };
+  return saveIssueTriage(owner, repoUrl, next, 'maintainer');
+}
+export function updateIssueTriageReview(owner: string, repoUrl: string, number: number, change: { category: IssueCategory; priority: IssuePriority; workflowStatus: IssueWorkflowStatus; note?: string }): IssueTriage {
+  const current = getIssueTriage(owner, repoUrl, number);
+  if (!current) throw new Error('请先完成一次 Issue 分析，再确认分诊结果。');
+  const next = { ...current, review: { category: change.category, priority: change.priority, workflowStatus: change.workflowStatus, note: change.note?.trim() || undefined, confirmedAt: new Date().toISOString() }, workflowStatus: change.workflowStatus };
+  return saveIssueTriage(owner, repoUrl, next, 'maintainer');
+}
+export function listIssueTriageEvents(owner: string, repoUrl: string, number: number) {
+  return (workbenchDb().prepare('SELECT source, state, created_at AS createdAt FROM issue_triage_events WHERE owner=? AND repo_url=? AND number=? ORDER BY created_at DESC LIMIT 20').all(owner, repoUrl, number) as { source: string; state: string; createdAt: string }[]).map(event => ({ ...event, state: JSON.parse(event.state) as IssueTriage }));
 }
 export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan }): ReproductionJob {
   const now = new Date().toISOString();

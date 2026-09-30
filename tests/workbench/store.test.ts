@@ -4,7 +4,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { db, createRun, getRun, updateRun } from '../../src/server/audit/store';
-import { createDraft, getDraft, saveProject, getProject, updateDraft, withOperation } from '../../src/server/workbench/store';
+import { createDraft, getDraft, saveProject, getProject, updateDraft, withOperation, saveIssueTriage, updateIssueTriageReview, listIssueTriageEvents, getIssueTriage } from '../../src/server/workbench/store';
+import type { IssueTriage } from '../../src/contracts/workbench';
 import { claimTask, pulseWorker } from '../../src/server/audit/queue';
 import { accountSession, authDb, saveGithubAccount, githubAccount } from '../../src/server/github/connection';
 import { passwordHash, verifyPassword, emailDb, redeem } from '../../src/server/auth/email';
@@ -69,4 +70,17 @@ test('password hashing verifies and reset tokens are one-use and revoke sessions
   await redeem('test-token', 'reset', 'new-test-password');
   await assert.rejects(redeem('test-token', 'reset', 'another-password'));
   assert.equal(database.prepare('SELECT hash FROM login_sessions WHERE owner=?').get('email-owner'), undefined);
+});
+
+test('triage keeps AI history separate from maintainer confirmation', () => {
+  const base: IssueTriage = {
+    repoUrl: 'https://github.com/example/triage-history', number: 7, sourceUpdatedAt: '2026-09-30T00:00:00Z', category: 'bug', priority: 'medium', confidence: 'medium', needsMoreInfo: false, language: 'English', titleZh: '按钮失败', summaryZh: '建议调查', providedInformation: ['步骤'], missingInformation: [], suggestedLabels: ['bug'], suggestedAction: 'investigate', workflowStatus: 'investigate', readinessScore: 80, readinessLevel: 'ready', readinessBlockers: [], rationale: ['有明确行为'], commentsZh: [], analyzedAt: '2026-09-30T00:00:00Z',
+  };
+  saveIssueTriage('triage-owner', base.repoUrl, base);
+  const reviewed = updateIssueTriageReview('triage-owner', base.repoUrl, base.number, { category: 'bug', priority: 'high', workflowStatus: 'ready-to-reproduce', note: '维护者确认优先调查提交流程。' });
+  assert.equal(reviewed.review?.priority, 'high');
+  assert.equal(getIssueTriage('triage-owner', base.repoUrl, base.number)?.priority, 'medium');
+  const events = listIssueTriageEvents('triage-owner', base.repoUrl, base.number);
+  assert.equal(events.length, 2);
+  assert.equal(events[0].source, 'maintainer');
 });

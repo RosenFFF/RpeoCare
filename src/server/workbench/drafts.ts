@@ -30,7 +30,11 @@ export async function itemDraft(owner: string, repoUrl: string, kind: 'issue' | 
   const item = await getItem(owner, repoUrl, kind === 'issue' ? 'issues' : 'pulls', number);
   let budget = 50_000;
   const files = item.files?.map(file => { const patch = file.patch?.slice(0, Math.max(0, budget)); budget -= patch?.length || 0; return { ...file, patch, omitted: patch?.length !== file.patch?.length }; });
-  const content = await assistant(owner, kind, kind === 'issue' ? '分析 Issue：给出问题分类、已提供信息、缺失的复现信息和建议下一步。生成可直接审阅的友好回复草稿，不重复索要已给出的信息。' : '分析 PR 的实际 Diff，生成审阅评论草稿。逐项注明文件路径，区分确定问题与需要确认的问题。文件列表仅首 100 个，patch 可能截断，不能声称全量审查或测试通过。', { ...item, files, body: item.body.slice(0, 20000) }, [], signal);
+  const triage = kind === 'issue' ? (await import('./store')).getIssueTriage(owner, repoUrl, number) : null;
+  const instruction = kind === 'issue'
+    ? '根据 Issue 和已确认的分诊结果生成可直接审阅的中文回复草稿。优先使用维护者确认结果；如果没有确认结果，明确把 AI 分析称为建议。根据信息完整度决定是请求补充信息、说明准备复现，还是说明当前调查边界。不要重复索要已经提供的信息，不要声称已经修复、复现或测试通过。只输出回复正文。'
+    : '分析 PR 的实际 Diff，生成审阅评论草稿。逐项注明文件路径，区分确定问题与需要确认的问题。文件列表仅首 100 个，patch 可能截断，不能声称全量审查或测试通过。';
+  const content = await assistant(owner, kind, instruction, { ...item, triage, files, body: item.body.slice(0, 20000) }, [], signal);
   return createDraft(owner, {
     kind,
     repoUrl,

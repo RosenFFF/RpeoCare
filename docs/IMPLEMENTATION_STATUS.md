@@ -9,6 +9,7 @@
 - 文档维护工作台：从报告生成 README、贡献指南、Issue／PR 模板等 Markdown 草稿；展示文档资产和草稿来源（任务、检查项及证据），支持编辑／预览／Diff 三态、保存、重新生成与下载。
 - 文件草稿经明确确认后创建独立分支 Draft PR；工作台不直接修改默认分支，Issue 评论和 PR 审阅仍沿用独立的发布确认流程。
 - 写回支持 Issue 评论、PR COMMENT、独立分支草稿 PR；校验草稿版本和远程提交。
+- 维护者确认结果与 AI 原始建议分离保存，并保留分诊事件历史。
 - GitHub OAuth/PKCE、邮箱注册验证登录和重置、登录保护。
 - 快照恢复、同机多 Worker、最后一轮 Agent 收尾、调用/token 统计。
 - Python/Go/Java 测试文件和多语言规范配置的存在性检查。
@@ -36,6 +37,6 @@
 
 ## 本地验收结果（2026-09-30）
 
-`npm run check` 通过：Lint、类型检查、71 项测试、生产构建。新增的复现实验室计划校验、任务隔离、队列认领和 Docker 未启用时 fail-closed 测试均通过。生产浏览器回归脚本已纳入 CI；本轮本机缺少 Playwright Chromium 可执行文件，因此未重新执行浏览器回归。
+`npm run check` 通过：Lint、类型检查、73 项测试、生产构建。新增的复现实验室计划校验、任务隔离、队列认领和 Docker 未启用时 fail-closed 测试均通过。生产浏览器回归脚本已纳入 CI；本轮本机缺少 Playwright Chromium 可执行文件，因此未重新执行浏览器回归。
 
 在线数据库备份成功；清理命令以 dry-run 验证。Compose 配置保留 Web 与体检 Worker。复现 Worker 推荐运行在独立 Docker Runner 主机。2026-09-30 验证时 Docker CLI 可见但 Docker Desktop 引擎未运行，故已完成 fail-closed 测试和 Runner 语法校验，仍未完成镜像构建与真实沙箱执行验收。上述更大范围仍未完成，本轮成果不等于全部产品路线图完成。
