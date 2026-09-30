@@ -20,7 +20,7 @@ npm run dev
 | 统一项目 | 连接真实仓库、指定分支、概览与历史任务、草稿统计 |
 | 体检 | 固定提交快照、8 项基础检查、pi Agent 分析、文件证据、报告导出 |
 | 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
-| Issue / PR | 真实开放列表、分页、原文与 patch、模型分析评论草稿 |
+| Issue / PR | 真实开放列表、AI 可解释分诊、中英对照、回复草稿；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
 | 文档维护 | 从报告生成 README / CONTRIBUTING / Issue / PR 模板；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
 | 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
@@ -45,7 +45,9 @@ src/features/            功能界面（workbench 为真实项目功能）
 src/server/audit/        快照、规则、Agent、任务和 Worker 队列
 src/server/auth/         邮箱认证和邮件
 src/server/github/       GitHub OAuth、读取、写回
-src/server/workbench/    项目、草稿和模型使用量
+src/server/workbench/    项目、草稿、分诊和模型使用量
+src/server/reproduction/  复现计划校验、队列与 Docker 执行器
+reproduction/             最小权限 Runner 镜像与 Playwright 执行入口
 src/server/models/       模型连接、加密与协议适配
 src/contracts/           共享数据类型
 src/shared/              共用组件、样式与浏览器工具
@@ -74,9 +76,10 @@ npm run cleanup -- --apply
 - [部署与运行](docs/DEPLOYMENT.md)
 - [账户配置](docs/AUTH_INTEGRATION.md)
 - [体检范围](docs/AUDIT_SETUP.md)
+- [Bug 复现实验室](docs/REPRODUCTION.md)
 - [实现与验收清单](docs/IMPLEMENTATION_STATUS.md)
 - [架构](docs/ARCHITECTURE.md) / [开发约定](docs/DEVELOPMENT.md)
 
-当前不会运行被检查仓库的代码；工程检查只确认配置、文件及命令声明。多语言支持是配置识别，不是全语言静态分析。文档工作台的预览和 Diff 只用于内容审阅，尚未接入 Markdown 链接、命令或渲染安全的完整自动检查。草稿保留原体检报告的来源信息，仍须由维护者核对证据后发布。旧任务没有文件快照时仍能阅读报告，生成替换草稿需重新体检。
+常规项目体检不会运行被检查仓库的代码；只有维护者在 Issue 详情审阅并确认复现计划后，独立 Worker 才会在默认断网的 Docker Runner 中执行受限命令。Docker 未启用时安全阻塞，不回退宿主机。多语言支持是配置识别，不是全语言静态分析。文档工作台的预览和 Diff 只用于内容审阅，尚未接入 Markdown 链接、命令或渲染安全的完整自动检查。草稿保留原体检报告的来源信息，仍须由维护者核对证据后发布。旧任务没有文件快照时仍能阅读报告，生成替换草稿需重新体检。
 
 GitHub、邮箱和匿名本地会话目前为独立身份空间，不按同名邮箱自动合并。Gitee/GitLab 尚未接入。多 Worker 只支持同机共享数据库，跨主机分布式部署尚需独立数据库和队列。公网部署必须配置 HTTPS、认证与反向代理限流。

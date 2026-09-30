@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --kill-others -n web,worker npm:dev:web npm:worker",
+    "dev": "concurrently --kill-others -n web,audit,repro npm:dev:web npm:worker npm:repro-worker",
     "build": "next build",
-    "start": "concurrently --kill-others -n web,worker npm:start:web npm:worker",
+    "start": "concurrently --kill-others -n web,audit,repro npm:start:web npm:worker npm:repro-worker",
     "typecheck": "next typegen && tsc --noEmit",
     "dev:web": "next dev --hostname 127.0.0.1",
     "worker": "tsx scripts/audit-worker.ts",
@@ -16,7 +16,9 @@
     "lint": "eslint src scripts tests --quiet",
     "backup": "tsx scripts/backup.ts",
     "cleanup": "tsx scripts/cleanup.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "repro-worker": "tsx scripts/reproduction-worker.ts",
+    "repro:image": "docker build -t repocare-repro-runner:local reproduction"
   },
   "dependencies": {
     "@mariozechner/pi-agent-core": "0.73.1",

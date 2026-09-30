@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { db } from '../../src/server/audit/store';
 import { accountSession, saveGithubAccount, withGithubOwner } from '../../src/server/github/connection';
-import { getItem, publishDraft, repositoryCounts, updateIssue } from '../../src/server/github/api';
+import { getBranchCommit, getItem, publishDraft, repositoryCounts, updateIssue } from '../../src/server/github/api';
 import { getRepository } from '../../src/server/audit/github';
 import type { Draft } from '../../src/contracts/workbench';
 
@@ -78,4 +78,23 @@ test('issue details include comments and explicit maintenance updates', async t 
   assert.equal(updated.state, 'closed');
   assert.deepEqual(updated.labels, ['bug']);
   assert.ok(calls.some(call => call.method === 'PATCH' && call.body.state === 'closed' && call.body.labels[0] === 'bug'));
+});
+
+
+test('reproduction pins the selected branch to an immutable public commit', async t => {
+  const calls: string[] = [];
+  t.mock.method(globalThis, 'fetch', async (input: URL | Request | string) => {
+    const url = String(input); calls.push(url);
+    if (url.endsWith('/repos/example/project')) return Response.json({ private: false, default_branch: 'main' });
+    if (url.includes('/commits/release%2Fstable')) return Response.json({ sha: 'b'.repeat(40) });
+    throw new Error(`Unexpected request ${url}`);
+  });
+  const pinned = await getBranchCommit('anonymous', draft.repoUrl, 'release/stable');
+  assert.equal(pinned.branch, 'release/stable'); assert.equal(pinned.sha, 'b'.repeat(40));
+  assert.ok(calls.some(url => url.includes('/commits/release%2Fstable')));
+});
+
+test('reproduction refuses private repositories before resolving branch commits', async t => {
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ private: true, default_branch: 'main' }));
+  await assert.rejects(getBranchCommit('anonymous', draft.repoUrl), /仅支持公开/);
 });

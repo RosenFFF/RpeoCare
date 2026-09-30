@@ -71,6 +71,17 @@ export async function repositoryCounts(owner: string, url: string) {
     fetchedAt: new Date().toISOString(),
   };
 }
+export async function getBranchCommit(owner: string, url: string, requestedBranch?: string, signal?: AbortSignal): Promise<{ branch: string; sha: string }> {
+  const prefix = repoPath(url);
+  const repository = await githubApi(owner, prefix, { signal });
+  if (repository.private !== false) throw new Error('当前 Bug 复现仅支持公开 GitHub 仓库。');
+  const branch = requestedBranch || repository.default_branch;
+  if (typeof branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(branch) || branch.startsWith('-') || branch.includes('..')) throw new Error('仓库分支名称无效。');
+  const commit = await githubApi(owner, `${prefix}/commits/${encodeURIComponent(branch)}`, { signal });
+  if (typeof commit.sha !== 'string' || !/^[a-f0-9]{40}$/i.test(commit.sha)) throw new Error('无法锁定 Issue 复现使用的 Git 提交。');
+  return { branch, sha: commit.sha };
+}
+
 export async function getItem(owner: string, url: string, kind: 'issues' | 'pulls', number: number, signal?: AbortSignal): Promise<GitItem> {
   const prefix = repoPath(url), result = item(await githubApi(owner, `${prefix}/${kind}/${number}`, { signal }));
   if (kind === 'issues') {

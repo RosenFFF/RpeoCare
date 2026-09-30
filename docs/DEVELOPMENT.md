@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-`dev` 同时运行 Web 和 Worker，访问 `http://127.0.0.1:3000/workspace`，首次进入体检，已有成功报告时进入概览。执行正式体检需要 Worker 在线。环境变量见 [体检部署说明](AUDIT_SETUP.md)。
+`dev` 同时运行 Web、体检 Worker 和复现 Worker；复现功能默认关闭，访问 `http://127.0.0.1:3000/workspace`，首次进入体检，已有成功报告时进入概览。执行正式体检需要 Worker 在线。环境变量见 [体检部署说明](AUDIT_SETUP.md)。
 
 ## 代码组织
 
@@ -43,3 +43,8 @@ npm run check
 普通推送成功后核对远程分支提交号，并向用户报告提交号和同步结果。网络、认证或远程冲突导致失败时保留本地成果，报告真实原因；不强制推送，不覆盖远程历史。检查失败先修复，不把未通过的改动描述为已验证完成。
 
 这是 Codex 的持久项目工作规则，不是监视文件保存的后台同步程序；手动修改文件不会立即自动上传。规则原文见根目录 `AGENTS.md`。
+
+
+## 复现 Runner
+
+复现相关改动至少运行 `node --check reproduction/runner.mjs`、单元测试和完整 `npm run check`。本地 Docker 可用时再运行 `npm run repro:image`，并使用专用公开测试仓库验收。不要在测试中回退到宿主机执行仓库命令。配置与生产隔离要求见 [REPRODUCTION.md](REPRODUCTION.md)。

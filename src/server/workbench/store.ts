@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { Draft, IssueTriage, IssueWorkflowStatus, Project, Usage } from '../../contracts/workbench';
+import type { Draft, IssueTriage, IssueWorkflowStatus, Project, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -10,6 +10,10 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS snapshots (run_id TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS drafts (id TEXT PRIMARY KEY, owner TEXT NOT NULL, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS issue_triage (owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (owner, repo_url, number));
+    CREATE TABLE IF NOT EXISTS reproduction_jobs (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, issue_number INTEGER NOT NULL, status TEXT NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS reproduction_owner_repo ON reproduction_jobs(owner, repo_url, issue_number);
+    CREATE TABLE IF NOT EXISTS reproduction_leases (job_id TEXT PRIMARY KEY, worker TEXT NOT NULL, expires INTEGER NOT NULL, attempts INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS reproduction_workers (id TEXT PRIMARY KEY, heartbeat INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS issue_triage_owner_repo ON issue_triage(owner, repo_url);
     CREATE INDEX IF NOT EXISTS drafts_owner ON drafts(owner);
     CREATE TABLE IF NOT EXISTS model_usage (id TEXT PRIMARY KEY, owner TEXT NOT NULL, at INTEGER NOT NULL, purpose TEXT NOT NULL, input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL, failed INTEGER NOT NULL);
@@ -62,6 +66,60 @@ export function updateIssueWorkflowStatus(owner: string, repoUrl: string, number
   const next = { ...current, workflowStatus: status };
   return saveIssueTriage(owner, repoUrl, next);
 }
+export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan }): ReproductionJob {
+  const now = new Date().toISOString();
+  const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
+  workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, job.issueNumber, job.status, JSON.stringify(job), now, now);
+  return job;
+}
+export function getReproductionJob(owner: string, id: string): ReproductionJob {
+  const row = workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND id=?').get(owner, id) as { state: string } | undefined;
+  if (!row) throw new Error('复现任务不存在或不属于当前会话。');
+  return JSON.parse(row.state) as ReproductionJob;
+}
+export function listReproductionJobs(owner: string, repoUrl: string, issueNumber?: number): ReproductionJob[] {
+  const rows = issueNumber ? workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? AND issue_number=? ORDER BY created_at DESC LIMIT 20').all(owner, repoUrl, issueNumber) : workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? ORDER BY created_at DESC LIMIT 50').all(owner, repoUrl);
+  return (rows as { state: string }[]).map(row => JSON.parse(row.state) as ReproductionJob);
+}
+export function updateReproductionJob(owner: string, id: string, change: Partial<ReproductionJob>): ReproductionJob {
+  const current = getReproductionJob(owner, id); const next = { ...current, ...change, updatedAt: new Date().toISOString() };
+  workbenchDb().prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
+  return next;
+}
+export function queueReproductionJob(owner: string, id: string, repoUrl: string): ReproductionJob {
+  const database = workbenchDb();
+  database.exec('BEGIN IMMEDIATE');
+  try {
+    const row = database.prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND id=?').get(owner, id) as { state: string } | undefined;
+    if (!row) throw new Error('复现任务不存在或不属于当前账户。');
+    const job = JSON.parse(row.state) as ReproductionJob;
+    if (job.repoUrl !== repoUrl) throw new Error('复现任务不属于当前项目。');
+    if (job.status !== 'awaiting-confirmation') throw new Error('复现任务不在等待确认状态。');
+    const active = database.prepare("SELECT COUNT(*) AS n FROM reproduction_jobs WHERE owner=? AND repo_url=? AND status IN ('queued','running')").get(owner, repoUrl) as { n: number };
+    if (active.n >= 2) throw new Error('每个项目最多同时排队或执行 2 个复现任务。');
+    const next: ReproductionJob = { ...job, status: 'queued', phase: 'source', progress: '已确认，等待隔离执行服务', updatedAt: new Date().toISOString() };
+    database.prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
+    database.exec('COMMIT');
+    return next;
+  } catch (error) { database.exec('ROLLBACK'); throw error; }
+}
+export function cancelReproductionJob(owner: string, id: string, repoUrl: string): ReproductionJob {
+  const database = workbenchDb();
+  database.exec('BEGIN IMMEDIATE');
+  try {
+    const row = database.prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND id=?').get(owner, id) as { state: string } | undefined;
+    if (!row) throw new Error('复现任务不存在或不属于当前账户。');
+    const job = JSON.parse(row.state) as ReproductionJob;
+    if (job.repoUrl !== repoUrl) throw new Error('复现任务不属于当前项目。');
+    if (!['awaiting-confirmation', 'queued'].includes(job.status)) throw new Error('当前任务不能取消。');
+    const next: ReproductionJob = { ...job, status: 'cancelled', error: '已由维护者取消', progress: '任务已取消，未执行仓库代码', finishedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    database.prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
+    database.prepare('DELETE FROM reproduction_leases WHERE job_id=?').run(id);
+    database.exec('COMMIT');
+    return next;
+  } catch (error) { database.exec('ROLLBACK'); throw error; }
+}
+
 export function createDraft(owner: string, input: Omit<Draft, 'id' | 'revision' | 'status' | 'createdAt'>): Draft {
   const draft: Draft = { ...input, id: randomUUID(), revision: 1, status: 'draft', createdAt: new Date().toISOString() };
   workbenchDb().prepare('INSERT INTO drafts VALUES (?, ?, ?)').run(draft.id, owner, JSON.stringify(draft));

@@ -30,6 +30,82 @@ export interface IssueTriage {
   commentsZh: { id: number; bodyZh: string }[];
   analyzedAt: string;
 }
+
+export type ReproductionMode = 'command' | 'browser' | 'http' | 'test';
+export type ReproductionStatus = 'draft' | 'awaiting-confirmation' | 'queued' | 'running' | 'reproduced' | 'not-reproduced' | 'blocked' | 'unsafe' | 'failed' | 'cancelled';
+export type ReproductionResult = 'reproduced' | 'not-reproduced' | 'blocked' | 'unsafe' | 'failed';
+export type ReproductionPhase = 'planning' | 'source' | 'dependencies' | 'execution' | 'evidence';
+export type ReproductionEvidenceKind = 'stdout' | 'stderr' | 'screenshot' | 'trace' | 'video' | 'network' | 'console' | 'stacktrace' | 'test-result';
+export interface ReproductionStep {
+  type: 'goto' | 'click' | 'fill' | 'expect' | 'run-test' | 'run-command' | 'create-file' | 'request';
+  target?: string;
+  value?: string;
+  command?: string;
+  path?: string;
+  content?: string;
+  expected?: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  body?: string;
+  background?: boolean;
+}
+export interface ReproductionOracle {
+  type: 'exit-code' | 'stdout-contains' | 'stderr-contains' | 'selector-visible' | 'url-contains' | 'http-status';
+  value: string;
+}
+export interface ReproductionPlan {
+  mode: ReproductionMode;
+  confidence: IssueConfidence;
+  summary: string;
+  environment: { language?: string; version?: string; os?: string; dependencies: string[] };
+  setup: ReproductionStep[];
+  steps: ReproductionStep[];
+  oracle: ReproductionOracle;
+  expected: string;
+  evidence: ReproductionEvidenceKind[];
+  risks: string[];
+  missingInformation: string[];
+  requiresHumanApproval: boolean;
+}
+export interface ReproductionArtifact {
+  id: string;
+  kind: ReproductionEvidenceKind | 'plan' | 'result' | 'source-log';
+  path: string;
+  sha256: string;
+  contentType: string;
+  size: number;
+  createdAt: string;
+}
+export interface ReproductionAttempt {
+  index: number;
+  result: ReproductionResult;
+  durationMs: number;
+  summary: string;
+  startedAt: string;
+  finishedAt: string;
+}
+export interface ReproductionJob {
+  id: string;
+  repoUrl: string;
+  branch?: string;
+  issueNumber: number;
+  sourceUpdatedAt: string;
+  plan: ReproductionPlan;
+  status: ReproductionStatus;
+  phase?: ReproductionPhase;
+  progress?: string;
+  attempts: number;
+  successfulAttempts: number;
+  attemptHistory: ReproductionAttempt[];
+  result?: ReproductionResult;
+  commitSha?: string;
+  environment?: Record<string, string>;
+  artifacts: ReproductionArtifact[];
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+}
 export interface GitItem { number: number; title: string; body: string; url: string; state: string; author: string; updatedAt: string; labels: string[]; commentCount?: number; assignees?: string[]; milestone?: string | null; headSha?: string; comments?: GitComment[]; triage?: IssueTriage; files?: { path: string; status: string; additions: number; deletions: number; patch?: string }[] }
 /** Where a draft came from, so reviewers can trace generated text back to the
  * report or GitHub item that supplied its context. Optional for old drafts. */

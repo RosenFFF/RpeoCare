@@ -6,8 +6,9 @@ test('report hides inspector and all input composers', async ({ page }) => {
   await page.getByRole('button', { name: '体检报告', exact: true }).click();
   await expect(page.locator('.as-inspector-shell')).toHaveAttribute('inert', '');
   await expect(page.locator('.as-composer')).toHaveCount(0);
+  const hasReport = await page.locator('.aw-report').count() > 0;
   await page.getByRole('button', { name: '任务对话', exact: true }).click();
-  await expect(page.locator('.as-composer')).toHaveCount(0);
+  await expect(page.locator('.as-composer')).toHaveCount(hasReport ? 0 : 1);
   await expect(page.locator('.wb-chat')).toHaveCount(0);
   await expect(page.locator('.as-inspector-shell')).not.toHaveAttribute('inert', '');
 });
@@ -50,4 +51,34 @@ test('overview updates after first completion and preserves report after retry f
   state = { ...completedOverview, latestRun: { id: 'retry', status: 'failed', error: 'network' } };
   await expect(page.getByText('最新体检未完成，已保留上一份成功报告。')).toBeVisible({ timeout: 15000 });
   await expect(page.getByRole('region', { name: '项目维护地图' })).toBeVisible();
+});
+
+
+test('issue focus mode expands details and presents an auditable reproduction plan', async ({ page }) => {
+  const project = { repoUrl: 'https://github.com/example/real-project', fullName: 'example/real-project', branch: 'main', updatedAt: '2026-09-29T00:00:00Z' };
+  const issue = { number: 237, title: 'Submit button crashes', body: 'Clicking submit shows an internal error.', url: 'https://github.com/example/real-project/issues/237', state: 'open', author: 'reporter', updatedAt: '2026-09-29T00:00:00Z', labels: ['bug'], commentCount: 0, assignees: [], milestone: null, comments: [] };
+  const reproduction = {
+    id: '201f6725-abef-4527-aacb-aaa22df1117d', repoUrl: project.repoUrl, branch: 'main', issueNumber: 237,
+    sourceUpdatedAt: issue.updatedAt, status: 'awaiting-confirmation', attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [],
+    createdAt: issue.updatedAt, updatedAt: issue.updatedAt,
+    plan: {
+      mode: 'browser', confidence: 'medium', summary: '启动本地应用，点击提交按钮并捕获可见错误。',
+      environment: { language: 'TypeScript', dependencies: ['npm lockfile'] },
+      setup: [{ type: 'run-command', command: 'npm ci' }, { type: 'run-command', command: 'npm run dev', background: true }],
+      steps: [{ type: 'goto', target: 'http://127.0.0.1:3000/login' }, { type: 'click', target: 'role=button[name=提交]' }, { type: 'expect', target: 'text=Internal Server Error', expected: 'Internal Server Error' }],
+      oracle: { type: 'selector-visible', value: 'text=Internal Server Error' }, expected: '错误信息可见', evidence: ['screenshot', 'trace', 'console'], risks: ['需要安装依赖'], missingInformation: [], requiresHumanApproval: true,
+    },
+  };
+  await page.route('**/api/workbench', route => route.fulfill({ json: { project, runs: [], drafts: [], usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 }, github: null } }));
+  await page.route('**/api/workbench/items**', route => route.fulfill({ json: route.request().url().includes('number=237') ? { item: issue } : { items: [issue] } }));
+  await page.route('**/api/workbench/reproduction?number=237', route => route.fulfill({ json: { jobs: [reproduction], workerOnline: true } }));
+  await page.goto('/issues');
+  await page.getByRole('button', { name: /#237 Submit button crashes/ }).click();
+  await expect(page.locator('.issue-content-grid')).toHaveClass(/is-focused/);
+  await expect(page.locator('.issue-list-panel')).toHaveAttribute('inert', '');
+  await expect(page.getByRole('heading', { name: 'Bug 复现实验' })).toBeVisible();
+  await expect(page.getByText('机器判据')).toBeVisible();
+  await expect(page.getByRole('button', { name: /确认隔离执行/ })).toBeVisible();
+  await page.getByRole('button', { name: /显示 Issue 列表/ }).click();
+  await expect(page.locator('.issue-content-grid')).not.toHaveClass(/is-focused/);
 });

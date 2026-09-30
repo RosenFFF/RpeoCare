@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   AlertCircle, ArrowUpRight, Bot, Check, ChevronLeft, ChevronRight, CircleDot,
-  ExternalLink, Globe2, Languages, List, MessageSquare, RefreshCw, Search, ShieldCheck,
-  Sparkles, Tag, UserRound, X,
+  Download, ExternalLink, FlaskConical, Globe2, Languages, List, MessageSquare, Play, RefreshCw, Search, ShieldCheck,
+  Sparkles, Square, Tag, UserRound, X,
 } from 'lucide-react';
 import type {
-  GitComment, GitItem, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus,
+  GitComment, GitItem, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, ReproductionJob,
 } from '@/contracts/workbench';
 import { api, changed, useWorkbench } from './client';
 import './workbench.css';
@@ -127,7 +127,62 @@ function IssueMaintenance({ item, canWrite, busy, onUpdate }: { item: GitItem; c
   return <section className="issue-aside-section issue-maintenance-section"><div className="issue-aside-heading"><div><span className="issue-section-kicker">GITHUB ACTIONS</span><h3><ShieldCheck size={16} />维护动作</h3></div>{canWrite ? <Badge tone="green">可写入</Badge> : <Badge>只读</Badge>}</div>{!canWrite ? <p className="issue-maintenance-note">连接有写入权限的 GitHub 账户后，可以在确认后修改状态、标签和指派人。</p> : <><div className="issue-maintenance-state"><span>Issue 状态</span><div><button type="button" className={item.state === 'open' ? 'is-active' : ''} onClick={() => save('open')} disabled={busy}>开放</button><button type="button" className={item.state === 'closed' ? 'is-active' : ''} onClick={() => save('closed')} disabled={busy}>关闭</button></div></div><label className="issue-maintenance-field"><span>标签 <small>用逗号分隔</small></span><input value={labels} onChange={event => setLabels(event.target.value)} disabled={busy} /></label><label className="issue-maintenance-field"><span>指派给 <small>GitHub 用户名，用逗号分隔</small></span><input value={assignees} onChange={event => setAssignees(event.target.value)} disabled={busy} /></label><button type="button" className="button button-secondary issue-maintenance-save" onClick={() => save()} disabled={busy}>保存标签与指派</button>{item.triage?.suggestedLabels.some(label => !item.labels.includes(label)) && <button type="button" className="issue-apply-suggestions" onClick={() => { setLabels([...new Set([...item.labels, ...item.triage!.suggestedLabels])].join(', ')); }}>应用 AI 建议标签到编辑框</button>}{pending && <div className="issue-maintenance-confirm"><p>确认将这些维护动作写入 GitHub？</p><div><button type="button" className="button button-primary" onClick={() => { onUpdate(pending); setPending(null); }} disabled={busy}>确认写入</button><button type="button" className="button button-secondary" onClick={() => setPending(null)} disabled={busy}>取消</button></div></div>}</>}</section>;
 }
 
-function IssueDetail({ item, busy, canWrite, onAnalyze, onDraft, onStatus, onUpdate, onShowList }: { item: GitItem; busy: boolean; canWrite: boolean; onAnalyze: (force?: boolean) => void; onDraft: () => void; onStatus: (status: IssueWorkflowStatus) => void; onUpdate: (change: { state?: 'open' | 'closed'; labels?: string[]; assignees?: string[] }) => void; onShowList: () => void }) {
+
+const REPRO_STATUS: Record<ReproductionJob['status'], { label: string; tone: string }> = {
+  draft: { label: '草稿', tone: 'slate' },
+  'awaiting-confirmation': { label: '等待确认', tone: 'amber' },
+  queued: { label: '排队中', tone: 'blue' },
+  running: { label: '隔离执行中', tone: 'blue' },
+  reproduced: { label: '稳定复现', tone: 'green' },
+  'not-reproduced': { label: '未稳定复现', tone: 'amber' },
+  blocked: { label: '环境阻塞', tone: 'amber' },
+  unsafe: { label: '计划不安全', tone: 'red' },
+  failed: { label: '执行失败', tone: 'red' },
+  cancelled: { label: '已取消', tone: 'slate' },
+};
+const REPRO_MODE: Record<ReproductionJob['plan']['mode'], string> = { browser: '浏览器交互', http: 'HTTP 接口', test: '项目测试', command: '命令验证' };
+const EVIDENCE_LABEL: Record<string, string> = { stdout: '标准输出', stderr: '错误输出', screenshot: '页面截图', trace: '浏览器 Trace', video: '操作视频', network: '网络记录', console: '控制台', stacktrace: '堆栈', 'test-result': '测试结果', plan: '执行计划', result: '机器结果', 'source-log': '源码快照日志' };
+
+function ReproductionPanel({ jobs, selectedId, workerOnline, sandboxConfigured, busy, onAction, onSelect }: {
+  jobs: ReproductionJob[];
+  selectedId: string | null;
+  workerOnline: boolean;
+  sandboxConfigured: boolean;
+  busy: boolean;
+  onAction: (action: 'confirm' | 'cancel' | 'refresh', jobId: string) => void;
+  onSelect: (jobId: string) => void;
+}) {
+  const job = jobs.find(item => item.id === selectedId) || jobs[0];
+  if (!job) return null;
+  const status = REPRO_STATUS[job.status];
+  const terminal = ['reproduced', 'not-reproduced', 'blocked', 'unsafe', 'failed', 'cancelled'].includes(job.status);
+  return <section className={`issue-repro-panel is-${job.status}`}>
+    <div className="issue-repro-heading">
+      <div><span className="issue-section-kicker">REPRODUCTION LAB / EVIDENCE FIRST</span><h3><FlaskConical size={17} />Bug 复现实验</h3></div>
+      <div className="issue-repro-state"><span className={`issue-worker-dot ${workerOnline ? 'is-online' : ''}`} />{workerOnline ? '队列 Worker 在线' : '队列 Worker 离线'}<Badge tone={sandboxConfigured ? 'green' : 'amber'}>{sandboxConfigured ? 'Docker 沙箱已启用' : 'Docker 沙箱关闭'}</Badge><Badge tone={status.tone}>{status.label}</Badge></div>
+    </div>
+    {jobs.length > 1 && <div className="issue-repro-history" aria-label="复现任务历史">{jobs.map(item => <button type="button" key={item.id} className={item.id === job.id ? 'is-active' : ''} onClick={() => onSelect(item.id)} aria-pressed={item.id === job.id}><span>#{item.issueNumber} · {new Date(item.createdAt).toLocaleString('zh-CN')}</span><Badge tone={REPRO_STATUS[item.status].tone}>{REPRO_STATUS[item.status].label}</Badge></button>)}</div>}
+    <div className="issue-repro-overview"><div><span>固定提交</span><strong>{job.commitSha ? job.commitSha.slice(0, 12) : '已记录于计划'}</strong></div><div><span>复现策略</span><strong>{REPRO_MODE[job.plan.mode]}</strong></div><div><span>置信度</span><strong>{job.plan.confidence === 'high' ? '高' : job.plan.confidence === 'medium' ? '中' : '低'}</strong></div><div><span>机器判据</span><strong>{job.plan.oracle.type} = {job.plan.oracle.value}</strong></div><div><span>稳定性</span><strong>{job.attempts ? `${job.successfulAttempts}/${job.attempts} 次命中` : '等待执行'}</strong></div></div>
+    <p className="issue-repro-summary">{job.plan.summary}</p>
+    {(job.progress || job.error) && <div className={`issue-repro-progress ${job.error ? 'is-error' : ''}`}><span>{job.phase ? `阶段 · ${job.phase}` : '状态'}</span><p>{job.error || job.progress}</p></div>}
+    <div className="issue-repro-columns">
+      <details open><summary>环境与执行步骤 <span>{job.plan.setup.length + job.plan.steps.length} 步</span></summary><div className="issue-repro-detail"><p className="issue-repro-expected"><span>预期故障</span>{job.plan.expected}</p>{job.plan.setup.length > 0 && <ol>{job.plan.setup.map((step, index) => <li key={`setup-${index}`}><b>准备</b><code>{step.command || step.path || step.target || step.type}</code></li>)}</ol>}<ol>{job.plan.steps.map((step, index) => <li key={`step-${index}`}><b>{index + 1}</b><code>{step.command || step.target || step.path || step.type}</code>{step.expected && <small>{step.expected}</small>}</li>)}</ol></div></details>
+      <details><summary>风险、缺失信息与证据 <span>{job.plan.evidence.length} 类证据</span></summary><div className="issue-repro-detail"><div className="issue-repro-chipset">{job.plan.evidence.map(item => <span key={item}>{EVIDENCE_LABEL[item] || item}</span>)}</div>{job.plan.missingInformation.length > 0 && <div className="issue-repro-note is-warning"><strong>仍缺少</strong><TextList items={job.plan.missingInformation} /></div>}{job.plan.risks.length > 0 && <div className="issue-repro-note"><strong>执行风险</strong><TextList items={job.plan.risks} /></div>}</div></details>
+    </div>
+    {job.attemptHistory.length > 0 && <div className="issue-repro-attempts">{job.attemptHistory.map(attempt => <div key={attempt.index} className={`is-${attempt.result}`}><span>尝试 {attempt.index}</span><strong>{attempt.result === 'reproduced' ? '命中故障' : attempt.result === 'not-reproduced' ? '未命中' : '执行失败'}</strong><small>{(attempt.durationMs / 1000).toFixed(1)}s · {attempt.summary}</small></div>)}</div>}
+    {job.artifacts.length > 0 && <div className="issue-repro-evidence"><div><span>证据链</span><small>每个文件均记录 SHA-256，下载时重新校验</small></div><div>{job.artifacts.map(artifact => <a key={artifact.id} href={`/api/workbench/reproduction/artifacts/${artifact.id}?job=${job.id}`}><Download size={12} />{EVIDENCE_LABEL[artifact.kind] || artifact.kind}<small>{Math.max(1, Math.round(artifact.size / 1024))} KB</small></a>)}</div></div>}
+    <div className="issue-repro-actions">
+      {job.status === 'awaiting-confirmation' && <button type="button" className="button button-primary" onClick={() => onAction('confirm', job.id)} disabled={busy}><Play size={13} />确认隔离执行</button>}
+      {['awaiting-confirmation', 'queued'].includes(job.status) && <button type="button" className="button button-secondary" onClick={() => onAction('cancel', job.id)} disabled={busy}><Square size={12} />取消任务</button>}
+      {(job.status === 'queued' || job.status === 'running' || terminal) && <button type="button" className="button button-secondary" onClick={() => onAction('refresh', job.id)} disabled={busy}><RefreshCw size={12} />刷新状态</button>}
+      {!sandboxConfigured && job.status === 'awaiting-confirmation' && <span className="issue-repro-blocked-note">Docker Runner 未启用。确认后任务会安全阻塞，不会在宿主机执行。</span>}
+      {sandboxConfigured && !workerOnline && job.status === 'awaiting-confirmation' && <span className="issue-repro-blocked-note">复现 Worker 离线。确认后进入队列，Worker 启动后才会执行。</span>}
+      {job.status !== 'awaiting-confirmation' && <span>每次执行使用固定 commit；执行期断网、只读根文件系统、无 capabilities，并限制 CPU / 内存 / 进程数。</span>}
+    </div>
+  </section>;
+}
+
+function IssueDetail({ item, busy, canWrite, reproductions, reproductionSelectedId, reproductionWorkerOnline, reproductionSandboxConfigured, onReproduction, onSelectReproduction, onAnalyze, onDraft, onStatus, onUpdate, onShowList }: { item: GitItem; busy: boolean; canWrite: boolean; reproductions: ReproductionJob[]; reproductionSelectedId: string | null; reproductionWorkerOnline: boolean; reproductionSandboxConfigured: boolean; onReproduction: (action: 'plan' | 'confirm' | 'cancel' | 'refresh', jobId?: string) => void; onSelectReproduction: (id: string) => void; onAnalyze: (force?: boolean) => void; onDraft: () => void; onStatus: (status: IssueWorkflowStatus) => void; onUpdate: (change: { state?: 'open' | 'closed'; labels?: string[]; assignees?: string[] }) => void; onShowList: () => void }) {
   const triage = item.triage;
   const category = triage?.category ? CATEGORY_META[triage.category] : null;
   const priority = triage?.priority ? PRIORITY_META[triage.priority] : null;
@@ -135,9 +190,10 @@ function IssueDetail({ item, busy, canWrite, onAnalyze, onDraft, onStatus, onUpd
   return <section className="issue-detail-panel" aria-label={`Issue #${item.number} 详情`}>
     <header className="issue-detail-header">
       <div className="issue-detail-title"><div className="issue-detail-eyebrow"><span>ISSUE #{item.number}</span><span className={`issue-state-dot ${item.state === 'open' ? 'is-open' : ''}`} />{item.state === 'open' ? '开放中' : '已关闭'}</div><h2>{item.title}</h2>{triage?.titleZh && <p className="issue-title-translation"><Languages size={13} />{triage.titleZh}</p>}<div className="issue-detail-meta"><span><UserRound size={13} />{item.author || '未知作者'}</span><span>更新于 {dateLabel(item.updatedAt)}</span>{item.assignees?.length ? <span>指派给 {item.assignees.join(', ')}</span> : <span>尚未指派</span>}{item.milestone && <span>里程碑：{item.milestone}</span>}</div></div>
-      <div className="issue-detail-actions"><button type="button" className="button button-secondary issue-show-list" onClick={onShowList} disabled={busy}><List size={14} />显示 Issue 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} />GitHub</a><button type="button" className="button button-primary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />生成回复草稿</button></div>
+      <div className="issue-detail-actions"><button type="button" className="button button-secondary issue-show-list" onClick={onShowList} disabled={busy}><List size={14} />显示 Issue 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} />GitHub</a><button type="button" className="button button-secondary" onClick={() => onReproduction('plan')} disabled={busy}><Sparkles size={14} />生成复现方案</button><button type="button" className="button button-primary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />生成回复草稿</button></div>
     </header>
     <div className="issue-detail-statusbar"><div className="issue-status-summary">{category ? <Badge tone={category.color}>{category.label}</Badge> : <Badge>尚未分诊</Badge>}{priority && <Badge tone={priority.color}>{priority.label}</Badge>}{triage?.needsMoreInfo && <Badge tone="amber">需要补充信息</Badge>}<span className="issue-source-note">{triage ? (fresh ? `AI 分析于 ${dateLabel(triage.analyzedAt)}` : '原文已更新，需要重新分析') : '尚未建立 AI 分诊建议'}</span></div><div className="issue-detail-status-actions">{triage && <label className="issue-status-select"><span>处理状态</span><select value={triage.workflowStatus} onChange={event => onStatus(event.target.value as IssueWorkflowStatus)} disabled={busy}>{Object.entries(STATUS_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label>}<button type="button" className="button button-secondary" onClick={() => onAnalyze(Boolean(triage))} disabled={busy}><RefreshCw size={14} />{busy ? '处理中…' : triage ? '重新分析' : '开始 AI 分诊'}</button></div></div>
+    {reproductions.length > 0 && <ReproductionPanel jobs={reproductions} selectedId={reproductionSelectedId} workerOnline={reproductionWorkerOnline} sandboxConfigured={reproductionSandboxConfigured} busy={busy} onAction={onReproduction} onSelect={onSelectReproduction} />}
     <div className="issue-detail-body">
       <div className="issue-detail-main"><IssueConversation item={item} triage={triage} /></div>
       <aside className="issue-detail-aside">
@@ -160,6 +216,10 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [reproductions, setReproductions] = useState<ReproductionJob[]>([]);
+  const [reproductionWorkerOnline, setReproductionWorkerOnline] = useState(false);
+  const [reproductionSandboxConfigured, setReproductionSandboxConfigured] = useState(false);
+  const [selectedReproductionId, setSelectedReproductionId] = useState<string | null>(null);
   const isIssues = kind === 'issues';
 
   const load = useCallback(async (keepSelection = true) => {
@@ -173,6 +233,21 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   }, [data?.project?.repoUrl, kind, page, selectedNumber]);
 
   useEffect(() => { setSelectedNumber(null); setListOpen(true); setItems([]); void load(false); }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const refreshReproductions = useCallback(async (number: number) => {
+    const value = await api<{ jobs: ReproductionJob[]; workerOnline: boolean; sandboxConfigured: boolean }>(`/api/workbench/reproduction?number=${number}`);
+    setReproductions(value.jobs);
+    setSelectedReproductionId(current => value.jobs.some(job => job.id === current) ? current : value.jobs[0]?.id || null);
+    setReproductionWorkerOnline(value.workerOnline);
+    setReproductionSandboxConfigured(value.sandboxConfigured);
+  }, []);
+
+  useEffect(() => {
+    const active = reproductions.some(job => ['queued', 'running'].includes(job.status));
+    if (!isIssues || !selectedNumber || !active) return;
+    const timer = window.setInterval(() => { void refreshReproductions(selectedNumber).catch(() => undefined); }, 2000);
+    return () => window.clearInterval(timer);
+  }, [isIssues, selectedNumber, reproductions, refreshReproductions]);
 
   const selected = items.find(item => item.number === selectedNumber) || null;
   const visible = useMemo(() => items.filter(item => {
@@ -191,6 +266,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function open(item: GitItem) {
     setSelectedNumber(item.number);
     if (isIssues) setListOpen(false);
+    if (isIssues) { setReproductions([]); setSelectedReproductionId(null); void refreshReproductions(item.number).catch(() => setReproductionWorkerOnline(false)); }
     setBusy(true); setError(''); setNotice('');
     try { const result = await api<{ item: GitItem }>(`/api/workbench/items?kind=${kind}&number=${item.number}`); setItems(current => current.map(row => row.number === item.number ? result.item : row)); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '无法读取 Issue 详情。'); }
@@ -219,6 +295,34 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     catch (cause) { setError(cause instanceof Error ? cause.message : '处理状态更新失败。'); }
     finally { setBusy(false); }
   }
+  async function reproductionAction(action: 'plan' | 'confirm' | 'cancel' | 'refresh', jobId?: string) {
+    if (!selected || !isIssues) return;
+    if (action === 'refresh') { try { await refreshReproductions(selected.number); } catch (cause) { setError(cause instanceof Error ? cause.message : '状态刷新失败。'); } return; }
+    setBusy(true); setError('');
+    try {
+      if (action === 'plan') {
+        const result = await api<{ job: ReproductionJob }>('/api/workbench/reproduction', { action: 'plan', number: selected.number });
+        setReproductions(current => [result.job, ...current.filter(job => job.id !== result.job.id)]);
+        setSelectedReproductionId(result.job.id);
+        setNotice('复现方案已生成，请审阅机器判据、步骤和风险后确认。');
+      } else {
+        const job = reproductions.find(item => item.id === jobId) || reproductions.find(item => item.id === selectedReproductionId);
+        if (!job) return;
+        if (action === 'confirm') {
+          const result = await api<{ job: ReproductionJob; workerOnline: boolean }>('/api/workbench/reproduction', { action: 'confirm', id: job.id, confirmed: true });
+          setReproductions(current => current.map(item => item.id === result.job.id ? result.job : item));
+          setSelectedReproductionId(result.job.id);
+          setReproductionWorkerOnline(result.workerOnline);
+          setNotice(result.workerOnline ? '复现任务已进入隔离执行队列。' : '任务已排队，但隔离执行器当前离线。');
+        } else {
+          const result = await api<{ job: ReproductionJob }>('/api/workbench/reproduction', { action: 'cancel', id: job.id });
+          setReproductions(current => current.map(item => item.id === result.job.id ? result.job : item));
+          setNotice('复现任务已取消。');
+        }
+      }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : '复现操作失败。'); } finally { setBusy(false); }
+  }
+
   async function updateGitHubIssue(change: { state?: 'open' | 'closed'; labels?: string[]; assignees?: string[] }) {
     if (!selected || !isIssues) return;
     setBusy(true); setError(''); setNotice('');
@@ -243,6 +347,6 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     {notice && <p className="issue-notice" role="status"><Check size={15} />{notice}</p>}
     <section className="issue-command-strip"><div className="issue-metric-grid"><Metric value={items.length} label="当前页 Issue" detail="开放中的实时数据" /><Metric value={stats.analyzed} label="已完成分诊" detail={stats.untriaged ? `${stats.untriaged} 条等待处理` : '当前页已经覆盖'} tone="blue" /><Metric value={stats.needsInfo} label="需要补充信息" detail="优先准备回复" tone="amber" /><Metric value={stats.high} label="高优先级" detail="建议尽快查看" tone="red" /></div><div className="issue-category-distribution"><div className="issue-distribution-heading"><span>当前页分类分布</span><small>AI 建议 · 人工确认</small></div><div className="issue-distribution-bars">{stats.categories.filter(category => category.count > 0).map(category => <button type="button" key={category.value} className={`issue-distribution-item issue-tone-${CATEGORY_META[category.value].color}`} onClick={() => setCategory(category.value)} aria-pressed={categoryFilter === category.value}><span>{CATEGORY_META[category.value].short}</span><i><b style={{ width: `${items.length ? Math.max(8, category.count / items.length * 100) : 0}%` }} /></i><strong>{category.count}</strong></button>)}{!stats.categories.some(category => category.count > 0) && <span className="issue-distribution-empty">完成分诊后，这里会显示问题类型分布。</span>}</div></div></section>
     <section className="issue-toolbar"><div className="issue-search"><Search size={16} /><input aria-label="搜索 Issue" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索标题、正文、作者或标签" /></div><div className="issue-filter-group"><label><span>类型</span><select value={categoryFilter} onChange={event => setCategory(event.target.value as CategoryFilter)}><option value="all">全部类型</option>{Object.entries(CATEGORY_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label><label><span>处理状态</span><select value={status} onChange={event => setStatus(event.target.value as StatusFilter)}><option value="all">全部状态</option><option value="untriaged">尚未分诊</option>{Object.entries(STATUS_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label></div><span className="issue-result-count">显示 {visible.length} / {items.length}</span></section>
-    <div className={`issue-content-grid ${selected && !listOpen ? 'is-focused' : ''}`}><section className="issue-list-panel" aria-label="Issue 列表" aria-hidden={Boolean(selected && !listOpen)} inert={selected && !listOpen ? true : undefined}><div className="issue-list-heading"><div><span className="issue-section-kicker">OPEN ISSUES</span><h2>待处理反馈</h2></div><span>第 {page} 页 · 最多每次处理 12 条</span></div><div className="issue-list">{visible.map(item => <IssueCard key={item.number} item={item} selected={selectedNumber === item.number} onClick={() => void open(item)} />)}{!visible.length && <div className="issue-empty-state"><CircleDot size={27} /><strong>没有符合条件的 Issue</strong><p>尝试清空搜索或切换筛选条件。</p><button type="button" onClick={() => { setQuery(''); setCategory('all'); setStatus('all'); }}>重置筛选</button></div>}</div><div className="issue-pagination"><button type="button" className="button button-secondary" disabled={page === 1 || busy} onClick={() => setPage(value => value - 1)}><ChevronLeft size={14} />上一页</button><span>第 {page} 页</span><button type="button" className="button button-secondary" disabled={!items.length || busy} onClick={() => setPage(value => value + 1)}>下一页<ChevronRight size={14} /></button></div></section>{selected ? <IssueDetail item={selected} busy={busy} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={() => setListOpen(true)} /> : <section className="issue-detail-panel issue-detail-placeholder"><Sparkles size={27} /><h2>选择一条 Issue 开始分诊</h2><p>列表中的每条反馈都会保留原文；分析后再显示中文对照、分诊依据和下一步建议。</p></section>}</div>
+    <div className={`issue-content-grid ${selected && !listOpen ? 'is-focused' : ''}`}><section className="issue-list-panel" aria-label="Issue 列表" aria-hidden={Boolean(selected && !listOpen)} inert={selected && !listOpen ? true : undefined}><div className="issue-list-heading"><div><span className="issue-section-kicker">OPEN ISSUES</span><h2>待处理反馈</h2></div><span>第 {page} 页 · 最多每次处理 12 条</span></div><div className="issue-list">{visible.map(item => <IssueCard key={item.number} item={item} selected={selectedNumber === item.number} onClick={() => void open(item)} />)}{!visible.length && <div className="issue-empty-state"><CircleDot size={27} /><strong>没有符合条件的 Issue</strong><p>尝试清空搜索或切换筛选条件。</p><button type="button" onClick={() => { setQuery(''); setCategory('all'); setStatus('all'); }}>重置筛选</button></div>}</div><div className="issue-pagination"><button type="button" className="button button-secondary" disabled={page === 1 || busy} onClick={() => setPage(value => value - 1)}><ChevronLeft size={14} />上一页</button><span>第 {page} 页</span><button type="button" className="button button-secondary" disabled={!items.length || busy} onClick={() => setPage(value => value + 1)}>下一页<ChevronRight size={14} /></button></div></section>{selected ? <IssueDetail item={selected} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={() => setListOpen(true)} /> : <section className="issue-detail-panel issue-detail-placeholder"><Sparkles size={27} /><h2>选择一条 Issue 开始分诊</h2><p>列表中的每条反馈都会保留原文；分析后再显示中文对照、分诊依据和下一步建议。</p></section>}</div>
   </div>;
 }

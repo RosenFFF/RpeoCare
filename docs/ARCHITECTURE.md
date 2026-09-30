@@ -11,6 +11,8 @@ RepoCare 当前是一个 Next.js 应用和一个独立 Node.js Worker，共用�
 | `src/components/workspace` | 工作台外壳、功能视图装配 | 修改全局导航 |
 | `src/server/audit` | 仓库采集、规则、Agent、任务持久化 | 新增检查规则 |
 | `src/server/models` | 模型连接、加密、运行时适配 | 新增模型协议 |
+| `src/server/reproduction` | Bug 复现计划校验、SQLite 队列、Docker 执行器 | 新增复现模式或隔离策略 |
+| `reproduction` | Runner 镜像与沙箱内 Playwright/测试执行入口 | 调整证据采集 |
 | `src/contracts` | 可跨前后端共享的类型、枚举和纯定义 | 调整报告数据结构 |
 | `src/shared` | 可复用组件、浏览器逻辑和公共样式 | 修改主题和通用交互 |
 | `scripts` | 命令行入口 | Worker 生命周期 |
@@ -36,3 +38,8 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 工作台入口 `/workspace` 按当前项目状态跳转：没有报告时进入项目体检，已有报告时进入项目概览。概览仅显示当前仓库与分支的最近成功报告；首次未完成时显示引导，重新体检、失败或取消时保留上次成功结果。报告直接按项目查询，不受历史列表分页影响。
 
 项目概览保留原有 3D 维护地图，检查项来自真实报告，草稿数量来自当前项目。Issue / PR 数量通过独立 GitHub 请求获取，区分加载、零值和不可用，不阻塞报告展示；概览定时刷新并响应工作区切换与体检完成事件。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。
+
+
+## Issue 复现执行链
+
+Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → 维护者人工确认 → SQLite 队列 → 独立复现 Worker → 固定 Git commit → Docker Runner 三次执行 → 机器判据与 SHA-256 证据。Web 进程不执行仓库代码；执行阶段网络关闭，Docker 不可用时不回退宿主机。详细边界见 [REPRODUCTION.md](REPRODUCTION.md)。
