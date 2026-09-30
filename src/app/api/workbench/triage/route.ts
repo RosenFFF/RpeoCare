@@ -9,7 +9,7 @@ import { withOperation } from '@/server/workbench/store';
 const inputSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('analyze'), number: z.number().int().positive(), force: z.boolean().optional() }),
   z.object({ action: z.literal('batch'), numbers: z.array(z.number().int().positive()).min(1).max(12), force: z.boolean().optional() }),
-  z.object({ action: z.literal('status'), number: z.number().int().positive(), status: z.enum(['untriaged', 'needs-info', 'ready-to-reply', 'investigate', 'replied', 'manual-review']) }),
+  z.object({ action: z.literal('status'), number: z.number().int().positive(), status: z.enum(['untriaged', 'needs-info', 'ready-to-reproduce', 'ready-to-reply', 'investigate', 'replied', 'manual-review']) }),
 ]);
 
 export async function POST(request: NextRequest) {

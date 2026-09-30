@@ -6,7 +6,8 @@ export type IssueCategory = 'bug' | 'feature' | 'question' | 'documentation' | '
 export type IssuePriority = 'high' | 'medium' | 'low' | 'unknown';
 export type IssueConfidence = 'high' | 'medium' | 'low';
 export type IssueAction = 'request-information' | 'reply' | 'investigate' | 'consider-feature' | 'close' | 'manual-review';
-export type IssueWorkflowStatus = 'untriaged' | 'needs-info' | 'ready-to-reply' | 'investigate' | 'replied' | 'manual-review';
+export type IssueWorkflowStatus = 'untriaged' | 'needs-info' | 'ready-to-reproduce' | 'ready-to-reply' | 'investigate' | 'replied' | 'manual-review';
+export type IssueReadinessLevel = 'ready' | 'partial' | 'insufficient';
 export interface IssueTriage {
   repoUrl: string;
   number: number;
@@ -27,6 +28,10 @@ export interface IssueTriage {
   suggestedLabels: string[];
   suggestedAction: IssueAction;
   workflowStatus: IssueWorkflowStatus;
+  readinessScore?: number;
+  readinessLevel?: IssueReadinessLevel;
+  readinessBlockers?: string[];
+  rationale?: string[];
   commentsZh: { id: number; bodyZh: string }[];
   analyzedAt: string;
 }

@@ -24,5 +24,21 @@ test('parses fenced triage JSON, maps workflow status and keeps only real commen
 
 test('rejects non-JSON or incomplete model triage output', () => {
   assert.throws(() => parseTriage('not-json', item), /有效 JSON/);
-  assert.throws(() => parseTriage(JSON.stringify({ category: 'bug' }), item), /字段不完整/);
+  assert.throws(() => parseTriage(JSON.stringify({ category: 'bug' }), item), /字段不完整|问题类型|优先级/);
+  assert.throws(() => parseTriage(JSON.stringify({ category: 'invalid' }), item), /问题类型/);
+});
+
+test('computes issue readiness and separates ready-to-reproduce from reply status', () => {
+  const result = parseTriage(JSON.stringify({
+    category: 'bug', priority: 'medium', confidence: 'high', needsMoreInfo: false, language: 'English',
+    titleZh: '提交按钮失败', summaryZh: '固定步骤下可以调查该问题。', bodyZh: '提交表单后返回错误。',
+    actualBehavior: '点击提交后返回 500', expectedBehavior: '提交成功并跳转到结果页', environment: 'Node.js 24、Chrome 版本 120',
+    providedInformation: ['页面地址 /login', '按钮文本为提交', '错误状态为 500'], missingInformation: [], suggestedLabels: ['bug'],
+    suggestedAction: 'investigate', commentsZh: [],
+  }), { ...item, title: 'Submit button returns 500', body: 'The submit button returns 500 after entering valid credentials.' });
+  assert.equal(result.readinessLevel, 'ready');
+  assert.equal(result.workflowStatus, 'ready-to-reproduce');
+  assert.ok((result.readinessScore || 0) >= 75);
+  assert.equal(result.readinessBlockers?.length, 0);
+  assert.ok(result.rationale?.length);
 });
