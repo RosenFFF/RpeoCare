@@ -1,6 +1,8 @@
+import { prepareReviewFiles, reviewFingerprint } from '../../shared/lib/pr-review-context';
+import { getPullRequestReview } from '../workbench/store';
 import { githubAccount } from './connection';
 import { parseRepositoryUrl } from '../audit/github';
-import type { Draft, GitComment, GitItem } from '../../contracts/workbench';
+import type { Draft, GitComment, GitItem, PullRequestCheck } from '../../contracts/workbench';
 
 export class PublishPreconditionError extends Error {}
 
@@ -29,7 +31,7 @@ export async function githubApi(owner: string, path: string, options: { method?:
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 function item(value: Record<string, any>): GitItem {
-  return { number: value.number, title: String(value.title || ''), body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), commentCount: Number.isSafeInteger(value.comments) ? value.comments : undefined, assignees: (value.assignees || []).map((person: any) => person.login).filter(Boolean), milestone: value.milestone?.title || null, headSha: value.head?.sha };
+  return { number: value.number, title: String(value.title || ''), body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), commentCount: Number.isSafeInteger(value.comments) ? value.comments : undefined, assignees: (value.assignees || []).map((person: any) => person.login).filter(Boolean), milestone: value.milestone?.title || null, headSha: value.head?.sha, baseSha: value.base?.sha, totalChangedFiles: Number.isSafeInteger(value.changed_files) ? value.changed_files : undefined, headRef: value.head?.ref, baseRef: value.base?.ref, isDraft: value.draft === true };
 }
 function comment(value: Record<string, any>): GitComment {
   return { id: Number(value.id), body: String(value.body || '').slice(0, 12_000), url: value.html_url, author: value.user?.login || '', createdAt: value.created_at, updatedAt: value.updated_at || value.created_at };
@@ -71,6 +73,46 @@ export async function repositoryCounts(owner: string, url: string) {
     fetchedAt: new Date().toISOString(),
   };
 }
+
+export async function getPullRequestChecks(owner: string, url: string, ref: string, signal?: AbortSignal): Promise<{ checks: PullRequestCheck[]; available: boolean; warnings: string[] }> {
+  const prefix = repoPath(url);
+  const checks: PullRequestCheck[] = [], warnings: string[] = [];
+  const results = await Promise.allSettled([
+    githubApi(owner, `${prefix}/commits/${encodeURIComponent(ref)}/check-runs?per_page=100`, { signal }),
+    githubApi(owner, `${prefix}/commits/${encodeURIComponent(ref)}/status?per_page=100`, { signal }),
+  ]);
+  if (results[0].status === 'fulfilled' && Array.isArray(results[0].value.check_runs)) {
+    const data = results[0].value;
+    for (const check of data.check_runs) checks.push({ name: String(check.name || 'unknown'), status: ['queued', 'in_progress', 'completed'].includes(check.status) ? check.status : 'unknown', conclusion: check.conclusion ?? null });
+    if (data.total_count > checks.length) warnings.push('Checks 超过单页 100 项，当前不是完整检查清单。');
+  } else warnings.push('GitHub Checks 无法读取：权限、额度或服务暂不可用；不代表检查通过。');
+  if (results[1].status === 'fulfilled' && Array.isArray(results[1].value.statuses)) {
+    for (const status of results[1].value.statuses) checks.push({ name: `Status: ${String(status.context || 'unknown')}`, status: status.state === 'pending' ? 'in_progress' : 'completed', conclusion: status.state });
+    if (results[1].value.total_count > results[1].value.statuses.length) warnings.push('Commit Status 清单分页截断。');
+  } else warnings.push('GitHub Commit Status 无法读取；不代表没有旧式 CI。');
+  return { checks, available: warnings.length === 0, warnings };
+}
+
+export async function getPullRequestReviewContext(owner: string, url: string, number: number, signal?: AbortSignal) {
+  const result = await getItem(owner, url, 'pulls', number, signal);
+  if (!result.headSha || !result.baseSha) throw new Error('无法锁定 PR 的 head/base SHA，未生成审查。');
+  const ci = await getPullRequestChecks(owner, url, result.headSha, signal);
+  const warnings = [...ci.warnings];
+  const references = [...result.body.matchAll(/\b(?:close[sd]?|fix(?:es|ed)?|resolve[sd]?)\s+#(\d+)/gi)].map(match => Number(match[1]));
+  const linkedIssues: { number: number; title: string; body: string; url: string }[] = [];
+  for (const issueNumber of [...new Set(references)].slice(0, 3)) {
+    try {
+      const raw = await githubApi(owner, `${repoPath(url)}/issues/${issueNumber}`, { signal });
+      if (!raw.pull_request) linkedIssues.push({ number: issueNumber, title: String(raw.title || '').slice(0, 500), body: String(raw.body || '').slice(0, 3000), url: `https://github.com/${parseRepositoryUrl(url).owner}/${parseRepositoryUrl(url).name}/issues/${issueNumber}` });
+    } catch { warnings.push(`关联 Issue #${issueNumber} 无法读取，未推断需求已满足。`); }
+  }
+  // PR file-list endpoint is mutable; compare both ends again after collection.
+  const end = await githubApi(owner, `${repoPath(url)}/pulls/${number}`, { signal });
+  if (end.head?.sha !== result.headSha || end.base?.sha !== result.baseSha || end.updated_at !== result.updatedAt) throw new Error('采集期间 PR 已更新，请重新读取后审查。');
+  result.checks = ci.checks; result.checksAvailable = ci.available; result.snapshotWarnings = warnings; result.linkedIssues = linkedIssues;
+  return { item: result, checks: ci.checks, files: result.files || [], headSha: result.headSha, baseSha: result.baseSha };
+}
+
 export async function getBranchCommit(owner: string, url: string, requestedBranch?: string, signal?: AbortSignal): Promise<{ branch: string; sha: string }> {
   const prefix = repoPath(url);
   const repository = await githubApi(owner, prefix, { signal });
@@ -91,7 +133,9 @@ export async function getItem(owner: string, url: string, kind: 'issues' | 'pull
   }
   if (kind === 'pulls') {
     const files = await githubApi(owner, `${prefix}/pulls/${number}/files?per_page=100`, { signal });
-    result.files = files.map((file: any) => ({ path: file.filename, status: file.status, additions: file.additions, deletions: file.deletions, patch: file.patch?.slice(0, 12_000) }));
+    if (!Array.isArray(files)) throw new Error('GitHub PR 文件清单格式异常。');
+    result.filesTruncated = result.totalChangedFiles !== undefined ? result.totalChangedFiles > files.length : files.length >= 100;
+    result.files = files.map((file: any) => { const patch = typeof file.patch === 'string' ? file.patch : undefined; return { path: file.filename, status: file.status, additions: file.additions, deletions: file.deletions, patch: patch && patch.length > 12_000 ? patch.slice(0, Math.max(0, patch.lastIndexOf('\n', 12_000))) : patch, patchTruncated: Boolean(patch && patch.length > 12_000) || !patch }; });
   }
   return result;
 }
@@ -115,7 +159,16 @@ export async function publishDraft(owner: string, draft: Draft): Promise<string>
   }
   if (draft.kind === 'review') {
     const pull = await githubApi(owner, `${prefix}/pulls/${draft.number}`);
+    if (draft.source?.type === 'github-item' && draft.source.reviewId) {
+      const review = getPullRequestReview(owner, draft.repoUrl, draft.number!);
+      if (!review || review.id !== draft.source.reviewId || review.revision !== draft.source.reviewRevision || review.baseSha !== pull.base?.sha) throw new PublishPreconditionError('审查判断或基准已变化，请重新生成并审阅草稿。');
+    }
     if (pull.head?.sha !== draft.baseSha) throw new PublishPreconditionError('PR 已有新提交，请重新分析后再发布。');
+    if (draft.source?.type === 'github-item' && draft.source.reviewId) {
+      const snapshot = await getItem(owner, draft.repoUrl, 'pulls', draft.number!);
+      const review = getPullRequestReview(owner, draft.repoUrl, draft.number!)!;
+      if (review.contextFingerprint !== reviewFingerprint(snapshot, prepareReviewFiles(snapshot.files || []))) throw new PublishPreconditionError('PR 描述或 Diff 已更新，请重新审查。');
+    }
     const response = await githubApi(owner, `${prefix}/pulls/${draft.number}/reviews`, { method: 'POST', write: true, body: { body: draft.content, event: 'COMMENT', commit_id: draft.baseSha } });
     return response.html_url;
   }

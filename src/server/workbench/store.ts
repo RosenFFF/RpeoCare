@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
+import type { Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, PullRequestReview, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -11,6 +11,9 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS drafts (id TEXT PRIMARY KEY, owner TEXT NOT NULL, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS issue_triage (owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (owner, repo_url, number));
     CREATE TABLE IF NOT EXISTS issue_triage_events (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, source TEXT NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS pull_review_events (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS pull_review_events_owner ON pull_review_events(owner, repo_url, number);
+    CREATE TABLE IF NOT EXISTS pull_request_reviews (owner TEXT NOT NULL, repo_url TEXT NOT NULL, number INTEGER NOT NULL, state TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (owner, repo_url, number));
     CREATE TABLE IF NOT EXISTS reproduction_jobs (id TEXT PRIMARY KEY, owner TEXT NOT NULL, repo_url TEXT NOT NULL, issue_number INTEGER NOT NULL, status TEXT NOT NULL, state TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS reproduction_owner_repo ON reproduction_jobs(owner, repo_url, issue_number);
     CREATE TABLE IF NOT EXISTS reproduction_leases (job_id TEXT PRIMARY KEY, worker TEXT NOT NULL, expires INTEGER NOT NULL, attempts INTEGER NOT NULL);
@@ -78,6 +81,37 @@ export function updateIssueTriageReview(owner: string, repoUrl: string, number: 
 export function listIssueTriageEvents(owner: string, repoUrl: string, number: number) {
   return (workbenchDb().prepare('SELECT source, state, created_at AS createdAt FROM issue_triage_events WHERE owner=? AND repo_url=? AND number=? ORDER BY created_at DESC LIMIT 20').all(owner, repoUrl, number) as { source: string; state: string; createdAt: string }[]).map(event => ({ ...event, state: JSON.parse(event.state) as IssueTriage }));
 }
+export function getPullRequestReview(owner: string, repoUrl: string, number: number): PullRequestReview | null {
+  const row = workbenchDb().prepare('SELECT state FROM pull_request_reviews WHERE owner=? AND repo_url=? AND number=?').get(owner, repoUrl, number) as { state: string } | undefined;
+  return row ? JSON.parse(row.state) as PullRequestReview : null;
+}
+export function savePullRequestReview(owner: string, repoUrl: string, review: PullRequestReview): PullRequestReview {
+  const database = workbenchDb();
+  database.exec('BEGIN IMMEDIATE');
+  try {
+    database.prepare('INSERT INTO pull_request_reviews (owner, repo_url, number, state, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(owner, repo_url, number) DO UPDATE SET state=excluded.state, updated_at=excluded.updated_at').run(owner, repoUrl, review.number, JSON.stringify(review), new Date().toISOString());
+    database.prepare('INSERT INTO pull_review_events VALUES (?, ?, ?, ?, ?, ?)').run(randomUUID(), owner, repoUrl, review.number, JSON.stringify(review), new Date().toISOString());
+    database.exec('COMMIT'); return review;
+  } catch (error) { database.exec('ROLLBACK'); throw error; }
+}
+export function listPullReviewHistory(owner: string, repoUrl: string, number: number) {
+  return (workbenchDb().prepare('SELECT state, created_at AS at FROM pull_review_events WHERE owner=? AND repo_url=? AND number=? ORDER BY rowid DESC LIMIT 20').all(owner, repoUrl, number) as { state: string; at: string }[]).map(row => ({ at: row.at, review: JSON.parse(row.state) as PullRequestReview }));
+}
+export function updatePullRequestFinding(owner: string, repoUrl: string, number: number, findingId: string, change: { status: 'open' | 'accepted' | 'dismissed'; reviewerNote?: string }, reviewId: string, revision: number): PullRequestReview {
+  const database = workbenchDb(); database.exec('BEGIN IMMEDIATE');
+  try {
+    const current = getPullRequestReview(owner, repoUrl, number);
+    if (!current || current.id !== reviewId || current.revision !== revision) throw new Error('审查已变化，请刷新后重新确认。');
+    const finding = current.findings.find(finding => finding.id === findingId);
+    if (!finding) throw new Error('审查发现不存在或已更新。');
+    if (change.status === 'accepted' && !finding.evidenceVerified) throw new Error('该发现未通过代码证据校验，不能直接确认；请手动核对或忽略。');
+    const next = { ...current, revision: current.revision + 1, findings: current.findings.map(f => f.id === findingId ? { ...f, status: change.status, reviewerNote: change.reviewerNote?.trim() || undefined, reviewedAt: new Date().toISOString() } : f) };
+    database.prepare('UPDATE pull_request_reviews SET state=?, updated_at=? WHERE owner=? AND repo_url=? AND number=?').run(JSON.stringify(next), new Date().toISOString(), owner, repoUrl, number);
+    database.prepare('INSERT INTO pull_review_events VALUES (?, ?, ?, ?, ?, ?)').run(randomUUID(), owner, repoUrl, number, JSON.stringify(next), new Date().toISOString());
+    database.exec('COMMIT'); return next;
+  } catch (error) { database.exec('ROLLBACK'); throw error; }
+}
+
 export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan }): ReproductionJob {
   const now = new Date().toISOString();
   const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: '复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };

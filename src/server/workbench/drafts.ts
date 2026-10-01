@@ -1,6 +1,7 @@
 import { createDraft, getSnapshot } from './store';
 import { assistant } from './assistant';
 import { getRun } from '../audit/store';
+import { createPullReviewDraft } from './review';
 import { getItem } from '../github/api';
 
 const paths: Record<string, string> = { readme: 'README.md', contributing: 'CONTRIBUTING.md', 'issue-template': '.github/ISSUE_TEMPLATE/bug_report.md', 'pr-template': '.github/pull_request_template.md', 'agent-readme-clarity': 'README.md', 'agent-contributing-clarity': 'CONTRIBUTING.md', 'agent-command-consistency': 'README.md' };
@@ -27,13 +28,12 @@ export async function fileDraft(owner: string, runId: string, checkId: string, s
   });
 }
 export async function itemDraft(owner: string, repoUrl: string, kind: 'issue' | 'review', number: number, signal?: AbortSignal) {
-  const item = await getItem(owner, repoUrl, kind === 'issue' ? 'issues' : 'pulls', number);
+  if (kind === 'review') return createPullReviewDraft(owner, repoUrl, number, signal);
+  const item = await getItem(owner, repoUrl, 'issues', number, signal);
   let budget = 50_000;
   const files = item.files?.map(file => { const patch = file.patch?.slice(0, Math.max(0, budget)); budget -= patch?.length || 0; return { ...file, patch, omitted: patch?.length !== file.patch?.length }; });
   const triage = kind === 'issue' ? (await import('./store')).getIssueTriage(owner, repoUrl, number) : null;
-  const instruction = kind === 'issue'
-    ? '根据 Issue 和已确认的分诊结果生成可直接审阅的中文回复草稿。优先使用维护者确认结果；如果没有确认结果，明确把 AI 分析称为建议。根据信息完整度决定是请求补充信息、说明准备复现，还是说明当前调查边界。不要重复索要已经提供的信息，不要声称已经修复、复现或测试通过。只输出回复正文。'
-    : '分析 PR 的实际 Diff，生成审阅评论草稿。逐项注明文件路径，区分确定问题与需要确认的问题。文件列表仅首 100 个，patch 可能截断，不能声称全量审查或测试通过。';
+  const instruction = '根据 Issue 和已确认的分诊结果生成可直接审阅的中文回复草稿。优先使用维护者确认结果；如果没有确认结果，明确把 AI 分析称为建议。根据信息完整度决定是请求补充信息、说明准备复现，还是说明当前调查边界。不要重复索要已经提供的信息，不要声称已经修复、复现或测试通过。只输出回复正文。';
   const content = await assistant(owner, kind, instruction, { ...item, triage, files, body: item.body.slice(0, 20000) }, [], signal);
   return createDraft(owner, {
     kind,

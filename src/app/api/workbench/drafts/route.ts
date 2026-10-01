@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       z.object({ action: z.literal('publish'), id: z.string().uuid(), revision: z.number().int(), confirmed: z.literal(true) }),
     ]).parse(await smallJson(request, 150_000));
     if (input.action === 'edit') return jsonResponse({ draft: updateDraft(owner, input.id, input.revision, { content: input.content }) });
-    return await withOperation(owner, input.action === 'publish' ? `publish:${input.id}` : 'draft', async () => {
+    return await withOperation(owner, input.action === 'publish' ? `publish:${input.id}` : input.action === 'item' && input.kind === 'review' ? `pull-review:${input.number}` : 'draft', async () => {
       if (input.action === 'file') return jsonResponse({ draft: await fileDraft(owner, input.runId, input.checkId, request.signal) });
       if (input.action === 'item') {
         const project = getProject(owner); if (!project) throw new Error('请先连接项目。');

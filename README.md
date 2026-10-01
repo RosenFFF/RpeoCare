@@ -20,7 +20,8 @@ npm run dev
 | 统一项目 | 连接真实仓库、指定分支、概览与历史任务、草稿统计 |
 | 体检 | 固定提交快照、8 项基础检查、pi Agent 分析、文件证据、报告导出 |
 | 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
-| Issue / PR | 真实开放列表、AI 可解释分诊、中英对照、回复草稿；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
+| Issue / PR | Issue 可解释分诊、信息准备度与维护者确认；PR 固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和已筛选审阅草稿；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
+| PR 证据化审查 | 固定 head/base、实际 Diff 坐标、Checks/Status、关联需求、结构化 AI 线索、证据校验、人工筛选、历史、已筛选 COMMENT 草稿 |
 | 文档维护 | 从报告生成 README / CONTRIBUTING / Issue / PR 模板；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
 | 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
@@ -45,7 +46,7 @@ src/features/            功能界面（workbench 为真实项目功能）
 src/server/audit/        快照、规则、Agent、任务和 Worker 队列
 src/server/auth/         邮箱认证和邮件
 src/server/github/       GitHub OAuth、读取、写回
-src/server/workbench/    项目、草稿、分诊和模型使用量
+src/server/workbench/    项目、草稿、分诊、PR 审查和模型使用量
 src/server/reproduction/  复现计划校验、队列与 Docker 执行器
 reproduction/             最小权限 Runner 镜像与 Playwright 执行入口
 src/server/models/       模型连接、加密与协议适配
@@ -76,6 +77,7 @@ npm run cleanup -- --apply
 - [部署与运行](docs/DEPLOYMENT.md)
 - [账户配置](docs/AUTH_INTEGRATION.md)
 - [体检范围](docs/AUDIT_SETUP.md)
+- [PR 证据化审查](docs/PR_REVIEW.md)
 - [Bug 复现实验室](docs/REPRODUCTION.md)
 - [实现与验收清单](docs/IMPLEMENTATION_STATUS.md)
 - [架构](docs/ARCHITECTURE.md) / [开发约定](docs/DEVELOPMENT.md)

@@ -43,3 +43,8 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 ## Issue 复现执行链
 
 Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → 维护者人工确认 → SQLite 队列 → 独立复现 Worker → 固定 Git commit → Docker Runner 三次执行 → 机器判据与 SHA-256 证据。Web 进程不执行仓库代码；执行阶段网络关闭，Docker 不可用时不回退宿主机。详细边界见 [REPRODUCTION.md](REPRODUCTION.md)。
+
+
+## PR 审查执行链
+
+真实页面 → `/api/workbench/review` → GitHub head/base 与前 100 个文件、CI/Status、最多 3 条关联需求 → 有界模型上下文 → Zod + Diff 坐标/原文校验 → SQLite 报告与人工事件历史 → 维护者筛选 → 草稿工作台 → 发布前版本校验 → GitHub COMMENT。PR 代码不执行，Docker 无前置依赖。详见 PR_REVIEW.md。

@@ -1,4 +1,5 @@
 import type { AuditRun, Evidence, RepoSnapshot } from './audit';
+import type { ModelSelection } from './models';
 
 export interface Project { repoUrl: string; branch?: string; fullName: string; updatedAt: string }
 export interface GitComment { id: number; body: string; url: string; author: string; createdAt: string; updatedAt: string }
@@ -125,12 +126,51 @@ export interface ReproductionJob {
   startedAt?: string;
   finishedAt?: string;
 }
-export interface GitItem { number: number; title: string; body: string; url: string; state: string; author: string; updatedAt: string; labels: string[]; commentCount?: number; assignees?: string[]; milestone?: string | null; headSha?: string; comments?: GitComment[]; triage?: IssueTriage; files?: { path: string; status: string; additions: number; deletions: number; patch?: string }[] }
+export type ReviewFindingSeverity = 'blocking' | 'warning' | 'suggestion' | 'info';
+export type ReviewFindingStatus = 'open' | 'accepted' | 'dismissed';
+export interface ReviewFinding {
+  id: string;
+  severity: ReviewFindingSeverity;
+  category: 'correctness' | 'security' | 'performance' | 'tests' | 'maintainability' | 'compatibility' | 'scope';
+  title: string;
+  explanation: string;
+  path?: string;
+  line?: number;
+  evidence?: string;
+  confidence: IssueConfidence;
+  status: ReviewFindingStatus;
+  reviewerNote?: string;
+  evidenceVerified?: boolean;
+  reviewedAt?: string;
+  side?: 'LEFT' | 'RIGHT';
+}
+export interface PullRequestCheck { name: string; status: 'queued' | 'in_progress' | 'completed' | 'unknown'; conclusion?: string | null; detailsUrl?: string; startedAt?: string; completedAt?: string }
+export interface PullRequestReview {
+  id: string;
+  revision: number;
+  repoUrl: string;
+  number: number;
+  headSha: string;
+  baseSha?: string;
+  title: string;
+  summary: string;
+  scope: { files: number; totalFiles?: number; filesComplete?: boolean; additions: number; deletions: number; truncatedFiles: number; reviewedFiles: string[]; testFiles?: string[]; docsFiles?: string[] };
+  checks: PullRequestCheck[];
+  checksAvailable?: boolean;
+  contextFingerprint?: string;
+  model?: ModelSelection;
+  linkedIssues?: { number: number; title: string; body: string; url: string }[];
+  findings: ReviewFinding[];
+  limitations: string[];
+  analyzedAt: string;
+  promptVersion: string;
+}
+export interface GitItem { number: number; title: string; body: string; url: string; state: string; author: string; updatedAt: string; labels: string[]; commentCount?: number; assignees?: string[]; milestone?: string | null; headSha?: string; baseSha?: string; totalChangedFiles?: number; filesTruncated?: boolean; headRef?: string; baseRef?: string; isDraft?: boolean; checks?: PullRequestCheck[]; checksAvailable?: boolean; snapshotWarnings?: string[]; linkedIssues?: { number: number; title: string; body: string; url: string }[]; comments?: GitComment[]; triage?: IssueTriage; files?: { path: string; status: string; additions: number; deletions: number; patch?: string; patchTruncated?: boolean }[] }
 /** Where a draft came from, so reviewers can trace generated text back to the
  * report or GitHub item that supplied its context. Optional for old drafts. */
 export type DraftSource =
   | { type: 'audit-check'; runId: string; checkId: string; checkTitle: string; evidence: Evidence[] }
-  | { type: 'github-item'; kind: 'issue' | 'review'; number: number };
+  | { type: 'github-item'; kind: 'issue' | 'review'; number: number; reviewId?: string; reviewRevision?: number };
 
 export interface Draft { id: string; kind: 'file' | 'issue' | 'review'; repoUrl: string; runId?: string; number?: number; path?: string; baseSha: string; before: string; content: string; title: string; status: 'draft' | 'publishing' | 'published' | 'uncertain'; revision: number; createdAt: string; publishedUrl?: string; source?: DraftSource }
 export interface Usage { calls: number; inputTokens: number; outputTokens: number; failures: number }

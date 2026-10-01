@@ -1,10 +1,11 @@
+import type { RuntimeConnection } from '../../contracts/models';
 import type { Context } from '@mariozechner/pi-ai';
 import { modelForConnection, withModelTransport } from '../models/adapter';
 import { selectedConnection } from '../models/run-config';
 import { recordUsage } from './store';
 
-export async function assistant(owner: string, purpose: string, instruction: string, data: unknown, history: { role: 'user' | 'assistant'; content: string }[] = [], signal?: AbortSignal) {
-  const connection = selectedConnection(owner);
+export async function assistant(owner: string, purpose: string, instruction: string, data: unknown, history: { role: 'user' | 'assistant'; content: string }[] = [], signal?: AbortSignal, capturedConnection?: RuntimeConnection) {
+  const connection = capturedConnection || selectedConnection(owner);
   if (!connection) throw new Error('请先在设置中配置并测试模型连接。');
   const model = await modelForConnection(connection);
   const { completeSimple } = await import('@mariozechner/pi-ai');
