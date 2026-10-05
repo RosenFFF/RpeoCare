@@ -48,3 +48,8 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 ## PR 审查执行链
 
 真实页面 → `/api/workbench/review` → GitHub head/base 与前 100 个文件、CI/Status、最多 3 条关联需求 → 有界模型上下文 → Zod + Diff 坐标/原文校验 → SQLite 报告与人工事件历史 → 维护者筛选 → 草稿工作台 → 发布前版本校验 → GitHub COMMENT。PR 代码不执行，Docker 无前置依赖。详见 PR_REVIEW.md。
+
+
+## 维护收件列表（2026-10-05）
+
+Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用收件列表，不再各自采用双栏/卡片布局。列表的快捷视图、搜索、维度筛选、排序和分页属于同一工作区；记录按内容自然收缩，点击后进入全宽详情，返回恢复筛选和焦点。分类纯函数位于 inbox-model.ts，布局独立于已有详情/服务端审查逻辑。详见 REVIEW_INBOX.md。

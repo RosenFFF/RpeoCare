@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  AlertCircle, ArrowUpRight, Bot, Check, ChevronLeft, ChevronRight, CircleDot,
-  Download, ExternalLink, FlaskConical, Globe2, Languages, List, MessageSquare, Play, RefreshCw, Search, ShieldCheck,
+  AlertCircle, Bot, Check, ChevronLeft, ChevronRight, CircleDot,
+  Download, ExternalLink, FlaskConical, Globe2, Languages, List, MessageSquare, Play, RefreshCw, ShieldCheck,
   Sparkles, Square, Tag, UserRound, X,
 } from 'lucide-react';
 import type {
@@ -12,9 +12,10 @@ import type {
 } from '@/contracts/workbench';
 import { api, changed, useWorkbench } from './client';
 import { parseDiff } from '@/shared/lib/pr-diff';
+import { ReviewInbox } from './review-inbox';
 import './workbench.css';
+import './review-inbox.css';
 
-type CategoryFilter = 'all' | IssueCategory;
 type StatusFilter = 'all' | IssueWorkflowStatus | 'untriaged';
 
 const CATEGORY_META: Record<IssueCategory, { label: string; short: string; color: string }> = {
@@ -44,48 +45,16 @@ const STATUS_META: Record<Exclude<StatusFilter, 'all' | 'untriaged'>, { label: s
   'manual-review': { label: '人工判断', color: 'slate' },
 };
 
-function triageStatus(triage?: IssueTriage): IssueWorkflowStatus | 'untriaged' {
-  return triage?.workflowStatus || 'untriaged';
-}
-function statusLabel(status: StatusFilter) {
-  if (status === 'all') return '全部处理状态';
-  if (status === 'untriaged') return '尚未分诊';
-  return STATUS_META[status].label;
-}
 function dateLabel(value: string) {
   try { return new Intl.DateTimeFormat('zh-CN', { month: 'short', day: 'numeric' }).format(new Date(value)); }
   catch { return value; }
 }
-function categoryFor(item: GitItem) { return item.triage?.category || null; }
 function commentTranslation(triage: IssueTriage | undefined, comment: GitComment) {
   return triage?.commentsZh.find(item => item.id === comment.id)?.bodyZh || '';
 }
 
 function Badge({ children, tone = 'slate' }: { children: React.ReactNode; tone?: string }) {
   return <span className={`issue-badge issue-badge-${tone}`}>{children}</span>;
-}
-
-function IssueCard({ item, selected, onClick }: { item: GitItem; selected: boolean; onClick: () => void }) {
-  const category = item.triage?.category ? CATEGORY_META[item.triage.category] : null;
-  const priority = item.triage?.priority ? PRIORITY_META[item.triage.priority] : null;
-  const status = triageStatus(item.triage);
-  return <button type="button" className={`issue-list-row ${selected ? 'is-selected' : ''}`} onClick={onClick} aria-pressed={selected}>
-    <span className="issue-row-marker" aria-hidden="true" />
-    <span className="issue-row-main">
-      <span className="issue-row-topline"><span className="issue-number">#{item.number}</span><strong>{item.title}</strong></span>
-      <span className="issue-row-meta"><UserRound size={12} />{item.author || '未知作者'}<span className="issue-meta-separator" />{dateLabel(item.updatedAt)}<span className="issue-meta-separator" />{item.commentCount ?? item.comments?.length ?? 0} 条评论</span>
-    </span>
-    <span className="issue-row-tags">
-      {category ? <Badge tone={category.color}>{category.short}</Badge> : <Badge tone="slate">未分诊</Badge>}
-      {priority && priority.label !== '待判断' && <Badge tone={priority.color}>{priority.label.replace('优先级', '')}</Badge>}
-      {status !== 'untriaged' && <Badge tone={STATUS_META[status as keyof typeof STATUS_META]?.color || 'slate'}>{statusLabel(status)}</Badge>}
-    </span>
-    <ChevronRight size={16} className="issue-row-chevron" aria-hidden="true" />
-  </button>;
-}
-
-function Metric({ value, label, detail, tone }: { value: number; label: string; detail?: string; tone?: string }) {
-  return <div className={`issue-metric ${tone ? `is-${tone}` : ''}`}><strong>{value}</strong><span>{label}</span>{detail && <small>{detail}</small>}</div>;
 }
 
 function TriageValue({ label, children }: { label: string; children: React.ReactNode }) {
@@ -287,7 +256,7 @@ function PullRequestDetail({ item, review, busy, onAnalyze, onFinding, onDraft, 
     catch (error) { setHistoryError(error instanceof Error ? error.message : '历史暂不可用'); }
   }
   return <section className="issue-detail-panel" aria-label={`PR #${item.number} 详情`}>
-    <header className="issue-detail-header"><div className="issue-detail-title"><div className="issue-detail-eyebrow"><span>PR #{item.number}</span>{item.isDraft && <Badge>Draft PR</Badge>}</div><h2>{item.title}</h2><div className="issue-detail-meta"><span><UserRound size={13} />{item.author || '未知作者'}</span><span>{item.headRef || 'head'} → {item.baseRef || 'base'}</span><code>{item.headSha?.slice(0,12) || '正在读取提交'}</code></div></div><div className="issue-detail-actions"><button type="button" className="button button-secondary" onClick={onShowList}><List size={14} />显示 PR 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer">GitHub</a><button type="button" className="button button-primary" disabled={busy || !acknowledged || unresolved || stale} onClick={onDraft}>生成已筛选审阅草稿</button></div></header>
+    <header className="issue-detail-header"><div className="issue-detail-title"><div className="issue-detail-eyebrow"><span>PR #{item.number}</span>{item.isDraft && <Badge>Draft PR</Badge>}</div><h2>{item.title}</h2><div className="issue-detail-meta"><span><UserRound size={13} />{item.author || '未知作者'}</span><span>{item.headRef || 'head'} → {item.baseRef || 'base'}</span><code>{item.headSha?.slice(0,12) || '正在读取提交'}</code></div></div><div className="issue-detail-actions"><button type="button" className="button button-secondary" onClick={onShowList}><List size={14} />返回 PR 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer">GitHub</a><button type="button" className="button button-primary" disabled={busy || !acknowledged || unresolved || stale} onClick={onDraft}>生成已筛选审阅草稿</button></div></header>
     <div className="pr-review-context"><div><span>读取范围</span><strong>{files.length} / {item.totalChangedFiles ?? '?'} 个文件 · +{files.reduce((n,f)=>n+f.additions,0)} / −{files.reduce((n,f)=>n+f.deletions,0)}</strong></div><div><span>测试证据</span><strong>{files.some(f=> /test|spec/i.test(f.path)) ? '发现测试路径，不代表覆盖充分' : '读取清单中未发现测试路径'}</strong></div></div>
     {item.filesTruncated && <p className="pr-review-alert">超过文件读取上限，仅展示前 100 项；未读取文件不能判定没有问题。</p>}
     <details className="pr-description"><summary>PR 原文与关联需求</summary><pre>{item.body || '未提供描述'}</pre>{(item.linkedIssues || []).map(issue => <div key={issue.number}><a href={issue.url} target="_blank" rel="noopener noreferrer">关联 Issue #{issue.number} · {issue.title}</a><p>{issue.body}</p></div>)}</details>
@@ -312,7 +281,7 @@ function IssueDetail({ item, relatedItems, busy, canWrite, reproductions, reprod
   return <section className="issue-detail-panel" aria-label={`Issue #${item.number} 详情`}>
     <header className="issue-detail-header">
       <div className="issue-detail-title"><div className="issue-detail-eyebrow"><span>ISSUE #{item.number}</span><span className={`issue-state-dot ${item.state === 'open' ? 'is-open' : ''}`} />{item.state === 'open' ? '开放中' : '已关闭'}</div><h2>{item.title}</h2>{triage?.titleZh && <p className="issue-title-translation"><Languages size={13} />{triage.titleZh}</p>}<div className="issue-detail-meta"><span><UserRound size={13} />{item.author || '未知作者'}</span><span>更新于 {dateLabel(item.updatedAt)}</span>{item.assignees?.length ? <span>指派给 {item.assignees.join(', ')}</span> : <span>尚未指派</span>}{item.milestone && <span>里程碑：{item.milestone}</span>}</div></div>
-      <div className="issue-detail-actions"><button type="button" className="button button-secondary issue-show-list" onClick={onShowList} disabled={busy}><List size={14} />显示 Issue 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} />GitHub</a>{triage?.category === 'bug' && triage.readinessLevel === 'ready' ? <button type="button" className="button button-secondary" onClick={() => onReproduction('plan')} disabled={busy}><Sparkles size={14} />生成复现方案</button> : triage ? <button type="button" className="button button-secondary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />先补充信息</button> : null}<button type="button" className="button button-primary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />生成回复草稿</button></div>
+      <div className="issue-detail-actions"><button type="button" className="button button-secondary issue-show-list" onClick={onShowList} disabled={busy}><List size={14} />返回 Issue 列表</button><a className="button button-secondary" href={item.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} />GitHub</a>{triage?.category === 'bug' && triage.readinessLevel === 'ready' ? <button type="button" className="button button-secondary" onClick={() => onReproduction('plan')} disabled={busy}><Sparkles size={14} />生成复现方案</button> : triage ? <button type="button" className="button button-secondary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />先补充信息</button> : null}<button type="button" className="button button-primary" onClick={onDraft} disabled={busy}><MessageSquare size={14} />生成回复草稿</button></div>
     </header>
     <div className="issue-detail-statusbar"><div className="issue-status-summary">{category ? <Badge tone={category.color}>AI：{category.label}</Badge> : <Badge>尚未分诊</Badge>}{priority && <Badge tone={priority.color}>AI：{priority.label}</Badge>}{confirmedCategory && <Badge tone={confirmedCategory.color}>最终：{confirmedCategory.label}</Badge>}{confirmedPriority && <Badge tone={confirmedPriority.color}>最终：{confirmedPriority.label}</Badge>}{triage?.needsMoreInfo && <Badge tone="amber">需要补充信息</Badge>}<span className="issue-source-note">{triage ? (fresh ? `AI 分析于 ${dateLabel(triage.analyzedAt)}` : '原文已更新，需要重新分析') : '尚未建立 AI 分诊建议'}</span></div><div className="issue-detail-status-actions">{triage && <label className="issue-status-select"><span>处理状态</span><select value={triage.workflowStatus} onChange={event => onStatus(event.target.value as IssueWorkflowStatus)} disabled={busy}>{Object.entries(STATUS_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label>}<button type="button" className="button button-secondary" onClick={() => onAnalyze(Boolean(triage))} disabled={busy}><RefreshCw size={14} />{busy ? '处理中…' : triage ? '重新分析' : '开始 AI 分诊'}</button></div></div>
     {reproductions.length > 0 && <ReproductionPanel jobs={reproductions} selectedId={reproductionSelectedId} workerOnline={reproductionWorkerOnline} sandboxConfigured={reproductionSandboxConfigured} busy={busy} onAction={onReproduction} onSelect={onSelectReproduction} />}
@@ -327,15 +296,16 @@ function IssueDetail({ item, relatedItems, busy, canWrite, reproductions, reprod
 }
 
 export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
-  const { data } = useWorkbench();
+  const { data, error: workbenchError } = useWorkbench();
   const [items, setItems] = useState<GitItem[]>([]);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [listOpen, setListOpen] = useState(true);
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState('');
-  const [categoryFilter, setCategory] = useState<CategoryFilter>('all');
-  const [status, setStatus] = useState<StatusFilter>('all');
   const [error, setError] = useState('');
+  const [listLoading, setListLoading] = useState(false);
+  const listLoadVersion = useRef(0);
+  const listScroll = useRef(0);
+  const detailRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [reproductions, setReproductions] = useState<ReproductionJob[]>([]);
@@ -347,20 +317,28 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const isIssues = kind === 'issues';
 
   const load = useCallback(async (keepSelection = true) => {
-    if (!data?.project) return;
-    setError('');
+    const version = ++listLoadVersion.current;
+    if (!data?.project) { setListLoading(false); return; }
+    setError(''); setListLoading(true);
     try {
       const value = await api<{ items: GitItem[] }>(`/api/workbench/items?kind=${kind}&page=${page}`);
+      if (version !== listLoadVersion.current) return;
       setItems(value.items);
-      if (!keepSelection || (selectedNumber && !value.items.some(item => item.number === selectedNumber))) setSelectedNumber(null);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : '无法读取 GitHub 数据。'); }
+      if (!keepSelection || (selectedNumber && !value.items.some(item => item.number === selectedNumber))) { setSelectedNumber(null); setListOpen(true); }
+    } catch (cause) { if (version === listLoadVersion.current) setError(cause instanceof Error ? cause.message : '无法读取 GitHub 数据。'); }
+    finally { if (version === listLoadVersion.current) setListLoading(false); }
   }, [data?.project?.repoUrl, kind, page, selectedNumber]);
 
-  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setItems([]); void load(false); }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setBusy(false); setNotice(''); setReproductions([]); setSelectedReproductionId(null); setItems([]); void load(false); return () => { listLoadVersion.current++; }; }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (isIssues || selectedNumber || items.length !== 1 || busy) return;
-    void open(items[0]);
-  }, [isIssues, selectedNumber, items, busy]);
+    if (!selectedNumber || listOpen) return;
+    const frame = requestAnimationFrame(() => { detailRef.current?.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedNumber, listOpen]);
+  function returnToList() {
+    setListOpen(true);
+    requestAnimationFrame(() => { window.scrollTo({ top: listScroll.current }); const row = document.getElementById(`inbox-row-${kind}-${selectedNumber}`); (row || document.getElementById('review-title'))?.focus({ preventScroll: true }); });
+  }
 
   const refreshReproductions = useCallback(async (number: number) => {
     const value = await api<{ jobs: ReproductionJob[]; workerOnline: boolean; sandboxConfigured: boolean }>(`/api/workbench/reproduction?number=${number}`);
@@ -388,20 +366,8 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
       return { item, score: overlap + categoryBoost };
     }).filter(entry => entry.score > 1).sort((a, b) => b.score - a.score).slice(0, 3).map(entry => entry.item);
   }, [items, isIssues, selected]);
-  const visible = useMemo(() => items.filter(item => {
-    const q = query.trim().toLowerCase();
-    const haystack = `${item.number} ${item.title} ${item.body} ${item.author} ${item.labels.join(' ')}`.toLowerCase();
-    return (!q || haystack.includes(q)) && (!isIssues || categoryFilter === 'all' || categoryFor(item) === categoryFilter) && (!isIssues || status === 'all' || triageStatus(item.triage) === status);
-  }), [items, query, categoryFilter, status, isIssues]);
-  const stats = useMemo(() => {
-    const analyzed = items.filter(item => item.triage).length;
-    const needsInfo = items.filter(item => item.triage?.needsMoreInfo || item.triage?.workflowStatus === 'needs-info').length;
-    const high = items.filter(item => item.triage?.priority === 'high').length;
-    const categories = (Object.keys(CATEGORY_META) as IssueCategory[]).map(value => ({ value, count: items.filter(item => item.triage?.category === value).length }));
-    return { analyzed, needsInfo, high, categories, untriaged: items.length - analyzed };
-  }, [items]);
-
   async function open(item: GitItem) {
+    if (listOpen) listScroll.current = window.scrollY;
     const version = ++selectionVersion.current;
     setSelectedNumber(item.number); setListOpen(false); setBusy(true); setError(''); setNotice(''); setPullReview(null);
     try {
@@ -426,9 +392,8 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Issue 分析未完成。'); }
     finally { setBusy(false); }
   }
-  async function batchAnalyze() {
+  async function batchAnalyze(numbers: number[]) {
     if (!isIssues) return;
-    const numbers = items.filter(item => !item.triage).slice(0, 12).map(item => item.number);
     if (!numbers.length) { setNotice('当前页的 Issue 都已经有分诊结果。'); return; }
     setBusy(true); setError(''); setNotice('正在按当前页顺序建立分诊建议…');
     try { const result = await api<{ triages: IssueTriage[]; errors: { number: number; message: string }[] }>('/api/workbench/triage', { action: 'batch', numbers }); const byNumber = new Map(result.triages.map(triage => [triage.number, triage])); setItems(current => current.map(item => ({ ...item, triage: byNumber.get(item.number) || item.triage }))); setNotice(result.errors.length ? `完成 ${result.triages.length} 条，${result.errors.length} 条失败。` : `已完成 ${result.triages.length} 条 Issue 分诊。`); }
@@ -510,14 +475,19 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     finally { setBusy(false); }
   }
 
-  if (!isIssues) return <div className="wb-page pr-workbench"><header className="issue-page-heading"><div><span className="issue-page-kicker">MAINTAINER INBOX / PULL REQUEST REVIEW</span><h1>PR 审查</h1><p>基于固定提交、可见 Diff 和 CI Checks，生成可解释的 AI 审查建议。</p></div><div className="issue-heading-actions"><button type="button" className="button button-secondary" onClick={() => { if (selected) void open(selected); else void load(); }} disabled={busy}><RefreshCw size={14} />刷新</button></div></header>{!data?.project && <div className="issue-connect-note"><CircleDot size={17} /><span>请先在项目概览中连接一个 GitHub 仓库。</span><Link href="/overview">连接项目 <ArrowUpRight size={14} /></Link></div>}{error && <p className="wb-error issue-alert" role="alert"><AlertCircle size={15} />{error}</p>}{notice && <p className="issue-notice" role="status"><Check size={15} />{notice} <Link href="/improvements">查看草稿</Link></p>}<section className="issue-toolbar"><div className="issue-search"><Search size={16} /><input aria-label="搜索 PR" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索标题、编号或作者" /></div><span className="issue-result-count">显示 {visible.length} / {items.length}</span></section><div className={`issue-content-grid ${selected && !listOpen ? 'is-focused' : ''}`}><section className="issue-list-panel" aria-label="Pull Request 列表" aria-hidden={Boolean(selected && !listOpen)} inert={selected && !listOpen ? true : undefined}><div className="issue-list-heading"><div><span className="issue-section-kicker">OPEN PULL REQUESTS</span><h2>待审查变更</h2></div><span>第 {page} 页</span></div><div className="issue-list">{visible.map(item => <button type="button" className={`issue-list-row ${selected?.number === item.number ? 'is-selected' : ''}`} key={item.number} onClick={() => void open(item)}><span className="issue-row-marker" /><span className="issue-row-main"><span className="issue-row-topline"><span className="issue-number">#{item.number}</span><strong>{item.title}</strong></span><span className="issue-row-meta"><UserRound size={12} />{item.author || '未知作者'}<span className="issue-meta-separator" />{dateLabel(item.updatedAt)}<span className="issue-meta-separator" />{item.totalChangedFiles ?? '待读取'} 个文件</span></span><span className="issue-row-tags"><Badge tone="blue">PR</Badge>{item.headSha && <Badge tone="slate">{item.headSha.slice(0, 7)}</Badge>}</span></button>)}{!visible.length && <div className="issue-empty-state"><CircleDot size={27} /><strong>当前没有可审查的 PR</strong><p>调整搜索条件或刷新列表。</p></div>}</div><div className="issue-pagination"><button type="button" className="button button-secondary" disabled={page === 1 || busy} onClick={() => setPage(value => value - 1)}>上一页</button><span>第 {page} 页</span><button type="button" className="button button-secondary" disabled={!items.length || busy} onClick={() => setPage(value => value + 1)}>下一页</button></div></section>{selected ? <PullRequestDetail item={selected} review={pullReview?.number === selected.number ? pullReview : null} busy={busy} onAnalyze={analyzePull} onFinding={updatePullFinding} onDraft={generateDraft} onShowList={() => setListOpen(true)} /> : <section className="issue-detail-panel issue-detail-placeholder pr-review-welcome"><div className="pr-welcome-icon"><ShieldCheck size={27} /></div><span className="issue-section-kicker">REVIEW PROTOCOL</span><h2>{items.length ? '选择一个 PR 开始审查' : '当前没有可审查的 PR'}</h2><p>{items.length ? '从左侧选择一项变更，先锁定提交，再查看 Diff、CI 和结构化 AI 发现。' : '刷新列表，或先在项目概览中连接一个 GitHub 仓库。'}</p><div className="pr-welcome-steps"><div><b>01</b><span>固定 head SHA</span></div><div><b>02</b><span>核对 Diff 与 CI</span></div><div><b>03</b><span>逐条确认后写草稿</span></div></div>{!items.length && <button type="button" className="button button-secondary" onClick={() => void load()} disabled={busy}><RefreshCw size={13} />重新读取 PR</button>}</section>}</div></div>;
-
-  return <div className="wb-page issue-workbench"><header className="issue-page-heading"><div><span className="issue-page-kicker">MAINTAINER INBOX / ISSUE TRIAGE</span><h1>Issue 分诊</h1><p>先看清问题分布，再进入单条 Issue 做证据核对、翻译和回复。</p></div><div className="issue-heading-actions"><button type="button" className="button button-secondary" onClick={() => void load()} disabled={busy}><RefreshCw size={14} />刷新</button><button type="button" className="button button-primary" onClick={() => void batchAnalyze()} disabled={busy || !items.length}>{busy ? '处理中…' : '批量建立分诊'}</button></div></header>
-    {!data?.project && <div className="issue-connect-note"><CircleDot size={17} /><span>请先在项目概览中连接一个 GitHub 仓库。</span><Link href="/overview">连接项目 <ArrowUpRight size={14} /></Link></div>}
-    {error && <p className="wb-error issue-alert" role="alert"><AlertCircle size={15} />{error}<button type="button" aria-label="关闭错误" onClick={() => setError('')}><X size={14} /></button></p>}
-    {notice && <p className="issue-notice" role="status"><Check size={15} />{notice}</p>}
-    <section className="issue-command-strip"><div className="issue-metric-grid"><Metric value={items.length} label="当前页 Issue" detail="开放中的实时数据" /><Metric value={stats.analyzed} label="已完成分诊" detail={stats.untriaged ? `${stats.untriaged} 条等待处理` : '当前页已经覆盖'} tone="blue" /><Metric value={stats.needsInfo} label="需要补充信息" detail="优先准备回复" tone="amber" /><Metric value={stats.high} label="高优先级" detail="建议尽快查看" tone="red" /></div><div className="issue-category-distribution"><div className="issue-distribution-heading"><span>当前页分类分布</span><small>AI 建议 · 人工确认</small></div><div className="issue-distribution-bars">{stats.categories.filter(category => category.count > 0).map(category => <button type="button" key={category.value} className={`issue-distribution-item issue-tone-${CATEGORY_META[category.value].color}`} onClick={() => setCategory(category.value)} aria-pressed={categoryFilter === category.value}><span>{CATEGORY_META[category.value].short}</span><i><b style={{ width: `${items.length ? Math.max(8, category.count / items.length * 100) : 0}%` }} /></i><strong>{category.count}</strong></button>)}{!stats.categories.some(category => category.count > 0) && <span className="issue-distribution-empty">完成分诊后，这里会显示问题类型分布。</span>}</div></div></section>
-    <section className="issue-toolbar"><div className="issue-search"><Search size={16} /><input aria-label="搜索 Issue" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索标题、正文、作者或标签" /></div><div className="issue-filter-group"><label><span>类型</span><select value={categoryFilter} onChange={event => setCategory(event.target.value as CategoryFilter)}><option value="all">全部类型</option>{Object.entries(CATEGORY_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label><label><span>处理状态</span><select value={status} onChange={event => setStatus(event.target.value as StatusFilter)}><option value="all">全部状态</option><option value="untriaged">尚未分诊</option>{Object.entries(STATUS_META).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}</select></label></div><span className="issue-result-count">显示 {visible.length} / {items.length}</span></section>
-    <div className={`issue-content-grid ${selected && !listOpen ? 'is-focused' : ''}`}><section className="issue-list-panel" aria-label="Issue 列表" aria-hidden={Boolean(selected && !listOpen)} inert={selected && !listOpen ? true : undefined}><div className="issue-list-heading"><div><span className="issue-section-kicker">OPEN ISSUES</span><h2>待处理反馈</h2></div><span>第 {page} 页 · 最多每次处理 12 条</span></div><div className="issue-list">{visible.map(item => <IssueCard key={item.number} item={item} selected={selectedNumber === item.number} onClick={() => void open(item)} />)}{!visible.length && <div className="issue-empty-state"><CircleDot size={27} /><strong>没有符合条件的 Issue</strong><p>尝试清空搜索或切换筛选条件。</p><button type="button" onClick={() => { setQuery(''); setCategory('all'); setStatus('all'); }}>重置筛选</button></div>}</div><div className="issue-pagination"><button type="button" className="button button-secondary" disabled={page === 1 || busy} onClick={() => setPage(value => value - 1)}><ChevronLeft size={14} />上一页</button><span>第 {page} 页</span><button type="button" className="button button-secondary" disabled={!items.length || busy} onClick={() => setPage(value => value + 1)}>下一页<ChevronRight size={14} /></button></div></section>{selected ? <IssueDetail item={selected} relatedItems={relatedItems} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={() => setListOpen(true)} onOpenRelated={item => void open(item)} onReview={reviewTriage} /> : <section className="issue-detail-panel issue-detail-placeholder"><Sparkles size={27} /><h2>选择一条 Issue 开始分诊</h2><p>列表中的每条反馈都会保留原文；分析后再显示中文对照、分诊依据和下一步建议。</p></section>}</div>
+  const focused = !!selected && !listOpen;
+  const title = isIssues ? 'Issue 分诊' : 'PR 审查';
+  const combinedError = error || workbenchError;
+  return <div className={`wb-page review-page ${isIssues ? 'issue-workbench' : 'pr-workbench'}`}>
+    <header className="review-page-header"><div className="review-page-title"><span className="review-project-label">{data?.project?.fullName || '开源维护工作台'}<span aria-hidden="true"> / </span>{isIssues ? '反馈收件箱' : '变更收件箱'}</span><h1 id="review-title" tabIndex={-1}>{title}</h1><p>{focused ? isIssues ? '核对原文与分诊依据，再选择下一步维护动作。' : '核对代码证据与检查状态，筛选后生成审阅草稿。' : isIssues ? '先整理反馈，再分诊处理。分类、优先级与处理状态分别管理。' : '先选择变更，再核对 Diff、CI 与 AI 发现。最终判断由维护者确认。'}</p></div><button type="button" className="button button-secondary" onClick={() => { if (focused && selected) void open(selected); else void load(); }} disabled={busy || listLoading}><RefreshCw size={14} />{listLoading ? '读取中…' : '刷新'}</button></header>
+    {combinedError && <p className="wb-error issue-alert" role="alert"><AlertCircle size={15} />{combinedError}<button type="button" aria-label="关闭错误" onClick={()=>setError('')}><X size={14}/></button></p>}
+    {notice && <p className="issue-notice" role="status"><Check size={15}/>{notice}<Link href="/improvements">草稿工作台</Link></p>}
+    <div className={`review-workspace ${focused ? 'is-focused' : ''}`}>
+      <ReviewInbox key={`${kind}-${data?.project?.repoUrl || 'none'}`} kind={kind} items={items} page={page} connected={!!data?.project} busy={busy} loading={listLoading || (!data && !workbenchError)} hidden={focused} failed={!!combinedError} onOpen={item=>void open(item)} onPage={setPage} onBatch={numbers=>void batchAnalyze(numbers)}/>
+      {focused && selected && <div className="review-detail-view" tabIndex={-1} ref={detailRef} aria-label={`${isIssues ? 'Issue' : 'PR'} #${selected.number} 工作区`}>
+        <div className="review-back-bar"><button type="button" onClick={returnToList}><ChevronLeft size={15}/>返回{isIssues ? '反馈' : '变更'}收件箱</button><span>#{selected.number} · {busy ? '正在处理…' : '详情工作区'}</span></div>
+        {isIssues ? <IssueDetail item={selected} relatedItems={relatedItems} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={returnToList} onOpenRelated={item=>void open(item)} onReview={reviewTriage}/> : <PullRequestDetail item={selected} review={pullReview?.number === selected.number ? pullReview : null} busy={busy} onAnalyze={analyzePull} onFinding={updatePullFinding} onDraft={generateDraft} onShowList={returnToList}/>}
+      </div>}
+    </div>
   </div>;
 }

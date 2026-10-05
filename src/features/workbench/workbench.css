@@ -446,37 +446,3 @@
 .pr-code-scroll { max-height:440px; overflow:auto; }.pr-code-scroll pre { max-height:none; min-width:max-content; white-space:pre; padding:8px 0; font-size:12px; }.pr-code-row { display:grid; grid-template-columns:50px 50px 1fr; padding:0 12px; }.pr-code-row>span { color:var(--subtle); user-select:none; }.pr-code-row.is-add { background:var(--success-bg,#18855b16); }.pr-code-row.is-remove { background:var(--danger-bg,#c3484814); }.pr-code-row.is-hunk { color:var(--accent); background:var(--accent-soft); }
 .pr-history>div { display:flex; flex-wrap:wrap; gap:10px; border-top:1px solid var(--line); margin-top:8px; padding-top:8px; }.pr-history time { color:var(--subtle); }.pr-review-finding h4 { font-size:14px; }.pr-review-finding p { font-size:12px; }.pr-review-finding blockquote { font-size:11px; overflow-wrap:anywhere; }
 @media(max-width:650px){.pr-review-summary{flex-direction:column;}.pr-review-summary-badges{justify-content:flex-start;}.pr-workbench .issue-detail-actions{flex-wrap:wrap;}.pr-workbench .issue-detail-header{padding-inline:17px;}.pr-history,.pr-description,.pr-ci-details,.pr-draft-ack,.pr-review-alert{margin-inline:17px;}}
-
-.pr-review-welcome { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; min-height:620px; padding:42px; text-align:left; background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,var(--accent-soft)),var(--surface)); }
-.pr-welcome-icon { display:grid; place-items:center; width:54px; height:54px; border:1px solid var(--accent-border); border-radius:14px; color:var(--accent); background:var(--accent-soft); }
-.pr-review-welcome > .issue-section-kicker { margin-top:22px; }.pr-review-welcome h2 { margin-top:9px; color:var(--ink); font-size:22px; }.pr-review-welcome p { max-width:430px; margin-top:9px; color:var(--muted); font-size:12px; line-height:1.7; }
-.pr-welcome-steps { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); width:100%; max-width:610px; margin-top:26px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }.pr-welcome-steps div { display:grid; gap:5px; padding:14px 12px; border-right:1px solid var(--line); }.pr-welcome-steps div:last-child { border-right:0; }.pr-welcome-steps b { color:var(--accent); font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace); font-size:10px; }.pr-welcome-steps span { color:var(--ink); font-size:10px; }
-.pr-review-welcome .button { margin-top:20px; }
-@media (max-width:650px) { .pr-review-welcome { min-height:440px; padding:25px 17px; }.pr-welcome-steps { grid-template-columns:1fr; }.pr-welcome-steps div { border-right:0; border-bottom:1px solid var(--line); }.pr-welcome-steps div:last-child { border-bottom:0; } }
-
-
-/* PR layout: list height follows its content; the empty detail state must not
-   stretch to the eventual review document height. */
-.pr-workbench .issue-content-grid { align-items:start; }
-.pr-workbench .issue-list-panel { align-self:start; height:max-content; min-height:0; }
-.pr-workbench .issue-detail-panel { min-height:0; height:max-content; align-self:start; }
-.pr-workbench .pr-review-welcome { min-height:380px; height:auto; justify-content:center; }
-.pr-workbench .issue-content-grid:not(.is-focused) .pr-review-welcome { min-height:360px; }
-@media (max-width:860px) {
-  .pr-workbench .issue-list-panel { height:auto; }
-  .pr-workbench .pr-review-welcome,
-  .pr-workbench .issue-content-grid:not(.is-focused) .pr-review-welcome { min-height:330px; }
-}
-
-
-/* PR navigation is a horizontal work queue, not a tall two-column inspector. */
-.pr-workbench .issue-content-grid { grid-template-columns:1fr; gap:16px; }
-.pr-workbench .issue-list-panel { position:static; width:100%; max-width:none; }
-.pr-workbench .issue-list-panel .issue-list-heading { padding-inline:20px; }
-.pr-workbench .issue-list-panel .issue-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:8px; padding:10px; }
-.pr-workbench .issue-list-panel .issue-list-row { min-height:82px; padding:13px 11px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-.pr-workbench .issue-list-panel .issue-list-row:last-child { border-bottom:1px solid var(--line); }
-.pr-workbench .issue-list-panel .issue-list-row:hover,.pr-workbench .issue-list-panel .issue-list-row.is-selected { border-color:var(--accent-border); background:var(--accent-tint); }
-.pr-workbench .issue-list-panel .issue-pagination { border-top:1px solid var(--line); }
-.pr-workbench .issue-detail-panel { width:100%; }
-@media (max-width:650px) { .pr-workbench .issue-list-panel .issue-list { grid-template-columns:1fr; padding:8px; }.pr-workbench .issue-list-panel .issue-list-row { min-height:76px; } }

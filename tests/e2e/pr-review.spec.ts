@@ -22,9 +22,10 @@ test('PR review links real context, CI failure, finding decisions, drafts and hi
   await page.route('**/api/workbench/drafts',r=>{drafts++;return r.fulfill({json:{draft:{id:'draft1'}}});});
   await page.goto('/pull-requests');
   await expect(page.getByRole('heading',{name:'PR 审查',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:/#45 Refactor reader/}).click();
   await expect(page.locator('.pr-workbench .issue-detail-panel')).toBeVisible();
-  await expect(page.getByRole('region',{name:'Pull Request 列表'})).toHaveCount(0);
-  await expect(page.locator('.issue-list-panel')).toHaveAttribute('inert','');
+  await expect(page.getByRole('region',{name:'PR 收件列表'})).toHaveCount(0);
+  await expect(page.locator('.review-inbox')).toHaveAttribute('inert','');
   await expect(page.locator('.pr-ci-details')).toContainText('failure');
   await expect(page.getByRole('button',{name:'生成已筛选审阅草稿'})).toBeDisabled();
   await page.getByRole('button',{name:'开始 AI 审查',exact:true}).click();
@@ -49,6 +50,7 @@ test('PR update disables old findings and permits fresh analysis only',async({pa
   await page.route('**/api/workbench/items**',r=>r.fulfill({json:{items:[item]}}));
   await page.route('**/api/workbench/review**',r=>r.fulfill({json:{item:{...item,headSha:'c'.repeat(40)},review:report}}));
   await page.goto('/pull-requests');
+  await page.getByRole('button',{name:/#45 Refactor reader/}).click();
   await expect(page.locator('.pr-workbench .issue-detail-panel')).toBeVisible();
   await expect(page.locator('.pr-review-alert[role=alert]')).toContainText('旧提交审查');
   await expect(page.getByRole('button',{name:'确认发现'})).toBeDisabled();
