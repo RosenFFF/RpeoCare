@@ -87,7 +87,7 @@ async function runSandbox(owner: string, job: ReproductionJob, workspace: string
       if (raw === lastProgress) return;
       lastProgress = raw;
       const progress = JSON.parse(raw) as { phase?: ReproductionPhase; currentStep?: number; totalSteps?: number; currentStepLabel?: string };
-      updateReproductionJob(owner, job.id, { phase: progress.phase || phase, currentAttempt: job.currentAttempt, currentStep: progress.currentStep, totalSteps: progress.totalSteps || job.totalSteps, currentStepLabel: progress.currentStepLabel, progress: progress.currentStepLabel || `正在执行第 ${progress.currentStep || 0}/${progress.totalSteps || job.totalSteps || 0} 步` });
+      updateReproductionJob(owner, job.id, { phase: progress.phase || phase, currentAttempt: job.currentAttempt || 0, currentStep: progress.currentStep, totalSteps: progress.totalSteps || job.totalSteps, currentStepLabel: progress.currentStepLabel, progress: progress.currentStepLabel || `正在执行第 ${progress.currentStep || 0}/${progress.totalSteps || job.totalSteps || 0} 步` });
     } catch { /* Runner may not have written progress yet. */ }
   }, 750);
   try {

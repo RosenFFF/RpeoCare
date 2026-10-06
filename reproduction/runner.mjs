@@ -117,7 +117,7 @@ async function browserSteps(steps, offset = 0) {
         const item = locator(page, step.target); await item.waitFor({ state: 'visible' });
         if (step.expected && !(await item.innerText()).includes(step.expected)) throw new Error(`Expected text not found: ${step.expected}`);
       } else result = await commandStep(step);
-      output.steps.push({ index, type: step.type, ...result, ok: true });
+      output.steps.push({ index, type: step.type, target: step.target, expected: step.expected, ...result, ok: true });
       await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`);
     }
     if (plan.evidence.includes('screenshot')) await page.screenshot({ path: `${artifacts}/screenshot.png`, fullPage: true });
@@ -134,7 +134,7 @@ function observedOracle() {
   if (plan.oracle.type === 'stderr-contains') return output.stderr.includes(value);
   if (plan.oracle.type === 'url-contains') return String(output.finalUrl || '').includes(value);
   if (plan.oracle.type === 'http-status') return output.network.some(item => String(item.status) === value);
-  if (plan.oracle.type === 'selector-visible') return output.steps.some(step => step.type === 'expect' && step.ok);
+  if (plan.oracle.type === 'selector-visible') return output.steps.some(step => step.type === 'expect' && step.ok && (!plan.oracle.value || step.target === plan.oracle.value));
   return false;
 }
 
