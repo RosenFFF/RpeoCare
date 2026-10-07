@@ -1,0 +1,80 @@
+/* Issue-only layout. PR inbox/detail and reproduction panels retain their styles. */
+.issue-detail-layout{min-width:0}
+.issue-detail-layout .issue-triage-card{padding:24px 28px;border-bottom:1px solid var(--line);background:var(--surface);min-width:0}
+.issue-detail-layout .issue-triage-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+.issue-detail-layout .issue-triage-heading h3{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:650}
+.issue-detail-layout .issue-triage-heading svg{color:var(--accent)}
+.issue-detail-layout .issue-triage-overview{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,1fr);gap:26px;align-items:start}
+.issue-detail-layout .issue-triage-summary{min-width:0}
+.issue-detail-layout .issue-triage-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0}
+.issue-detail-layout .issue-triage-value dt{font-size:12px;color:var(--muted)}
+.issue-detail-layout .issue-triage-value dd{font-size:14px;line-height:1.7;margin:8px 0 0;overflow-wrap:anywhere}
+.issue-detail-layout .issue-badge{font-size:12px;line-height:1.6}
+.issue-detail-layout .issue-triage-callout{padding:16px;margin-top:20px;font-size:14px;line-height:1.8;background:var(--accent-soft)}
+.issue-detail-layout .issue-triage-callout p{margin:0;min-width:0;overflow-wrap:anywhere}
+.issue-detail-layout .issue-readiness-card{margin:0;padding:18px;border-radius:8px;background:var(--surface-subtle)}
+.issue-detail-layout .issue-readiness-heading h4{font-size:16px;margin:0;line-height:1.6}
+.issue-detail-layout .issue-readiness-main{display:grid;grid-template-columns:95px minmax(0,1fr);gap:16px;align-items:center;margin-top:16px}
+.issue-detail-layout .issue-readiness-score{margin:0;grid-template-columns:auto auto;gap:4px}
+.issue-detail-layout .issue-readiness-score strong{font-size:30px}
+.issue-detail-layout .issue-readiness-score>span{font-size:12px}
+.issue-detail-layout .issue-readiness-copy{font-size:14px;line-height:1.8;margin:0}
+.issue-detail-layout .issue-next-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.issue-detail-layout .issue-next-actions>span{font-size:12px;color:var(--muted);white-space:nowrap}
+.issue-detail-layout .issue-next-actions>div{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.issue-detail-layout .issue-next-actions .button{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;min-height:38px;padding:9px 12px;white-space:normal}
+.issue-detail-layout .issue-triage-disclosures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px;align-items:start}
+.issue-detail-layout .issue-triage-details{min-width:0;border-top:1px solid var(--line);padding-top:14px}
+.issue-detail-layout .issue-triage-details summary{display:flex;gap:8px;align-items:center;cursor:pointer;list-style:none;font-size:13px;line-height:1.7;font-weight:600;color:var(--ink)}
+.issue-detail-layout .issue-triage-details summary::-webkit-details-marker{display:none}
+.issue-detail-layout .issue-triage-details summary::before{content:'+';font-size:18px;color:var(--accent);width:15px;flex-shrink:0}
+.issue-detail-layout .issue-triage-details[open] summary::before{content:'−'}
+.issue-detail-layout .issue-detail-count{margin-left:auto;font-size:12px;font-weight:400;color:var(--muted);white-space:nowrap}
+.issue-detail-layout .issue-readiness-columns{grid-template-columns:1fr;gap:14px;border:0;margin:16px 0 0;padding:0}
+.issue-detail-layout .issue-readiness-columns h4,.issue-detail-layout .issue-label-heading{font-size:13px;font-weight:600;color:var(--ink)}
+.issue-detail-layout .issue-text-list{margin-top:8px;gap:9px}
+.issue-detail-layout .issue-text-list li{font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+.issue-detail-layout .issue-empty-value{font-size:13px;line-height:1.8;display:block;margin-top:8px}
+.issue-detail-layout .issue-detail-facts{display:grid;gap:14px;margin:16px 0 0}
+.issue-detail-layout .issue-label-heading{margin-top:16px}
+.issue-detail-layout .issue-label-cloud{margin-top:9px}
+.issue-detail-layout .issue-detail-body{display:block}
+.issue-detail-layout .issue-detail-main{min-width:0}
+.issue-detail-layout .issue-detail-section{padding:26px 28px}
+.issue-detail-layout .issue-section-heading h3{font-size:17px}
+.issue-detail-layout .issue-section-count{font-size:12px}
+.issue-detail-layout .issue-section-kicker{font-size:10px}
+.issue-detail-layout .issue-timeline-meta{font-size:12px;line-height:1.8;flex-wrap:wrap}
+.issue-detail-layout .issue-timeline-meta strong{font-size:14px}
+.issue-detail-layout .issue-language-label{font-size:12px}
+.issue-detail-layout .issue-language-columns>div{padding:16px}
+.issue-detail-layout .issue-language-columns pre,.issue-detail-layout .issue-language-columns p{font-size:14px;line-height:1.85;max-height:420px;overflow-wrap:anywhere}
+.issue-detail-layout .issue-language-columns{gap:16px}
+.issue-detail-layout .issue-detail-followup{display:grid;grid-template-columns:1fr;align-items:start;padding:24px 28px;gap:24px;background:var(--surface-subtle)}
+.issue-detail-layout .issue-detail-followup.has-review{grid-template-columns:minmax(0,1.25fr) minmax(300px,1fr)}
+.issue-detail-layout .issue-review-card{margin:0;padding:20px;background:var(--surface)}
+.issue-detail-layout .issue-review-heading h4{font-size:16px}
+.issue-detail-layout .issue-review-card>p{font-size:13px;line-height:1.8}
+.issue-detail-layout .issue-review-fields{gap:12px;margin-top:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.issue-detail-layout .issue-review-fields label{font-size:12px}
+.issue-detail-layout .issue-review-fields label:last-child{grid-column:auto}
+.issue-detail-layout .issue-review-fields select{font-size:13px;height:38px;padding-inline:8px}
+.issue-detail-layout .issue-review-card textarea{font-size:14px;line-height:1.7;min-height:75px;padding:12px}
+.issue-detail-layout .issue-review-card .button{font-size:13px;min-height:38px}
+.issue-detail-layout .issue-aside-section{padding:20px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.issue-detail-layout .issue-aside-heading h3{font-size:16px}
+.issue-detail-layout .issue-maintenance-note{font-size:13px!important;line-height:1.8!important}
+.issue-detail-layout .issue-maintenance-field{font-size:13px}
+.issue-detail-layout .issue-maintenance-field input{font-size:14px;min-height:38px}
+.issue-detail-layout .issue-maintenance-field small,.issue-detail-layout .issue-similar-note{font-size:12px;line-height:1.7}
+.issue-detail-layout .issue-maintenance-section .button,.issue-detail-layout .issue-apply-suggestions{font-size:13px;min-height:38px}
+.issue-detail-layout .issue-similar-section{margin-top:16px}
+.issue-detail-layout .issue-similar-list button{font-size:13px;line-height:1.7;padding:10px}
+.issue-detail-layout .issue-source-note,.issue-detail-layout .issue-status-select{font-size:12px}
+.issue-detail-layout .issue-detail-status-actions .button,.issue-detail-layout .issue-status-select select{font-size:13px;min-height:36px}
+.issue-detail-layout .issue-detail-header h2{font-size:23px;line-height:1.5}
+.issue-detail-layout .issue-detail-meta,.issue-detail-layout .issue-title-translation{font-size:13px;line-height:1.8}
+@media(max-width:1200px){.issue-detail-layout .issue-triage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.issue-detail-layout .issue-triage-overview{grid-template-columns:minmax(0,1fr) minmax(310px,1fr);gap:20px}.issue-detail-layout .issue-triage-disclosures{grid-template-columns:1fr}.issue-detail-layout .issue-readiness-columns{grid-template-columns:1fr 1fr}.issue-detail-layout .issue-detail-facts{grid-template-columns:repeat(3,minmax(0,1fr))}.issue-detail-layout .issue-review-fields{grid-template-columns:1fr 1fr}.issue-detail-layout .issue-review-fields label:last-child{grid-column:1/-1}}
+@media(max-width:900px){.issue-detail-layout .issue-triage-overview,.issue-detail-layout .issue-detail-followup.has-review{grid-template-columns:1fr}.issue-detail-layout .issue-triage-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.issue-detail-layout .issue-detail-facts{grid-template-columns:1fr}.issue-detail-layout .issue-detail-followup{gap:18px}}
+@media(max-width:650px){.issue-detail-layout .issue-triage-card,.issue-detail-layout .issue-detail-section{padding:20px 17px}.issue-detail-layout .issue-detail-followup{padding:20px 17px}.issue-detail-layout .issue-triage-heading{align-items:flex-start;flex-wrap:wrap}.issue-detail-layout .issue-triage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.issue-detail-layout .issue-readiness-main{grid-template-columns:80px minmax(0,1fr);gap:12px}.issue-detail-layout .issue-readiness-card{padding:15px}.issue-detail-layout .issue-next-actions{align-items:flex-start;flex-direction:column}.issue-detail-layout .issue-next-actions>div{width:100%;justify-content:flex-start}.issue-detail-layout .issue-next-actions .button{flex:1}.issue-detail-layout .issue-readiness-columns{grid-template-columns:1fr}.issue-detail-layout .issue-language-columns{grid-template-columns:1fr}.issue-detail-layout .issue-language-columns pre,.issue-detail-layout .issue-language-columns p{max-height:340px}.issue-detail-layout .issue-review-fields{grid-template-columns:1fr}.issue-detail-layout .issue-review-fields label:last-child{grid-column:auto}.issue-detail-layout .issue-detail-header h2{font-size:20px}.issue-detail-layout .issue-detail-count{white-space:normal;text-align:right}}
+@media(prefers-reduced-motion:reduce){.issue-detail-layout .issue-readiness-score i b{transition:none}}
