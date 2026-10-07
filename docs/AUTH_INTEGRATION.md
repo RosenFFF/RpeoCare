@@ -21,3 +21,7 @@ REPOCARE_REQUIRE_LOGIN=true 时工作区和业务 API 要求登录；Compose 默
 ## 验收
 
 配置真实 OAuth App 后需验证登录成功/拒绝/过期/回调不匹配，私有仓库读取和最小权限。配置 SMTP 后需验证实际邮件送达、链接使用及过期。模拟测试不能替代提供商验收。
+
+## GitHub 回调 issuer 兼容（2026-10-07）
+
+真实授权回调可包含 `iss=https://github.com/login/oauth`。OAuth 元数据按此 issuer 校验；不能误用 GitHub 网站根地址，也不能删除 iss 或跳过 issuer 校验来通过授权。保留 state、PKCE、一次性 state 消费和旧式不携带 iss 的回调兼容。模拟验收覆盖正确 issuer 登录、错误/重复 issuer 拒绝、state 不一致和回调重放，不代表真实 Client ID/Secret、网络或账户权限已验收。
