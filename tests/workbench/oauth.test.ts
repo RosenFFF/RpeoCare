@@ -47,3 +47,10 @@ test('OAuth uses PKCE, rejects mismatched state and consumes callback once', asy
   assert.equal((await callback(request())).status, 400);
   assert.equal(exchanges, 1);
 });
+
+
+test('normal GitHub login does not request repository write scope', async () => {
+  const response = await begin(new NextRequest('http://127.0.0.1:3000/api/auth/github'));
+  const target = new URL(response.headers.get('location')!);
+  assert.equal(target.searchParams.get('scope'), 'read:user');
+});

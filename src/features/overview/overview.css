@@ -15,3 +15,5 @@
 .care-mode{flex-shrink:0}
 .repo-heading>div{min-width:0}
 @media(max-width:600px){.overview-run-status{align-items:flex-start;flex-direction:column;gap:8px}.overview-empty{padding:30px 8px}.care-exhibit-heading{inset:18px 14px auto}}
+
+.repo-next-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}

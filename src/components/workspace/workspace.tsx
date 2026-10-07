@@ -4,16 +4,18 @@ import Link from "next/link";
 import { BrandMark } from "../../shared/components/brand-mark";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowRight, Bell, BookOpen, Check, ChevronDown, ChevronRight, CircleHelp, Command, GitBranch, GitFork, Menu, PanelLeftClose, PanelLeftOpen, Plus, Search, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, Bell, BookOpen, Check, ChevronDown, ChevronRight, CircleHelp, Command, GitBranch, GitFork, Menu, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sparkles, X } from "lucide-react";
 import { ThemePicker } from "../../shared/components/theme-picker";
 import { useAppearance } from "@/shared/lib/use-appearance";
 import { navigation, type ViewId } from "@/shared/lib/navigation";
 import { GitItems } from "@/features/workbench/git-items";
 import { DraftWorkspace } from "@/features/workbench/draft-workspace";
-import { api, changed, useWorkbench } from "@/features/workbench/client";
+import { useWorkbench } from "@/features/workbench/client";
 import { OverviewView } from "../../features/overview/overview-view";
 import { AuditView } from "../../features/audit/audit-view";
 import { SettingsView } from "../../features/settings/settings-view";
+
+import { RepositoryChooser } from "@/features/workbench/repository-chooser";
 
 type Modal = "search" | "project" | "help" | "notifications" | null;
 
@@ -26,27 +28,16 @@ export function Workspace({ view }: { view: ViewId }) {
   const [modal, setModal] = useState<Modal>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [repoUrl, setRepoUrl] = useState("");
-  const [repoError, setRepoError] = useState("");
   const [toast, setToast] = useState("");
   const [notificationRead, setNotificationRead] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   useEffect(() => {
-    const syncSettings = () => {
-      try {
-        const stored = JSON.parse(localStorage.getItem("openbridge.workspace.settings.v1") || "null");
-
-        setRepoUrl(localStorage.getItem("openbridge.connection-draft") || "");
-      } catch { /* Keep the built-in demo usable. */ }
-    };
-    syncSettings();
     const mq = window.matchMedia("(max-width: 760px)");
     const resize = () => { setIsMobile(mq.matches); if (!mq.matches) setMobileOpen(false); };
     resize(); mq.addEventListener("change", resize);
-    window.addEventListener("openbridge-settings-change", syncSettings);
-    return () => { mq.removeEventListener("change", resize); window.removeEventListener("openbridge-settings-change", syncSettings); };
+    return () => { mq.removeEventListener("change", resize); };
   }, []);
   useEffect(() => {
     if (!mobileOpen || !isMobile) return;
@@ -92,7 +83,7 @@ export function Workspace({ view }: { view: ViewId }) {
     const timer = setTimeout(() => (dialogRef.current?.querySelector<HTMLElement>("input") || dialogRef.current?.querySelector<HTMLElement>("button, a"))?.focus(), 30);
     function trap(event: KeyboardEvent) {
       if (event.key !== "Tab") return;
-      const elements = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), textarea, [tabindex="0"]');
+      const elements = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea, [tabindex="0"]');
       if (!elements?.length) return;
       const first = elements[0]; const last = elements[elements.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -101,13 +92,6 @@ export function Workspace({ view }: { view: ViewId }) {
     document.addEventListener("keydown", trap);
     return () => { clearTimeout(timer); document.removeEventListener("keydown", trap); previous?.focus(); };
   }, [modal]);
-  async function saveProject(event: React.FormEvent) {
-    event.preventDefault();
-    try {
-      await api('/api/workbench', { repoUrl });
-      changed(); setModal(null); setRepoError(''); notify('已连接仓库，请开始项目体检。'); window.location.assign('/audit?new=1');
-    } catch (error) { setRepoError(error instanceof Error ? error.message : '连接失败，请重试。'); }
-  }
   const searchItems = navigation.filter(item => `${item.label} ${item.english}`.toLowerCase().includes(query.toLowerCase()));
 
   return <div className="app-shell">
@@ -135,10 +119,10 @@ export function Workspace({ view }: { view: ViewId }) {
       </main>
     </div>
     {toast && <div className="toast" role="status"><Check size={17}/><span>{toast}</span><button type="button" aria-label="关闭提示" onClick={() => setToast("")}><X size={15}/></button></div>}
-    {modal && <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) setModal(null); }}><div className={`modal ${modal === "search" ? "search-modal" : ""}`} role="dialog" aria-modal="true" aria-labelledby="modal-title" ref={dialogRef}>
+    {modal && <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) setModal(null); }}><div className={`modal ${modal === "search" ? "search-modal" : modal === "project" ? "project-modal" : ""}`} role="dialog" aria-modal="true" aria-labelledby="modal-title" ref={dialogRef}>
       <div className="modal-header"><div><span className="eyebrow">REPOCARE WORKSPACE</span><h2 id="modal-title">{modal === "search" ? "想去哪里？" : modal === "project" ? "连接你的开源项目" : modal === "notifications" ? "工作区动态" : "让维护工作，有条不紊。"}</h2></div><button type="button" className="icon-button" aria-label="关闭弹窗" onClick={() => setModal(null)}><X size={20}/></button></div>
       {modal === "search" && <><div className="command-input"><Search size={19}/><input aria-label="搜索页面" autoFocus placeholder="搜索页面，如 Issue、体检…" value={query} onChange={e => setQuery(e.target.value)} /></div><div className="command-results">{searchItems.length ? searchItems.map(item => <button type="button" key={item.id} onClick={() => { setModal(null); router.push(item.href); }}><item.icon size={18}/><span>{item.label}<small>{item.english}</small></span><ArrowRight size={16}/></button>) : <div className="empty-state">没有找到匹配页面，试试「体检」或「设置」。</div>}</div><div className="command-footer"><Command size={13}/> Ctrl / ⌘ + K 打开 <span>Esc 关闭</span></div></>}
-      {modal === "project" && <form className="connect-form" onSubmit={saveProject}><p>连接 GitHub 仓库，所有功能共享同一个项目。</p><div className="connected-project"><span className="project-avatar">{workbench?.project?.fullName.split("/").pop()?.slice(0, 1).toUpperCase() || "R"}</span><div><strong>{workspaceName}</strong><small>当前项目</small></div><Check size={18}/></div><label htmlFor="repo-url">你的仓库地址</label><input id="repo-url" type="url" required value={repoUrl} onChange={e => {setRepoUrl(e.target.value); setRepoError("");}} placeholder="https://github.com/owner/repo" aria-describedby="repo-hint"/>{repoError && <p className="field-error" role="alert">{repoError}</p>}<p id="repo-hint" className="form-hint">公开仓库可直接读取，私有仓库需先完成 GitHub 仓库授权。</p><button type="submit" className="button button-primary"><Plus size={16}/>连接项目</button></form>}
+      {modal === "project" && (workbench ? <RepositoryChooser github={workbench.github} currentProject={workbench.project?.fullName} onConnected={() => { setModal(null); window.location.assign('/workspace'); }}/> : <p role="status">正在读取账户信息…</p>)}
       {modal === "help" && <div className="help-content"><p>这里是维护者的工作台。先发现问题，再审阅建议，最后由你决定采用哪些改进。</p>{[{n:"01",title:"看清项目现状",text:"从项目体检开始，查看文档、协作规范和工程检查。",href:"/audit"},{n:"02",title:"处理一条反馈",text:"在 Issue 分诊中核对原文、缺失信息，编辑回复草稿。",href:"/issues"},{n:"03",title:"把建议变成改进",text:"审阅 PR 检查和规范 Diff，下载你确认的文件。",href:"/improvements"}].map(item=><Link key={item.n} href={item.href} onClick={()=>setModal(null)}><span>{item.n}</span><div><strong>{item.title}</strong><p>{item.text}</p></div><ArrowRight size={17}/></Link>)}<div className="help-note"><BookOpen size={17}/><p>连接项目后可体检、查看报告、分析 Issue 和 PR，并审阅修改草稿。发布需明确确认；不会执行仓库代码。</p></div></div>}
       {modal === "notifications" && <div className="notification-content"><div className="notification-row"><span className="notice-icon"><Sparkles size={18}/></span><div><strong>工作区已准备好</strong><p>连接项目后，查看真实 Issue、PR 和体检历史。</p><small>工作区提示</small></div></div><div className="notification-row"><span className="notice-icon"><GitBranch size={18}/></span><div><strong>每一次建议都可以回看</strong><p>在详情中查看原文、检查依据和修改草稿，确认后再继续。</p><small>使用提示</small></div></div></div>}
     </div></div>}

@@ -10,8 +10,8 @@ export function repoPath(url: string) {
   const repo = parseRepositoryUrl(url);
   return `/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.name)}`;
 }
-export async function githubApi(owner: string, path: string, options: { method?: string; body?: unknown; write?: boolean; signal?: AbortSignal } = {}) {
-  if (!path.startsWith('/repos/') && path !== '/user') throw new Error('GitHub 路径不受支持。');
+export async function githubApi(owner: string, path: string, options: { method?: string; body?: unknown; write?: boolean; signal?: AbortSignal; onHeaders?: (headers: Headers) => void } = {}) {
+  if (!path.startsWith('/repos/') && path !== '/user' && !/^\/user\/repos\?[^#]*$/.test(path)) throw new Error('GitHub 路径不受支持。');
   const account = githubAccount(owner);
   if (options.write && (!account?.canWrite || !account.token)) throw new Error('请先连接拥有仓库写入权限的 GitHub 账户。');
   // Workbench reads use the user's identity. A server token must never grant
@@ -24,6 +24,7 @@ export async function githubApi(owner: string, path: string, options: { method?:
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
   if (!response.ok) { await response.body?.cancel(); throw new Error(`GitHub 请求失败（${response.status}），请检查授权、仓库权限或额度。`); }
+  options.onHeaders?.(response.headers);
   const reader = response.body?.getReader(); if (!reader) throw new Error('GitHub 返回空响应。');
   const chunks: Uint8Array[] = []; let size = 0;
   try { while (true) { const item = await reader.read(); if (item.done) break; size += item.value.length; if (size > 4_000_000) { await reader.cancel(); throw new Error('GitHub 响应超过 4 MB，请缩小查询范围。'); } chunks.push(item.value); } }
