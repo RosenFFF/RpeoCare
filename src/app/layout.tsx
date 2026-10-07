@@ -11,5 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN" suppressHydrationWarning><head><Script id="appearance-bootstrap" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head><body>{children}</body></html>;
+  // Extensions may add body attributes before hydration. Keep this escape hatch
+  // on the body only; descendant content must still match its server render.
+  return <html lang="zh-CN" suppressHydrationWarning><head><Script id="appearance-bootstrap" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head><body suppressHydrationWarning>{children}</body></html>;
 }
