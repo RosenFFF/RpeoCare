@@ -173,15 +173,31 @@ export async function publishDraft(owner: string, draft: Draft): Promise<string>
     const response = await githubApi(owner, `${prefix}/pulls/${draft.number}/reviews`, { method: 'POST', write: true, body: { body: draft.content, event: 'COMMENT', commit_id: draft.baseSha } });
     return response.html_url;
   }
-  if (!draft.path || !/^(README\.md|CONTRIBUTING\.md|\.github\/(ISSUE_TEMPLATE\/bug_report\.md|pull_request_template\.md))$/.test(draft.path)) throw new Error('草稿文件路径不允许写入。');
-  const base = await githubApi(owner, `${prefix}/commits/${encodeURIComponent(metadata.default_branch)}`);
-  if (base.sha !== draft.baseSha) throw new PublishPreconditionError('默认分支已更新，请重新体检并生成草稿，避免覆盖新内容。');
-  const branch = `repocare/${draft.id}`;
-  // A single tree/commit includes the reviewed file. Never update the default branch.
-  const blob = await githubApi(owner, `${prefix}/git/blobs`, { method: 'POST', write: true, body: { content: draft.content, encoding: 'utf-8' } });
-  const tree = await githubApi(owner, `${prefix}/git/trees`, { method: 'POST', write: true, body: { base_tree: base.commit.tree.sha, tree: [{ path: draft.path, mode: '100644', type: 'blob', sha: blob.sha }] } });
-  const commit = await githubApi(owner, `${prefix}/git/commits`, { method: 'POST', write: true, body: { message: draft.title, tree: tree.sha, parents: [draft.baseSha] } });
-  await githubApi(owner, `${prefix}/git/refs`, { method: 'POST', write: true, body: { ref: `refs/heads/${branch}`, sha: commit.sha } });
-  const pr = await githubApi(owner, `${prefix}/pulls`, { method: 'POST', write: true, body: { title: draft.title, head: branch, base: metadata.default_branch, body: `根据 RepoCare 体检生成并经用户审阅。\n\n体检版本：${draft.baseSha}\n修改文件：${draft.path}`, draft: true } });
-  return pr.html_url;
+  return publishFileDrafts(owner, [draft]);
+}
+
+export async function publishFileDrafts(owner: string, drafts: Draft[]): Promise<string> {
+  const first = drafts[0];
+  const signal = AbortSignal.timeout(100_000);
+  const request = (path: string, options: Parameters<typeof githubApi>[2] = {}) => githubApi(owner, path, { ...options, signal });
+  const allowed = /^(README\.md|CONTRIBUTING\.md|\.github\/(ISSUE_TEMPLATE\/bug_report\.md|pull_request_template\.md))$/;
+  if (!first || drafts.length > 4 || drafts.some(draft => draft.kind !== 'file' || draft.repoUrl !== first.repoUrl || draft.baseSha !== first.baseSha || draft.branch !== first.branch || !draft.path || !allowed.test(draft.path)) || new Set(drafts.map(draft => draft.path)).size !== drafts.length) throw new PublishPreconditionError('批次需为同仓库、同分支、同基准的 1–4 个不同文件。');
+  const prefix = repoPath(first.repoUrl), metadata = await request(prefix);
+  if (!metadata.permissions?.push) throw new PublishPreconditionError('当前 GitHub 账户没有该仓库的写入权限。');
+  if (first.branch && first.branch !== metadata.default_branch) throw new PublishPreconditionError('当前仅支持默认分支的文档改进发布；请切换默认分支重新体检。');
+  const base = await request(`${prefix}/commits/${encodeURIComponent(metadata.default_branch)}`);
+  if (base.sha !== first.baseSha) throw new PublishPreconditionError('默认分支已更新，请重新体检并生成草稿，避免覆盖新内容。');
+  const treeEntries = [];
+  for (const draft of drafts) {
+    const blob = await request(`${prefix}/git/blobs`, { method: 'POST', write: true, body: { content: draft.content, encoding: 'utf-8' } });
+    treeEntries.push({ path: draft.path, mode: '100644', type: 'blob', sha: blob.sha });
+  }
+  const tree = await request(`${prefix}/git/trees`, { method: 'POST', write: true, body: { base_tree: base.commit.tree.sha, tree: treeEntries } });
+  const commit = await request(`${prefix}/git/commits`, { method: 'POST', write: true, body: { message: drafts.length === 1 ? first.title : 'docs: improve maintenance documentation', tree: tree.sha, parents: [first.baseSha] } });
+  const branch = `repocare/${first.id}`;
+  await request(`${prefix}/git/refs`, { method: 'POST', write: true, body: { ref: `refs/heads/${branch}`, sha: commit.sha } });
+  const pr = await request(`${prefix}/pulls`, { method: 'POST', write: true, body: { title: drafts.length === 1 ? first.title : 'docs: improve maintenance documentation', head: branch, base: metadata.default_branch, body: `根据 RepoCare 体检生成并经维护者确认。\n\n体检版本：${first.baseSha}\n修改文件：${drafts.map(draft => draft.path).join(', ')}`, draft: true } });
+  const url = String(pr.html_url || '');
+  if (!url.startsWith(first.repoUrl + '/pull/') || !/^\d+$/.test(url.slice((first.repoUrl + '/pull/').length))) throw new Error('GitHub 未返回可确认的 PR 地址，请人工核对。');
+  return url;
 }

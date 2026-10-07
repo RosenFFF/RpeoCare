@@ -53,3 +53,8 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 ## 维护收件列表（2026-10-05）
 
 Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用收件列表，不再各自采用双栏/卡片布局。列表的快捷视图、搜索、维度筛选、排序和分页属于同一工作区；记录按内容自然收缩，点击后进入全宽详情，返回恢复筛选和焦点。分类纯函数位于 inbox-model.ts，布局独立于已有详情/服务端审查逻辑。详见 REVIEW_INBOX.md。
+
+
+## 规范改进与草稿审阅（2026-10-07）
+
+`features/drafts` 管理分类列表与全宽审阅，`shared/lib/draft-diff`、`draft-quality` 为纯比较与校验，服务端 `draft-quality`、`draft-publication` 提供有界快照依据与只读交付核对。草稿 API 按项目先过滤后分页，成功报告复用 overview 的仓库/分支查询；版本表以兼容方式创建，旧草稿仍可读取。单文件及 2–4 文件 Draft PR 发布沿用实际权限/基准校验，批次 SQLite 状态原子迁移。详见 DRAFT_WORKSPACE.md。

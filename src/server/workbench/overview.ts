@@ -20,6 +20,6 @@ export function getOverview(owner?: string): Overview {
   const run: AuditRun | null = completed ? JSON.parse(completed.state) : null;
   const drafts = workbenchDb().prepare(`SELECT COUNT(*) AS n FROM drafts WHERE owner=?
     AND json_extract(state, '$.repoUrl')=? AND json_extract(state, '$.kind')='file'
-    AND json_extract(state, '$.status')='draft'`).get(owner, project.repoUrl) as { n: number };
+    AND json_extract(state, '$.status')='draft' AND COALESCE(json_extract(state, '$.archived'),0)=0`).get(owner, project.repoUrl) as { n: number };
   return { project, report: run?.report || null, latestRun: latestRun ? { id: latestRun.id, status: latestRun.status, error: latestRun.error } : null, draftCount: drafts.n };
 }

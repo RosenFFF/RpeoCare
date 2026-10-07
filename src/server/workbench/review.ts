@@ -6,7 +6,7 @@ import { prepareReviewFiles, reviewFingerprint } from '../../shared/lib/pr-revie
 import { getItem, getPullRequestReviewContext } from '../github/api';
 import { publicSelection, selectedConnection } from '../models/run-config';
 import { assistant } from './assistant';
-import { createDraft, getPullRequestReview, savePullRequestReview } from './store';
+import { createDraft, previousDraft, getPullRequestReview, savePullRequestReview } from './store';
 
 const reviewSchema = z.object({
   summary: z.string().trim().min(1).max(2000),
@@ -90,5 +90,5 @@ export async function createPullReviewDraft(owner: string, repoUrl: string, numb
   if (!review) throw new Error('请先完成 PR AI 审查并处理发现。');
   const current = await getItem(owner, repoUrl, 'pulls', number, signal);
   if (current.headSha !== review.headSha || current.baseSha !== review.baseSha || reviewFingerprint(current, prepareReviewFiles(current.files || [])) !== review.contextFingerprint) throw new Error('PR 或描述已更新，请重新审查后生成草稿。');
-  return createDraft(owner, { kind: 'review', repoUrl, number, baseSha: review.headSha, before: '', title: `PR 审阅 #${number}`, content: formatReviewDraft(review), source: { type: 'github-item', kind: 'review', number, reviewId: review.id, reviewRevision: review.revision } });
+  return createDraft(owner, { kind: 'review', previousDraftId: previousDraft(owner, repoUrl, 'review', undefined, number)?.id, repoUrl, number, baseSha: review.headSha, before: '', title: `PR 审阅 #${number}`, content: formatReviewDraft(review), source: { type: 'github-item', kind: 'review', number, reviewId: review.id, reviewRevision: review.revision } });
 }

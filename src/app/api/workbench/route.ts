@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const owner = session(request);
     if (!owner) return jsonResponse({ project: null, runs: [], drafts: [], usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 }, github: null });
     const account = githubAccount(owner);
-    return jsonResponse({ project: getProject(owner), runs: listRuns(owner, 20), drafts: listDrafts(owner), usage: usage(owner), github: account ? { login: account.login, canWrite: account.canWrite } : null });
+    return jsonResponse({ project: getProject(owner), runs: listRuns(owner, 20), drafts: listDrafts(owner, getProject(owner)?.repoUrl), usage: usage(owner), github: account ? { login: account.login, canWrite: account.canWrite } : null });
   } catch { return errorResponse('无法读取工作区。', 500); }
 }
 export async function POST(request: NextRequest) {

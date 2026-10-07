@@ -20,6 +20,7 @@ export function workbenchDb() {
     CREATE TABLE IF NOT EXISTS reproduction_workers (id TEXT PRIMARY KEY, heartbeat INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS issue_triage_owner_repo ON issue_triage(owner, repo_url);
     CREATE INDEX IF NOT EXISTS drafts_owner ON drafts(owner);
+    CREATE TABLE IF NOT EXISTS draft_versions (draft_id TEXT NOT NULL, revision INTEGER NOT NULL, state TEXT NOT NULL, PRIMARY KEY(draft_id, revision));
     CREATE TABLE IF NOT EXISTS model_usage (id TEXT PRIMARY KEY, owner TEXT NOT NULL, at INTEGER NOT NULL, purpose TEXT NOT NULL, input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL, failed INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS operation_locks (key TEXT PRIMARY KEY, expires INTEGER NOT NULL);
   `);
@@ -48,8 +49,8 @@ export function getDraft(owner: string, id: string): Draft {
   if (draft.status === 'publishing' && !workbenchDb().prepare('SELECT key FROM operation_locks WHERE key=? AND expires>?').get(`${owner}:publish:${id}`, Date.now())) return { ...draft, status: 'uncertain' };
   return draft;
 }
-export function listDrafts(owner: string): Draft[] {
-  return (workbenchDb().prepare('SELECT id FROM drafts WHERE owner=? ORDER BY rowid DESC LIMIT 100').all(owner) as { id: string }[]).map(row => getDraft(owner, row.id));
+export function listDrafts(owner: string, repoUrl?: string, offset = 0): Draft[] {
+  return (workbenchDb().prepare(`SELECT id FROM drafts WHERE owner=? ${repoUrl ? "AND json_extract(state, '$.repoUrl')=?" : ''} ORDER BY rowid DESC LIMIT 100 OFFSET ?`).all(...(repoUrl ? [owner, repoUrl, offset] : [owner, offset])) as { id: string }[]).map(row => getDraft(owner, row.id));
 }
 export function getIssueTriage(owner: string, repoUrl: string, number: number): IssueTriage | null {
   const row = workbenchDb().prepare('SELECT state FROM issue_triage WHERE owner=? AND repo_url=? AND number=?').get(owner, repoUrl, number) as { state: string } | undefined;
@@ -171,18 +172,28 @@ export function createDraft(owner: string, input: Omit<Draft, 'id' | 'revision' 
   workbenchDb().prepare('INSERT INTO drafts VALUES (?, ?, ?)').run(draft.id, owner, JSON.stringify(draft));
   return draft;
 }
-export function updateDraft(owner: string, id: string, revision: number, change: Partial<Pick<Draft, 'content' | 'status' | 'publishedUrl'>>): Draft {
+type DraftChange = Partial<Pick<Draft, 'content' | 'status' | 'publishedUrl' | 'archived' | 'publication'>>;
+export function updateDraft(owner: string, id: string, revision: number, change: DraftChange): Draft {
+  return updateDraftBatch(owner, [{ id, revision, change }])[0];
+}
+export function updateDraftBatch(owner: string, inputs: { id: string; revision: number; change: DraftChange }[]): Draft[] {
   const database = workbenchDb();
   database.exec('BEGIN IMMEDIATE');
   try {
-    const draft = getDraft(owner, id);
-    if (draft.revision !== revision) throw new Error('草稿已变化，请刷新后重新审阅。');
-    if (change.content !== undefined && draft.status !== 'draft') throw new Error('发布中或已发布的草稿不能编辑。');
-    const next = { ...draft, ...change, revision: draft.revision + 1 };
-    database.prepare('UPDATE drafts SET state=? WHERE id=? AND owner=?').run(JSON.stringify(next), id, owner);
+    if (new Set(inputs.map(input => input.id)).size !== inputs.length) throw new Error('批次不能包含重复草稿。');
+    const next = inputs.map(({ id, revision, change }) => {
+      const draft = getDraft(owner, id);
+      if (draft.revision !== revision) throw new Error('草稿已变化，请刷新后重新审阅。');
+      if (change.content !== undefined && (draft.status !== 'draft' || draft.archived)) throw new Error('发布中或已发布的草稿不能编辑。');
+      database.prepare('INSERT OR IGNORE INTO draft_versions VALUES (?, ?, ?)').run(id, draft.revision, JSON.stringify(draft));
+      const value = { ...draft, ...change, revision: draft.revision + 1 };
+      database.prepare('UPDATE drafts SET state=? WHERE id=? AND owner=?').run(JSON.stringify(value), id, owner);
+      return value;
+    });
     database.exec('COMMIT'); return next;
   } catch (error) { database.exec('ROLLBACK'); throw error; }
 }
+
 export function recordUsage(owner: string, purpose: string, input = 0, output = 0, failed = false) {
   workbenchDb().prepare('INSERT INTO model_usage VALUES (?, ?, ?, ?, ?, ?, ?)').run(randomUUID(), owner, Date.now(), purpose, input, output, Number(failed));
 }
@@ -190,13 +201,25 @@ export function usage(owner: string): Usage {
   const row = workbenchDb().prepare('SELECT COUNT(*) AS calls, COALESCE(SUM(input_tokens),0) AS inputTokens, COALESCE(SUM(output_tokens),0) AS outputTokens, COALESCE(SUM(failed),0) AS failures FROM model_usage WHERE owner=?').get(owner);
   return row as unknown as Usage;
 }
-export async function withOperation<T>(owner: string, purpose: string, operation: () => Promise<T>): Promise<T> {
+export async function withOperation<T>(owner: string, purpose: string, operation: () => Promise<T>, modelQuota = true): Promise<T> {
   const database = workbenchDb(), key = `${owner}:${purpose}`, now = Date.now();
   database.prepare('DELETE FROM operation_locks WHERE expires < ?').run(now);
   if (!database.prepare('INSERT OR IGNORE INTO operation_locks VALUES (?, ?)').run(key, now + 180_000).changes) throw new Error('当前操作正在执行，请勿重复提交。');
   try {
     const recent = database.prepare('SELECT COUNT(*) AS n FROM model_usage WHERE owner=? AND at>?').get(owner, now - 3600_000) as { n: number };
-    if (recent.n >= 60) throw new Error('本小时模型请求已达 60 次，请稍后再试。');
+    if (modelQuota && recent.n >= 60) throw new Error('本小时模型请求已达 60 次，请稍后再试。');
     return await operation();
   } finally { database.prepare('DELETE FROM operation_locks WHERE key=?').run(key); }
+}
+
+export function draftVersions(owner: string, id: string): Draft[] {
+  const current = getDraft(owner, id);
+  const rows = workbenchDb().prepare('SELECT state FROM draft_versions WHERE draft_id=? ORDER BY revision DESC LIMIT 20').all(id) as { state: string }[];
+  return [current, ...rows.map(row => JSON.parse(row.state) as Draft)];
+}
+export function previousDraft(owner: string, repoUrl: string, kind: Draft['kind'], path?: string, number?: number, branch?: string): Draft | undefined {
+  const row = workbenchDb().prepare(`SELECT id FROM drafts WHERE owner=? AND json_extract(state,'$.repoUrl')=? AND json_extract(state,'$.kind')=?
+    AND COALESCE(json_extract(state,'$.path'),'')=? AND COALESCE(json_extract(state,'$.number'),0)=? AND COALESCE(json_extract(state,'$.branch'),'')=? ORDER BY rowid DESC LIMIT 1`)
+    .get(owner, repoUrl, kind, path || '', number || 0, branch || '') as { id: string } | undefined;
+  return row ? getDraft(owner, row.id) : undefined;
 }

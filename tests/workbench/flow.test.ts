@@ -7,7 +7,7 @@ import type { AssistantMessage } from '@mariozechner/pi-ai';
 import { NextRequest } from 'next/server';
 import { db, createRun, updateRun } from '../../src/server/audit/store';
 import { saveConnection } from '../../src/server/models/store';
-import { saveSnapshot, getDraft } from '../../src/server/workbench/store';
+import { saveSnapshot, getDraft, saveProject } from '../../src/server/workbench/store';
 import { POST as drafts } from '../../src/app/api/workbench/drafts/route';
 import { accountSession, saveGithubAccount } from '../../src/server/github/connection';
 import type { RepoSnapshot } from '../../src/contracts/audit';
@@ -21,6 +21,7 @@ test('report draft and explicit publish form a persistent isolated flow', async 
   saveConnection(owner, { name: 'mock', provider: 'custom', protocol: 'openai-completions', baseUrl: 'https://model.example/v1', modelId: 'mock', apiKey: 'mock-secret', keyAction: 'replace', contextWindow: 128000, maxTokens: 4096 });
   const sha = 'a'.repeat(40), repoUrl = 'https://github.com/example/project';
   const snapshot: RepoSnapshot = { repository: { owner: 'example', name: 'project', fullName: 'example/project', url: repoUrl, description: '', branch: 'main', sha, language: null }, files: [], treeTruncated: false, contents: [], warnings: [] };
+  saveProject(owner, { repoUrl, fullName: 'example/project' });
   const run = createRun(owner, repoUrl);
   updateRun(run.id, state => { state.status = 'completed'; state.repository = snapshot.repository; state.report = { runId: run.id, repository: snapshot.repository, generatedAt: 'now', checks: [{ id: 'contributing', title: '贡献指南', category: '协作', source: 'rule', status: 'needs_attention', summary: '未找到贡献指南', evidence: [] }], warnings: [], agentStatus: 'disabled', scope: 'test' }; });
   saveSnapshot(run.id, snapshot);

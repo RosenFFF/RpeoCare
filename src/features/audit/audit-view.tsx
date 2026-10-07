@@ -277,7 +277,7 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
               <div className="as-result-heading"><span className="as-result-icon"><FileText size={24} aria-hidden="true" /></span><h2 id="as-result-title">{report.agentStatus === 'failed' ? '规则报告已生成，AI 分析未完成' : report.agentStatus === 'disabled' ? '基础规则报告已生成' : '体检报告已生成'}</h2></div>
               <p className="as-result-summary">{summary}</p>
               {report.agentStatus !== 'completed' && <p className="as-result-note">{report.agentStatus === 'disabled' ? '本次未启用模型，未包含 AI 内容分析。' : run.nodes.find(item => item.id === 'agent')?.message}</p>}
-              <div className="as-result-actions"><button type="button" className="button button-primary" onClick={() => setPanel('report')}><FileText size={16} aria-hidden="true" />打开完整报告</button><Link className="as-result-link" href="/overview">查看项目概览</Link><Link className="as-result-link" href="/improvements">生成改进草稿</Link></div>
+              <div className="as-result-actions"><button type="button" className="button button-primary" onClick={() => setPanel('report')}><FileText size={16} aria-hidden="true" />打开完整报告</button><Link className="as-result-link" href="/overview">查看项目概览</Link><Link className="as-result-link" href={`/improvements?generate=${report.runId}`}>生成改进草稿</Link></div>
               <footer className="as-result-footer"><span>仓库有新提交？可重新体检更新报告。</span><button type="button" className="as-retry" disabled={submitting} onClick={() => void submit(undefined, run.id)}><RefreshCw size={14} aria-hidden="true" />{submitting ? '正在创建任务…' : '重新体检最新提交'}</button></footer>
               {error && <p className="as-error" role="alert">{error}</p>}
             </section>}

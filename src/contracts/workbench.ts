@@ -172,7 +172,9 @@ export type DraftSource =
   | { type: 'audit-check'; runId: string; checkId: string; checkTitle: string; evidence: Evidence[] }
   | { type: 'github-item'; kind: 'issue' | 'review'; number: number; reviewId?: string; reviewRevision?: number };
 
-export interface Draft { id: string; kind: 'file' | 'issue' | 'review'; repoUrl: string; runId?: string; number?: number; path?: string; baseSha: string; before: string; content: string; title: string; status: 'draft' | 'publishing' | 'published' | 'uncertain'; revision: number; createdAt: string; publishedUrl?: string; source?: DraftSource }
+export interface DraftQualityItem { code: string; level: 'blocker' | 'warning' | 'info'; message: string }
+export interface DraftPublication { url?: string; branch?: string; batchId?: string; state?: 'open' | 'closed' | 'merged' | 'comment'; checkedAt?: string; mergeSha?: string; verification?: 'not-verified' | 'passed' | 'needs-attention'; verificationRunId?: string }
+export interface Draft { id: string; kind: 'file' | 'issue' | 'review'; repoUrl: string; runId?: string; number?: number; path?: string; baseSha: string; before: string; content: string; title: string; status: 'draft' | 'publishing' | 'published' | 'uncertain'; revision: number; createdAt: string; publishedUrl?: string; source?: DraftSource; branch?: string; archived?: boolean; previousDraftId?: string; publication?: DraftPublication }
 export interface Usage { calls: number; inputTokens: number; outputTokens: number; failures: number }
 export interface Workbench { project: Project | null; runs: AuditRun[]; drafts: Draft[]; usage: Usage; github: { login: string; canWrite: boolean } | null }
 export interface SnapshotRecord { runId: string; snapshot: RepoSnapshot }

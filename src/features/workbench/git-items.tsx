@@ -8,7 +8,7 @@ import {
   Sparkles, Square, Tag, UserRound, X,
 } from 'lucide-react';
 import type {
-  GitComment, GitItem, IssueCategory, IssuePriority, IssueReadinessLevel, IssueTriage, IssueWorkflowStatus, PullRequestReview, ReproductionJob,
+  Draft, GitComment, GitItem, IssueCategory, IssuePriority, IssueReadinessLevel, IssueTriage, IssueWorkflowStatus, PullRequestReview, ReproductionJob,
 } from '@/contracts/workbench';
 import { api, changed, useWorkbench } from './client';
 import { parseDiff } from '@/shared/lib/pr-diff';
@@ -308,6 +308,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const detailRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [draftLink, setDraftLink] = useState('');
   const [reproductions, setReproductions] = useState<ReproductionJob[]>([]);
   const [reproductionWorkerOnline, setReproductionWorkerOnline] = useState(false);
   const [reproductionSandboxConfigured, setReproductionSandboxConfigured] = useState(false);
@@ -323,13 +324,14 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     try {
       const value = await api<{ items: GitItem[] }>(`/api/workbench/items?kind=${kind}&page=${page}`);
       if (version !== listLoadVersion.current) return;
-      setItems(value.items);
-      if (!keepSelection || (selectedNumber && !value.items.some(item => item.number === selectedNumber))) { setSelectedNumber(null); setListOpen(true); }
+      const sourceNumber = Number(new URL(window.location.href).searchParams.get('number'));
+      setItems(current => [...value.items, ...current.filter(item => item.number === sourceNumber && !value.items.some((row: GitItem) => row.number === sourceNumber))]);
+      if (!sourceNumber && (!keepSelection || (selectedNumber && !value.items.some(item => item.number === selectedNumber)))) { setSelectedNumber(null); setListOpen(true); }
     } catch (cause) { if (version === listLoadVersion.current) setError(cause instanceof Error ? cause.message : '无法读取 GitHub 数据。'); }
     finally { if (version === listLoadVersion.current) setListLoading(false); }
   }, [data?.project?.repoUrl, kind, page, selectedNumber]);
 
-  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setBusy(false); setNotice(''); setReproductions([]); setSelectedReproductionId(null); setItems([]); void load(false); return () => { listLoadVersion.current++; }; }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setBusy(false); setNotice(''); setDraftLink(''); setReproductions([]); setSelectedReproductionId(null); setItems([]); void load(false); return () => { listLoadVersion.current++; }; }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!selectedNumber || listOpen) return;
     const frame = requestAnimationFrame(() => { detailRef.current?.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); });
@@ -355,6 +357,22 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     return () => window.clearInterval(timer);
   }, [isIssues, selectedNumber, reproductions, refreshReproductions]);
 
+  const deepLinkLoaded = useRef('');
+  useEffect(() => {
+    const project = data?.project;
+    const number = Number(new URL(window.location.href).searchParams.get('number'));
+    if (!project || !Number.isSafeInteger(number) || number < 1 || deepLinkLoaded.current === `${project.repoUrl}:${kind}:${number}`) return;
+    deepLinkLoaded.current = `${project.repoUrl}:${kind}:${number}`;
+    const version = ++selectionVersion.current;
+    setBusy(true); setError('');
+    void api<{ item: GitItem; review?: PullRequestReview | null }>(isIssues ? `/api/workbench/items?kind=issues&number=${number}` : `/api/workbench/review?number=${number}&context=1`).then(result => {
+      if (version !== selectionVersion.current) return;
+      setItems(current => [...current.filter(item => item.number !== number), result.item]); setSelectedNumber(number); setListOpen(false); setPullReview(result.review || null);
+      if (isIssues) void refreshReproductions(number).catch(() => setReproductionWorkerOnline(false));
+    }).catch(cause => { if (version === selectionVersion.current) setError(cause instanceof Error ? cause.message : '来源讨论读取失败。'); })
+      .finally(() => { if (version === selectionVersion.current) setBusy(false); });
+  }, [data?.project?.repoUrl, kind, isIssues, refreshReproductions]);
+
   const selected = items.find(item => item.number === selectedNumber) || null;
   const relatedItems = useMemo(() => {
     if (!selected || !isIssues) return [];
@@ -369,7 +387,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function open(item: GitItem) {
     if (listOpen) listScroll.current = window.scrollY;
     const version = ++selectionVersion.current;
-    setSelectedNumber(item.number); setListOpen(false); setBusy(true); setError(''); setNotice(''); setPullReview(null);
+    setSelectedNumber(item.number); setListOpen(false); setBusy(true); setError(''); setNotice(''); setDraftLink(''); setPullReview(null);
     try {
       if (!isIssues) {
         const result = await api<{ item: GitItem; review: PullRequestReview | null }>(`/api/workbench/review?number=${item.number}&context=1`);
@@ -470,7 +488,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function generateDraft() {
     if (!selected) return;
     setBusy(true); setError('');
-    try { await api('/api/workbench/drafts', { action: 'item', kind: isIssues ? 'issue' : 'review', number: selected.number }); setNotice(isIssues ? '回复草稿已保存，可前往规范改进工作台编辑和发布。' : '已根据维护者保留的发现生成草稿，请在规范改进工作台编辑并确认发布。'); changed(); }
+    try { const result = await api<{ draft: Draft }>('/api/workbench/drafts', { action: 'item', kind: isIssues ? 'issue' : 'review', number: selected.number }); changed(); setDraftLink(`/improvements?draft=${encodeURIComponent(result.draft.id)}`); setNotice('草稿已保存，可打开对应草稿审阅。'); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '草稿生成失败。'); }
     finally { setBusy(false); }
   }
@@ -481,7 +499,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   return <div className={`wb-page review-page ${isIssues ? 'issue-workbench' : 'pr-workbench'}`}>
     <header className="review-page-header"><div className="review-page-title"><span className="review-project-label">{data?.project?.fullName || '开源维护工作台'}<span aria-hidden="true"> / </span>{isIssues ? '反馈收件箱' : '变更收件箱'}</span><h1 id="review-title" tabIndex={-1}>{title}</h1><p>{focused ? isIssues ? '核对原文与分诊依据，再选择下一步维护动作。' : '核对代码证据与检查状态，筛选后生成审阅草稿。' : isIssues ? '先整理反馈，再分诊处理。分类、优先级与处理状态分别管理。' : '先选择变更，再核对 Diff、CI 与 AI 发现。最终判断由维护者确认。'}</p></div><button type="button" className="button button-secondary" onClick={() => { if (focused && selected) void open(selected); else void load(); }} disabled={busy || listLoading}><RefreshCw size={14} />{listLoading ? '读取中…' : '刷新'}</button></header>
     {combinedError && <p className="wb-error issue-alert" role="alert"><AlertCircle size={15} />{combinedError}<button type="button" aria-label="关闭错误" onClick={()=>setError('')}><X size={14}/></button></p>}
-    {notice && <p className="issue-notice" role="status"><Check size={15}/>{notice}<Link href="/improvements">草稿工作台</Link></p>}
+    {draftLink && <Link className="button button-secondary" href={draftLink}>审阅刚生成的草稿</Link>}{notice && <p className="issue-notice" role="status"><Check size={15}/>{notice}<Link href="/improvements">草稿工作台</Link></p>}
     <div className={`review-workspace ${focused ? 'is-focused' : ''}`}>
       <ReviewInbox key={`${kind}-${data?.project?.repoUrl || 'none'}`} kind={kind} items={items} page={page} connected={!!data?.project} busy={busy} loading={listLoading || (!data && !workbenchError)} hidden={focused} failed={!!combinedError} onOpen={item=>void open(item)} onPage={setPage} onBatch={numbers=>void batchAnalyze(numbers)}/>
       {focused && selected && <div className="review-detail-view" tabIndex={-1} ref={detailRef} aria-label={`${isIssues ? 'Issue' : 'PR'} #${selected.number} 工作区`}>
