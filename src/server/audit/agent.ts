@@ -3,6 +3,7 @@ import type { AgentTool, StreamFn } from '@mariozechner/pi-agent-core';
 import type { Api, AssistantMessage, Model } from '@mariozechner/pi-ai';
 import type { CheckResult, FileContent, RepoSnapshot } from '../../contracts/audit';
 import type { AgentProgress, RuntimeConnection } from '../../contracts/models';
+import { outputOptions } from '../models/output-options';
 import { recordUsage } from '../workbench/store';
 import { modelForConnection, withModelTransport } from '../models/adapter';
 
@@ -14,7 +15,6 @@ export const AGENT_LIMITS = {
   outputChars: 24_000,
   inputChars: 100_000,
   fileChars: 16_000,
-  maxTokens: 3_500,
 } as const;
 
 const definitions = {
@@ -206,6 +206,7 @@ export async function analyzeWithAgent(
   const { model, apiKey } = connection
     ? { model: await modelForConnection(connection), apiKey: connection.apiKey }
     : await configuredModel();
+  const output = outputOptions(connection || { maxTokens: null }, model);
   const { Agent } = await import('@mariozechner/pi-agent-core');
   const { streamSimple, createAssistantMessageEventStream } = await import('@mariozechner/pi-ai');
   const tools = await createSnapshotTools(snapshot);
@@ -231,7 +232,7 @@ export async function analyzeWithAgent(
     }
     onEvent?.({ kind: 'turn', message: `正在进行第 ${turns} 轮模型分析` });
     if (turns === AGENT_LIMITS.turns) context = { ...context, tools: [], systemPrompt: (context.systemPrompt || '') + '\n这是最后一轮。停止调用工具，根据已有证据输出最终 JSON，证据不足标记 unknown。' };
-    return streamSimple(currentModel, context, { ...options, maxTokens: Math.min(AGENT_LIMITS.maxTokens, model.maxTokens),
+    return streamSimple(currentModel, context, { ...options, ...output,
       timeoutMs: 40_000, maxRetries: 0, maxRetryDelayMs: 1_000, cacheRetention: 'none', transport: 'sse' });
   };
   const agent = new Agent({

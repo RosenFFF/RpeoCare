@@ -105,7 +105,8 @@ async function withFakeProvider(step: FakeStep, execute: () => Promise<void>) {
   let calls = 0;
   const stream = (_model: Model<Api>, context: Context, options?: SimpleStreamOptions) => {
     assert.equal(options?.maxRetries, 0);
-    assert.equal(options?.maxTokens, AGENT_LIMITS.maxTokens);
+    assert.equal(options?.maxTokens, undefined);
+    assert.equal(typeof options?.onPayload, 'function');
     assert.equal(options?.apiKey, 'test-only-secret');
     const response = step(context, options, ++calls);
     const events = sdk.createAssistantMessageEventStream();

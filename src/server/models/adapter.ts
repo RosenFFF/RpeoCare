@@ -33,7 +33,7 @@ export function environmentConnection(): RuntimeConnection | null {
     id: 'environment', revision: 1, name: '环境变量连接', provider,
     protocol: protocol as ModelProtocol, modelId, apiKey,
     baseUrl: process.env.REPOCARE_AI_BASE_URL?.trim() || '',
-    contextWindow: 128_000, maxTokens: 4_096,
+    contextWindow: null, maxTokens: null,
   };
 }
 
@@ -53,9 +53,9 @@ export async function modelForConnection(connection: RuntimeConnection): Promise
   if (!connection.modelId.trim() || !connection.provider.trim()) throw new Error('请填写服务商标识和模型 ID。');
   const localEndpoint = connection.baseUrl && ['localhost', '127.0.0.1', '[::1]'].includes(new URL(validateModelEndpoint(connection.baseUrl)).hostname);
   if (!connection.apiKey.trim() && !localEndpoint) throw new Error('尚未配置模型 API 密钥。');
-  if (!Number.isInteger(connection.contextWindow) || connection.contextWindow < 4_096
-    || !Number.isInteger(connection.maxTokens) || connection.maxTokens < 256
-    || connection.maxTokens > connection.contextWindow) throw new Error('模型上下文与输出长度设置不正确。');
+  if (connection.contextWindow != null && (!Number.isSafeInteger(connection.contextWindow) || connection.contextWindow < 1)) throw new Error('模型上下文长度设置不正确。');
+  if (connection.maxTokens != null && (!Number.isSafeInteger(connection.maxTokens) || connection.maxTokens < 1)) throw new Error('最大输出长度设置不正确。');
+  if (connection.contextWindow != null && connection.maxTokens != null && connection.maxTokens > connection.contextWindow) throw new Error('最大输出不能大于上下文长度。');
 
   const { getProviders, getModels } = await import('@mariozechner/pi-ai');
   const provider = getProviders().find((item) => item === connection.provider);
@@ -71,7 +71,7 @@ export async function modelForConnection(connection: RuntimeConnection): Promise
     provider: connection.provider.trim(), baseUrl: endpoint,
     reasoning: builtin?.reasoning ?? false, input: ['text' as const],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: connection.contextWindow, maxTokens: connection.maxTokens,
+    contextWindow: connection.contextWindow ?? builtin?.contextWindow ?? 0, maxTokens: connection.maxTokens ?? builtin?.maxTokens ?? 0,
   };
   if (connection.protocol === 'openai-completions') {
     const compat = builtin?.api === 'openai-completions' ? builtin.compat : {
@@ -151,7 +151,7 @@ export async function testConnection(connection: RuntimeConnection, signal?: Abo
     local.signal.throwIfAborted();
     const { streamSimple, Type } = await import('@mariozechner/pi-ai');
     const options: SimpleStreamOptions = { apiKey: connection.apiKey || 'local', signal: local.signal,
-      maxTokens: Math.min(512, connection.maxTokens), timeoutMs: TEST_TIMEOUT_MS,
+      maxTokens: Math.min(512, connection.maxTokens ?? 512), timeoutMs: TEST_TIMEOUT_MS,
       maxRetries: 0, maxRetryDelayMs: 0, cacheRetention: 'none', transport: 'sse',
       onResponse: (response) => { status = response.status; } };
     const context: Context = {

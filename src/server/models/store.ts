@@ -11,8 +11,8 @@ const inputSchema = z.object({
   name: z.string().trim().min(1).max(80), provider: z.string().trim().regex(/^[a-zA-Z0-9._-]{1,80}$/),
   protocol: z.enum(protocols), baseUrl: z.string().trim().max(1000), modelId: z.string().trim().min(1).max(160),
   apiKey: z.string().trim().max(2000).optional(), keyAction: z.enum(['keep', 'replace', 'clear']).default('keep'),
-  contextWindow: z.number().int().min(4096).max(4_000_000), maxTokens: z.number().int().min(256).max(200_000),
-}).strict().refine(value => value.maxTokens <= value.contextWindow);
+  contextWindow: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable().optional().default(null), maxTokens: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable().optional().default(null),
+}).strict().refine(value => value.maxTokens === null || value.contextWindow === null || value.maxTokens <= value.contextWindow, { message: '最大输出不能大于上下文长度。' });
 type Row = { id: string; owner: string; state: string; secret: string };
 function database() {
   const database = db();
@@ -41,7 +41,7 @@ export function getRuntime(owner: string, id: string): RuntimeConnection {
   if (!record) throw new Error('模型连接不存在或不属于当前会话。');
   const item = metadata(record);
   return { id, revision: item.revision, name: item.name, provider: item.provider, protocol: item.protocol,
-    baseUrl: item.baseUrl, modelId: item.modelId, contextWindow: item.contextWindow, maxTokens: item.maxTokens,
+    baseUrl: item.baseUrl, modelId: item.modelId, contextWindow: item.contextWindow ?? null, maxTokens: item.maxTokens ?? null,
     apiKey: record.secret ? decryptSecret(record.secret, `model:${owner}:${id}`) : '' };
 }
 export function getDefaultRuntime(owner: string) {

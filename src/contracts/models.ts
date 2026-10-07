@@ -8,8 +8,10 @@ export interface ConnectionInput {
   modelId: string;
   apiKey?: string;
   keyAction?: 'keep' | 'replace' | 'clear';
-  contextWindow: number;
-  maxTokens: number;
+  /** null: SDK directory metadata if known; otherwise unknown, not infinite. */
+  contextWindow: number | null;
+  /** null: omit optional API output cap; Messages needs a known/explicit value. */
+  maxTokens: number | null;
 }
 export interface ModelConnection extends Omit<ConnectionInput, 'apiKey' | 'keyAction'> {
   id: string;
