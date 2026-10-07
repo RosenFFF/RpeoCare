@@ -42,7 +42,7 @@ const SETTINGS_SECTIONS: Array<{ id: SettingsSection; label: string; description
   { id: 'plugins', label: '官方插件', description: '管理辅助能力', icon: Puzzle },
   { id: 'review', label: '维护者审核', description: '发布前的安全边界', icon: UserCheck },
   { id: 'github', label: 'GitHub 账户', description: '仓库访问与发布权限', icon: GitFork },
-  { id: 'models', label: '模型连接', description: '体检与 Agent 模型', icon: PlugZap },
+  { id: 'models', label: '模型连接', description: '默认模型、服务地址与连接诊断', icon: PlugZap },
 ];
 
 function readSettings(value: unknown): WorkspaceSettings {

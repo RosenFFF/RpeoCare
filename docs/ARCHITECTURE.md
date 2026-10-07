@@ -58,3 +58,7 @@ Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用收件列表，�
 ## 规范改进与草稿审阅（2026-10-07）
 
 `features/drafts` 管理分类列表与全宽审阅，`shared/lib/draft-diff`、`draft-quality` 为纯比较与校验，服务端 `draft-quality`、`draft-publication` 提供有界快照依据与只读交付核对。草稿 API 按项目先过滤后分页，成功报告复用 overview 的仓库/分支查询；版本表以兼容方式创建，旧草稿仍可读取。单文件及 2–4 文件 Draft PR 发布沿用实际权限/基准校验，批次 SQLite 状态原子迁移。详见 DRAFT_WORKSPACE.md。
+
+## 模型连接配置改进（2026-10-07）
+
+模型设置以默认概览、连接列表、显式新增/编辑组织，防同名/同目标误建，并保留旧重复项安全原位编辑。服务商字段说明与基础端点预设在 shared/lib/model-connection；不包含秘密，不发起自动平台发现。存储事务保证保存/明确设默认一致；现有账号模型连接不自动合并删除。详见 MODEL_CONNECTIONS.md。

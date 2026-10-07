@@ -39,6 +39,7 @@ export interface ModelSettingsResponse {
   connections: ModelConnection[];
   defaultId: string | null;
   environmentConfigured: boolean;
+  savedId?: string;
   recentFailures?: ModelRequestDiagnostic[];
 }
 export interface ConnectionTestResult { ok: boolean; latencyMs: number; message: string }

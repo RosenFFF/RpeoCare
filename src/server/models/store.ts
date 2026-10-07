@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../audit/store';
 import { decryptSecret, encryptSecret } from './crypto';
 import { environmentConnection, validateModelEndpoint } from './adapter';
+import { connectionName, sameModelTarget } from '../../shared/lib/model-connection';
 import { recentModelFailures } from './request-diagnostics';
 import { protocols, type ModelConnection, type RuntimeConnection, type ConnectionTestResult } from '../../contracts/models';
 
@@ -47,7 +48,7 @@ export function getDefaultRuntime(owner: string) {
   const id = listSettings(owner).defaultId;
   return id ? getRuntime(owner, id) : null;
 }
-export function saveConnection(owner: string, value: unknown, id?: string, expectedRevision?: number): ModelConnection {
+export function saveConnection(owner: string, value: unknown, id?: string, expectedRevision?: number, options: { allowDuplicate?: boolean; makeDefault?: boolean } = {}): ModelConnection {
   const parsed = inputSchema.safeParse(value);
   if (!parsed.success) throw new Error('请检查连接名称、服务商、协议、模型 ID 和长度设置。');
   const input = parsed.data;
@@ -58,6 +59,13 @@ export function saveConnection(owner: string, value: unknown, id?: string, expec
     if (id && !previous) throw new Error('模型连接不存在或不属于当前会话。');
     const old = previous ? metadata(previous) : undefined;
     if (old && old.revision !== expectedRevision) throw new Error('配置已在其他页面修改，请刷新后重试。');
+    const peers = listSettings(owner).connections.filter(item => item.id !== id);
+    const matching = peers.find(item => sameModelTarget(item, input));
+    const nameChanged = !old || connectionName(old.name) !== connectionName(input.name);
+    if (nameChanged && peers.some(item => connectionName(item.name) === connectionName(input.name))) throw new Error('已有同名连接，请编辑已有项或使用清晰不同的连接名称。');
+    // Legacy duplicate entries may still be repaired in place; never silently
+    // merge, delete, switch defaults or compare decrypted API keys.
+    if (matching && (!old || !sameModelTarget(old, input)) && !options.allowDuplicate) throw new Error('相同接口、协议和模型已配置，请编辑已有连接；不同账户请使用不同名称并明确确认另建。');
     if (!id && listSettings(owner).connections.length >= 10) throw new Error('最多保存 10 个模型连接。');
     const connectionId = id || randomUUID();
     const secret = input.keyAction === 'clear' ? '' : input.keyAction === 'replace'
@@ -71,7 +79,7 @@ export function saveConnection(owner: string, value: unknown, id?: string, expec
     };
     database().prepare('INSERT INTO model_connections (id, owner, state, secret) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET state = excluded.state, secret = excluded.secret')
       .run(connectionId, owner, JSON.stringify(item), secret);
-    if (!id && listSettings(owner).connections.length === 1) setDefault(owner, connectionId);
+    if (options.makeDefault || !id && listSettings(owner).connections.length === 1) setDefault(owner, connectionId);
     return item;
   });
 }
