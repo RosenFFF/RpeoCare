@@ -26,3 +26,4 @@
 .ms-section .ms-test-failed { color: var(--error); }
 .ms-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 720px) { .ms-row-actions { width: 100%; } .ms-default { display: inline-block; } }
+.ms-request-diagnostics{border:1px solid var(--line);border-radius:7px;padding:14px 18px;margin:18px 0;background:var(--surface);font-size:13px;line-height:1.8}.ms-request-diagnostics summary{cursor:pointer;font-weight:600}.ms-request-diagnostics ul{padding:0;list-style:none}.ms-request-diagnostics li{border-top:1px solid var(--line);padding:12px 0;overflow-wrap:anywhere}.ms-request-diagnostics li strong{font-size:12px}.ms-request-diagnostics li p{margin:6px 0;color:var(--muted)}.ms-request-diagnostics li small{color:var(--muted);font-size:11px}

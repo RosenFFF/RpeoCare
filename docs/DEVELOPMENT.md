@@ -48,3 +48,13 @@ npm run check
 ## 复现 Runner
 
 复现相关改动至少运行 `node --check reproduction/runner.mjs`、单元测试和完整 `npm run check`。本地 Docker 可用时再运行 `npm run repro:image`，并使用专用公开测试仓库验收。不要在测试中回退到宿主机执行仓库命令。配置与生产隔离要求见 [REPRODUCTION.md](REPRODUCTION.md)。
+
+## 模型已配置但请求失败的诊断（2026-10-07）
+
+Issue／PR／回复和文档草稿生成使用当前账户默认模型，保存连接不代表真实请求成功。过去 workbench assistant 捕获异常只返回“模型请求未完成”，model_usage 只有失败标记，无法追溯旧失败的 HTTP 状态或停止原因。
+
+现在 assistant 对可信数值 HTTP status、请求取消/60秒超时、网络失败/安全地址阻断、输出 length/空文本/工具调用等有限状态分类；界面提示对应处理建议和诊断编号。错误 HTTP 状态由服务端 fetch guard 捕获，覆盖 SDK 未触发 onResponse 的情况。未知失败明确标为 unknown，不解析/回显 provider errorMessage，不以猜测替代证据。
+
+诊断保存在本机 model_request_diagnostics，仅包含账户归属、任务种类、配置 ID/版本、协议、HTTP 状态、耗时、错误类别和固定文案；不保存 API Key、请求/响应正文、URL、原始异常或隐藏推理。每账户保留最近50条，设置页只显示该账户最近5条。旧失败不能从缺失记录补推；返回结果含用量时保留真实token数量，未知不虚构费用。
+
+未自动重试、增加输出预算、修改用户连接或主动发起真实模型测试。连接测试按钮仍是用户主动动作，可能产生服务商费用。当前草稿/分诊调用预算仍为最多4096输出token、60秒；配置更大输出不等于该工作流会无限请求，length错误要结合工作流预算和推理占用核对。错误分类只是可观测性修复，具体服务商故障需新请求证据确认。

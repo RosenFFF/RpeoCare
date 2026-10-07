@@ -39,7 +39,21 @@ export interface ModelSettingsResponse {
   connections: ModelConnection[];
   defaultId: string | null;
   environmentConfigured: boolean;
+  recentFailures?: ModelRequestDiagnostic[];
 }
 export interface ConnectionTestResult { ok: boolean; latencyMs: number; message: string }
 export interface CatalogModel { id: string; name: string; provider: string; protocol: ModelProtocol; contextWindow: number; maxTokens: number }
 export interface AgentProgress { kind: 'turn' | 'tool_start' | 'tool_end'; message: string; tool?: string; failed?: boolean }
+export type ModelRequestFailure = 'authorization' | 'balance' | 'rate-limit' | 'not-found' | 'invalid-request' | 'provider' | 'timeout' | 'cancelled' | 'network' | 'blocked-endpoint' | 'truncated' | 'empty-output' | 'incompatible-output' | 'unknown';
+export interface ModelRequestDiagnostic {
+  id: string;
+  at: string;
+  purpose: string;
+  connectionId: string;
+  connectionRevision: number;
+  protocol: ModelProtocol;
+  httpStatus?: number;
+  durationMs: number;
+  category: ModelRequestFailure;
+  message: string;
+}

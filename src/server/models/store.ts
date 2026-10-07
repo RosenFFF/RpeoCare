@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../audit/store';
 import { decryptSecret, encryptSecret } from './crypto';
 import { environmentConnection, validateModelEndpoint } from './adapter';
+import { recentModelFailures } from './request-diagnostics';
 import { protocols, type ModelConnection, type RuntimeConnection, type ConnectionTestResult } from '../../contracts/models';
 
 const inputSchema = z.object({
@@ -32,7 +33,7 @@ function metadata(value: Row): ModelConnection { return JSON.parse(value.state) 
 export function listSettings(owner: string) {
   const connections = (database().prepare('SELECT * FROM model_connections WHERE owner = ? ORDER BY rowid').all(owner) as Row[]).map(metadata);
   const selected = database().prepare('SELECT connection_id FROM model_defaults WHERE owner = ?').get(owner) as { connection_id: string | null } | undefined;
-  return { connections, defaultId: selected?.connection_id ?? null, environmentConfigured: Boolean(environmentConnection()) };
+  return { connections, defaultId: selected?.connection_id ?? null, environmentConfigured: Boolean(environmentConnection()), recentFailures: recentModelFailures(owner) };
 }
 export function getRuntime(owner: string, id: string): RuntimeConnection {
   const record = row(owner, id);

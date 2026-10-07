@@ -88,7 +88,8 @@ export async function modelForConnection(connection: RuntimeConnection): Promise
   } };
 }
 
-interface TransportScope { endpoint: URL }
+interface TransportObserver { onStatus?: (status: number) => void; onFailure?: (kind: 'network' | 'blocked-endpoint') => void }
+interface TransportScope extends TransportObserver { endpoint: URL }
 interface TransportState { context: AsyncLocalStorage<TransportScope>; wrappers: WeakSet<typeof fetch> }
 const transportKey = Symbol.for('repocare.model.transport');
 const transportGlobal = globalThis as typeof globalThis & { [transportKey]?: TransportState };
@@ -100,7 +101,7 @@ const transport = transportGlobal[transportKey] ??= { context: new AsyncLocalSto
  * AsyncLocalStorage keeps concurrent users' endpoints isolated. Fetch itself
  * rejects redirects, before any Authorization/x-api-key can leave this origin.
  */
-export function withModelTransport<T>(model: Model<Api>, operation: () => T): T {
+export function withModelTransport<T>(model: Model<Api>, operation: () => T, observer: TransportObserver = {}): T {
   if (!transport.wrappers.has(globalThis.fetch)) {
     const upstream = globalThis.fetch;
     const guarded: typeof fetch = (input, init) => {
@@ -108,23 +109,25 @@ export function withModelTransport<T>(model: Model<Api>, operation: () => T): T 
       if (!scope) return upstream(input, init);
       let target: URL;
       try { target = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url); }
-      catch { return Promise.reject(new Error('模型接口请求地址无效。')); }
+      catch { scope.onFailure?.('blocked-endpoint'); return Promise.reject(new Error('模型接口请求地址无效。')); }
       const basePath = scope.endpoint.pathname.replace(/\/+$/, '');
       if (target.origin !== scope.endpoint.origin || target.username || target.password
         || (basePath && target.pathname !== basePath && !target.pathname.startsWith(`${basePath}/`))) {
+        scope.onFailure?.('blocked-endpoint');
         return Promise.reject(new Error('模型接口试图访问配置地址之外的资源，已阻止请求。'));
       }
-      return upstream(input, { ...init, redirect: 'error' });
+      return Promise.resolve().then(() => upstream(input, { ...init, redirect: 'error' })).then(response => { scope.onStatus?.(response.status); return response; }, error => { scope.onFailure?.('network'); throw error; });
     };
     transport.wrappers.add(guarded);
     globalThis.fetch = guarded;
   }
-  return transport.context.run({ endpoint: new URL(model.baseUrl) }, operation);
+  return transport.context.run({ endpoint: new URL(model.baseUrl), ...observer }, operation);
 }
 
 function safeFailure(status: number | undefined, aborted: boolean): string {
   if (aborted) return '连接测试已取消或超过 25 秒，请检查网络后重试。';
   if (status === 401 || status === 403) return '模型服务拒绝授权，请检查 API 密钥及该模型的访问权限。';
+  if (status === 402) return '模型服务返回余额不足或付费限制，请在服务商后台核对账户状态。';
   if (status === 404) return '模型服务未找到接口或模型，请检查协议、基础地址及模型 ID。';
   if (status === 429) return '模型服务额度不足或请求频率受限，请稍后重试。';
   if (status && status >= 500) return '模型服务暂时不可用，请稍后重试。';
@@ -157,7 +160,7 @@ export async function testConnection(connection: RuntimeConnection, signal?: Abo
       tools: [{ name: probeTool, description: 'Verify that the connection supports structured tool calls.',
         parameters: Type.Object({ nonce: Type.String() }, { additionalProperties: false }) }],
     };
-    const request = () => withModelTransport(model, () => streamSimple(model, context, options).result());
+    const request = () => withModelTransport(model, () => streamSimple(model, context, options).result(), { onStatus: value => { status = value; } });
     const first = await request();
     if (first.stopReason === 'error' || first.stopReason === 'aborted') return result(false, safeFailure(status, local.signal.aborted));
     const calls = first.content.filter((item) => item.type === 'toolCall');
