@@ -49,7 +49,7 @@ export function ProjectOverview() {
         <nav className="wb-maintenance-links" aria-label="项目维护入口">
           <Link href="/issues"><MessagesSquare size={19} /><div><strong>Issue 分诊</strong><span>查看讨论，准备回复</span></div><ArrowUpRight size={15} /></Link>
           <Link href="/pull-requests"><GitPullRequest size={19} /><div><strong>PR 检查</strong><span>核对变更，生成审阅草稿</span></div><ArrowUpRight size={15} /></Link>
-          <Link href="/improvements"><FileCheck2 size={19} /><div><strong>规范改进</strong><span>编辑文档，确认后发布</span></div><ArrowUpRight size={15} /></Link>
+          <Link href="/improvements"><FileCheck2 size={19} /><div><strong>草稿与交付</strong><span>编辑草稿，确认后交付</span></div><ArrowUpRight size={15} /></Link>
         </nav>
       </div>
       <aside className="wb-overview-aside" aria-label="账户与模型">

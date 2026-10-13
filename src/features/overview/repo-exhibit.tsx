@@ -8,7 +8,7 @@ import "./project-showcase.css";
 export const maintenanceSections = [
   {name:"Issue 分诊",short:"Issues",icon:CircleDot,description:"把模糊反馈整理清楚，先补齐信息，再作判断。",href:"/issues",unit:"条反馈待整理"},
   {name:"PR 检查",short:"Pull requests",icon:GitPullRequest,description:"把变更、检查依据和待确认事项放到一起审阅。",href:"/pull-requests",unit:"项变更待审阅"},
-  {name:"规范改进",short:"Docs",icon:Files,description:"从贡献指南到反馈模板，让下一次协作更顺畅。",href:"/improvements",unit:"份草稿待确认"},
+  {name:"草稿与交付",short:"Drafts",icon:Files,description:"集中审阅文档、回复与评论草稿，确认后再交付。",href:"/improvements",unit:"份草稿待确认"},
   {name:"项目体检",short:"Health",icon:ScanLine,description:"看清文档与协作规范的缺口，找到值得先做的改进。",href:"/audit",unit:"项基础待完善"},
 ] as const;
 const sections = maintenanceSections;

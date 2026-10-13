@@ -3,6 +3,7 @@ import Script from "next/script";
 import { appearanceBootstrap } from "@/shared/lib/appearance";
 import "./globals.css";
 import "./appearance.css";
+import "./refinement.css";
 
 export const metadata: Metadata = {
   icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
