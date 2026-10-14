@@ -10,6 +10,7 @@ RepoCare 当前是一个 Next.js 应用和一个独立 Node.js Worker，共用�
 | `src/features` | 按功能聚合 React 页面组件与样式 | 修改体检界面到 `audit/` |
 | `src/components/workspace` | 工作台外壳、功能视图装配 | 修改全局导航 |
 | `src/server/audit` | 仓库采集、规则、Agent、任务持久化 | 新增检查规则 |
+| `src/server/journey` | 从固定快照生成贡献路径演练计划 | 调整命令提取规则 |
 | `src/server/models` | 模型连接、加密、运行时适配 | 新增模型协议 |
 | `src/server/reproduction` | Bug 复现计划校验、SQLite 队列、Docker 执行器 | 新增复现模式或隔离策略 |
 | `reproduction` | Runner 镜像与沙箱内 Playwright/测试执行入口 | 调整证据采集 |
@@ -43,6 +44,10 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 ## Issue 复现执行链
 
 Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → 维护者人工确认 → SQLite 队列 → 独立复现 Worker → 固定 Git commit → Docker Runner 三次执行 → 机器判据与 SHA-256 证据。Web 进程不执行仓库代码；执行阶段网络关闭，Docker 不可用时不回退宿主机。详细边界见 [REPRODUCTION.md](REPRODUCTION.md)。
+
+## 贡献路径验证执行链
+
+体检固定快照 → README、CONTRIBUTING 与项目清单中的受支持命令 → 服务端安全校验 → 维护者核对命令及来源 → SQLite 队列 → 独立复现 Worker → 同一固定 commit 的 Docker Runner → 单次安装、测试与代码检查 → 分步退出码和 SHA-256 证据。贡献路径复用 Issue 复现的隔离执行器与制品存储，但使用独立任务语义和 `all-steps-pass` 判据。依赖准备可以在显式配置后受限联网；验证阶段断网。概览只显示当前项目最近一次验证状态，详细计划、执行状态和证据留在体检页的贡献路径标签中。
 
 
 ## PR 审查执行链

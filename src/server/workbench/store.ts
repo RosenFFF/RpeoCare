@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
-import type { Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, PullRequestReview, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
+import type { ContributorJourneyContext, Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, PullRequestReview, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
 
 export function workbenchDb() {
   const database = db();
@@ -118,6 +118,27 @@ export function createReproductionJob(owner: string, input: { repoUrl: string; b
   const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: '复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
   workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, job.issueNumber, job.status, JSON.stringify(job), now, now);
   return job;
+}
+export function createContributorJourneyJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; auditRunId: string; sourceUpdatedAt: string; plan: ReproductionPlan; journey: ContributorJourneyContext }): ReproductionJob {
+  const now = new Date().toISOString();
+  const job: ReproductionJob = {
+    id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha,
+    issueNumber: 0, sourceUpdatedAt: input.sourceUpdatedAt, purpose: 'contributor-journey', auditRunId: input.auditRunId,
+    journey: { ...input.journey, auditRunId: input.auditRunId }, plan: input.plan,
+    status: 'awaiting-confirmation', phase: 'planning', progress: '演练计划已生成，等待维护者确认',
+    totalAttempts: 1, totalSteps: input.plan.setup.length + input.plan.steps.length,
+    attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now,
+  };
+  workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, 0, job.status, JSON.stringify(job), now, now);
+  return job;
+}
+export function latestContributorJourney(owner: string, auditRunId: string): ReproductionJob | null {
+  const row = workbenchDb().prepare("SELECT state FROM reproduction_jobs WHERE owner=? AND issue_number=0 AND json_extract(state,'$.purpose')='contributor-journey' AND json_extract(state,'$.auditRunId')=? ORDER BY created_at DESC LIMIT 1").get(owner, auditRunId) as { state: string } | undefined;
+  return row ? JSON.parse(row.state) as ReproductionJob : null;
+}
+export function latestProjectContributorJourney(owner: string, repoUrl: string): ReproductionJob | null {
+  const row = workbenchDb().prepare("SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? AND issue_number=0 AND json_extract(state,'$.purpose')='contributor-journey' ORDER BY created_at DESC LIMIT 1").get(owner, repoUrl) as { state: string } | undefined;
+  return row ? JSON.parse(row.state) as ReproductionJob : null;
 }
 export function getReproductionJob(owner: string, id: string): ReproductionJob {
   const row = workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND id=?').get(owner, id) as { state: string } | undefined;

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { resolve, relative, dirname } from 'node:path';
-import type { ReproductionArtifact, ReproductionAttempt, ReproductionJob, ReproductionPhase, ReproductionResult } from '@/contracts/workbench';
+import type { ReproductionArtifact, ReproductionAttempt, ReproductionJob, ReproductionPhase, ReproductionResult, VerificationStepResult } from '@/contracts/workbench';
 import { parseRepositoryUrl } from '@/server/audit/github';
 import { updateReproductionJob } from '@/server/workbench/store';
 import { renewReproductionLease } from './queue';
@@ -10,6 +10,7 @@ import { renewReproductionLease } from './queue';
 const root = () => resolve(process.env.REPOCARE_REPRO_ARTIFACTS || 'data/reproduction');
 const image = () => process.env.REPOCARE_REPRO_IMAGE || 'repocare-repro-runner:local';
 const timeoutMs = () => Math.max(30_000, Math.min(Number(process.env.REPOCARE_REPRO_MAX_SECONDS || 180) * 1000, 300_000));
+const attemptLimit = (job: ReproductionJob) => Math.max(1, Math.min(job.totalAttempts || (job.purpose === 'contributor-journey' ? 1 : 3), 3));
 
 function run(file: string, args: string[], options: { cwd?: string; timeout?: number } = {}) {
   return new Promise<{ code: number; stdout: string; stderr: string }>((accept, reject) => {
@@ -94,24 +95,25 @@ async function runSandbox(owner: string, job: ReproductionJob, workspace: string
     const executed = await run('docker', args, { timeout: timeoutMs() + 30_000 });
     const resultPath = resolve(outputDir, 'result.json');
     try {
-      const result = JSON.parse(await readFile(resultPath, 'utf8')) as { reproduced?: boolean; summary?: string; durationMs?: number; error?: string; progress?: { currentStep?: number; totalSteps?: number; currentStepLabel?: string } };
+      const result = JSON.parse(await readFile(resultPath, 'utf8')) as { reproduced?: boolean; summary?: string; durationMs?: number; error?: string; steps?: VerificationStepResult[]; progress?: { currentStep?: number; totalSteps?: number; currentStepLabel?: string } };
       return result;
     } catch { return { error: executed.stderr || 'Runner 未生成结果。' }; }
   } finally { clearInterval(progressTimer); }
 }
 
 async function executeAttempt(owner: string, job: ReproductionJob, workspace: string, attemptDir: string, index: number) {
+  const total = attemptLimit(job);
   if (requiresDependencyNetwork(job)) {
     if (process.env.REPOCARE_REPRO_ALLOW_NETWORK !== 'true') throw new Error('复现计划需要安装依赖，但沙箱网络默认关闭。确认依赖来源可信后设置 REPOCARE_REPRO_ALLOW_NETWORK=true。');
-    updateReproductionJob(owner, job.id, { phase: 'dependencies', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在准备测试依赖', progress: `第 ${index}/3 次验证：正在受限联网准备依赖` });
+    updateReproductionJob(owner, job.id, { phase: 'dependencies', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在准备测试依赖', progress: `第 ${index}/${total} 次验证：正在受限联网准备依赖` });
     const dependency = await runSandbox(owner, job, workspace, resolve(attemptDir, 'dependencies'), 'dependencies', 'bridge');
     if (dependency.error) throw new Error(dependency.error);
   }
-  updateReproductionJob(owner, job.id, { phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在启动隔离 Runner', progress: `第 ${index}/3 次验证：执行期网络已关闭` });
+  updateReproductionJob(owner, job.id, { phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: index, currentStep: 0, currentStepLabel: '正在启动隔离 Runner', progress: `第 ${index}/${total} 次验证：执行期网络已关闭` });
   const result = await runSandbox(owner, job, workspace, resolve(attemptDir, 'execution'), 'execution', 'none');
-  updateReproductionJob(owner, job.id, { currentAttempt: index, currentStep: result.progress?.currentStep ?? job.plan.setup.length + job.plan.steps.length, currentStepLabel: result.progress?.currentStepLabel || '本次验证已完成', progress: `第 ${index}/3 次验证已完成，正在整理机器判据` });
+  updateReproductionJob(owner, job.id, { currentAttempt: index, currentStep: result.progress?.currentStep ?? job.plan.setup.length + job.plan.steps.length, currentStepLabel: result.progress?.currentStepLabel || '本次验证已完成', progress: `第 ${index}/${total} 次验证已完成，正在整理机器判据` });
   const reproductionResult: ReproductionResult = result.reproduced ? 'reproduced' : result.error ? 'failed' : 'not-reproduced';
-  return { result: reproductionResult, summary: result.summary || result.error || '未返回摘要。', durationMs: result.durationMs || 0 };
+  return { result: reproductionResult, summary: result.summary || result.error || '未返回摘要。', durationMs: result.durationMs || 0, verificationSteps: result.steps || [] };
 }
 
 const kindByName = (name: string): ReproductionArtifact['kind'] => {
@@ -168,23 +170,25 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
     job = updateReproductionJob(owner, job.id, { phase: 'source', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '正在获取仓库并锁定提交版本', progress: '正在获取仓库并锁定提交版本', environment: { docker: dockerVersion, runnerImage: image(), network: requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK === 'true' ? 'dependency preparation only; execution disabled' : 'disabled', isolation: 'read-only rootfs, no capabilities, resource limits' } });
     const source = await prepareSource(job, workspace, job.branch);
     await writeFile(resolve(jobDir, 'source.log'), source.log, 'utf8');
-    job = updateReproductionJob(owner, job.id, { commitSha: source.commitSha, phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '固定提交已准备，等待第一次验证', progress: '固定提交已准备，正在进行 3 次独立验证' });
+    const total = attemptLimit(job);
+    job = updateReproductionJob(owner, job.id, { commitSha: source.commitSha, phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '固定提交已准备，等待第一次验证', progress: `固定提交已准备，正在进行 ${total} 次独立验证` });
     const history: ReproductionAttempt[] = [];
-    for (let index = 1; index <= 3; index++) {
+    for (let index = 1; index <= total; index++) {
       await resetWorkspace(workspace, source.commitSha);
       const startedAt = new Date().toISOString();
       const outcome = await executeAttempt(owner, job, workspace, resolve(jobDir, `attempt-${index}`), index);
       const finishedAt = new Date().toISOString();
       history.push({ index, result: outcome.result, durationMs: outcome.durationMs, summary: outcome.summary, startedAt, finishedAt });
       const reproduced = history.filter(item => item.result === 'reproduced').length;
-      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, phase: 'execution', currentAttempt: index, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: `第 ${index} 次验证已完成`, progress: `已完成 ${index}/3 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
+      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, verificationSteps: outcome.verificationSteps, phase: 'execution', currentAttempt: index, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: `第 ${index} 次验证已完成`, progress: job.purpose === 'contributor-journey' ? `已完成 ${index}/${total} 次贡献路径验证` : `已完成 ${index}/${total} 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
     }
     const reproduced = history.filter(item => item.result === 'reproduced').length;
     const failures = history.filter(item => item.result === 'failed').length;
-    const result: ReproductionResult = reproduced >= 2 ? 'reproduced' : failures === 3 ? 'failed' : 'not-reproduced';
+    const threshold = job.purpose === 'contributor-journey' ? total : Math.min(2, total);
+    const result: ReproductionResult = reproduced >= threshold ? 'reproduced' : failures === total ? 'failed' : 'not-reproduced';
     const status = result;
     const artifacts = await collectArtifacts(jobDir);
-    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: 3, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: reproduced >= 2 ? `稳定复现：3 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：3 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
+    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: total, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: job.purpose === 'contributor-journey' ? result === 'reproduced' ? '贡献路径已完整走通，执行证据已保存' : '贡献路径存在阻塞，执行证据已保存' : reproduced >= threshold ? `稳定复现：${total} 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：${total} 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
   } catch (error) {
     const message = error instanceof Error ? error.message : '复现执行失败。';
     const blocked = /尚未启用|Docker|Runner 镜像|仓库快照|沙箱网络默认关闭/.test(message);

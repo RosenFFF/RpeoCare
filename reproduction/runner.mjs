@@ -135,6 +135,10 @@ function observedOracle() {
   if (plan.oracle.type === 'url-contains') return String(output.finalUrl || '').includes(value);
   if (plan.oracle.type === 'http-status') return output.network.some(item => String(item.status) === value);
   if (plan.oracle.type === 'selector-visible') return output.steps.some(step => step.type === 'expect' && step.ok && (!plan.oracle.value || step.target === plan.oracle.value));
+  if (plan.oracle.type === 'all-steps-pass') {
+    const executed = output.steps.filter(step => !step.background && !['create-file'].includes(step.type));
+    return executed.length > 0 && executed.every(step => step.ok && (step.code === undefined || step.code === 0));
+  }
   return false;
 }
 
@@ -152,11 +156,11 @@ try {
       if ((step.type === 'run-command' || step.type === 'run-test') && isInstall(step.command)) continue;
       const currentStep = index + 1;
       await writeProgress(currentStep, `正在准备：${step.command || step.target || step.path || step.type}`);
-      const result = await commandStep(step); output.steps.push({ type: step.type, ...result, ok: true });
+      const result = await commandStep(step); output.steps.push({ type: step.type, command: step.command, target: step.target, path: step.path, ...result, ok: result.code === undefined || result.code === 0 });
       await writeProgress(currentStep, `准备完成：${step.command || step.target || step.path || step.type}`);
     }
     if (plan.mode === 'browser') await browserSteps(plan.steps, plan.setup.length);
-    else for (const [index, step] of plan.steps.entries()) { const currentStep = plan.setup.length + index + 1; await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`); const result = await commandStep(step); output.steps.push({ index, type: step.type, ...result, ok: true }); await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`); }
+    else for (const [index, step] of plan.steps.entries()) { const currentStep = plan.setup.length + index + 1; await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`); const result = await commandStep(step); output.steps.push({ index, type: step.type, command: step.command, target: step.target, path: step.path, ...result, ok: result.code === undefined || result.code === 0 }); await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`); }
     await writeProgress(totalSteps, '本次验证步骤已完成，正在判断机器判据');
     output.reproduced = observedOracle();
     output.summary = output.reproduced ? 'Observed the plan oracle.' : 'The plan completed without observing the oracle.';

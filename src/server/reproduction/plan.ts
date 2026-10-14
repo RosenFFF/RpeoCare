@@ -27,7 +27,7 @@ export const reproductionPlanSchema = z.object({
   setup: z.array(stepSchema).max(20),
   steps: z.array(stepSchema).min(1).max(30),
   oracle: z.object({
-    type: z.enum(['exit-code', 'stdout-contains', 'stderr-contains', 'selector-visible', 'url-contains', 'http-status']),
+    type: z.enum(['exit-code', 'stdout-contains', 'stderr-contains', 'selector-visible', 'url-contains', 'http-status', 'all-steps-pass']),
     value: z.string().min(1).max(1000),
   }).strict(),
   expected: z.string().min(1).max(2000),
@@ -100,5 +100,6 @@ export function validateReproductionPlan(value: unknown): ReproductionPlan {
   }
   if (plan.oracle.type === 'url-contains' && plan.mode !== 'browser') throw new Error('url-contains 判据只适用于浏览器复现。');
   if (plan.oracle.type === 'exit-code' && !/^\d{1,3}$/.test(plan.oracle.value)) throw new Error('退出码判据无效。');
+  if (plan.oracle.type === 'all-steps-pass' && (plan.mode !== 'test' || !plan.steps.length || plan.steps.some(step => !['run-command', 'run-test'].includes(step.type)))) throw new Error('完整路径判据只允许测试模式中的命令步骤。');
   return plan;
 }

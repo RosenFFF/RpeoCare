@@ -63,7 +63,7 @@ export interface ReproductionStep {
   background?: boolean;
 }
 export interface ReproductionOracle {
-  type: 'exit-code' | 'stdout-contains' | 'stderr-contains' | 'selector-visible' | 'url-contains' | 'http-status';
+  type: 'exit-code' | 'stdout-contains' | 'stderr-contains' | 'selector-visible' | 'url-contains' | 'http-status' | 'all-steps-pass';
   value: string;
 }
 export interface ReproductionPlan {
@@ -97,12 +97,40 @@ export interface ReproductionAttempt {
   startedAt: string;
   finishedAt: string;
 }
+export interface ContributorJourneySource {
+  phase: 'setup' | 'verify';
+  command: string;
+  label: string;
+  path: string;
+  line?: number;
+  origin: 'documentation' | 'manifest';
+}
+export interface ContributorJourneyContext {
+  auditRunId: string;
+  repository: string;
+  documents: string[];
+  sources: ContributorJourneySource[];
+  derivedAt: string;
+}
+export interface VerificationStepResult {
+  index?: number;
+  type: ReproductionStep['type'];
+  command?: string;
+  target?: string;
+  path?: string;
+  code?: number;
+  background?: boolean;
+  ok: boolean;
+}
 export interface ReproductionJob {
   id: string;
   repoUrl: string;
   branch?: string;
   issueNumber: number;
   sourceUpdatedAt: string;
+  purpose?: 'issue-reproduction' | 'contributor-journey';
+  auditRunId?: string;
+  journey?: ContributorJourneyContext;
   plan: ReproductionPlan;
   status: ReproductionStatus;
   phase?: ReproductionPhase;
@@ -118,6 +146,7 @@ export interface ReproductionJob {
   currentStep?: number;
   totalSteps?: number;
   currentStepLabel?: string;
+  verificationSteps?: VerificationStepResult[];
   phaseStartedAt?: string;
   artifacts: ReproductionArtifact[];
   error?: string;
