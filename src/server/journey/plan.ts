@@ -54,7 +54,7 @@ function buildNodeSources(snapshot: RepoSnapshot, existing: ContributorJourneySo
   return additions;
 }
 
-function fallbackSources(snapshot: RepoSnapshot, existing: ContributorJourneySource[]) {
+function fallbackSources(snapshot: RepoSnapshot, existing: ContributorJourneySource[]): ContributorJourneySource[] {
   if (existing.some(item => item.phase === 'verify')) return [];
   const python = snapshot.files.find(file => /^(?:pyproject\.toml|pytest\.ini|setup\.cfg|tox\.ini)$/.test(file.path));
   if (python) return [{ phase: 'verify', command: 'python3 -m pytest', label: '运行 Python 测试', path: python.path, origin: 'manifest' as const }];
