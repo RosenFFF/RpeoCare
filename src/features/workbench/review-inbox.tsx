@@ -6,7 +6,6 @@ import { Activity, ArrowRight, ChevronLeft, ChevronRight, CircleDot, GitPullRequ
 import type { GitItem, IssueCategory, IssuePriority, IssueWorkflowStatus } from '@/contracts/workbench';
 import { inboxDate, inScope, issueCategories, issueClassification, issuePriorities, issueStates, pullClassification, pullTypes, type InboxScope, type PullType } from './inbox-model';
 import { MaintenancePulse } from './maintenance-pulse';
-import './review-inbox.css';
 
 type Props = {
   kind: 'issues' | 'pulls';

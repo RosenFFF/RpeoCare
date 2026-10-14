@@ -4,8 +4,6 @@ import { useState, type CSSProperties } from 'react';
 import { Activity, ArrowUpRight, GitBranch, Link2, MessageSquare, ShieldAlert } from 'lucide-react';
 import type { GitItem, IssueWorkflowStatus } from '@/contracts/workbench';
 import { inboxDate, issueCategories, issueClassification, issuePriorities, issueStates, pullClassification, pullTypes } from './inbox-model';
-import './maintenance-pulse.css';
-import './pull-flow.css';
 
 type Props = {
   kind: 'issues' | 'pulls';
