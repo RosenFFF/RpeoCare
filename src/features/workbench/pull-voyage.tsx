@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDownUp, ArrowUpRight, Check, ChevronDown, Code2, FileCode2, GitBranch, GitPullRequest, Link2, LoaderCircle, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { ArrowUpRight, Check, FileCode2, GitBranch, GitPullRequest, Link2, LoaderCircle, RefreshCw, ShieldCheck, X } from 'lucide-react';
 import type { GitItem } from '@/contracts/workbench';
 import { inboxDate, pullClassification, pullTypes } from './inbox-model';
-import { commitTexture, pullChangeSignal, pullCheckSignal, pullIdentity, pullReviewSignal } from './pull-voyage-model';
+import { pullChangeSignal, pullCheckSignal, pullIdentity, pullReviewSignal } from './pull-voyage-model';
 import './pull-voyage.css';
+import { PullConfluence } from './pull-confluence';
 
 type Props = { items: GitItem[]; busy: boolean; onOpen: (item: GitItem) => void };
 type Inspection = { key: string; status: 'loading' | 'ready' | 'error'; item?: GitItem; error?: string; at?: string };
 type Snapshot = { item: GitItem; at: string };
-const curves = ['M112.5 66 C187.5 66 210 22 262.5 22 S300 66 337.5 66', 'M337.5 66 C412.5 66 435 110 487.5 110 S525 66 562.5 66', 'M562.5 66 C637.5 66 660 22 712.5 22 S750 66 787.5 66'];
-
 function FileConstellation({ item }: { item: GitItem }) {
   const [path, setPath] = useState<string | null>(null);
   const files = useMemo(() => [...(item.files ?? [])].sort((a, b) => (b.additions + b.deletions) - (a.additions + a.deletions)), [item.files]);
@@ -49,7 +48,8 @@ function EvidencePanel({ item, busy, at, onRefresh, onOpen }: { item: GitItem; b
 }
 
 export function PullVoyage({ items, busy, onOpen }: Props) {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [showEvidence, setShowEvidence] = useState(false);
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [snapshots, setSnapshots] = useState<Record<string, Snapshot>>({});
   const controller = useRef<AbortController | null>(null);
@@ -62,9 +62,9 @@ export function PullVoyage({ items, busy, onOpen }: Props) {
 
   async function inspect(item: GitItem, force = false) {
     const key = pullIdentity(item);
-    if (!force && expanded === key) { controller.current?.abort(); setExpanded(null); return; }
     controller.current?.abort();
-    setExpanded(key);
+    setSelected(key);
+    setShowEvidence(true);
     if (!force && snapshots[key]) { setInspection({key,status:'ready',at:snapshots[key].at}); return; }
     const requestController = new AbortController();
     controller.current = requestController;
@@ -85,35 +85,37 @@ export function PullVoyage({ items, busy, onOpen }: Props) {
     }
   }
 
-  return <section className="pull-voyage" aria-label="PR 变更航道">
-    <header className="voyage-heading"><div><h3><GitBranch size={21} aria-hidden="true" />变更航道</h3><p>沿一条变更，看清提交、代码、检查与审查之间的证据。</p></div><div className="voyage-summary"><span><b>{rows.length}</b>开放变更</span><span><b>{rows.filter(row => row.changes.read).length}</b>已读代码</span><span><b>{rows.filter(row => row.checks.tone === 'failed').length}</b>检查未通过</span><span><b>{rows.filter(row => row.review.tone === 'reviewed').length}</b>已有审查</span></div></header>
-    <div className="voyage-reading-key"><span><i className="tone-read" />有已读证据</span><span><i className="tone-pending" />检查进行中</span><span><i className="tone-failed" />存在失败检查</span><span><i className="tone-unknown" />待读取或未知</span><small>列表依据已有证据；展开核对当前快照，不调用 AI。</small></div>
-    <div className="voyage-routes">{rows.map(({ original, item, key, checks, changes, review }) => {
-      const texture = commitTexture(item.headSha);
-      const isExpanded = expanded === key;
-      const loading = inspection?.key === key && inspection.status === 'loading';
-      const fileLabel = changes.read ? `${changes.count}${changes.partial ? '+' : ''} 个已读文件` : item.totalChangedFiles !== undefined ? `${item.totalChangedFiles} 个文件待读取` : '变更待读取';
-      const nodes = [
-        { title: '提交', value: item.headSha?.slice(0, 7) || '提交未知', tone: item.headSha ? 'read' : 'unknown' },
-        { title: '代码', value: fileLabel, tone: changes.read ? 'read' : 'unknown' },
-        { title: '检查', value: checks.label, tone: checks.tone === 'passed' ? 'read' : checks.tone },
-        { title: '审查', value: review.label, tone: review.tone === 'reviewed' ? 'read' : review.tone === 'stale' ? 'stale' : 'unknown' },
-      ];
-      return <article key={key} className={`voyage-route${isExpanded ? ' is-expanded' : ''}${item.isDraft ? ' is-draft' : ''}`} aria-labelledby={`voyage-title-${item.number}`}>
-        <header className="voyage-route-heading"><div className="voyage-pr-id"><GitPullRequest size={17} aria-hidden="true" /><b>#{item.number}</b><span>{item.isDraft ? '草稿' : 'Open'}</span></div><div className="voyage-route-title"><h4 id={`voyage-title-${item.number}`}>{item.title}</h4><p>{item.author || '未知作者'}<span>{pullTypes[pullClassification(item)]}</span><span>{inboxDate(item.updatedAt)} 更新</span>{snapshots[key]?.at && <span>证据 {new Date(snapshots[key].at).toLocaleTimeString('zh-CN')} 读取</span>}</p></div><button id={`inbox-row-pulls-${item.number}`} data-item-number={item.number} type="button" disabled={busy} className="voyage-open" onClick={() => onOpen(item)} aria-label={`审查 PR #${item.number}，${item.title}`}>审查<ArrowUpRight size={15} aria-hidden="true" /></button></header>
-        <div className="voyage-branch"><span><GitBranch size={13} aria-hidden="true" /><code>{item.headRef || 'head'}</code><ArrowUpRight size={12} aria-hidden="true" /><code>{item.baseRef || 'base'}</code></span><span className="voyage-texture" title={`提交纹理来自 SHA：${item.headSha || '未知'}；不表示风险。`}><span>提交指纹</span><span aria-hidden="true">{texture.map((nibble, index) => <i key={index} style={{ height: `${5 + nibble * .7}px`, opacity: .3 + nibble / 22 }} />)}</span><code>{item.headSha?.slice(0, 7) || '未知'}</code></span></div>
-        <button type="button" className="voyage-track" disabled={busy} aria-expanded={isExpanded} aria-controls={`voyage-evidence-${item.number}`} aria-label={`${isExpanded ? '收起' : '展开'} PR #${item.number} 的变更轨迹，${checks.label}，${review.label}`} onClick={() => void inspect(original)}>
-          <svg viewBox="0 0 900 132" preserveAspectRatio="none" aria-hidden="true"><g className="voyage-guide">{curves.map((curve, index) => <path key={index} d={curve} />)}</g><g className="voyage-waterway">{curves.map((curve, index) => <path key={index} d={curve} className={index === 1 && checks.tone === 'pending' ? 'is-travelling' : index === 1 && checks.tone === 'failed' ? 'is-stopped' : nodes[index].tone === 'read' && nodes[index + 1].tone === 'read' ? 'is-read' : ''} />)}</g>{nodes.map((node, index) => <g className={`voyage-waypoint tone-${node.tone}`} key={node.title}><circle cx={112.5 + index * 225} cy="66" r="12" /><circle cx={112.5 + index * 225} cy="66" r="4" /></g>)}</svg>
-          <span className="voyage-stations">{nodes.map(node => <span key={node.title} className={`tone-${node.tone}`}><b>{node.title}</b><strong>{node.value}</strong></span>)}</span>
-          <span className="voyage-expand-label">{loading ? <LoaderCircle size={13} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}{loading ? '正在读取证据' : isExpanded ? '收起轨迹' : '展开轨迹'}</span>
-        </button>
-        {isExpanded && <div id={`voyage-evidence-${item.number}`} className="voyage-expanded-content">
-          {loading && <div className="voyage-loading" role="status"><LoaderCircle size={19} aria-hidden="true" /><strong>正在读取当前提交的文件与检查</strong><span>按需读取这一条 PR 的证据。</span></div>}
-          {inspection?.key === key && inspection.status === 'error' && <div className="voyage-read-error" role="alert"><p>{inspection.error}</p><button type="button" onClick={() => void inspect(original, true)} disabled={busy}><RefreshCw size={14} aria-hidden="true" />重试读取</button></div>}
-          {inspection?.key === key && inspection.status === 'ready' && snapshots[key] && <EvidencePanel item={snapshots[key].item} busy={busy} at={snapshots[key].at} onRefresh={() => void inspect(original, true)} onOpen={onOpen} />}
-        </div>}
-      </article>;
-    })}</div>
-    <footer className="voyage-legend"><Code2 size={14} aria-hidden="true" /><span>提交纹理来自 SHA；节点显示证据状态。</span><ArrowDownUp size={14} aria-hidden="true" /><span>文件改动谱仅统计已读取增删行。</span><span>轨迹不表示自动处理进度或 GitHub 可合并状态。</span></footer>
+  const active = rows.find(row => row.key === selected) ?? rows[0];
+  function selectNode(item: GitItem) {
+    const key = pullIdentity(item);
+    if (key === active?.key) return;
+    controller.current?.abort();
+    setSelected(key);
+    setShowEvidence(false);
+    setInspection(snapshots[key] ? { key, status: 'ready', at: snapshots[key].at } : null);
+  }
+  const loading = inspection?.key === active?.key && inspection.status === 'loading';
+  return <section className="pull-voyage" aria-label="PR 变更汇流图">
+    <header className="voyage-heading"><div><h3><GitBranch size={21} aria-hidden="true" />变更汇流图</h3><p>把当前页的 PR 放在同一张图里，沿着目标分支看清变更全貌。</p></div><div className="voyage-summary"><span><b>{rows.length}</b>PR 节点</span><span><b>{new Set(rows.map(row => row.item.baseRef || '未知')).size}</b>目标分支</span><span><b>{rows.filter(row => row.checks.tone === 'failed').length}</b>可见检查失败</span></div></header>
+    <div className="voyage-reading-key"><span><i className="tone-read" />可见检查完成</span><span><i className="tone-pending" />检查进行中</span><span><i className="tone-failed" />存在失败检查</span><span><i className="tone-unknown" />待读取或未知</span><small>点击节点观察，读取证据后更新图中状态。</small></div>
+    {active && <>
+      <div className="confluence-layout">
+        <PullConfluence items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
+        <aside className="confluence-inspector" aria-label="选中 PR 的观察面板" aria-live="polite">
+          <div className="confluence-inspector-top"><b><GitPullRequest size={17} aria-hidden="true" /> #{active.item.number}</b><span>{active.item.isDraft ? '草稿' : 'Open PR'}</span></div>
+          <h4>{active.item.title}</h4><p>{active.item.author || '未知作者'} · {inboxDate(active.item.updatedAt)} 更新 · {pullTypes[pullClassification(active.item)]}</p>
+          <div className="confluence-inspector-branch"><GitBranch size={14} aria-hidden="true" /><code>{active.item.headRef || '来源分支未知'}</code><ArrowUpRight size={13} aria-hidden="true" /><code>{active.item.baseRef || '目标分支未知'}</code></div>
+          <dl className="confluence-signals"><div><dt>当前提交</dt><dd>{active.item.headSha?.slice(0, 7) || '未知'}</dd></div><div><dt>变更规模</dt><dd>{active.changes.read ? `${active.changes.count}${active.changes.partial ? '+ 已读' : ''} 个文件` : active.changes.total !== undefined ? `${active.changes.total} 个文件待核对` : '待读取'}</dd></div><div><dt>CI 检查</dt><dd className={`tone-${active.checks.tone}`}>{active.checks.label}</dd></div><div><dt>审查报告</dt><dd className={`tone-${active.review.tone}`}>{active.review.label}</dd></div></dl>
+          <button type="button" className="button button-secondary" disabled={busy || loading} onClick={() => void inspect(active.original)}>{loading ? <LoaderCircle size={14} aria-hidden="true" /> : <FileCode2 size={14} aria-hidden="true" />}{loading ? '正在读取证据' : '读取文件与检查'}</button>
+          <button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button>
+          <small>{snapshots[active.key]?.at ? `证据读取于 ${new Date(snapshots[active.key].at).toLocaleTimeString('zh-CN')}。` : '节点当前依据列表中已有数据。'}读取不调用 AI，进入审查后可核对原文与发现。</small>
+        </aside>
+      </div>
+      {showEvidence && inspection?.key === active.key && <section className="confluence-evidence" aria-label={`PR #${active.item.number} 代码与检查证据`}><header className="confluence-evidence-heading"><strong>#{active.item.number} 的代码与检查证据</strong><button type="button" onClick={() => { controller.current?.abort(); setShowEvidence(false); }} aria-label="收起选中 PR 的证据"><X size={15} aria-hidden="true" />收起</button></header>
+        {loading && <div className="voyage-loading" role="status"><LoaderCircle size={19} aria-hidden="true" /><strong>正在读取当前提交的文件与检查</strong></div>}
+        {inspection?.key === active.key && inspection.status === 'error' && <div className="voyage-read-error" role="alert"><p>{inspection.error}</p><button type="button" onClick={() => void inspect(active.original, true)} disabled={busy}><RefreshCw size={14} aria-hidden="true" />重试读取</button></div>}
+        {inspection?.key === active.key && inspection.status === 'ready' && snapshots[active.key] && <EvidencePanel item={snapshots[active.key].item} busy={busy} at={snapshots[active.key].at} onRefresh={() => void inspect(active.original, true)} onOpen={onOpen} />}
+      </section>}
+    </>}
   </section>;
 }
