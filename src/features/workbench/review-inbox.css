@@ -31,4 +31,20 @@
 
 @media(max-width:960px){.inbox-view-meta{gap:8px;}.inbox-local-note{display:none;}}
 @media(max-width:700px){.inbox-views{align-items:flex-end;flex-wrap:wrap;padding-bottom:10px;}.inbox-scopes{width:100%;}.inbox-view-meta{width:100%;justify-content:space-between;}.inbox-local-note{display:block;}}
+
+.pr-canvas-page .review-page-header { margin-bottom:12px; gap:12px; }
+.pr-canvas-page .review-page-header h1 { font-size:22px; }
+.pr-canvas-page .review-project-label,.pr-canvas-page .review-page-header p { display:none; }
+.inbox-canvas-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:8px 14px; border-bottom:1px solid var(--line); }
+.inbox-canvas-toolbar .inbox-scopes { gap:14px; flex:none; overflow:visible; }
+.inbox-canvas-toolbar .inbox-scopes button { padding:9px 0; font-size:12px; }
+.inbox-canvas-toolbar .inbox-search { flex:1 1 170px; min-width:130px; height:34px; }
+.inbox-canvas-toolbar .inbox-search-key,.inbox-canvas-toolbar .inbox-filter>span,.inbox-canvas-toolbar .inbox-filter>svg { display:none; }
+.inbox-canvas-toolbar .inbox-filter select { height:34px; }
+.inbox-canvas-count { color:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; }
+.inbox-canvas-list,.inbox-canvas-reset { display:flex; align-items:center; justify-content:center; gap:5px; min-height:34px; padding:5px 8px; border:1px solid var(--line); border-radius:5px; background:var(--surface); color:var(--muted); font:inherit; font-size:12px; cursor:pointer; }
+.is-pr-canvas .inbox-footer { padding:4px 14px; justify-content:flex-end; border-top:0; }
+.is-pr-canvas .inbox-footer>span { display:none; }
+.is-pr-canvas .inbox-footer nav { font-size:11px; gap:8px; }
+@media(max-width:700px) { .inbox-canvas-toolbar { gap:8px; padding:8px 10px; }.inbox-canvas-toolbar .inbox-scopes { width:auto; flex:1 1 auto; gap:12px; }.inbox-canvas-toolbar .inbox-search { order:2; flex-basis:calc(100% - 110px); }.inbox-canvas-toolbar .inbox-filter { order:3; flex:0 1 auto; display:block; }.inbox-canvas-toolbar .inbox-filter select { max-width:105px; min-width:95px; }.inbox-canvas-toolbar .inbox-canvas-count { display:none; }.inbox-canvas-list,.inbox-canvas-reset { min-height:38px; } }
 @media(max-width:480px){.inbox-mode-switch button{padding-inline:7px;}.inbox-local-note{font-size:9px;}}
