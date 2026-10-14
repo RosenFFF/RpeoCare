@@ -1,7 +1,7 @@
 'use client';
 
 import type { GitItem } from '@/contracts/workbench';
-import { IssueWeave } from './issue-weave';
+import { IssueTerrain } from './issue-terrain';
 import { PullVoyage } from './pull-voyage';
 
 type Props = {
@@ -12,5 +12,5 @@ type Props = {
 };
 
 export function MaintenancePulse({ kind, items, busy, onOpen }: Props) {
-  return kind === 'issues' ? <IssueWeave items={items} busy={busy} onOpen={onOpen} /> : <PullVoyage items={items} busy={busy} onOpen={onOpen} />;
+  return kind === 'issues' ? <IssueTerrain items={items} busy={busy} onOpen={onOpen} /> : <PullVoyage items={items} busy={busy} onOpen={onOpen} />;
 }
