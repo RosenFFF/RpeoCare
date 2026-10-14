@@ -18,7 +18,17 @@ export async function GET(request: NextRequest) {
     const number = Number(request.nextUrl.searchParams.get('number'));
     if (!owner || !project || !Number.isSafeInteger(number) || number < 1) return errorResponse('缺少 PR 审查上下文。', 404);
     if (request.nextUrl.searchParams.get('history') === '1') return jsonResponse({ history: listPullReviewHistory(owner, project.repoUrl, number) });
-    if (request.nextUrl.searchParams.get('context') === '1') { const context = await getPullRequestReviewContext(owner, project.repoUrl, number, request.signal); return jsonResponse({ item: context.item, review: getPullRequestReview(owner, project.repoUrl, number) }); }
+    if (request.nextUrl.searchParams.get('context') === '1') {
+      const context = await getPullRequestReviewContext(owner, project.repoUrl, number, request.signal);
+      const review = getPullRequestReview(owner, project.repoUrl, number);
+      const current = Boolean(review && review.headSha === context.headSha && review.baseSha === context.baseSha && review.contextFingerprint === reviewFingerprint(context.item, prepareReviewFiles(context.files)));
+      return jsonResponse({ item: { ...context.item, reviewSnapshot: review ? {
+        state: current ? 'current' : 'stale', findingCount: review.findings.length,
+        openFindingCount: review.findings.filter(finding => finding.status === 'open').length,
+        acceptedFindingCount: review.findings.filter(finding => finding.status === 'accepted').length,
+        analyzedAt: review.analyzedAt,
+      } : undefined }, review });
+    }
     return jsonResponse({ review: getPullRequestReview(owner, project.repoUrl, number) });
   } catch (error) { return errorResponse(error instanceof Error ? error.message : 'PR 审查读取失败。'); }
 }

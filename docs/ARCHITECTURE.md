@@ -57,7 +57,7 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 
 ## 维护收件列表（2026-10-05）
 
-Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用筛选、分页和详情导航，默认分别进入问题信号织图与合并流，也可切换精确列表。`issue-weave.tsx` 将 Issue 按处理阶段或已有问题类型铺排为独立信号单元，讨论量使用颗粒表示，讨论较多的单元展开宽度；`maintenance-pulse.tsx` 将 PR 按真实检查证据排列。列表接口将 SQLite 中与当前 head SHA 匹配的 PR 审查摘要合入 GitHub 数据，并用已保存的显式关联建立 Issue↔PR 证据桥。未知 CI 和过期审查不被推断为通过。分类纯函数位于 inbox-model.ts，视图不改变已有详情、分析、人工确认和发布边界。详见 REVIEW_INBOX.md。
+Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用筛选、分页和详情导航，默认分别进入问题信号织图与变更航道，也可切换精确列表。`issue-weave.tsx` 将 Issue 按处理阶段或已有问题类型铺排为独立信号单元，讨论量使用颗粒表示，讨论较多的单元展开宽度；`pull-voyage.tsx` 将每条 PR 的提交、代码、检查与审查证据展开为独立轨迹，并按需读取固定快照；`maintenance-pulse.tsx` 负责两类入口装配。列表接口将 SQLite 中与当前 head SHA 匹配的 PR 审查摘要合入 GitHub 数据，并用已保存的显式关联建立 Issue↔PR 证据桥。未知 CI 和过期审查不被推断为通过。分类纯函数位于 inbox-model.ts，PR 信号边界位于 pull-voyage-model.ts，视图不改变已有详情、分析、人工确认和发布边界。详见 REVIEW_INBOX.md。
 
 
 ## 规范改进与草稿审阅（2026-10-07）

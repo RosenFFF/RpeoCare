@@ -9,7 +9,7 @@ import type { GitItem } from '../../src/contracts/workbench';
 import { db } from '../../src/server/audit/store';
 import { parseDiff } from '../../src/shared/lib/pr-diff';
 import { formatReviewDraft, parsePullRequestReview } from '../../src/server/workbench/review';
-import { prepareReviewFiles } from '../../src/shared/lib/pr-review-context';
+import { prepareReviewFiles, reviewFingerprint } from '../../src/shared/lib/pr-review-context';
 import { getPullRequestChecks, getPullRequestReviewContext, publishDraft } from '../../src/server/github/api';
 import { getDraft, getPullRequestReview, listPullReviewHistory, saveProject, savePullRequestReview, updatePullRequestFinding } from '../../src/server/workbench/store';
 import { saveConnection } from '../../src/server/models/store';
@@ -93,6 +93,28 @@ test('PR collection refuses mutable head/base changed during snapshot', async t 
     throw new Error(url);
   });
   await assert.rejects(getPullRequestReviewContext('snapshot-owner',repoUrl,45),/更新/);
+});
+test('read-only voyage context marks same-commit reports stale when description or diff changes', async t => {
+  const token=saveGithubAccount('voyage-context','voyage-reader','fake',false), owner=accountSession(token)!;
+  saveProject(owner,{repoUrl,fullName:'example/project'});
+  const review=parsed();review.contextFingerprint=reviewFingerprint(item,prepareReviewFiles(item.files!));
+  savePullRequestReview(owner,repoUrl,review);
+  let changedBody=false,changedPatch=false,writes=0;
+  t.mock.method(globalThis,'fetch',async(input:URL|Request|string,init?:RequestInit)=>{
+    if(init?.method && init.method!=='GET') writes++;
+    const url=String(input);
+    if(url.endsWith('/pulls/45')) return Response.json({number:45,title:item.title,body:changedBody?'Updated description':item.body,html_url:item.url,state:'open',updated_at:item.updatedAt,head:{sha:head},base:{sha:base},changed_files:1,labels:[]});
+    if(url.includes('/files')) return Response.json([{filename:'src/reader.ts',status:'modified',additions:1,deletions:1,patch:changedPatch?patch+'\n extra context':patch}]);
+    if(url.includes('check-runs')) return Response.json({check_runs:[{name:'unit',status:'completed',conclusion:'success'}],total_count:1});
+    if(url.includes('/status')) return Response.json({statuses:[],total_count:0});
+    if(url.endsWith('/issues/42')) return Response.json({title:'Empty input',body:'Use null input'});
+    throw new Error(url);
+  });
+  const read=async()=>{const response=await GET(new NextRequest('http://localhost/api/workbench/review?number=45&context=1',{headers:{cookie:`repocare_login=${token}`}}));assert.equal(response.status,200);return (await response.json()).item;};
+  const current=await read();assert.equal(current.reviewSnapshot.state,'current');assert.equal(current.checks[0].conclusion,'success');
+  changedBody=true;const bodyChanged=await read();assert.equal(bodyChanged.reviewSnapshot.state,'stale');assert.equal(bodyChanged.checks[0].conclusion,'success');
+  changedBody=false;changedPatch=true;assert.equal((await read()).reviewSnapshot.state,'stale');
+  assert.equal(writes,0);assert.equal(getPullRequestReview(owner,repoUrl,45)!.revision,1);
 });
 test('mock model + routes cover analyze, repair, confirm, draft, stale publish without actual writes', async t => {
   const token=saveGithubAccount('pr-flow','reviewer','fake',true), owner=accountSession(token)!;
