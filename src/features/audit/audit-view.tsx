@@ -88,12 +88,19 @@ function downloadReport(report: AuditReport, format: 'json' | 'md') {
 }
 
 function Report({ report, onNotify, onJourney }: { report: AuditReport; onNotify: (message: string) => void; onJourney: () => void }) {
-  const [filter, setFilter] = useState<(typeof filters)[number]>('全部');
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [filter, setFilter] = useState<(typeof filters)[number]>(() => {
+    const value = typeof window === 'undefined' ? null : new URL(window.location.href).searchParams.get('category');
+    return filters.find(item => item === value) || '全部';
+  });
+  const [statusFilter, setStatusFilter] = useState<keyof typeof checkLabels | 'all'>(() => {
+    const value = typeof window === 'undefined' ? null : new URL(window.location.href).searchParams.get('status');
+    return value === 'pass' || value === 'needs_attention' || value === 'unknown' ? value : 'all';
+  });
+  const [expanded, setExpanded] = useState<string | null>(() => typeof window === 'undefined' ? null : new URL(window.location.href).searchParams.get('check'));
   const passed = report.checks.filter(item => item.status === 'pass').length;
   const attention = report.checks.filter(item => item.status === 'needs_attention').length;
   const unknown = report.checks.filter(item => item.status === 'unknown').length;
-  const visible = report.checks.filter(item => filter === '全部' || item.category === filter).sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+  const visible = report.checks.filter(item => (filter === '全部' || item.category === filter) && (statusFilter === 'all' || item.status === statusFilter)).sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
   return <section className="aw-report" aria-labelledby="aw-report-title">
     <div className="aw-section-heading"><div><span className="aw-section-label"><ShieldCheck size={15} aria-hidden="true" />本次体检报告</span><h2 id="aw-report-title">{report.repository.fullName}</h2><p><GitBranch size={13} aria-hidden="true" />{report.repository.branch}<code>{report.repository.sha.slice(0, 7)}</code><span>{dateLabel(report.generatedAt)}</span></p></div><div className="aw-downloads"><button className="button button-primary" type="button" onClick={onJourney}><Route size={14} />验证贡献路径</button><Link className="button button-secondary" href="/overview">查看项目概览</Link>{(['md', 'json'] as const).map(format => <button key={format} className="button button-secondary" onClick={() => { downloadReport(report, format); onNotify(`已导出 ${format === 'md' ? 'Markdown' : 'JSON'} 体检报告。`); }}><Download size={14} aria-hidden="true" />{format === 'md' ? 'Markdown' : 'JSON'}</button>)}</div></div>
     <div className="aw-report-stats"><div><strong>{passed}</strong><span><Check size={14} aria-hidden="true" />检查通过</span></div><div><strong>{attention}</strong><span><CircleDashed size={14} aria-hidden="true" />待完善</span></div><div><strong>{unknown}</strong><span><CircleHelp size={14} aria-hidden="true" />无法判断</span></div><p>{report.scope}<span>检查结果对应本次提交，不是项目质量评分。</span></p></div>
@@ -102,6 +109,7 @@ function Report({ report, onNotify, onJourney }: { report: AuditReport; onNotify
     {report.warnings.length > 0 && <div className="aw-notice aw-notice-warning"><Info size={15} aria-hidden="true" /><ul>{report.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
     <div className="mv-section-title"><div><h2>维护检查清单</h2><p>先查看待完善项，展开结论可核对原始文件。</p></div><span className="mv-small-meta">共 {report.checks.length} 项检查</span></div>
     <div className="mv-filter-row" aria-label="按检查类别筛选">{filters.map(item => <button key={item} className={`mv-filter ${filter === item ? 'mv-filter-active' : ''}`} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}<span>{item === '全部' ? report.checks.length : report.checks.filter(check => check.category === item).length}</span></button>)}</div>
+    <div className="mv-filter-row" aria-label="按检查状态筛选">{(['all', 'needs_attention', 'unknown', 'pass'] as const).map(item => <button key={item} type="button" className={`mv-filter ${statusFilter === item ? 'mv-filter-active' : ''}`} aria-pressed={statusFilter === item} onClick={() => setStatusFilter(item)}>{item === 'all' ? '全部状态' : checkLabels[item]}</button>)}</div>
     <div className="mv-check-list"><div className="mv-list-head" aria-hidden="true"><span>检查项目</span><span>状态</span><span /></div>{visible.map(item => {
       const open = expanded === item.id;
       const statusClass = item.status === 'pass' ? 'passed' : item.status === 'needs_attention' ? 'pending' : 'unknown';
@@ -143,13 +151,16 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
   const rememberRun = useCallback((id: string) => {
     selectedRunId.current = id;
     try { localStorage.setItem(lastRunKey, id); } catch { /* URL recovery remains available. */ }
-    const url = new URL(window.location.href); url.searchParams.delete('new'); url.searchParams.set('run', id);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('run') !== id) for (const key of ['category', 'status', 'check']) url.searchParams.delete(key);
+    url.searchParams.delete('new'); url.searchParams.set('run', id);
     window.history.replaceState(window.history.state, '', url);
   }, []);
 
   const loadRun = useCallback(async (id: string) => {
     const version = ++loadVersion.current;
-    const requestedPanel = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('tab') === 'journey' ? 'journey' : 'conversation';
+    const tab = typeof window !== 'undefined' ? new URL(window.location.href).searchParams.get('tab') : null;
+    const requestedPanel = tab === 'journey' || tab === 'report' ? tab : 'conversation';
     selectedRunId.current = id; setLoading(true); setError(''); setRun(null); setConnected(false); setPanel(requestedPanel); setHistoryOpen(false);
     try {
       const snapshot = await request<AuditRun>(`/api/audit/runs/${encodeURIComponent(id)}`);
@@ -254,7 +265,7 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
     ++loadVersion.current; selectedRunId.current = null;
     setRun(null); setRepoUrl(''); setError(''); setLoading(false); setPanel('conversation'); setHistoryOpen(false);
     try { localStorage.removeItem(lastRunKey); } catch { /* Optional preference. */ }
-    const url = new URL(window.location.href); url.searchParams.delete('run'); url.searchParams.delete('tab'); window.history.replaceState(window.history.state, '', url);
+    const url = new URL(window.location.href); for (const key of ['run', 'tab', 'category', 'status', 'check']) url.searchParams.delete(key); window.history.replaceState(window.history.state, '', url);
     window.setTimeout(() => document.getElementById('as-repo-url')?.focus(), 0);
   }
   const stages = run?.nodes || nodeDefinitions.map(item => ({ ...item, status: 'pending' as const, message: '等待发起任务' }));
@@ -262,7 +273,7 @@ export function AuditView({ onNotify }: { onNotify: (message: string) => void })
   function selectPanel(next: 'conversation' | 'report' | 'journey') {
     setPanel(next);
     const url = new URL(window.location.href);
-    if (next === 'journey') url.searchParams.set('tab', 'journey'); else url.searchParams.delete('tab');
+    if (next !== 'conversation') url.searchParams.set('tab', next); else url.searchParams.delete('tab');
     window.history.replaceState(window.history.state, '', url);
   }
 

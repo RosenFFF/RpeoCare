@@ -38,7 +38,7 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 
 工作台入口 `/workspace` 按当前项目状态跳转：优先恢复当前项目成功报告或首次执行任务，已有项目但无报告时进入概览引导；首次 GitHub 登录且尚未连接项目时进入 `/projects` 仓库选择页，匿名/邮箱无项目时仍进入体检。项目选择不自动创建任务或调用模型，详见 [PROJECT_SELECTION.md](PROJECT_SELECTION.md)。概览仅显示当前仓库与分支的最近成功报告；首次未完成时显示引导，重新体检、失败或取消时保留上次成功结果。报告直接按项目查询，不受历史列表分页影响。
 
-项目概览保留原有 3D 维护地图，检查项来自真实报告，草稿数量来自当前项目。Issue / PR 数量通过独立 GitHub 请求获取，区分加载、零值和不可用，不阻塞报告展示；概览定时刷新并响应工作区切换与体检完成事件。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。
+项目概览保留 3D 维护地图，并在维护观测中展示真实报告的结果构成、类别分布和最近十二份成功报告的变化；图表联动最多三项后续事项，并可带筛选打开完整报告。未知状态保留独立语义，历史口径不一致时不推断改善幅度，详见 [OVERVIEW_INSIGHTS.md](OVERVIEW_INSIGHTS.md)。草稿数量来自当前项目；Issue / PR 数量通过独立 GitHub 请求获取，区分加载、零值和不可用，不阻塞报告展示。概览定时刷新并响应工作区切换与体检完成事件。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。
 
 
 ## Issue 复现执行链

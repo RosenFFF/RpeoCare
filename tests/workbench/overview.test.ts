@@ -68,3 +68,49 @@ test('entry preserves browser host even when Next normalizes the request URL', (
   const response = entry(new NextRequest('http://localhost:3000/workspace', { headers: { host: '127.0.0.1:3000' } }));
   assert.equal(new URL(response.headers.get('location')!).host, '127.0.0.1:3000');
 });
+
+test('overview history contains twelve real successful snapshots scoped to the selected owner, repository and branch', () => {
+  const owner = 'history-owner';
+  saveProject(owner, { repoUrl, fullName: 'example/project' });
+  const ids: string[] = [];
+  for (let index = 0; index < 14; index++) {
+    const run = createRun(owner, repoUrl); complete(run.id); ids.push(run.id);
+    updateRun(run.id, value => {
+      value.report!.checks = [
+        { id: 'readme', title: 'README', category: '文档', status: 'pass', summary: '', evidence: [], source: 'rule' },
+        { id: 'license', title: 'LICENSE', category: '文档', status: 'needs_attention', summary: '', evidence: [], source: 'rule' },
+        { id: 'tests', title: 'Tests', category: '工程', status: 'unknown', summary: '', evidence: [], source: 'rule' },
+      ];
+    });
+  }
+  const failed = createRun(owner, repoUrl); updateRun(failed.id, run => { run.status = 'failed'; });
+  const otherBranch = createRun(owner, repoUrl, undefined, undefined, 'release'); complete(otherBranch.id);
+  const otherRepository = createRun(owner, 'https://github.com/example/other'); complete(otherRepository.id);
+  const otherOwner = createRun('history-other-owner', repoUrl); complete(otherOwner.id);
+  const before = db().prepare('SELECT state FROM audit_runs ORDER BY rowid').all();
+  const overview = getOverview(owner);
+  assert.deepEqual(overview.history.map(point => point.runId), ids.slice(-12));
+  assert.equal(overview.history.at(-1)?.runId, overview.report?.runId);
+  assert.ok(overview.history.every(point => point.pass === 1 && point.needs_attention === 1 && point.unknown === 1 && point.total === 3));
+  assert.ok(overview.history.every(point => point.agentStatus === 'disabled' && point.checkSet.includes('tests')));
+  assert.deepEqual(db().prepare('SELECT state FROM audit_runs ORDER BY rowid').all(), before);
+  assert.deepEqual(getOverview('unknown-owner').history, []);
+});
+
+test('history preserves zero check counts and records differing check scope without inventing a score', () => {
+  const owner = 'history-scope-owner';
+  saveProject(owner, { repoUrl, fullName: 'example/project' });
+  const first = createRun(owner, repoUrl); complete(first.id);
+  const second = createRun(owner, repoUrl); complete(second.id);
+  updateRun(second.id, value => {
+    value.report!.agentStatus = 'completed';
+    value.report!.checks = [{ id: 'content', title: 'Content', category: '文档', status: 'unknown', summary: '', evidence: [], source: 'agent' }];
+  });
+  const history = getOverview(owner).history;
+  assert.equal(history[0].total, 0);
+  assert.equal(history[0].pass, 0);
+  assert.equal(history[1].unknown, 1);
+  assert.notEqual(history[0].checkSet, history[1].checkSet);
+  assert.notEqual(history[0].agentStatus, history[1].agentStatus);
+  assert.equal('score' in history[1], false);
+});
