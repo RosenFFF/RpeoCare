@@ -194,7 +194,15 @@ export interface PullRequestReview {
   analyzedAt: string;
   promptVersion: string;
 }
-export interface GitItem { number: number; title: string; body: string; url: string; state: string; author: string; updatedAt: string; labels: string[]; commentCount?: number; assignees?: string[]; milestone?: string | null; headSha?: string; baseSha?: string; totalChangedFiles?: number; filesTruncated?: boolean; headRef?: string; baseRef?: string; isDraft?: boolean; checks?: PullRequestCheck[]; checksAvailable?: boolean; snapshotWarnings?: string[]; linkedIssues?: { number: number; title: string; body: string; url: string }[]; comments?: GitComment[]; triage?: IssueTriage; files?: { path: string; status: string; additions: number; deletions: number; patch?: string; patchTruncated?: boolean }[] }
+export interface PullReviewSnapshot {
+  state: 'current' | 'stale';
+  findingCount: number;
+  openFindingCount: number;
+  acceptedFindingCount: number;
+  analyzedAt: string;
+}
+export interface RelatedPullEvidence { number: number; title: string; url: string; headSha: string; analyzedAt: string }
+export interface GitItem { number: number; title: string; body: string; url: string; state: string; author: string; updatedAt: string; labels: string[]; commentCount?: number; assignees?: string[]; milestone?: string | null; headSha?: string; baseSha?: string; totalChangedFiles?: number; filesTruncated?: boolean; headRef?: string; baseRef?: string; isDraft?: boolean; checks?: PullRequestCheck[]; checksAvailable?: boolean; snapshotWarnings?: string[]; linkedIssues?: { number: number; title: string; body: string; url: string }[]; reviewSnapshot?: PullReviewSnapshot; relatedPulls?: RelatedPullEvidence[]; comments?: GitComment[]; triage?: IssueTriage; files?: { path: string; status: string; additions: number; deletions: number; patch?: string; patchTruncated?: boolean }[] }
 /** Where a draft came from, so reviewers can trace generated text back to the
  * report or GitHub item that supplied its context. Optional for old drafts. */
 export type DraftSource =

@@ -57,7 +57,7 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 
 ## 维护收件列表（2026-10-05）
 
-Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用收件列表，不再各自采用双栏/卡片布局。列表的快捷视图、搜索、维度筛选、排序和分页属于同一工作区；记录按内容自然收缩，点击后进入全宽详情，返回恢复筛选和焦点。分类纯函数位于 inbox-model.ts，布局独立于已有详情/服务端审查逻辑。详见 REVIEW_INBOX.md。
+Issue 与 PR 使用 `features/workbench/review-inbox.tsx` 共用筛选、分页和详情导航，默认分别进入问题脉冲场与合并流，也可切换精确列表。动态视图由 `maintenance-pulse.tsx` 按准备度、优先级、讨论量和可验证的审查证据排列记录；列表接口将 SQLite 中与当前 head SHA 匹配的 PR 审查摘要合入 GitHub 数据，并用已保存的显式关联建立 Issue↔PR 证据桥。未知 CI 和过期审查不被推断为通过。分类纯函数位于 inbox-model.ts，视图不改变已有详情、分析、人工确认和发布边界。详见 REVIEW_INBOX.md。
 
 
 ## 规范改进与草稿审阅（2026-10-07）

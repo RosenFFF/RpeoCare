@@ -86,6 +86,9 @@ export function getPullRequestReview(owner: string, repoUrl: string, number: num
   const row = workbenchDb().prepare('SELECT state FROM pull_request_reviews WHERE owner=? AND repo_url=? AND number=?').get(owner, repoUrl, number) as { state: string } | undefined;
   return row ? JSON.parse(row.state) as PullRequestReview : null;
 }
+export function listPullRequestReviews(owner: string, repoUrl: string): PullRequestReview[] {
+  return (workbenchDb().prepare('SELECT state FROM pull_request_reviews WHERE owner=? AND repo_url=? ORDER BY updated_at DESC').all(owner, repoUrl) as { state: string }[]).map(row => JSON.parse(row.state) as PullRequestReview);
+}
 export function savePullRequestReview(owner: string, repoUrl: string, review: PullRequestReview): PullRequestReview {
   const database = workbenchDb();
   database.exec('BEGIN IMMEDIATE');

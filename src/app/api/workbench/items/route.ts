@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
-import { getIssueTriage, getProject, listIssueTriages } from '@/server/workbench/store';
+import { getIssueTriage, getProject, listIssueTriages, listPullRequestReviews } from '@/server/workbench/store';
 import { getItem, listItems, updateIssue } from '@/server/github/api';
 
 export async function GET(request: NextRequest) {
@@ -17,11 +17,40 @@ export async function GET(request: NextRequest) {
       return jsonResponse({ item: kind === 'issues' ? { ...item, triage: getIssueTriage(owner, project.repoUrl, number) || undefined } : item });
     }
     const items = await listItems(owner, project.repoUrl, kind, page);
+    const reviews = listPullRequestReviews(owner, project.repoUrl);
     if (kind === 'issues') {
       const triages = new Map(listIssueTriages(owner, project.repoUrl, items.map(item => item.number)).map(triage => [triage.number, triage]));
-      return jsonResponse({ items: items.map(item => ({ ...item, triage: triages.get(item.number) })), page });
+      const relatedPulls = new Map<number, { number: number; title: string; url: string; headSha: string; analyzedAt: string }[]>();
+      for (const review of reviews) for (const issue of review.linkedIssues || []) {
+        const related = relatedPulls.get(issue.number) || [];
+        related.push({ number: review.number, title: review.title, url: `${project.repoUrl}/pull/${review.number}`, headSha: review.headSha, analyzedAt: review.analyzedAt });
+        relatedPulls.set(issue.number, related);
+      }
+      return jsonResponse({ items: items.map(item => ({
+        ...item,
+        triage: triages.get(item.number),
+        relatedPulls: relatedPulls.get(item.number),
+      })), page });
     }
-    return jsonResponse({ items, page });
+    const reviewsByNumber = new Map(reviews.map(review => [review.number, review]));
+    return jsonResponse({ items: items.map(item => {
+      const review = reviewsByNumber.get(item.number);
+      if (!review) return item;
+      const current = Boolean(item.headSha && review.headSha === item.headSha && (!item.baseSha || !review.baseSha || review.baseSha === item.baseSha));
+      return {
+        ...item,
+        checks: current ? review.checks : undefined,
+        checksAvailable: current ? review.checksAvailable : undefined,
+        linkedIssues: current ? review.linkedIssues : undefined,
+        reviewSnapshot: {
+          state: current ? 'current' : 'stale',
+          findingCount: review.findings.length,
+          openFindingCount: review.findings.filter(finding => finding.status === 'open').length,
+          acceptedFindingCount: review.findings.filter(finding => finding.status === 'accepted').length,
+          analyzedAt: review.analyzedAt,
+        },
+      };
+    }), page });
   } catch (error) { return errorResponse(error instanceof Error ? error.message : '无法读取 GitHub 数据。'); }
 }
 
