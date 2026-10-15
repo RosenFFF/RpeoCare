@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Activity, ArrowRight, ChevronLeft, ChevronRight, CircleDot, GitPullRequest, Rows3, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Activity, ArrowRight, ChevronLeft, ChevronRight, CircleDot, GitPullRequest, RefreshCw, Rows3, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { GitItem, IssueCategory, IssuePriority, IssueWorkflowStatus } from '@/contracts/workbench';
 import { inboxDate, inScope, issueCategories, issueClassification, issuePriorities, issueStates, pullClassification, pullTypes, type InboxScope, type PullType } from './inbox-model';
 import { MaintenancePulse } from './maintenance-pulse';
@@ -19,11 +19,12 @@ type Props = {
   onOpen: (item: GitItem) => void;
   onPage: (page: number) => void;
   onBatch: (numbers: number[]) => void;
+  onRefresh?: () => void;
 };
 
 type InboxMode = 'pulse' | 'list';
 
-export function ReviewInbox({ kind, items, page, connected, busy, loading, hidden, failed, onOpen, onPage, onBatch }: Props) {
+export function ReviewInbox({ kind, items, page, connected, busy, loading, hidden, failed, onOpen, onPage, onBatch, onRefresh }: Props) {
   const issues = kind === 'issues';
   const title = issues ? 'Issue' : 'PR';
   const [mode, setMode] = useState<InboxMode>('pulse');
@@ -76,7 +77,12 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
   </section>;
 
   const canvasMode = mode === 'pulse';
-  const scopeControls = <div className="inbox-scopes" role="group" aria-label={`${title} 快捷视图`}>{scopes.map(view => <button type="button" key={view.id} aria-pressed={scope === view.id} onClick={() => { setScope(view.id); setCategory('all'); setWorkflow('all'); setPriority('all'); }}><span>{view.label}</span><span className="inbox-count">{items.filter(item => inScope(item, kind, view.id)).length}</span></button>)}</div>;
+  const shortcutScopes = issues && canvasMode ? scopes.filter(view => {
+    if (view.id === 'all' || view.id === scope) return true;
+    const count = items.filter(item => inScope(item, kind, view.id)).length;
+    return count > 0 && count < items.length;
+  }) : scopes;
+  const scopeControls = <div className="inbox-scopes" role="group" aria-label={`${title} 快捷视图`}>{shortcutScopes.map(view => <button type="button" key={view.id} aria-pressed={scope === view.id} onClick={() => { setScope(view.id); setCategory('all'); setWorkflow('all'); setPriority('all'); }}><span>{view.label}</span><span className="inbox-count">{items.filter(item => inScope(item, kind, view.id)).length}</span></button>)}</div>;
   const searchControl = <label className="inbox-search"><Search size={16} aria-hidden="true" /><input aria-label={`搜索 ${title}`} value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索标题、编号、作者或标签" /><span className="inbox-search-key">筛选本页</span></label>;
   const typeControl = <label className="inbox-filter"><SlidersHorizontal size={14} aria-hidden="true" /><span>{issues ? '问题类型' : '变更类型'}</span><select aria-label={issues ? '问题类型' : '变更类型'} value={category} onChange={event => setCategory(event.target.value as typeof category)}><option value="all">全部类型</option>{Object.entries(issues ? issueCategories : pullTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>;
   const empty = !loading && !visible.length;
@@ -90,10 +96,11 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
       {filtered && <button type="button" className="inbox-canvas-reset" aria-label={`清除 ${title} 筛选`} onClick={reset}><X size={15} aria-hidden="true" /></button>}
       {issues && <button type="button" className="inbox-canvas-batch" disabled={busy || loading || !pending.length} title="每次最多分诊 12 条" aria-label={`分诊当前筛选前 ${pending.length} 条 Issue，每次最多 12 条`} onClick={() => onBatch(pending)}>分诊 {pending.length} 条</button>}
       <button type="button" className="inbox-canvas-list" onClick={() => setMode('list')}><Rows3 size={15} aria-hidden="true" />列表</button>
+      {issues && onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label="刷新 Issue" title="刷新 Issue" onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}
     </div> : <>
     <div className="inbox-views">
       {scopeControls}
-      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '工作地图' : '汇流图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div></div>
+      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '工作地图' : '汇流图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div>{issues && onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label="刷新 Issue" onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}</div>
     </div>
     <div className="inbox-toolbar">
       {searchControl}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, CheckCheck, ChevronRight, CircleDot, Compass, FileQuestion, FlaskConical, Focus, Info, Link2, Map, MessageSquare, Minus, Plus, RefreshCw, Scan, ShieldQuestion, X } from 'lucide-react';
 import type { GitItem } from '@/contracts/workbench';
 import { inboxDate, issueCategories, issueClassification, issuePriorities, issueStates } from './inbox-model';
@@ -56,13 +56,32 @@ export function IssueWorkMap({ items, busy, onOpen }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [exploring, setExploring] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusGroup = groups.find(group => group.key === focusKey);
+  const unifiedGroup = focusGroup ?? (groups.length === 1 ? groups[0] : undefined);
   const shownGroups = focusGroup ? [focusGroup] : groups;
   const active = items.find(item => item.url === selected);
   const fields = active ? issueClassification(active) : undefined;
   const high = items.filter(item => issueClassification(item).priority === 'high').length;
   const stale = items.filter(item => issueClassification(item).stale).length;
+
+  useEffect(() => {
+    const element = body.current;
+    if (!element) return;
+    function measure() {
+      if (!element?.getClientRects().length) return;
+      const top = stage.current?.getBoundingClientRect().top ?? element.getBoundingClientRect().top;
+      element.style.setProperty('--issue-map-height', `${Math.max(260, window.innerHeight - top - 42)}px`);
+    }
+    const observer = new ResizeObserver(measure);
+    const page = element.closest('.review-page');
+    observer.observe(element);
+    if (page) observer.observe(page);
+    window.addEventListener('resize', measure);
+    measure();
+    return () => { observer.disconnect(); window.removeEventListener('resize', measure); };
+  }, []);
 
   function changeFocus(key: IssueActionKey | null) {
     setFocusKey(key);
@@ -78,17 +97,25 @@ export function IssueWorkMap({ items, busy, onOpen }: Props) {
   function closeEvidence() {
     const number = active?.number;
     setSelected(null);
-    requestAnimationFrame(() => (document.getElementById(`inbox-row-issues-${number}`) ?? document.getElementById(`issue-map-marker-${number}`))?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      const target = document.getElementById(`inbox-row-issues-${number}`) ?? document.getElementById(`issue-map-marker-${number}`);
+      const foldedIndex = target?.closest('details');
+      if (foldedIndex) foldedIndex.open = true;
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
   }
 
   return <section className="issue-work-map" aria-label="Issue 分诊工作地图" onKeyDown={event => { if (event.key === 'Escape' && active) { event.stopPropagation(); closeEvidence(); } }}>
-    <header className="issue-map-heading"><div><Map size={18} aria-hidden="true" /><h2>分诊工作地图</h2><span>当前筛选 {items.length} 条</span></div><button type="button" aria-pressed={exploring} onClick={() => setExploring(value => !value)}>{exploring ? <><ArrowLeft size={15} />返回阅读视图</> : <><Scan size={15} />探索画布</>}</button></header>
-    <div className="issue-map-orientation"><p>先选要做的事，再看具体问题。点击问题查看依据。</p><span>{high > 0 ? <b>{high} 条已有高优先级</b> : '优先级以已有分诊为准'}{stale > 0 && <em>{stale} 条原文更新</em>}</span></div>
-    <div className={`issue-map-body${active ? ' has-evidence' : ''}`}>
-      <div className="issue-map-workspace">
-        <nav className="issue-action-nav" aria-label="按下一步动作聚焦"><button type="button" aria-pressed={!focusGroup} onClick={() => changeFocus(null)}><Map size={16} aria-hidden="true" /><span>全部分布</span><b>{items.length}</b></button>{groups.map(group => { const Icon = actionIcons[group.key]; return <button key={group.key} type="button" className={`tone-${issueActions[group.key].tone}`} aria-pressed={focusGroup?.key === group.key} onClick={() => changeFocus(group.key)}><Icon size={16} aria-hidden="true" /><span>{issueActions[group.key].label}</span><b>{group.items.length}</b></button>; })}<p><Info size={13} aria-hidden="true" />按已有处理状态分组；空组不占空间。</p></nav>
+    <div ref={body} className={`issue-map-body${active ? ' has-evidence' : ''}`}>
+      <div className={`issue-map-workspace${groups.length <= 1 ? ' is-single-group' : ''}`}>
+        {groups.length > 1 && <nav className="issue-action-nav" aria-label="按下一步动作聚焦"><button type="button" aria-pressed={!focusGroup} onClick={() => changeFocus(null)}><Map size={16} aria-hidden="true" /><span>全部分布</span><b>{items.length}</b></button>{groups.map(group => { const Icon = actionIcons[group.key]; return <button key={group.key} type="button" className={`tone-${issueActions[group.key].tone}`} aria-pressed={focusGroup?.key === group.key} onClick={() => changeFocus(group.key)}><Icon size={16} aria-hidden="true" /><span>{issueActions[group.key].label}</span><b>{group.items.length}</b></button>; })}</nav>}
         <div className="issue-map-stage" ref={stage}>
-          <div className="issue-map-stage-heading"><div><h3 ref={heading} tabIndex={-1}>{focusGroup ? issueActions[focusGroup.key].label : '全部分布'}</h3><span aria-live="polite">{focusGroup ? `展开本组全部 ${focusGroup.items.length} 条` : `${groups.length} 个动作分组 · 编号定位全部问题`}</span></div>{focusGroup && <button type="button" onClick={() => changeFocus(null)}><ArrowLeft size={14} />返回总览</button>}</div>
+          <div className="issue-map-stage-heading"><div><h3 ref={heading} tabIndex={-1}>{unifiedGroup ? issueActions[unifiedGroup.key].label : '全部分布'}</h3><span aria-live="polite">{unifiedGroup ? `${unifiedGroup.items.length} 条${focusGroup ? ' · 已全部展开' : ''}` : `${groups.length} 组`}</span>{high > 0 && <span className="issue-map-high">高优先级 {high}</span>}{stale > 0 && <span className="issue-map-updated">原文更新 {stale}</span>}</div><div className="issue-map-tools">
+            {focusGroup ? <button type="button" onClick={() => changeFocus(null)}><ArrowLeft size={14} />总览</button> : unifiedGroup && <button type="button" onClick={() => changeFocus(unifiedGroup.key)}><Focus size={15} />展开全部</button>}
+            <button type="button" aria-pressed={exploring} onClick={() => setExploring(value => !value)}>{exploring ? <><ArrowLeft size={15} />阅读视图</> : <><Scan size={15} />探索画布</>}</button>
+            <details className="issue-map-help"><summary aria-label="地图说明" title="地图说明"><Info size={16} /></summary><div><p>按已有处理状态分组，点击问题查看依据与下一步。</p><p>优先级以已有分诊为准；原文更新后需重新核对。</p><p>编号定位和完整分组可展开查看，探索画布支持缩放和平移。</p></div></details>
+          </div></div>
           {exploring ? <ExplorationCanvas groups={shownGroups} selected={active?.number ?? null} busy={busy} onSelect={selectItem} /> : <div key={focusGroup?.key ?? 'overview'} className={`issue-action-regions${focusGroup ? ' is-focused' : ''}`}>
             {shownGroups.map(group => {
               const meta = issueActions[group.key];
@@ -96,9 +123,9 @@ export function IssueWorkMap({ items, busy, onOpen }: Props) {
               const limit = focusGroup ? group.items.length : groups.length === 1 ? 6 : 3;
               const preview = group.items.slice(0, limit);
               return <section key={group.key} className={`issue-action-region tone-${meta.tone}${group.items.length === 1 ? ' is-single' : ''}`} aria-label={`${meta.label}，${group.items.length} 条`}>
-                <header className="issue-region-heading"><span className="issue-region-icon"><Icon size={19} aria-hidden="true" /></span><div><h4>{meta.label}<b>{group.items.length}</b></h4><p>{meta.hint}</p></div>{!focusGroup && <button type="button" onClick={() => changeFocus(group.key)} aria-label={`展开${meta.label}全部 ${group.items.length} 条`}><Focus size={15} aria-hidden="true" /><span>展开全部</span></button>}</header>
-                {!focusGroup && <div className="issue-region-index" role="group" aria-label={`${meta.label}全部问题定位`}><span>每个标记是一条 Issue</span><div>{group.items.map(item => <button key={item.number} id={`issue-map-marker-${item.number}`} type="button" className={`priority-${issueClassification(item).priority}${active?.number === item.number ? ' is-selected' : ''}`} title={`#${item.number} ${item.title}`} aria-label={`定位 Issue #${item.number}，${item.title}`} disabled={busy} onClick={() => selectItem(item, true)}>#{item.number}</button>)}</div></div>}
+                {!unifiedGroup && <header className="issue-region-heading"><span className="issue-region-icon"><Icon size={19} aria-hidden="true" /></span><div><h4>{meta.label}<b>{group.items.length}</b></h4><p>{meta.hint}</p></div><button type="button" onClick={() => changeFocus(group.key)} aria-label={`展开${meta.label}全部 ${group.items.length} 条`}><Focus size={15} aria-hidden="true" /><span>展开全部</span></button></header>}
                 <div className="issue-region-signs">{preview.map(item => <IssueSign key={item.number} item={item} selected={active?.number === item.number} busy={busy} onSelect={selectItem} />)}</div>
+                {!focusGroup && <details className="issue-region-index"><summary>编号定位 · {group.items.length} 条</summary><div role="group" aria-label={`${meta.label}全部问题定位`}>{group.items.map(item => <button key={item.number} id={`issue-map-marker-${item.number}`} type="button" className={`priority-${issueClassification(item).priority}${active?.number === item.number ? ' is-selected' : ''}`} title={`#${item.number} ${item.title}`} aria-label={`定位 Issue #${item.number}，${item.title}`} disabled={busy} onClick={() => selectItem(item, true)}>#{item.number}</button>)}</div></details>}
                 {!focusGroup && group.items.length > preview.length && <button className="issue-region-more" type="button" onClick={() => changeFocus(group.key)}>当前预览 {preview.length} 条，展开其余 {group.items.length - preview.length} 条<ChevronRight size={15} aria-hidden="true" /></button>}
               </section>;
             })}
