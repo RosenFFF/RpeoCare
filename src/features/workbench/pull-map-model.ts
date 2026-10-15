@@ -1,22 +1,26 @@
 import type { GitItem } from '@/contracts/workbench';
-import { pullClassification, type PullType } from './inbox-model';
 
-export const pullLaneOrder: PullType[] = ['feature', 'fix', 'docs', 'dependency', 'other'];
-export const pullCardWidth = 268;
-export const pullCardHeight = 172;
-export const pullCardPitch = 194;
-export const pullCardsTop = 192;
-
-/** Category lanes describe navigation hints, never a severity ranking. */
-export function pullMapLayout(items: GitItem[], expanded: ReadonlySet<PullType>) {
-  const groups = pullLaneOrder.map(type => ({ type, items: items.filter(item => pullClassification(item) === type) })).filter(group => group.items.length);
-  const lanes = groups.map((group, index) => {
-    const left = 30 + index * 304;
-    const shown = expanded.has(group.type) ? group.items : group.items.slice(0, 2);
-    return { ...group, left, center: left + pullCardWidth / 2, hidden: group.items.length - shown.length,
-      nodes: shown.map((item, row) => ({ item, left, top: pullCardsTop + row * pullCardPitch })),
-      moreTop: pullCardsTop + shown.length * pullCardPitch,
-    };
+/** Preserve the confluence relationship; spacing reserves the full text footprint. */
+export function pullMapLayout(items: GitItem[], compact = false) {
+  const nodeWidth = compact ? 224 : 256;
+  const nodeHeight = compact ? 236 : 252;
+  const columnPitch = compact ? 268 : 300;
+  const rowPitch = compact ? 270 : 294;
+  const byBase = new Map<string, GitItem[]>();
+  for (const item of items) {
+    const base = item.baseRef || '目标分支未知';
+    const group = byBase.get(base) || [];
+    group.push(item); byBase.set(base, group);
+  }
+  let top = 0;
+  const groups = [...byBase].map(([base, pulls]) => {
+    const columns = pulls.length <= 6 ? Math.min(3, pulls.length) : Math.min(4, Math.ceil(Math.sqrt(pulls.length * 1.4)));
+    const height = Math.max(370, Math.ceil(pulls.length / columns) * rowPitch + 90);
+    const width = columns * columnPitch + 210;
+    const hub = { x: columns * columnPitch + 100, y: top + Math.min(height / 2, 330) };
+    const nodes = pulls.map((item, index) => ({ item, x: 28 + nodeWidth / 2 + index % columns * columnPitch, y: top + 74 + Math.floor(index / columns) * rowPitch + (index % columns % 2 ? 22 : 0), channelY: top + 12 + Math.floor(index / columns) * rowPitch + index % columns * 4, portY: hub.y + (index - (pulls.length - 1) / 2) * Math.min(8, 200 / pulls.length) }));
+    const group = { base, nodes, hub, top, width, height }; top += height + 50;
+    return group;
   });
-  return { lanes, width: Math.max(328, lanes.length * 304 + 24), height: Math.max(430, ...lanes.map(lane => lane.moreTop + (lane.items.length > 2 ? 66 : 18))), visibleCount: lanes.reduce((sum, lane) => sum + lane.nodes.length, 0) };
+  return { groups, width: Math.max(510, ...groups.map(group => group.width)), height: Math.max(370, top - 50), nodeWidth, nodeHeight };
 }

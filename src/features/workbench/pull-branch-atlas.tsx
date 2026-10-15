@@ -96,9 +96,9 @@ export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScop
     {!page && loading ? <div className="branch-atlas-empty" role="status"><LoaderCircle className="branch-spin" size={23} /><strong>正在读取仓库分支</strong><p>包括暂时没有开放 PR 的分支。</p></div> : <>
       <div className="branch-atlas-grid" ref={grid} onScroll={event => { gridScroll.current = event.currentTarget.scrollTop; }} aria-label="仓库分支，选择后展开开放的 PR" aria-busy={loading}>
         {visible.map(branch => <button type="button" className={`branch-station${branch.name === defaultBranch ? ' is-default' : ''}`} key={branch.name} disabled={busy || loading} aria-label={`展开 ${branch.name} 分支的开放 PR${branch.name === defaultBranch ? '，默认分支' : ''}${branch.protected ? '，受保护' : ''}`} onClick={() => scope.onSelect(branch.name)}>
-          <span className="branch-station-track" aria-hidden="true"><i /><GitBranch size={22} /><i /></span>
+          <span className="branch-station-track" aria-hidden="true"><i /><GitBranch size={30} /><i /></span>
           <span className="branch-station-name"><strong title={branch.name}>{branch.name}</strong><span>{branch.name === defaultBranch && <em><Star size={11} />默认</em>}{branch.protected && <em><ShieldCheck size={11} />受保护</em>}</span></span>
-          <span className="branch-station-sha">最新提交 <code>{branch.commitSha?.slice(0, 8) || '未知'}</code></span>
+          <span className="branch-station-facts"><span><small>最新提交</small><code>{branch.commitSha?.slice(0, 10) || '未知'}</code></span><span><small>GitHub 保护标记</small><b>{branch.protected ? '已标记' : '未标记'}</b></span></span>
           <span className="branch-station-open">展开此分支的 PR<ArrowRight size={15} /></span>
         </button>)}
       </div>
