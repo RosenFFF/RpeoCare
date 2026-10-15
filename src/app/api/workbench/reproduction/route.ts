@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
-import { cancelReproductionJob, createReproductionJob, getProject, listReproductionJobs, queueReproductionJob, withOperation } from '@/server/workbench/store';
+import { cancelReproductionJob, createReproductionJob, getProject, getReproductionJob, listReproductionJobs, queueReproductionJob, withOperation } from '@/server/workbench/store';
 import { getBranchCommit, getItem } from '@/server/github/api';
 import { assistant } from '@/server/workbench/assistant';
 import { analyzeIssue } from '@/server/workbench/triage';
@@ -36,7 +36,10 @@ export async function POST(request: NextRequest) {
     if (!owner || !project) return errorResponse('请先连接项目。', 404);
     const input = actionSchema.parse(await smallJson(request, 20_000));
     if (input.action === 'cancel') return jsonResponse({ job: cancelReproductionJob(owner, input.id, project.repoUrl) });
-    if (input.action === 'confirm') return jsonResponse({ job: queueReproductionJob(owner, input.id, project.repoUrl), workerOnline: reproductionWorkerOnline() });
+    if (input.action === 'confirm') {
+      if(getReproductionJob(owner,input.id).agentTaskId)throw new Error('此计划属于项目Agent任务，请在原任务中审阅并确认执行。');
+      return jsonResponse({ job: queueReproductionJob(owner, input.id, project.repoUrl), workerOnline: reproductionWorkerOnline() });
+    }
     return await withOperation(owner, `reproduction-plan:${input.number}`, async () => {
       const [{ branch, sha }, item] = await Promise.all([getBranchCommit(owner, project.repoUrl, project.branch, request.signal), getItem(owner, project.repoUrl, 'issues', input.number, request.signal)]);
       const triage = await analyzeIssue(owner, project.repoUrl, item, request.signal, input.force === true);

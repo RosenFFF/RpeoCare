@@ -180,15 +180,15 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
       const finishedAt = new Date().toISOString();
       history.push({ index, result: outcome.result, durationMs: outcome.durationMs, summary: outcome.summary, startedAt, finishedAt });
       const reproduced = history.filter(item => item.result === 'reproduced').length;
-      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, verificationSteps: outcome.verificationSteps, phase: 'execution', currentAttempt: index, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: `第 ${index} 次验证已完成`, progress: job.purpose === 'contributor-journey' ? `已完成 ${index}/${total} 次贡献路径验证` : `已完成 ${index}/${total} 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
+      job = updateReproductionJob(owner, job.id, { attempts: history.length, successfulAttempts: reproduced, attemptHistory: history, verificationSteps: outcome.verificationSteps, phase: 'execution', currentAttempt: index, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: `第 ${index} 次验证已完成`, progress: job.plan.oracle.type === 'all-steps-pass' ? `已完成 ${index}/${total} 次命令验证，其中 ${reproduced} 次所有计划内命令通过` : `已完成 ${index}/${total} 次隔离验证，其中 ${reproduced} 次观察到故障信号` });
     }
     const reproduced = history.filter(item => item.result === 'reproduced').length;
     const failures = history.filter(item => item.result === 'failed').length;
-    const threshold = job.purpose === 'contributor-journey' ? total : Math.min(2, total);
+    const threshold = job.plan.oracle.type === 'all-steps-pass' ? total : Math.min(2, total);
     const result: ReproductionResult = reproduced >= threshold ? 'reproduced' : failures === total ? 'failed' : 'not-reproduced';
     const status = result;
     const artifacts = await collectArtifacts(jobDir);
-    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: total, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: job.purpose === 'contributor-journey' ? result === 'reproduced' ? '贡献路径已完整走通，执行证据已保存' : '贡献路径存在阻塞，执行证据已保存' : reproduced >= threshold ? `稳定复现：${total} 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：${total} 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
+    updateReproductionJob(owner, job.id, { status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: total, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: job.plan.oracle.type === 'all-steps-pass' ? result === 'reproduced' ? '此版本计划内命令全部通过，执行证据已保存' : '此版本命令验证存在阻塞，执行证据已保存' : reproduced >= threshold ? `稳定复现：${total} 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：${total} 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
   } catch (error) {
     const message = error instanceof Error ? error.message : '复现执行失败。';
     const blocked = /尚未启用|Docker|Runner 镜像|仓库快照|沙箱网络默认关闭/.test(message);

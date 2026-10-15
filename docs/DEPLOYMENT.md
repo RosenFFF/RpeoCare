@@ -2,9 +2,9 @@
 
 ## 开发与生产
 
-开发：`npm run dev` 同时启动 Web/Worker。生产：`npm run build` 后 `npm start`。多个 Worker 可另开终端执行 `npm run worker`，必须共享同一个 SQLite 文件和主密钥。
+开发：`npm run dev` 同时启动 Web、体检、复现和维护 Agent Worker。生产：`npm run build` 后 `npm start`。已有 Web 时，体检使用 `npm run worker`，维护 Agent 使用 `npm run agent-worker`；所有进程必须共享同一个 SQLite 文件和主密钥。维护会话与固定源码工具见 [MAINTENANCE_AGENT.md](MAINTENANCE_AGENT.md)。
 
-新增队列使用逐任务租约。进程中断后，过期任务最多自动领取 3 次。文件收集完成后保存快照；恢复时使用同一快照并重新运行规则和 AI，不恢复模型内部会话。服务主动退出将任务重新排队。旧串行 Worker 不应与新 Worker 混跑。
+体检队列使用逐任务租约。进程中断后，过期任务最多自动领取 3 次。文件收集完成后保存快照；体检恢复时使用同一快照并重新运行规则和 AI，不恢复模型内部会话。维护 Agent 使用独立租约和完整轮次的消息检查点。旧串行体检 Worker 不应与新 Worker 混跑。
 
 ## 容器
 

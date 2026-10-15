@@ -6,6 +6,7 @@ import type { AgentProgress, RuntimeConnection } from '../../contracts/models';
 import { outputOptions } from '../models/output-options';
 import { recordUsage } from '../workbench/store';
 import { modelForConnection, withModelTransport } from '../models/adapter';
+import { createPiAgent } from '../agent/core';
 
 // This module is used by the Node worker only. Never import it from a client component.
 export const AGENT_LIMITS = {
@@ -207,7 +208,6 @@ export async function analyzeWithAgent(
     ? { model: await modelForConnection(connection), apiKey: connection.apiKey }
     : await configuredModel();
   const output = outputOptions(connection || { maxTokens: null }, model);
-  const { Agent } = await import('@mariozechner/pi-agent-core');
   const { streamSimple, createAssistantMessageEventStream } = await import('@mariozechner/pi-ai');
   const tools = await createSnapshotTools(snapshot);
   signal.throwIfAborted();
@@ -235,7 +235,7 @@ export async function analyzeWithAgent(
     return streamSimple(currentModel, context, { ...options, ...output,
       timeoutMs: 40_000, maxRetries: 0, maxRetryDelayMs: 1_000, cacheRetention: 'none', transport: 'sse' });
   };
-  const agent = new Agent({
+  const agent = await createPiAgent({
     initialState: { model, systemPrompt, tools, thinkingLevel: 'off' },
     getApiKey: () => apiKey || 'local',
     streamFn: boundedStream,

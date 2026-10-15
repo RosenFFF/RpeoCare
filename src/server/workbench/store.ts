@@ -116,9 +116,9 @@ export function updatePullRequestFinding(owner: string, repoUrl: string, number:
   } catch (error) { database.exec('ROLLBACK'); throw error; }
 }
 
-export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan }): ReproductionJob {
+export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan; agentTaskId?: string; verificationRole?: 'baseline' | 'patched' }): ReproductionJob {
   const now = new Date().toISOString();
-  const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: '复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
+  const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, ...(input.agentTaskId?{agentTaskId:input.agentTaskId}:{}), ...(input.verificationRole?{purpose:'agent-verification' as const,verificationRole:input.verificationRole}:{}), plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: input.verificationRole?'对照验证计划已生成，等待维护者确认':'复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
   workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, job.issueNumber, job.status, JSON.stringify(job), now, now);
   return job;
 }
@@ -149,7 +149,7 @@ export function getReproductionJob(owner: string, id: string): ReproductionJob {
   return JSON.parse(row.state) as ReproductionJob;
 }
 export function listReproductionJobs(owner: string, repoUrl: string, issueNumber?: number): ReproductionJob[] {
-  const rows = issueNumber ? workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? AND issue_number=? ORDER BY created_at DESC LIMIT 20').all(owner, repoUrl, issueNumber) : workbenchDb().prepare('SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? ORDER BY created_at DESC LIMIT 50').all(owner, repoUrl);
+  const rows = issueNumber ? workbenchDb().prepare(`SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? AND issue_number=? AND json_extract(state,'$.agentTaskId') IS NULL ORDER BY created_at DESC LIMIT 20`).all(owner, repoUrl, issueNumber) : workbenchDb().prepare(`SELECT state FROM reproduction_jobs WHERE owner=? AND repo_url=? AND json_extract(state,'$.agentTaskId') IS NULL ORDER BY created_at DESC LIMIT 50`).all(owner, repoUrl);
   return (rows as { state: string }[]).map(row => JSON.parse(row.state) as ReproductionJob);
 }
 export function updateReproductionJob(owner: string, id: string, change: Partial<ReproductionJob>): ReproductionJob {
@@ -157,7 +157,7 @@ export function updateReproductionJob(owner: string, id: string, change: Partial
   workbenchDb().prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
   return next;
 }
-export function queueReproductionJob(owner: string, id: string, repoUrl: string): ReproductionJob {
+export function queueReproductionJob(owner: string, id: string, repoUrl: string, validateBeforeQueue?:()=>void): ReproductionJob {
   const database = workbenchDb();
   database.exec('BEGIN IMMEDIATE');
   try {
@@ -166,6 +166,7 @@ export function queueReproductionJob(owner: string, id: string, repoUrl: string)
     const job = JSON.parse(row.state) as ReproductionJob;
     if (job.repoUrl !== repoUrl) throw new Error('复现任务不属于当前项目。');
     if (job.status !== 'awaiting-confirmation') throw new Error('复现任务不在等待确认状态。');
+    validateBeforeQueue?.();
     const active = database.prepare("SELECT COUNT(*) AS n FROM reproduction_jobs WHERE owner=? AND repo_url=? AND status IN ('queued','running')").get(owner, repoUrl) as { n: number };
     if (active.n >= 2) throw new Error('每个项目最多同时排队或执行 2 个复现任务。');
     const next: ReproductionJob = { ...job, status: 'queued', phase: 'source', progress: '已确认，等待隔离执行服务', phaseStartedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -73,7 +73,16 @@ async function waitFor(target) {
 }
 async function commandStep(step) {
   if (step.type === 'create-file') {
-    const path = inside(step.path); await mkdir(dirname(path), { recursive: true }); await writeFile(path, step.content || '', 'utf8'); return { created: step.path };
+      const path = inside(step.path);
+      // Repository files and earlier commands may create symlinks. Refuse every
+      // symlink component before applying a reviewed replacement in the sandbox.
+      let current = workspace;
+      for (const part of step.path.split('/')) {
+        current = resolve(current, part);
+        try { if ((await lstat(current)).isSymbolicLink()) throw new Error('Refusing to write through a repository symlink.'); }
+        catch (error) { if (error.code !== 'ENOENT') throw error; }
+      }
+      await mkdir(dirname(path), { recursive: true }); await writeFile(path, step.content || '', { encoding:'utf8', flag:'w' }); return { created: step.path };
   }
   if (step.type === 'run-command' || step.type === 'run-test') return run(step.command, Boolean(step.background));
   if (step.type === 'request') {

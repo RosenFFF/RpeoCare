@@ -1,6 +1,6 @@
 # 项目架构
 
-RepoCare 当前是一个 Next.js 应用和一个独立 Node.js Worker，共用本地 SQLite。保持单仓库、单 package.json，便于本地开发和部署；尚不需要拆成多个服务或 monorepo。
+RepoCare 由 Next.js Web、体检 Worker、复现 Worker 和维护 Agent Worker 共用本地 SQLite。保持单仓库、单 package.json，便于本地开发和部署。
 
 ## 目录职责
 
@@ -10,6 +10,7 @@ RepoCare 当前是一个 Next.js 应用和一个独立 Node.js Worker，共用�
 | `src/features` | 按功能聚合 React 页面组件与样式 | 修改体检界面到 `audit/` |
 | `src/components/workspace` | 工作台外壳、功能视图装配 | 修改全局导航 |
 | `src/server/audit` | 仓库采集、规则、Agent、任务持久化 | 新增检查规则 |
+| `src/server/agent` | 维护会话、固定提交源码工具、检查点、项目知识和交付物 | 扩展调查工具及任务恢复 |
 | `src/server/journey` | 从固定快照生成贡献路径演练计划 | 调整命令提取规则 |
 | `src/server/models` | 模型连接、加密、运行时适配 | 新增模型协议 |
 | `src/server/reproduction` | Bug 复现计划校验、SQLite 队列、Docker 执行器 | 新增复现模式或隔离策略 |
@@ -40,6 +41,10 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 
 项目概览保留 3D 维护地图，并在维护观测中展示真实报告的结果构成、类别分布和最近十二份成功报告的变化；图表联动最多三项后续事项，并可带筛选打开完整报告。未知状态保留独立语义，历史口径不一致时不推断改善幅度，详见 [OVERVIEW_INSIGHTS.md](OVERVIEW_INSIGHTS.md)。草稿数量来自当前项目；Issue / PR 数量通过独立 GitHub 请求获取，区分加载、零值和不可用，不阻塞报告展示。概览定时刷新并响应工作区切换与体检完成事件。模型、OAuth、SMTP 和公网部署仍需外部配置。真实工作台模块见 server/auth、server/github、server/workbench 以及 features/workbench。
 
+
+## 维护 Agent 执行链
+
+`/agent` 或 Issue/PR 详情预填入口 → 用户提交目标 → SQLite 持久队列 → 独立 Agent Worker → pi 工具循环 → 固定提交源码与协作证据 → 阶段报告、补丁、回复草稿和待确认执行计划。阶段可补充、停止和继续，知识由用户确认保存；复现与补丁对照验证复用隔离执行器。实现、恢复与资源边界见 [MAINTENANCE_AGENT.md](MAINTENANCE_AGENT.md)。
 
 ## Issue 复现执行链
 

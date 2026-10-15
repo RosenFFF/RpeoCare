@@ -128,7 +128,9 @@ export interface ReproductionJob {
   branch?: string;
   issueNumber: number;
   sourceUpdatedAt: string;
-  purpose?: 'issue-reproduction' | 'contributor-journey';
+  purpose?: 'issue-reproduction' | 'contributor-journey' | 'agent-verification';
+  agentTaskId?: string;
+  verificationRole?: 'baseline' | 'patched';
   auditRunId?: string;
   journey?: ContributorJourneyContext;
   plan: ReproductionPlan;

@@ -84,7 +84,7 @@ export async function analyzeIssue(owner: string, repoUrl: string, item: GitItem
     const repaired = await assistant(owner, 'issue-triage-repair', `${instruction} 这是一次格式修复请求。请把 invalidOutput 修复为符合结构的 JSON，不要沿用额外字段。`, { issue: context.issue, comments: context.comments, invalidOutput: text.slice(0, 12000), validationError: firstError instanceof Error ? firstError.message : 'schema validation failed' }, [], signal);
     parsed = parseTriage(repaired, item);
   }
-  return saveIssueTriage(owner, repoUrl, { ...parsed, workflowStatus: current?.review?.workflowStatus || current?.workflowStatus || parsed.workflowStatus, review: current?.review, repoUrl, number: item.number, sourceUpdatedAt: item.updatedAt, analyzedAt: new Date().toISOString() });
+  return saveIssueTriage(owner, repoUrl, { ...parsed, workflowStatus: current?.review?.workflowStatus || parsed.workflowStatus, review: current?.review, repoUrl, number: item.number, sourceUpdatedAt: item.updatedAt, analyzedAt: new Date().toISOString() });
 }
 
 export type { IssueAction, IssueCategory, IssueConfidence, IssuePriority, IssueWorkflowStatus };

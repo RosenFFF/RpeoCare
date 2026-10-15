@@ -18,6 +18,7 @@ npm run dev
 | 模块 | 当前能力 |
 | --- | --- |
 | 统一项目 | 连接真实仓库、指定分支、概览与历史任务、草稿统计 |
+| 项目 Agent | 持久任务、按需读取固定提交源码、证据引用、用户确认的项目知识、Issue 回复草稿、可下载补丁与待确认的隔离对照验证 |
 | 体检 | 固定提交快照、8 项基础检查、pi Agent 分析、文件证据、报告导出 |
 | 贡献路径验证 | 从固定快照的 README、CONTRIBUTING 和项目清单提取安装、测试与检查命令；维护者审阅后在隔离 Runner 中演练，并保留步骤证据 |
 | 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
@@ -45,6 +46,7 @@ src/app/                 页面与 API 入口
 src/components/workspace/ 工作台外壳
 src/features/            功能界面（workbench 为真实项目功能）
 src/server/audit/        快照、规则、Agent、任务和 Worker 队列
+src/server/agent/        持久维护会话、源码工具、项目知识与交付物
 src/server/auth/         邮箱认证和邮件
 src/server/github/       GitHub OAuth、读取、写回
 src/server/workbench/    项目、草稿、分诊、PR 审查和模型使用量
@@ -80,6 +82,7 @@ npm run cleanup -- --apply
 - [账户配置](docs/AUTH_INTEGRATION.md)
 - [体检范围](docs/AUDIT_SETUP.md)
 - [PR 证据化审查](docs/PR_REVIEW.md)
+- [项目维护 Agent](docs/MAINTENANCE_AGENT.md)
 - [Bug 复现实验室](docs/REPRODUCTION.md)
 - [实现与验收清单](docs/IMPLEMENTATION_STATUS.md)
 - [架构](docs/ARCHITECTURE.md) / [开发约定](docs/DEVELOPMENT.md)

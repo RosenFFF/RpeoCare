@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-`dev` 同时运行 Web、体检 Worker 和复现 Worker；复现功能默认关闭，访问 `http://127.0.0.1:3000/workspace`，首次 GitHub 登录无项目进入仓库选择，匿名/邮箱无项目进入体检；已连接项目进入概览或恢复执行任务。执行正式体检需要 Worker 在线。环境变量见 [体检部署说明](AUDIT_SETUP.md)。
+`dev` 同时运行 Web、体检 Worker、复现 Worker 和维护 Agent Worker；复现功能默认关闭，访问 `http://127.0.0.1:3000/workspace`，首次 GitHub 登录无项目进入仓库选择，匿名/邮箱无项目进入体检；已连接项目进入概览或恢复执行任务。执行正式体检需要体检 Worker 在线，维护任务需要 Agent Worker 在线。会话与工具边界见 [维护 Agent](MAINTENANCE_AGENT.md)，环境变量见 [体检部署说明](AUDIT_SETUP.md)。
 
 ## 代码组织
 

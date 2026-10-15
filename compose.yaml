@@ -21,5 +21,13 @@ services:
     environment:
       REPOCARE_DB_PATH: /app/data/repocare.sqlite
     volumes: ["repocare-data:/app/data"]
+  agent-worker:
+    build: .
+    command: ["npm", "run", "agent-worker"]
+    restart: unless-stopped
+    env_file: .env.local
+    environment:
+      REPOCARE_DB_PATH: /app/data/repocare.sqlite
+    volumes: ["repocare-data:/app/data"]
 volumes:
   repocare-data:
