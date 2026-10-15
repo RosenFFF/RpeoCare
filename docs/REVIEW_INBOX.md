@@ -92,13 +92,13 @@ head SHA 不可读取时显示“待读取”，不编造数量或分析状态�
 
 `pull-confluence.tsx` 以大圆形节点显示类型图标和 PR 编号，草稿使用圆角方形及明确文字。类型通过标题与标签线索的色标表达，外环独立表示 CI，节点下方保留标题、作者、更新日期、来源仓库拥有者与分支、审查状态、已知文件数和 head 提交。读取文件后显示覆盖范围内的增删行数，未知规模继续标记待读取。类型图例可突出同类 PR 的连线，悬停或键盘聚焦突出单条连线。分类不作为审查结论或严重程度。
 
-分支目录使用较宽的响应式布局，名称和入口字号增大，并分栏展示真实提交号及 GitHub 保护标记。已连接项目的收件入口保留紧凑工具栏。PR 画布默认使用原始字号，标题为 17px，节点文字区域宽 256px；超出视口时可以拖动、滚轮缩放或使用编号定位，不自动压缩全部文字。用户可以主动选择「适应全部」查看全景，或使用「原始字号」恢复阅读。图例与编号定位均提供键盘替代操作。Issue 探索画布的默认适应行为保持原有参数。
+分支目录使用「分支星港」：每个真实分支对应一个独立的三维陀螺环，名称、默认与保护标记、最新提交号及 PR 入口保留在固定位置。默认分支使用青绿色与星形，受保护分支使用蓝色与盾形，普通分支使用灰蓝色与分支图标；默认分支同时受保护时显示两个文字标记。单个分支保持居中且宽度受限，多个分支自动排布并在场景内部滚动。星环位置、大小和动效不推断继承关系、活跃度、风险或未读取的 PR 数量。已连接项目的收件入口保留紧凑工具栏。PR 画布默认使用原始字号，标题为 17px，节点文字区域宽 256px；超出视口时可以拖动、滚轮缩放或使用编号定位，不自动压缩全部文字。用户可以主动选择「适应全部」查看全景，或使用「原始字号」恢复阅读。图例与编号定位均提供键盘替代操作。Issue 探索画布的默认适应行为保持原有参数。
 
 `use-pr-canvas.ts` 处理鼠标锚点缩放、空白或中键拖拽、缩放按钮和键盘平移。读取证据且几何未变时保留镜头。连线只表达计划合入目标，不推断分支继承、PR 依赖或已经合并。节点大小仅在已知文件数时小幅增加，未知使用固定大小。
 
 分支目录复用现有 GitHub 身份和只读请求器，前后端都核对当前项目。目录及 PR 图不会自动调用模型、逐条读取 Diff 或执行仓库代码。GitHub 无法读取时显示错误，并允许重试；保留的目录明确标为上次结果。目录缺页、未知规模与未知 CI 继续保持未知。
 
-交互参考 [React Flow 的按需展开](https://reactflow.dev/examples/layout/expand-collapse) 和 [Cytoscape.js 的分组图概念](https://js.cytoscape.org/#notation/compound-nodes)。实现复用现有 SVG 与 HTML 画布；分支选择与 PR 汇流使用确定性布局，没有增加图形库依赖。分支和 PR 筛选遵循 [GitHub 分支接口](https://docs.github.com/en/rest/branches/branches#list-branches) 与 [PR 列表接口](https://docs.github.com/en/rest/pulls/pulls#list-pull-requests)。
+交互参考 [React Flow 的按需展开](https://reactflow.dev/examples/layout/expand-collapse) 和 [Cytoscape.js 的分组图概念](https://js.cytoscape.org/#notation/compound-nodes)。分支星港按需加载项目已有的 Three.js，以单个 WebGL 画布绘制环带、线框内核与粒子；交互使用原生 HTML 按钮，PR 汇流继续使用现有 SVG 与 HTML 画布，没有增加依赖。动效支持手动暂停和系统减少动态效果偏好；标签与点击区域不随环带运动，后台标签页及不可见场景停止绘制，离屏分支释放图形对象，同屏最多绘制 40 个对象，像素比上限 1.5、持续动画上限约 30 帧。WebGL 不可用或上下文丢失时回退至静态 SVG，保留搜索、键盘访问和分支打开。视觉参考 [Three.js 粒子示例](https://threejs.org/examples/webgl_points_billboards.html) 与 [Codrops 动态球体](https://tympanus.net/Tutorials/DistortedSphereCustomMaterial/)。分支和 PR 筛选遵循 [GitHub 分支接口](https://docs.github.com/en/rest/branches/branches#list-branches) 与 [PR 列表接口](https://docs.github.com/en/rest/pulls/pulls#list-pull-requests)。
 
 选择节点后点击“读取文件与检查”通过现有只读审查上下文接口读取当前 PR 的文件、CI 和显式关联 Issue，不调用模型。一次仅观察一条，最多缓存 8 份证据；缓存键包含 PR URL、head、base、更新时间及审查快照信号，条目、分析或人工决定变化后重新读取。收起证据、切换节点或卸载会取消未完成读取，响应不匹配列表身份时提示刷新，不覆盖现有条目。每份证据显示读取时间，可显式刷新。
 

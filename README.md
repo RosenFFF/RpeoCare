@@ -21,7 +21,7 @@ npm run dev
 | 体检 | 固定提交快照、8 项基础检查、内容研判、文件证据、报告导出与跨文件改进依据核对 |
 | 贡献路径验证 | 从固定快照的 README、CONTRIBUTING 和项目清单提取安装、测试与检查命令；维护者审阅后在隔离 Runner 中演练，并保留步骤证据 |
 | 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
-| Issue / PR | Issue 问题地形图、PR 分支目录、舒展的 PR 汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；分诊按需读取源码、引用证据与项目约定；详情内可继续调查并下载修复补丁；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
+| Issue / PR | Issue 问题地形图、动态分支星港、舒展的 PR 汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；分诊按需读取源码、引用证据与项目约定；详情内可继续调查并下载修复补丁；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
 | PR 证据化审查 | 固定 head/base、关联源码调查、实际 Diff 坐标、Checks/Status、需求影响核对、结构化 AI 线索、人工筛选、历史、已筛选 COMMENT 草稿 |
 | 文档维护 | 从报告结合源码生成 README / CONTRIBUTING / Issue / PR 模板，核对已保存草稿的影响；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
