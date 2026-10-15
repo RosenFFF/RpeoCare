@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent, type RefObject } from 'react';
-import { ArrowUpRight, GitBranch, GitCommitHorizontal, LocateFixed, Move, Pause, Play, ShieldCheck, Star } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ArrowUpRight, GitBranch, GitCommitHorizontal, LocateFixed, Pause, Play, ShieldCheck, Star } from 'lucide-react';
 import type { RepositoryBranch } from '@/contracts/branches';
 import { layoutBranchField } from './branch-field-layout';
 import './branch-orbit-field.css';
 
-export function BranchOrbitField({ branches, defaultBranch, disabled, active, onSelect, scrollMemory }: {
+export function BranchOrbitField({ branches, defaultBranch, disabled, active, onSelect, scrollMemory, actionsHost }: {
   branches: RepositoryBranch[]; defaultBranch?: string; disabled: boolean; active: boolean;
   onSelect: (name: string) => void; scrollMemory: RefObject<{ top: number; left: number } | null>;
+  actionsHost: HTMLDivElement | null;
 }) {
   const field = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -17,6 +19,7 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
   const [visible, setVisible] = useState(true);
   const [tabVisible, setTabVisible] = useState(true);
   const [width, setWidth] = useState(0);
+  const [maximumHeight, setMaximumHeight] = useState<number>();
   const [dragging, setDragging] = useState(false);
   const drag = useRef<{ id: number; x: number; y: number; left: number; top: number } | null>(null);
   const layout = useMemo(() => layoutBranchField(branches, width || 1000, defaultBranch), [branches, width, defaultBranch]);
@@ -24,9 +27,19 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
   useEffect(() => {
     const element = scroller.current;
     if (!element) return;
-    const resize = () => { if (element.clientWidth) setWidth(element.clientWidth); };
-    const observer = new ResizeObserver(resize); observer.observe(element); resize();
-    return () => observer.disconnect();
+    const atlas = field.current?.parentElement;
+    const legend = field.current?.querySelector('.branch-orbit-legend');
+    const resize = () => {
+      if (!element.getClientRects().length) return;
+      if (element.clientWidth) setWidth(element.clientWidth);
+      const footer = atlas?.querySelector('.branch-atlas-footer')?.getBoundingClientRect().height ?? 0;
+      const reserved = (legend?.getBoundingClientRect().height ?? 42) + footer + 24;
+      setMaximumHeight(Math.max(240, Math.min(920, Math.floor(window.innerHeight - element.getBoundingClientRect().top - reserved))));
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(element); if (atlas) observer.observe(atlas); if (legend) observer.observe(legend);
+    window.addEventListener('resize', resize); resize();
+    return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
   }, []);
 
   useEffect(() => {
@@ -88,9 +101,9 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
   }
 
   return <section ref={field} className="branch-orbit-field" aria-label="分支可视化导航" aria-busy={disabled} data-running={active && visible && tabVisible && !paused && !reduced}>
-    <div className="branch-orbit-caption"><span><Move size={14} />拖动空白处浏览，点击分支展开 PR</span><div>{branches.some(branch => branch.name === defaultBranch) && <button type="button" onClick={locateDefault}><LocateFixed size={14} />定位默认分支</button>}<button type="button" aria-label={reduced ? '已遵循系统设置，减少动态效果' : paused ? '继续分支动效' : '暂停分支动效'} aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(value => !value)}>{paused || reduced ? <Play size={13} /> : <Pause size={13} />}{reduced ? '静态展示' : paused ? '继续动效' : '暂停动效'}</button></div></div>
+    {actionsHost && createPortal(<>{branches.some(branch => branch.name === defaultBranch) && <button type="button" className="branch-map-control" title="定位默认分支" aria-label="定位默认分支" onClick={locateDefault}><LocateFixed size={15} /></button>}<button type="button" className="branch-map-control" title={reduced ? '已遵循系统设置，减少动态效果' : paused ? '继续分支动效' : '暂停分支动效'} aria-label={reduced ? '已遵循系统设置，减少动态效果' : paused ? '继续分支动效' : '暂停分支动效'} aria-pressed={paused || reduced} disabled={reduced} onClick={() => setPaused(value => !value)}>{paused || reduced ? <Play size={15} /> : <Pause size={15} />}</button></>, actionsHost)}
     <div className="branch-orbit-viewport">
-      <div className={`branch-orbit-space${dragging ? ' is-dragging' : ''}`} ref={scroller} tabIndex={0} aria-label="分支地图，可用方向键滚动，Tab 选择分支" onScroll={event => { scrollMemory.current = { top: event.currentTarget.scrollTop, left: event.currentTarget.scrollLeft }; }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd}>
+      <div className={`branch-orbit-space${dragging ? ' is-dragging' : ''}`} ref={scroller} style={{ maxHeight: maximumHeight }} tabIndex={0} aria-label="分支地图，可用方向键滚动，Tab 选择分支" onScroll={event => { scrollMemory.current = { top: event.currentTarget.scrollTop, left: event.currentTarget.scrollLeft }; }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd}>
         <div className="branch-orbit-layout" style={{ width: layout.width, height: layout.height }}>
           <svg className="branch-field-contours" width={layout.width} height={layout.height} aria-hidden="true"><path d={`M0 ${layout.height * .38} Q${layout.width * .4} ${layout.height * .06} ${layout.width} ${layout.height * .55} M0 ${layout.height * .5} Q${layout.width * .45} ${layout.height * .14} ${layout.width} ${layout.height * .7}`} /></svg>
           {layout.nodes.map(({ branch, x, y, width: nodeWidth, height }) => {
@@ -111,6 +124,6 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
         </div>
       </div>
     </div>
-    <div className="branch-orbit-legend"><span><i className="tone-default" /><Star size={12} />默认分支</span><span><i className="tone-protected" /><ShieldCheck size={12} />受保护分支</span><span><i className="tone-regular" /><GitBranch size={12} />普通分支</span><small>位置仅用于浏览，不表示分支继承关系</small></div>
+    <div className="branch-orbit-legend"><span><i className="tone-default" /><Star size={12} />默认分支</span><span><i className="tone-protected" /><ShieldCheck size={12} />受保护分支</span><span><i className="tone-regular" /><GitBranch size={12} />普通分支</span><small title="位置仅用于浏览，不表示分支继承关系；PR 数量与检查状态在进入分支后读取">拖动浏览 · 点击展开 PR</small></div>
   </section>;
 }

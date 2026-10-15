@@ -22,13 +22,13 @@ export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScop
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [revision, setRevision] = useState(0);
+  const [fieldActions, setFieldActions] = useState<HTMLDivElement | null>(null);
   const request = useRef<AbortController | null>(null);
   const loadedRevision = useRef(-1);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusName = useRef<HTMLSpanElement>(null);
   const previousBranch = useRef(scope.selected);
   const gridScroll = useRef<{ top: number; left: number } | null>(null);
-  const repoName = scope.repoUrl.replace(/^https:\/\/github\.com\//, '');
 
   async function read(nextPage: number, signal: AbortSignal) {
     const params = new URLSearchParams({ repoUrl: scope.repoUrl, page: String(nextPage) });
@@ -89,13 +89,12 @@ export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScop
   </header>;
 
   return <div className="branch-atlas">
-    <header className="branch-atlas-toolbar"><div><GitFork size={20} aria-hidden="true" /><h2 ref={heading} tabIndex={-1}>分支导航</h2><span>{page ? `${hasNext ? '已加载 ' : '共 '}${branches.length} 个分支` : '仓库分支目录'}{query && ` · 匹配 ${visible.length} 个`}</span></div><div><label className="branch-search"><Search size={15} /><input aria-label="搜索已加载的分支" placeholder="搜索已加载分支…" value={query} onChange={event => setQuery(event.target.value)} /></label><button type="button" className="branch-refresh" aria-label="刷新分支目录" title="刷新分支目录" disabled={busy || loading} onClick={() => setRevision(value => value + 1)}><RefreshCw size={15} className={loading ? 'branch-spin' : ''} /></button></div></header>
-    <div className="branch-atlas-intro"><span><i aria-hidden="true" />{repoName}</span><p>仓库的真实分支，包括暂无开放 PR 的分支。</p>{defaultBranch&&!branches.some(branch=>branch.name===defaultBranch)&&<button className="branch-default-shortcut" type="button" disabled={busy||loading} onClick={()=>scope.onSelect(defaultBranch)}><Star size={12}/>默认分支 {defaultBranch}</button>}</div>
+    <header className="branch-atlas-toolbar"><div><GitFork size={17} aria-hidden="true" /><h2 ref={heading} tabIndex={-1}>分支导航</h2><span>{page ? `${hasNext ? '已加载 ' : '共 '}${branches.length} 个分支` : '仓库分支目录'}{query && ` · 匹配 ${visible.length} 个`}</span></div><div><label className="branch-search"><Search size={15} /><input aria-label="搜索已加载的分支" placeholder="搜索分支…" value={query} onChange={event => setQuery(event.target.value)} /></label>{defaultBranch&&!branches.some(branch=>branch.name===defaultBranch)&&<button className="branch-default-shortcut" type="button" disabled={busy||loading} onClick={()=>scope.onSelect(defaultBranch)}><Star size={12}/>默认分支 {defaultBranch}</button>}<div className="branch-field-actions" ref={setFieldActions} /><button type="button" className="branch-refresh" aria-label="刷新分支目录" title="刷新分支目录" disabled={busy || loading} onClick={() => setRevision(value => value + 1)}><RefreshCw size={15} className={loading ? 'branch-spin' : ''} /></button></div></header>
     {error && <div className="branch-directory-error" role="alert"><p>{error}{branches.length > 0 && ' 当前保留上次读取的目录。'}</p><button type="button" onClick={() => setRevision(value => value + 1)} disabled={loading}>重新读取目录</button></div>}
     {!page && loading ? <div className="branch-atlas-empty" role="status"><LoaderCircle className="branch-spin" size={23} /><strong>正在读取仓库分支</strong><p>包括暂时没有开放 PR 的分支。</p></div> : <>
-      {visible.length > 0 && <BranchOrbitField branches={visible} defaultBranch={defaultBranch} disabled={busy || loading} active={!hidden} onSelect={name => scope.onSelect(name)} scrollMemory={gridScroll} />}
+      {visible.length > 0 && <BranchOrbitField branches={visible} defaultBranch={defaultBranch} disabled={busy || loading} active={!hidden} onSelect={name => scope.onSelect(name)} scrollMemory={gridScroll} actionsHost={fieldActions} />}
       {!visible.length && !loading && !error && <div className="branch-atlas-empty"><GitBranch size={25} /><strong>{query ? '已加载分支中没有匹配项' : '仓库尚未返回分支'}</strong><p>{query && hasNext ? '还有分支未读取，可继续加载后搜索。' : query ? '试试其他分支名称。' : '空仓库可能尚未创建第一个提交。'}</p></div>}
-      <footer className="branch-atlas-footer"><span>PR 数量与检查状态在进入分支后读取。</span>{hasNext && <button type="button" disabled={busy || loading || page >= 100} onClick={() => void more()}>{loading ? <LoaderCircle size={14} className="branch-spin" /> : <GitBranch size={14} />}{page >= 100 ? '已到目录读取上限，仍有分支未展示' : '继续加载分支（每次最多 100 个）'}</button>}{loading && page > 0 && <span role="status">正在更新目录…</span>}</footer>
+      {(hasNext || loading && page > 0) && <footer className="branch-atlas-footer">{hasNext && <button type="button" disabled={busy || loading || page >= 100} onClick={() => void more()}>{loading ? <LoaderCircle size={14} className="branch-spin" /> : <GitBranch size={14} />}{page >= 100 ? '已到目录读取上限，仍有分支未展示' : '继续加载分支（每次最多 100 个）'}</button>}{loading && page > 0 && <span role="status">正在更新目录…</span>}</footer>}
     </>}
   </div>;
 }
