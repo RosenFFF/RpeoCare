@@ -27,7 +27,7 @@ export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScop
   const heading = useRef<HTMLHeadingElement>(null);
   const focusName = useRef<HTMLSpanElement>(null);
   const previousBranch = useRef(scope.selected);
-  const gridScroll = useRef(0);
+  const gridScroll = useRef<{ top: number; left: number } | null>(null);
   const repoName = scope.repoUrl.replace(/^https:\/\/github\.com\//, '');
 
   async function read(nextPage: number, signal: AbortSignal) {
