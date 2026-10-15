@@ -49,9 +49,6 @@
 .issue-region-index>summary { width:fit-content; min-height:32px; padding:6px 0; cursor:pointer; color:var(--accent); }
 .issue-region-index>div { display:flex; align-items:center; flex-wrap:wrap; gap:5px; }
 .issue-region-index button { position:relative; min-width:40px; min-height:28px; padding:4px 6px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--muted); font-size:12px; line-height:1.4; font-variant-numeric:tabular-nums; }
-.issue-region-index button.priority-high { color:var(--error); border-color:var(--error-border); background:var(--error-bg); }
-.issue-region-index button.priority-medium { color:var(--warning); border-color:var(--warning-border); }
-.issue-region-index button.priority-low { color:var(--accent); border-color:var(--accent-border); }
 .issue-region-index button:hover { border-color:var(--accent); color:var(--accent); }
 .issue-region-signs { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,max(300px,calc(33.333% - 8px))),1fr)); gap:12px; }
 .issue-action-region.is-single { flex:1 1 280px; max-width:440px; }
