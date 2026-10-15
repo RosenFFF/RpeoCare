@@ -39,6 +39,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
   const [sort, setSort] = useState(issues ? 'attention' : 'updated');
   const [attentionProfile, setAttentionProfile] = useState<AttentionProfile>('maintenance');
   const [signalTime, setSignalTime] = useState(() => Date.now());
+  const [branchFocusHost, setBranchFocusHost] = useState<HTMLDivElement | null>(null);
   useEffect(() => { if (!issues) { setScope('all'); setQuery(''); setCategory('all'); setMode('pulse'); } }, [issues, pullBranches?.selected]);
   useEffect(() => {
     if (!issues || hidden) return;
@@ -113,9 +114,10 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
   const typeControl = <label className="inbox-filter"><SlidersHorizontal size={14} aria-hidden="true" /><span>{issues ? '类别（含线索）' : '变更类型'}</span><select aria-label={issues ? '类别（含线索）' : '变更类型'} value={category} onChange={event => setCategory(event.target.value as typeof category)}><option value="all">全部类型</option>{Object.entries(issues ? visualCategoryNames : pullTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>;
   const empty = !loading && !visible.length;
   return <section className={`review-inbox${canvasMode ? issues ? ' is-issue-canvas' : ' is-pr-canvas' : ''}`} aria-label={`${title} 工作区`} hidden={hidden} inert={hidden ? true : undefined}>
-    {!issues && pullBranches && <PullBranchAtlas scope={pullBranches} busy={busy} hidden={hidden}/>}
+    {!issues && pullBranches && <PullBranchAtlas scope={pullBranches} busy={busy} hidden={hidden} focusHost={branchFocusHost}/>}
     {(!pullBranches || pullBranches.selected !== null) && <>
     {canvasMode ? <div className="inbox-canvas-toolbar">
+      {!issues && pullBranches && <div className="inbox-branch-slot" ref={setBranchFocusHost} />}
       {scopeControls}{searchControl}{issues ? <details className="inbox-canvas-filters"><summary><SlidersHorizontal size={14} aria-hidden="true" />筛选</summary><div>
         {typeControl}<label className="inbox-filter"><span>处理状态</span><select aria-label="处理状态筛选" value={workflow} onChange={event => { setWorkflow(event.target.value as typeof workflow); setScope('all'); }}><option value="all">全部状态</option>{Object.entries(issueStates).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label className="inbox-filter"><span>优先级</span><select aria-label="优先级筛选" value={priority} onChange={event => { setPriority(event.target.value as typeof priority); setScope('all'); }}><option value="all">全部优先级</option>{Object.entries(issuePriorities).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
@@ -123,7 +125,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
       </div></details> : typeControl}<span className="inbox-canvas-count" title="仅统计当前页筛选结果">{visible.length}/{items.length}</span>
       {filtered && <button type="button" className="inbox-canvas-reset" aria-label={`清除 ${title} 筛选`} onClick={reset}><X size={15} aria-hidden="true" /></button>}
       {issues && <button type="button" className="inbox-canvas-batch" disabled={busy || loading || !pending.length} title="每次最多分诊 12 条" aria-label={`分诊当前筛选前 ${pending.length} 条 Issue，每次最多 12 条`} onClick={() => onBatch(pending)}>分诊 {pending.length} 条</button>}
-      <button type="button" className="inbox-canvas-list" onClick={() => setMode('list')}><Rows3 size={15} aria-hidden="true" />列表</button>
+      <button type="button" className="inbox-canvas-list" title="切换列表" aria-label={`切换 ${title} 列表`} onClick={() => setMode('list')}><Rows3 size={15} aria-hidden="true" /><span>列表</span></button>
       {onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label={`刷新 ${title}`} title={`刷新 ${title}`} onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}
     </div> : <>
     <div className="inbox-views">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, GitBranch, GitFork, LoaderCircle, RefreshCw, Search, Star } from 'lucide-react';
 import type { BranchDirectory, RepositoryBranch } from '@/contracts/branches';
 import { BranchOrbitField } from './branch-orbit-field';
@@ -13,7 +14,7 @@ export type PullBranchScope = {
   hasNext: boolean;
 };
 
-export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScope; busy: boolean; hidden: boolean }) {
+export function PullBranchAtlas({ scope, busy, hidden, focusHost }: { scope: PullBranchScope; busy: boolean; hidden: boolean; focusHost?: HTMLDivElement | null }) {
   const [branches, setBranches] = useState<RepositoryBranch[]>([]);
   const [defaultBranch, setDefaultBranch] = useState<string>();
   const [hasNext, setHasNext] = useState(false);
@@ -82,11 +83,14 @@ export function PullBranchAtlas({ scope, busy, hidden }: { scope: PullBranchScop
   const visible = useMemo(() => branches.filter(branch => branch.name.toLowerCase().includes(query.trim().toLowerCase())).sort((a, b) =>
     Number(b.name === defaultBranch) - Number(a.name === defaultBranch) || Number(b.protected) - Number(a.protected) || a.name.localeCompare(b.name)), [branches, query, defaultBranch]);
 
-  if (scope.selected !== null) return <header className="branch-focus-bar">
+  if (scope.selected !== null) {
+    const focusBar = <header className="branch-focus-bar">
     <button type="button" className="branch-back" disabled={busy} onClick={() => scope.onSelect(null)}><ArrowLeft size={15} />全部分支</button>
     <span className="branch-focus-name" ref={focusName} tabIndex={-1}><GitBranch size={17} /><strong title={scope.selected}>{scope.selected}</strong>{scope.selected === defaultBranch && <span>默认</span>}</span>
     <span className="branch-focus-note">查看计划合入此分支的开放 PR</span>
-  </header>;
+    </header>;
+    return focusHost ? createPortal(focusBar, focusHost) : focusBar;
+  }
 
   return <div className="branch-atlas">
     <header className="branch-atlas-toolbar"><div><GitFork size={17} aria-hidden="true" /><h2 ref={heading} tabIndex={-1}>分支导航</h2><span>{page ? `${hasNext ? '已加载 ' : '共 '}${branches.length} 个分支` : '仓库分支目录'}{query && ` · 匹配 ${visible.length} 个`}</span></div><div><label className="branch-search"><Search size={15} /><input aria-label="搜索已加载的分支" placeholder="搜索分支…" value={query} onChange={event => setQuery(event.target.value)} /></label>{defaultBranch&&!branches.some(branch=>branch.name===defaultBranch)&&<button className="branch-default-shortcut" type="button" disabled={busy||loading} onClick={()=>scope.onSelect(defaultBranch)}><Star size={12}/>默认分支 {defaultBranch}</button>}<div className="branch-field-actions" ref={setFieldActions} /><button type="button" className="branch-refresh" aria-label="刷新分支目录" title="刷新分支目录" disabled={busy || loading} onClick={() => setRevision(value => value + 1)}><RefreshCw size={15} className={loading ? 'branch-spin' : ''} /></button></div></header>
