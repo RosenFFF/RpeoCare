@@ -69,7 +69,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
       <span className="workspace-onboarding-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span>
       <div className="eyebrow"><span className="tiny-square" /> {issues ? '协作审阅 / Issue' : '协作审阅 / Pull Request'}</div>
       <h2>{loading ? '正在准备协作工作区' : '连接项目后，再开始审阅'}</h2>
-      <p>{loading ? '正在确认当前工作区与项目连接状态。' : issues ? '连接 GitHub 仓库后，问题地形会按已有类型与处理状态整理真实反馈。' : '连接 GitHub 仓库后，变更汇流图会呈现提交、文件改动、CI 与审查证据。'}</p>
+      <p>{loading ? '正在确认当前工作区与项目连接状态。' : issues ? '连接 GitHub 仓库后，分诊工作地图会按下一步处理动作整理真实反馈。' : '连接 GitHub 仓库后，变更汇流图会呈现提交、文件改动、CI 与审查证据。'}</p>
       {!loading && <div className="workspace-onboarding-actions"><Link className="button button-primary" href="/projects">连接 GitHub 项目<ArrowRight size={14} /></Link><Link className="button button-secondary" href="/overview">返回项目概览</Link></div>}
     </div>
     <aside className="workspace-onboarding-flow" aria-label="协作审阅流程"><span>REVIEW FLOW</span><ol><li><span>01</span><div><strong>读取真实内容</strong><p>保留 Issue、评论、Diff 与检查状态。</p></div></li><li><span>02</span><div><strong>核对证据</strong><p>区分原始事实、机器建议与未知信息。</p></div></li><li><span>03</span><div><strong>维护者确认</strong><p>编辑草稿并确认后，才进入交付动作。</p></div></li></ol></aside>
@@ -93,7 +93,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
     </div> : <>
     <div className="inbox-views">
       {scopeControls}
-      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '地形图' : '汇流图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div></div>
+      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '工作地图' : '汇流图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div></div>
     </div>
     <div className="inbox-toolbar">
       {searchControl}
@@ -104,7 +104,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
     <div className="inbox-summary"><div><h2>{issues ? '待处理反馈' : '待审查变更'}</h2><span>显示 {visible.length} / {items.length}</span>{filtered && <button type="button" onClick={reset}><X size={12} aria-hidden="true" />清除筛选</button>}</div>{issues ? <button type="button" className="button button-secondary" disabled={busy || loading || !pending.length} onClick={() => onBatch(pending)}>分诊当前筛选<span className="inbox-batch-count">{pending.length}</span></button> : <span className="inbox-caption">阶段来自真实检查证据，未知状态保持未知</span>}</div>
     </>}
 
-    {loading && !items.length ? <div className="inbox-empty" role="status"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>正在读取 {title} 数据…</h3><p>保留真实数据，不填充演示记录。</p></div> : empty ? <div className="inbox-empty"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>{failed ? '数据暂时无法读取' : filtered ? '没有符合筛选条件的记录' : issues ? '问题地形当前没有开放反馈' : '变更汇流图当前没有开放变更'}</h3><p>{failed ? '查看上方错误信息，重试刷新；这不代表仓库没有数据。' : filtered ? '筛选只作用于当前页；换页可以继续查看其他记录。' : '没有待处理记录时无需发起分析，也不会显示空详情面板。'}</p>{filtered && <button className="button button-secondary" type="button" onClick={reset}>重置筛选</button>}</div> : mode === 'pulse' ? <MaintenancePulse kind={kind} items={visible} busy={busy} onOpen={onOpen} /> : <>
+    {loading && !items.length ? <div className="inbox-empty" role="status"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>正在读取 {title} 数据…</h3><p>保留真实数据，不填充演示记录。</p></div> : empty ? <div className="inbox-empty"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>{failed ? '数据暂时无法读取' : filtered ? '没有符合筛选条件的记录' : issues ? '分诊工作地图当前没有开放反馈' : '变更汇流图当前没有开放变更'}</h3><p>{failed ? '查看上方错误信息，重试刷新；这不代表仓库没有数据。' : filtered ? '筛选只作用于当前页；换页可以继续查看其他记录。' : '没有待处理记录时无需发起分析，也不会显示空详情面板。'}</p>{filtered && <button className="button button-secondary" type="button" onClick={reset}>重置筛选</button>}</div> : mode === 'pulse' ? <MaintenancePulse kind={kind} items={visible} busy={busy} onOpen={onOpen} /> : <>
       <div className={`inbox-columns ${issues ? 'is-issues' : 'is-pulls'}`} aria-hidden="true"><span>{issues ? '反馈内容' : '变更内容'}</span><span>{issues ? '问题类型' : '变更类型'}</span><span>{issues ? '处理状态' : 'PR 状态'}</span><span>{issues ? '优先级' : 'Head 提交'}</span><span>更新</span><span /></div>
       <div className="inbox-rows" aria-busy={loading}>{visible.map(item => {
         const fields = issueClassification(item);
@@ -118,6 +118,6 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
         </button>;
       })}</div>
     </>}
-    <footer className="inbox-footer"><span>{mode === 'pulse' ? issues ? '地形高度表示评论量，颜色依据已有优先级' : '连线表示目标分支，节点状态依据已读取证据' : issues ? '分类是建议，处理由维护者决定' : '先审阅证据，再决定是否发布评论'}</span><nav aria-label={`${title} 分页`}><button type="button" disabled={page === 1 || busy || loading} onClick={() => onPage(page - 1)} aria-label={`上一页 ${title}`}><ChevronLeft size={15} /></button><span>第 {page} 页</span><button type="button" disabled={!items.length || busy || loading} onClick={() => onPage(page + 1)} aria-label={`下一页 ${title}`}><ChevronRight size={15} /></button></nav></footer>
+    <footer className="inbox-footer"><span>{mode === 'pulse' ? issues ? '按已有处理状态分流，点击问题查看依据与下一步' : '连线表示目标分支，节点状态依据已读取证据' : issues ? '分类是建议，处理由维护者决定' : '先审阅证据，再决定是否发布评论'}</span><nav aria-label={`${title} 分页`}><button type="button" disabled={page === 1 || busy || loading} onClick={() => onPage(page - 1)} aria-label={`上一页 ${title}`}><ChevronLeft size={15} /></button><span>第 {page} 页</span><button type="button" disabled={!items.length || busy || loading} onClick={() => onPage(page + 1)} aria-label={`下一页 ${title}`}><ChevronRight size={15} /></button></nav></footer>
   </section>;
 }
