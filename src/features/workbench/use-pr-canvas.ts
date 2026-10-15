@@ -7,12 +7,12 @@ type Frame = { width: number; height: number };
 type Point = { x: number; y: number };
 type Gesture = { id: number; start: Point; camera: Camera };
 
-export function usePrCanvas(world: Frame, signature: string) {
+export function usePrCanvas(world: Frame, signature: string, minimumInitialScale = 0) {
   const surface = useRef<HTMLDivElement>(null);
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, scale: 1 });
   const [frame, setFrame] = useState<Frame>({ width: 740, height: 440 });
   const [dragging, setDragging] = useState(false);
-  const live = useRef({ camera, frame, world, fitted: true });
+  const live = useRef({ camera, frame, world, fitted: true, fitMode: 'readable' as 'readable' | 'all', minimumInitialScale });
   const gesture = useRef<Gesture | null>(null);
 
   function publish(next: Camera, fitted = false) {
@@ -21,11 +21,13 @@ export function usePrCanvas(world: Frame, signature: string) {
     setCamera(next);
   }
 
-  function fit() {
+  function fitCamera(minimum: number) {
     const { frame: bounds, world: content } = live.current;
-    const scale = Math.min(1, (bounds.width - 32) / content.width, (bounds.height - 32) / content.height);
-    publish({ scale, x: (bounds.width - content.width * scale) / 2, y: (bounds.height - content.height * scale) / 2 }, true);
+    const scale = Math.max(.01, Math.min(1, minimum), Math.min(1, (bounds.width - 32) / content.width, (bounds.height - 32) / content.height));
+    publish({ scale, x: Math.max(16, (bounds.width - content.width * scale) / 2), y: Math.max(16, (bounds.height - content.height * scale) / 2) }, true);
   }
+  function fit() { live.current.fitMode = 'all'; fitCamera(0); }
+  function readable() { live.current.fitMode = 'readable'; fitCamera(live.current.minimumInitialScale); }
 
   function zoom(factor: number, anchor?: Point) {
     const { camera: previous, frame: bounds, world: content } = live.current;
@@ -39,7 +41,9 @@ export function usePrCanvas(world: Frame, signature: string) {
     const element = surface.current;
     if (!element) return;
     live.current.world = world;
+    live.current.minimumInitialScale = minimumInitialScale;
     live.current.fitted = true;
+    live.current.fitMode = 'readable';
     function measure() {
       if (!element || !element.getClientRects().length) return;
       const rect = element.getBoundingClientRect();
@@ -49,7 +53,7 @@ export function usePrCanvas(world: Frame, signature: string) {
       const next = { width: rect.width, height };
       live.current.frame = next;
       setFrame(current => current.width === next.width && current.height === next.height ? current : next);
-      if (live.current.fitted) fit();
+      if (live.current.fitted) fitCamera(live.current.fitMode === 'readable' ? live.current.minimumInitialScale : 0);
       else if (previous.width !== next.width || previous.height !== next.height) publish({ ...live.current.camera, x: live.current.camera.x + (next.width - previous.width) / 2, y: live.current.camera.y + (next.height - previous.height) / 2 });
     }
     function wheel(event: WheelEvent) {
@@ -72,7 +76,7 @@ export function usePrCanvas(world: Frame, signature: string) {
     };
     // Refit only when graph geometry or membership changes; evidence refresh keeps the camera.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [world.width, world.height, signature]);
+  }, [world.width, world.height, signature, minimumInitialScale]);
 
   function pointerDown(event: PointerEvent<HTMLDivElement>) {
     if (gesture.current || ![0, 1].includes(event.button)) return;
@@ -103,11 +107,13 @@ export function usePrCanvas(world: Frame, signature: string) {
       publish({ ...live.current.camera, x: live.current.camera.x + (event.key === 'ArrowLeft' ? 60 : event.key === 'ArrowRight' ? -60 : 0), y: live.current.camera.y + (event.key === 'ArrowUp' ? 60 : event.key === 'ArrowDown' ? -60 : 0) });
     }
   }
-  function reveal(point: Point) {
+  function reveal(point: Point, extent?: Frame) {
     const { camera: current, frame: bounds } = live.current;
     const x = point.x * current.scale + current.x;
     const y = point.y * current.scale + current.y;
-    if (x < 40 || x > bounds.width - 40 || y < 40 || y > bounds.height - 90) publish({ ...current, x: bounds.width / 2 - point.x * current.scale, y: bounds.height / 2 - point.y * current.scale });
+    const marginX = extent ? extent.width * current.scale / 2 + 14 : 40;
+    const marginY = extent ? extent.height * current.scale / 2 + 14 : 40;
+    if (x < marginX || x > bounds.width - marginX || y < marginY || y > bounds.height - (extent ? marginY : 90)) publish({ ...current, x: bounds.width / 2 - point.x * current.scale, y: bounds.height / 2 - point.y * current.scale });
   }
-  return { surface, camera, frame, dragging, fit, zoom, reveal, pointerDown, pointerMove, pointerEnd, keyDown };
+  return { surface, camera, frame, dragging, fit, readable, zoom, reveal, pointerDown, pointerMove, pointerEnd, keyDown };
 }

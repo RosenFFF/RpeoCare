@@ -2,12 +2,14 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
 import { getIssueTriage, getProject, listIssueTriages, listPullRequestReviews } from '@/server/workbench/store';
-import { getItem, listItems, updateIssue } from '@/server/github/api';
+import { getItem, listItemsPage, updateIssue } from '@/server/github/api';
 
 export async function GET(request: NextRequest) {
   try {
     const owner = session(request), project = owner ? getProject(owner) : null;
     if (!owner || !project) return errorResponse('请先连接项目。', 404);
+    const expectedRepo = request.nextUrl.searchParams.get('repoUrl');
+    if (expectedRepo && expectedRepo !== project.repoUrl) return errorResponse('项目已切换，请重新读取数据。', 409);
     const kind = request.nextUrl.searchParams.get('kind') === 'pulls' ? 'pulls' : 'issues';
     const number = Number(request.nextUrl.searchParams.get('number')), page = Number(request.nextUrl.searchParams.get('page') || 1);
     if (!Number.isSafeInteger(page) || page < 1 || page > 100) return errorResponse('页码无效。');
@@ -16,7 +18,9 @@ export async function GET(request: NextRequest) {
       const item = await getItem(owner, project.repoUrl, kind, number);
       return jsonResponse({ item: kind === 'issues' ? { ...item, triage: getIssueTriage(owner, project.repoUrl, number) || undefined } : item });
     }
-    const items = await listItems(owner, project.repoUrl, kind, page);
+    const base = request.nextUrl.searchParams.get('base') || undefined;
+    if (base && (base.length > 500 || [...base].some(character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127))) return errorResponse('目标分支名称无效。');
+    const { items, hasNext } = await listItemsPage(owner, project.repoUrl, kind, page, { base, signal: request.signal });
     const reviews = listPullRequestReviews(owner, project.repoUrl);
     if (kind === 'issues') {
       const triages = new Map(listIssueTriages(owner, project.repoUrl, items.map(item => item.number)).map(triage => [triage.number, triage]));
@@ -50,7 +54,7 @@ export async function GET(request: NextRequest) {
           analyzedAt: review.analyzedAt,
         },
       };
-    }), page });
+    }), page, hasNext, repoUrl: project.repoUrl, base });
   } catch (error) { return errorResponse(error instanceof Error ? error.message : '无法读取 GitHub 数据。'); }
 }
 

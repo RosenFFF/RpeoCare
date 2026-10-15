@@ -8,7 +8,7 @@ import { pullChangeSignal, pullCheckSignal, pullIdentity, pullReviewSignal } fro
 import './pull-voyage.css';
 import { PullConfluence } from './pull-confluence';
 
-type Props = { items: GitItem[]; busy: boolean; onOpen: (item: GitItem) => void };
+type Props = { baseBranch?: string; items: GitItem[]; busy: boolean; onOpen: (item: GitItem) => void };
 type Inspection = { key: string; status: 'loading' | 'ready' | 'error'; item?: GitItem; error?: string; at?: string };
 type Snapshot = { item: GitItem; at: string };
 function FileConstellation({ item }: { item: GitItem }) {
@@ -47,7 +47,7 @@ function EvidencePanel({ item, busy, at, onRefresh, onOpen }: { item: GitItem; b
   </div>;
 }
 
-export function PullVoyage({ items, busy, onOpen }: Props) {
+export function PullVoyage({ items, busy, onOpen, baseBranch }: Props) {
   const [observing, setObserving] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [showEvidence, setShowEvidence] = useState(false);
@@ -97,14 +97,14 @@ export function PullVoyage({ items, busy, onOpen }: Props) {
     setInspection(snapshots[key] ? { key, status: 'ready', at: snapshots[key].at } : null);
   }
   const loading = inspection?.key === active?.key && inspection.status === 'loading';
-  return <section className="pull-voyage" aria-label="PR 变更汇流图">
+  return <section className="pull-voyage" aria-label="PR 分支变更图">
     {active && <>
       <div className={`confluence-layout${observing ? ' has-inspector' : ''}`}>
-        <PullConfluence items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onShowInspector={() => setObserving(true)} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
+        <PullConfluence baseBranch={baseBranch} items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onShowInspector={() => setObserving(true)} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
         {observing && <aside className="confluence-inspector" aria-label="选中 PR 的观察面板" aria-live="polite">
           <div className="confluence-inspector-top"><b><GitPullRequest size={17} aria-hidden="true" /> #{active.item.number}</b><span>{active.item.isDraft ? '草稿' : 'Open PR'}</span><button type="button" aria-label="关闭 PR 观察面板" onClick={() => { setObserving(false); requestAnimationFrame(() => document.getElementById(`inbox-row-pulls-${active.item.number}`)?.focus({ preventScroll: true })); }}><X size={16} aria-hidden="true" /></button></div>
           <h4>{active.item.title}</h4><p>{active.item.author || '未知作者'} · {inboxDate(active.item.updatedAt)} 更新 · {pullTypes[pullClassification(active.item)]}</p>
-          <div className="confluence-inspector-branch"><GitBranch size={14} aria-hidden="true" /><code>{active.item.headRef || '来源分支未知'}</code><ArrowUpRight size={13} aria-hidden="true" /><code>{active.item.baseRef || '目标分支未知'}</code></div>
+          <div className="confluence-inspector-branch"><GitBranch size={14} aria-hidden="true" /><code>{active.item.headRepository ? `${active.item.headRepository.split('/')[0]}:` : ''}{active.item.headRef || '来源分支未知'}</code><ArrowUpRight size={13} aria-hidden="true" /><code>{active.item.baseRef || '目标分支未知'}</code></div>
           <dl className="confluence-signals"><div><dt>当前提交</dt><dd>{active.item.headSha?.slice(0, 7) || '未知'}</dd></div><div><dt>变更规模</dt><dd>{active.changes.read ? `${active.changes.count}${active.changes.partial ? '+ 已读' : ''} 个文件` : active.changes.total !== undefined ? `${active.changes.total} 个文件待核对` : '待读取'}</dd></div><div><dt>CI 检查</dt><dd className={`tone-${active.checks.tone}`}>{active.checks.label}</dd></div><div><dt>审查报告</dt><dd className={`tone-${active.review.tone}`}>{active.review.label}</dd></div></dl>
           <button type="button" className="button button-secondary" disabled={busy || loading} onClick={() => void inspect(active.original)}>{loading ? <LoaderCircle size={14} aria-hidden="true" /> : <FileCode2 size={14} aria-hidden="true" />}{loading ? '正在读取证据' : '读取文件与检查'}</button>
           <button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button>

@@ -3,6 +3,7 @@ import { getPullRequestReview } from '../workbench/store';
 import { githubAccount } from './connection';
 import { parseRepositoryUrl } from '../audit/github';
 import type { Draft, GitComment, GitItem, PullRequestCheck } from '../../contracts/workbench';
+import type { BranchDirectory } from '../../contracts/branches';
 
 export class PublishPreconditionError extends Error {}
 
@@ -32,15 +33,41 @@ export async function githubApi(owner: string, path: string, options: { method?:
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 function item(value: Record<string, any>): GitItem {
-  return { number: value.number, title: String(value.title || ''), body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), commentCount: Number.isSafeInteger(value.comments) ? value.comments : undefined, assignees: (value.assignees || []).map((person: any) => person.login).filter(Boolean), milestone: value.milestone?.title || null, headSha: value.head?.sha, baseSha: value.base?.sha, totalChangedFiles: Number.isSafeInteger(value.changed_files) ? value.changed_files : undefined, headRef: value.head?.ref, baseRef: value.base?.ref, isDraft: value.draft === true };
+  return { number: value.number, title: String(value.title || ''), body: String(value.body || '').slice(0, 40_000), url: value.html_url, state: value.state, author: value.user?.login || '', updatedAt: value.updated_at, labels: (value.labels || []).map((label: any) => label.name), commentCount: Number.isSafeInteger(value.comments) ? value.comments : undefined, assignees: (value.assignees || []).map((person: any) => person.login).filter(Boolean), milestone: value.milestone?.title || null, headSha: value.head?.sha, baseSha: value.base?.sha, totalChangedFiles: Number.isSafeInteger(value.changed_files) ? value.changed_files : undefined, headRef: value.head?.ref, headRepository: typeof value.head?.repo?.full_name === 'string' ? value.head.repo.full_name : undefined, baseRef: value.base?.ref, isDraft: value.draft === true };
 }
 function comment(value: Record<string, any>): GitComment {
   return { id: Number(value.id), body: String(value.body || '').slice(0, 12_000), url: value.html_url, author: value.user?.login || '', createdAt: value.created_at, updatedAt: value.updated_at || value.created_at };
 }
 export async function listItems(owner: string, url: string, kind: 'issues' | 'pulls', page = 1): Promise<GitItem[]> {
-  const rows = await githubApi(owner, `${repoPath(url)}/${kind}?state=open&per_page=30&page=${page}`);
+  return (await listItemsPage(owner, url, kind, page)).items;
+}
+
+export async function listItemsPage(owner: string, url: string, kind: 'issues' | 'pulls', page = 1, options: { base?: string; signal?: AbortSignal } = {}) {
+  let hasNext = false;
+  const base = kind === 'pulls' && options.base ? `&base=${encodeURIComponent(options.base)}` : '';
+  const rows = await githubApi(owner, `${repoPath(url)}/${kind}?state=open&per_page=30&page=${page}${base}`, {
+    signal: options.signal,
+    onHeaders: headers => { hasNext = /<[^>]+>;\s*rel="next"/.test(headers.get('link') || ''); },
+  });
   if (!Array.isArray(rows)) throw new Error('GitHub 列表格式异常。');
-  return rows.filter(row => kind === 'pulls' || !row.pull_request).map(item);
+  return { items: rows.filter(row => kind === 'pulls' || !row.pull_request).map(item), hasNext };
+}
+
+export async function listBranches(owner: string, url: string, page: number, signal?: AbortSignal): Promise<BranchDirectory> {
+  let hasNext = false;
+  const [rows, metadata] = await Promise.all([
+    githubApi(owner, `${repoPath(url)}/branches?per_page=100&page=${page}`, {
+      signal,
+      onHeaders: headers => { hasNext = /<[^>]+>;\s*rel="next"/.test(headers.get('link') || ''); },
+    }),
+    page === 1 ? githubApi(owner, repoPath(url), { signal }) : Promise.resolve(null),
+  ]);
+  if (!Array.isArray(rows) || rows.some(row => typeof row?.name !== 'string' || !row.name)) throw new Error('GitHub 分支目录格式异常。');
+  return {
+    repoUrl: url, page, hasNext,
+    defaultBranch: typeof metadata?.default_branch === 'string' ? metadata.default_branch : undefined,
+    branches: rows.map(row => ({ name: row.name, protected: row.protected === true, commitSha: /^[a-f0-9]{40}$/i.test(row.commit?.sha || '') ? row.commit.sha : undefined })),
+  };
 }
 
 async function countOpenPulls(owner: string, url: string): Promise<number> {

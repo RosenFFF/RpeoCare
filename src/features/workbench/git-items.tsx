@@ -320,6 +320,9 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [listOpen, setListOpen] = useState(true);
   const [page, setPage] = useState(1);
+  const [targetBranch, setTargetBranch] = useState<string | null>(null);
+  const [pullHasNext, setPullHasNext] = useState(false);
+  const [pullLoadedScope, setPullLoadedScope] = useState('');
   const [error, setError] = useState('');
   const [listLoading, setListLoading] = useState(false);
   const listLoadVersion = useRef(0);
@@ -335,22 +338,27 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const selectionVersion = useRef(0);
   const [pullReview, setPullReview] = useState<PullRequestReview | null>(null);
   const isIssues = kind === 'issues';
+  const pullScopeKey = `${data?.project?.repoUrl || ''}:${targetBranch || ''}:${page}`;
 
   const load = useCallback(async (keepSelection = true) => {
     const version = ++listLoadVersion.current;
-    if (!data?.project) { setListLoading(false); return; }
+    if (!data?.project || kind === 'pulls' && targetBranch === null) { setItems([]); setListLoading(false); return; }
     setError(''); setListLoading(true);
     try {
-      const value = await api<{ items: GitItem[] }>(`/api/workbench/items?kind=${kind}&page=${page}`);
+      const params = new URLSearchParams({ kind, page: String(page), repoUrl: data.project.repoUrl, ...(kind === 'pulls' && targetBranch !== null ? { base: targetBranch } : {}) });
+      const value = await api<{ items: GitItem[]; hasNext?: boolean; repoUrl?: string; base?: string }>(`/api/workbench/items?${params}`);
       if (version !== listLoadVersion.current) return;
+      if (kind === 'pulls' && (value.repoUrl !== data.project.repoUrl || value.base !== targetBranch)) throw new Error('目标分支已变化，请重新读取。');
+      setPullHasNext(value.hasNext === true);
       const sourceNumber = Number(new URL(window.location.href).searchParams.get('number'));
-      setItems(current => [...value.items, ...current.filter(item => item.number === sourceNumber && !value.items.some((row: GitItem) => row.number === sourceNumber))]);
+      setItems(current => kind === 'pulls' ? value.items : [...value.items, ...current.filter(item => item.number === sourceNumber && !value.items.some((row: GitItem) => row.number === sourceNumber))]);
       if (!sourceNumber && (!keepSelection || (selectedNumber && !value.items.some(item => item.number === selectedNumber)))) { setSelectedNumber(null); setListOpen(true); }
     } catch (cause) { if (version === listLoadVersion.current) setError(cause instanceof Error ? cause.message : '无法读取 GitHub 数据。'); }
-    finally { if (version === listLoadVersion.current) setListLoading(false); }
-  }, [data?.project?.repoUrl, kind, page, selectedNumber]);
+    finally { if (version === listLoadVersion.current) { setListLoading(false); setPullLoadedScope(pullScopeKey); } }
+  }, [data?.project?.repoUrl, kind, page, selectedNumber, targetBranch, pullScopeKey]);
 
-  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setBusy(false); setNotice(''); setDraftLink(''); setReproductions([]); setSelectedReproductionId(null); setItems([]); void load(false); return () => { listLoadVersion.current++; }; }, [data?.project?.repoUrl, kind, page]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { selectionVersion.current++; setSelectedNumber(null); setPullReview(null); setListOpen(true); setBusy(false); setNotice(''); setDraftLink(''); setReproductions([]); setSelectedReproductionId(null); setItems([]); void load(false); return () => { listLoadVersion.current++; }; }, [data?.project?.repoUrl, kind, page, targetBranch]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setTargetBranch(null); setPage(1); }, [data?.project?.repoUrl, kind]);
   useEffect(() => {
     if (!selectedNumber || listOpen) return;
     const frame = requestAnimationFrame(() => { detailRef.current?.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); });
@@ -406,6 +414,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function open(item: GitItem) {
     if (listOpen) listScroll.current = window.scrollY;
     const version = ++selectionVersion.current;
+    setItems(current => current.some(row => row.number === item.number) ? current : [...current, item]);
     setSelectedNumber(item.number); setListOpen(false); setBusy(true); setError(''); setNotice(''); setDraftLink(''); setPullReview(null);
     try {
       if (!isIssues) {
@@ -515,13 +524,13 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   const focused = !!selected && !listOpen;
   const title = isIssues ? 'Issue 分诊' : 'PR 审查';
   const combinedError = error || workbenchError;
-  const compactIssueInbox = isIssues && !focused && Boolean(data?.project);
+  const compactIssueInbox = !focused && Boolean(data?.project);
   return <div className={`wb-page review-page ${isIssues ? `issue-workbench${focused ? '' : ' issue-canvas-page'}` : `pr-workbench${focused ? '' : ' pr-canvas-page'}`}`}>
     {compactIssueInbox ? <h1 id="review-title" className="visually-hidden" tabIndex={-1}>{title}</h1> : <header className="review-page-header"><div className="review-page-title"><span className="review-project-label">{data?.project?.fullName || '开源维护工作台'}<span aria-hidden="true"> / </span>{isIssues ? '分诊工作地图' : '变更汇流图'}</span><h1 id="review-title" tabIndex={-1}>{title}</h1><p>{focused ? isIssues ? '核对原文与分诊依据，再选择下一步维护动作。' : '核对代码证据与检查状态，筛选后生成审阅草稿。' : isIssues ? '按下一步处理动作聚焦问题，查看依据后进入分诊。' : '在一张图中观察所有 PR 的目标分支与证据状态，点击节点进入审查。'}</p></div><button type="button" className="button button-secondary" onClick={() => { if (focused && selected) void open(selected); else void load(); }} disabled={busy || listLoading}><RefreshCw size={14} />{listLoading ? '读取中…' : '刷新'}</button></header>}
     {combinedError && <p className="wb-error issue-alert" role="alert"><AlertCircle size={15} />{combinedError}<button type="button" aria-label="关闭错误" onClick={()=>setError('')}><X size={14}/></button></p>}
     {draftLink && <Link className="button button-secondary" href={draftLink}>审阅刚生成的草稿</Link>}{notice && <p className="issue-notice" role="status"><Check size={15}/>{notice}<Link href="/improvements">草稿工作台</Link></p>}
     <div className={`review-workspace ${focused ? 'is-focused' : ''}`}>
-      <ReviewInbox key={`${kind}-${data?.project?.repoUrl || 'none'}`} kind={kind} items={items} page={page} connected={!!data?.project} busy={busy} loading={listLoading || (!data && !workbenchError)} hidden={focused} failed={!!combinedError} onOpen={item=>void open(item)} onPage={setPage} onBatch={numbers=>void batchAnalyze(numbers)} onRefresh={isIssues ? () => void load() : undefined}/>
+      <ReviewInbox key={`${kind}-${data?.project?.repoUrl || 'none'}`} kind={kind} items={!isIssues && pullLoadedScope !== pullScopeKey ? [] : items} page={page} connected={!!data?.project} busy={busy} loading={listLoading || (!isIssues && targetBranch !== null && pullLoadedScope !== pullScopeKey) || (!data && !workbenchError)} hidden={focused} failed={!!combinedError} onOpen={item=>void open(item)} onPage={setPage} onBatch={numbers=>void batchAnalyze(numbers)} onRefresh={() => void load()} pullBranches={!isIssues && data?.project ? { repoUrl: data.project.repoUrl, selected: targetBranch, onSelect: branch => { setTargetBranch(branch); setPage(1); }, hasNext: pullHasNext } : undefined}/>
       {focused && selected && <div className="review-detail-view" tabIndex={-1} ref={detailRef} aria-label={`${isIssues ? 'Issue' : 'PR'} #${selected.number} 工作区`}>
         <div className="review-back-bar"><button type="button" onClick={returnToList}><ChevronLeft size={15}/>返回{isIssues ? '反馈' : '变更'}收件箱</button><span>#{selected.number} · {busy ? '正在处理…' : '详情工作区'}</span></div>
         {isIssues ? <IssueDetail item={selected} relatedItems={relatedItems} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={returnToList} onOpenRelated={item=>void open(item)} onReview={reviewTriage}/> : <PullRequestDetail item={selected} review={pullReview?.number === selected.number ? pullReview : null} busy={busy} onAnalyze={analyzePull} onFinding={updatePullFinding} onDraft={generateDraft} onShowList={returnToList}/>}

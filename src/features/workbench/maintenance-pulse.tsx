@@ -11,8 +11,9 @@ type Props = {
   busy: boolean;
   onOpen: (item: GitItem) => void;
   signals: IssueMapSignals;
+  baseBranch?: string;
 };
 
-export function MaintenancePulse({ kind, items, busy, onOpen, signals }: Props) {
-  return kind === 'issues' ? <IssueWorkMap items={items} busy={busy} onOpen={onOpen} signals={signals} /> : <PullVoyage items={items} busy={busy} onOpen={onOpen} />;
+export function MaintenancePulse({ kind, items, busy, onOpen, signals, baseBranch }: Props) {
+  return kind === 'issues' ? <IssueWorkMap items={items} busy={busy} onOpen={onOpen} signals={signals} /> : <PullVoyage baseBranch={baseBranch} items={items} busy={busy} onOpen={onOpen} />;
 }

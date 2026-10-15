@@ -6,6 +6,7 @@ import { Activity, ArrowRight, ChevronLeft, ChevronRight, CircleDot, GitPullRequ
 import type { GitItem, IssueCategory, IssuePriority, IssueWorkflowStatus } from '@/contracts/workbench';
 import { inboxDate, inScope, issueClassification, issuePriorities, issueStates, pullClassification, pullTypes, type InboxScope, type PullType } from './inbox-model';
 import { MaintenancePulse } from './maintenance-pulse';
+import { PullBranchAtlas, type PullBranchScope } from './pull-branch-atlas';
 import { issueAttention, issueCategorySignal, visualCategoryNames, type AttentionProfile, type IssueVisualSignal, type VisualIssueCategory } from './issue-visual-signals';
 
 type Props = {
@@ -21,11 +22,12 @@ type Props = {
   onPage: (page: number) => void;
   onBatch: (numbers: number[]) => void;
   onRefresh?: () => void;
+  pullBranches?: PullBranchScope;
 };
 
 type InboxMode = 'pulse' | 'list';
 
-export function ReviewInbox({ kind, items, page, connected, busy, loading, hidden, failed, onOpen, onPage, onBatch, onRefresh }: Props) {
+export function ReviewInbox({ kind, items, page, connected, busy, loading, hidden, failed, onOpen, onPage, onBatch, onRefresh, pullBranches }: Props) {
   const issues = kind === 'issues';
   const title = issues ? 'Issue' : 'PR';
   const [mode, setMode] = useState<InboxMode>('pulse');
@@ -37,6 +39,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
   const [sort, setSort] = useState(issues ? 'attention' : 'updated');
   const [attentionProfile, setAttentionProfile] = useState<AttentionProfile>('maintenance');
   const [signalTime, setSignalTime] = useState(() => Date.now());
+  useEffect(() => { if (!issues) { setScope('all'); setQuery(''); setCategory('all'); setMode('pulse'); } }, [issues, pullBranches?.selected]);
   useEffect(() => {
     if (!issues || hidden) return;
     const timer = window.setInterval(() => setSignalTime(Date.now()), 60_000);
@@ -50,11 +53,11 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
     const needle = query.trim().toLowerCase();
     return items.filter(item => {
       const fields = issueClassification(item);
-      return inScope(item, kind, scope)
+      return (!pullBranches?.selected || item.baseRef === pullBranches.selected) && inScope(item, kind, scope)
         && (!needle || `${item.number} ${item.title} ${item.body} ${item.author} ${item.labels.join(' ')}`.toLowerCase().includes(needle))
         && (!issues || ((workflow === 'all' || fields.status === workflow) && (priority === 'all' || fields.priority === priority)));
     });
-  }, [items, kind, issues, scope, query, workflow, priority]);
+  }, [items, kind, issues, scope, query, workflow, priority, pullBranches?.selected]);
   const categoryCounts = useMemo(() => {
     const counts: Partial<Record<VisualIssueCategory, number>> = {};
     for (const item of baseItems) {
@@ -110,6 +113,8 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
   const typeControl = <label className="inbox-filter"><SlidersHorizontal size={14} aria-hidden="true" /><span>{issues ? '类别（含线索）' : '变更类型'}</span><select aria-label={issues ? '类别（含线索）' : '变更类型'} value={category} onChange={event => setCategory(event.target.value as typeof category)}><option value="all">全部类型</option>{Object.entries(issues ? visualCategoryNames : pullTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>;
   const empty = !loading && !visible.length;
   return <section className={`review-inbox${canvasMode ? issues ? ' is-issue-canvas' : ' is-pr-canvas' : ''}`} aria-label={`${title} 工作区`} hidden={hidden} inert={hidden ? true : undefined}>
+    {!issues && pullBranches && <PullBranchAtlas scope={pullBranches} busy={busy} hidden={hidden}/>}
+    {(!pullBranches || pullBranches.selected !== null) && <>
     {canvasMode ? <div className="inbox-canvas-toolbar">
       {scopeControls}{searchControl}{issues ? <details className="inbox-canvas-filters"><summary><SlidersHorizontal size={14} aria-hidden="true" />筛选</summary><div>
         {typeControl}<label className="inbox-filter"><span>处理状态</span><select aria-label="处理状态筛选" value={workflow} onChange={event => { setWorkflow(event.target.value as typeof workflow); setScope('all'); }}><option value="all">全部状态</option>{Object.entries(issueStates).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
@@ -119,11 +124,11 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
       {filtered && <button type="button" className="inbox-canvas-reset" aria-label={`清除 ${title} 筛选`} onClick={reset}><X size={15} aria-hidden="true" /></button>}
       {issues && <button type="button" className="inbox-canvas-batch" disabled={busy || loading || !pending.length} title="每次最多分诊 12 条" aria-label={`分诊当前筛选前 ${pending.length} 条 Issue，每次最多 12 条`} onClick={() => onBatch(pending)}>分诊 {pending.length} 条</button>}
       <button type="button" className="inbox-canvas-list" onClick={() => setMode('list')}><Rows3 size={15} aria-hidden="true" />列表</button>
-      {issues && onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label="刷新 Issue" title="刷新 Issue" onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}
+      {onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label={`刷新 ${title}`} title={`刷新 ${title}`} onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}
     </div> : <>
     <div className="inbox-views">
       {scopeControls}
-      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '工作地图' : '汇流图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div>{issues && onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label="刷新 Issue" onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}</div>
+      <div className="inbox-view-meta"><span className="inbox-local-note">当前页 · 开放中的{issues ? '反馈' : '变更'}</span><div className="inbox-mode-switch" role="group" aria-label="展示方式"><button type="button" aria-pressed={false} onClick={() => setMode('pulse')}><Activity size={13} aria-hidden="true" />{issues ? '工作地图' : '分支变更图'}</button><button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}><Rows3 size={13} aria-hidden="true" />列表</button></div>{onRefresh && <button type="button" className="inbox-canvas-list" disabled={busy || loading} aria-label={`刷新 ${title}`} onClick={onRefresh}><RefreshCw size={15} aria-hidden="true" /></button>}</div>
     </div>
     <div className="inbox-toolbar">
       {searchControl}
@@ -134,7 +139,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
     <div className="inbox-summary"><div><h2>{issues ? '待处理反馈' : '待审查变更'}</h2><span>显示 {visible.length} / {items.length}</span>{filtered && <button type="button" onClick={reset}><X size={12} aria-hidden="true" />清除筛选</button>}</div>{issues ? <button type="button" className="button button-secondary" disabled={busy || loading || !pending.length} onClick={() => onBatch(pending)}>分诊当前筛选<span className="inbox-batch-count">{pending.length}</span></button> : <span className="inbox-caption">阶段来自真实检查证据，未知状态保持未知</span>}</div>
     </>}
 
-    {loading && !items.length ? <div className="inbox-empty" role="status"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>正在读取 {title} 数据…</h3><p>保留真实数据，不填充演示记录。</p></div> : empty ? <div className="inbox-empty"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>{failed ? '数据暂时无法读取' : filtered ? '没有符合筛选条件的记录' : issues ? '分诊工作地图当前没有开放反馈' : '变更汇流图当前没有开放变更'}</h3><p>{failed ? '查看上方错误信息，重试刷新；这不代表仓库没有数据。' : filtered ? '筛选只作用于当前页；换页可以继续查看其他记录。' : '没有待处理记录时无需发起分析，也不会显示空详情面板。'}</p>{filtered && <button className="button button-secondary" type="button" onClick={reset}>重置筛选</button>}</div> : mode === 'pulse' ? <MaintenancePulse kind={kind} items={visible} busy={busy} onOpen={onOpen} signals={{ byUrl: signalsByUrl, counts: categoryCounts, category: category as VisualIssueCategory | 'all', onCategory: setCategory, profile: attentionProfile, onProfile: value => { setAttentionProfile(value); setSort('attention'); }, attentionSorted: sort === 'attention' }} /> : <>
+    {loading && !visible.length ? <div className="inbox-empty" role="status"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>正在读取 {title} 数据…</h3><p>保留真实数据，不填充演示记录。</p></div> : empty ? <div className="inbox-empty"><span className="inbox-empty-icon">{issues ? <CircleDot size={22} /> : <GitPullRequest size={22} />}</span><h3>{failed ? '数据暂时无法读取' : filtered ? '没有符合筛选条件的记录' : issues ? '分诊工作地图当前没有开放反馈' : '此分支当前页没有开放 PR'}</h3><p>{failed ? '查看上方错误信息，重试刷新；这不代表仓库没有数据。' : filtered ? '筛选只作用于当前页；换页可以继续查看其他记录。' : '没有待处理记录时无需发起分析，也不会显示空详情面板。'}</p>{filtered && <button className="button button-secondary" type="button" onClick={reset}>重置筛选</button>}</div> : mode === 'pulse' ? <MaintenancePulse kind={kind} items={visible} busy={busy} onOpen={onOpen} baseBranch={pullBranches?.selected || undefined} signals={{ byUrl: signalsByUrl, counts: categoryCounts, category: category as VisualIssueCategory | 'all', onCategory: setCategory, profile: attentionProfile, onProfile: value => { setAttentionProfile(value); setSort('attention'); }, attentionSorted: sort === 'attention' }} /> : <>
       <div className={`inbox-columns ${issues ? 'is-issues' : 'is-pulls'}`} aria-hidden="true"><span>{issues ? '反馈内容' : '变更内容'}</span><span>{issues ? '类别（含线索）' : '变更类型'}</span><span>{issues ? '处理状态' : 'PR 状态'}</span><span>{issues ? '优先级' : 'Head 提交'}</span><span>更新</span><span /></div>
       <div className="inbox-rows" aria-busy={loading}>{visible.map(item => {
         const fields = issueClassification(item);
@@ -149,6 +154,7 @@ export function ReviewInbox({ kind, items, page, connected, busy, loading, hidde
         </button>;
       })}</div>
     </>}
-    <footer className="inbox-footer"><span>{mode === 'pulse' ? issues ? '按已有处理状态分流，点击问题查看依据与下一步' : '连线表示目标分支，节点状态依据已读取证据' : issues ? '分类是建议，处理由维护者决定' : '先审阅证据，再决定是否发布评论'}</span><nav aria-label={`${title} 分页`}><button type="button" disabled={page === 1 || busy || loading} onClick={() => onPage(page - 1)} aria-label={`上一页 ${title}`}><ChevronLeft size={15} /></button><span>第 {page} 页</span><button type="button" disabled={!items.length || busy || loading} onClick={() => onPage(page + 1)} aria-label={`下一页 ${title}`}><ChevronRight size={15} /></button></nav></footer>
+    <footer className="inbox-footer"><span>{mode === 'pulse' ? issues ? '按已有处理状态分流，点击问题查看依据与下一步' : '连线表示目标分支，节点状态依据已读取证据' : issues ? '分类是建议，处理由维护者决定' : '先审阅证据，再决定是否发布评论'}</span><nav aria-label={`${title} 分页`}><button type="button" disabled={page === 1 || busy || loading} onClick={() => onPage(page - 1)} aria-label={`上一页 ${title}`}><ChevronLeft size={15} /></button><span>第 {page} 页{!issues && pullBranches && ' · 每页最多 30 条'}{page >= 100 && ' · 已达读取上限'}</span><button type="button" disabled={page >= 100 || (issues ? !items.length : pullBranches ? !pullBranches.hasNext : !items.length) || busy || loading} onClick={() => onPage(page + 1)} aria-label={`下一页 ${title}`}><ChevronRight size={15} /></button></nav></footer>
+    </>}
   </section>;
 }
