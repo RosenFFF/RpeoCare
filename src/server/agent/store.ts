@@ -54,10 +54,14 @@ export function listTasks(owner: string, repo: string, branch?: string): Mainten
         state: string;
     }[]).map(item => JSON.parse(item.state));
 }
+export function contextualTask(owner:string,repo:string,branch:string|undefined,kind:MaintenanceTask['kind'],number?:number,anchor?:string){
+    const found=database().prepare("SELECT id FROM maintenance_tasks WHERE owner=? AND repo=? AND branch=? AND json_extract(state,'$.kind')=? AND COALESCE(json_extract(state,'$.number'),0)=? AND COALESCE(json_extract(state,'$.anchor'),'')=? ORDER BY rowid DESC LIMIT 1").get(owner,repo,branch||'',kind,number||0,anchor||'') as {id:string}|undefined;
+    return found?getTask(owner,found.id):null;
+}
 export function createTask(owner: string, project: {
     repoUrl: string;
     branch?: string;
-}, input: Pick<MaintenanceTask, 'kind' | 'number' | 'goal'>) {
+}, input: Pick<MaintenanceTask, 'kind' | 'number' | 'goal' | 'anchor' | 'sourceCommitSha'>) {
     const connection = selectedConnection(owner);
     if (!connection)
         throw new Error('请先在设置中配置模型连接。');

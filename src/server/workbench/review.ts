@@ -5,7 +5,7 @@ import { parseDiff } from '../../shared/lib/pr-diff';
 import { prepareReviewFiles, reviewFingerprint } from '../../shared/lib/pr-review-context';
 import { getItem, getPullRequestReviewContext } from '../github/api';
 import { publicSelection, selectedConnection } from '../models/run-config';
-import { assistant } from './assistant';
+import { assistant, assistantWithEvidence } from './assistant';
 import { createDraft, previousDraft, getPullRequestReview, savePullRequestReview } from './store';
 
 const reviewSchema = z.object({
@@ -20,7 +20,7 @@ const reviewSchema = z.object({
   }).strict()).max(12),
   limitations: z.array(z.string().trim().min(1).max(500)).max(12),
 }).strict();
-export const PR_REVIEW_PROMPT_VERSION = 'pr-review-v2';
+export const PR_REVIEW_PROMPT_VERSION = 'pr-review-v3';
 export const isTestFile = (path: string) => /(^|\/)(tests?|__tests__)(\/|$)|[._-](test|spec)\.[^/]+$|_test\.go$/i.test(path);
 const isDocs = (path: string) => /(^|\/)(docs?|readme|contributing)([./]|$)|\.(md|rst|adoc)$/i.test(path);
 
@@ -65,8 +65,8 @@ export async function analyzePullRequest(owner: string, repoUrl: string, number:
   const connection = selectedConnection(owner);
   if (!connection) throw new Error('请先配置并测试模型连接。');
   const instruction = `只输出 JSON，不要 Markdown。结构 {"summary":"中文变更摘要", "findings":[{"severity":"warning", "category":"correctness", "title":"疑点", "explanation":"触发条件、影响与建议", "path":"真实文件路径", "line":1, "side":"RIGHT", "evidence":"该行代码原文片段（不含 Diff 的加减号）", "confidence":"medium"}], "limitations":[]}。没有问题时 findings=[]，不要凑数量，最多12项。severity: blocking/warning/suggestion/info；category: correctness/security/performance/tests/maintainability/compatibility/scope。新行用 RIGHT，删除行用 LEFT。仅分析可见 Diff；引用具体代码，解释潜在回归/边界遗漏以及关联 Issue 是否需要人工核对。发现测试文件不等于覆盖充分或测试通过。优先报告正确性、接口兼容、异常处理与回归测试问题，避免无意义风格建议。不要声称全量审查、执行测试或可以合并。`;
-  const data = { pullRequest: { number, title: context.item.title, body: context.item.body.slice(0, 8000), headSha: context.headSha, baseSha: context.baseSha }, files, checks: context.checks.slice(0, 30), linkedIssues: context.item.linkedIssues, warnings: context.item.snapshotWarnings };
-  const text = await assistant(owner, 'pull-request-review', instruction, data, [], signal, connection);
+  const data = { repository: { url: repoUrl }, pullRequest: { number, title: context.item.title, body: context.item.body.slice(0, 8000), headSha: context.headSha, baseSha: context.baseSha }, files, checks: context.checks.slice(0, 30), linkedIssues: context.item.linkedIssues, warnings: context.item.snapshotWarnings };
+  const {text,investigation} = await assistantWithEvidence(owner, 'pull-request-review', instruction, data, [], signal, connection);
   let review: PullRequestReview;
   try { review = parsePullRequestReview(text, { ...context, files }); }
   catch (error) {
@@ -76,7 +76,7 @@ export async function analyzePullRequest(owner: string, repoUrl: string, number:
   }
   const latest = await getItem(owner, repoUrl, 'pulls', number, signal);
   if (latest.headSha !== review.headSha || latest.baseSha !== review.baseSha || latest.updatedAt !== context.item.updatedAt) throw new Error('AI 分析期间 PR 已更新，结果未保存，请重新分析。');
-  review.repoUrl = repoUrl; review.model = publicSelection(connection);
+  review.investigation=investigation; review.repoUrl = repoUrl; review.model = publicSelection(connection);
   return savePullRequestReview(owner, repoUrl, review);
 }
 export function formatReviewDraft(review: PullRequestReview): string {
@@ -90,5 +90,5 @@ export async function createPullReviewDraft(owner: string, repoUrl: string, numb
   if (!review) throw new Error('请先完成 PR AI 审查并处理发现。');
   const current = await getItem(owner, repoUrl, 'pulls', number, signal);
   if (current.headSha !== review.headSha || current.baseSha !== review.baseSha || reviewFingerprint(current, prepareReviewFiles(current.files || [])) !== review.contextFingerprint) throw new Error('PR 或描述已更新，请重新审查后生成草稿。');
-  return createDraft(owner, { kind: 'review', previousDraftId: previousDraft(owner, repoUrl, 'review', undefined, number)?.id, repoUrl, number, baseSha: review.headSha, before: '', title: `PR 审阅 #${number}`, content: formatReviewDraft(review), source: { type: 'github-item', kind: 'review', number, reviewId: review.id, reviewRevision: review.revision } });
+  return createDraft(owner, { kind: 'review', previousDraftId: previousDraft(owner, repoUrl, 'review', undefined, number)?.id, repoUrl, number, baseSha: review.headSha, before: '', title: `PR 审阅 #${number}`, content: formatReviewDraft(review), investigation:review.investigation,source: { type: 'github-item', kind: 'review', number, reviewId: review.id, reviewRevision: review.revision } });
 }

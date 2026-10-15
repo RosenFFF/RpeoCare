@@ -2,6 +2,7 @@
 
 import type { Overview } from '@/contracts/overview';
 import { changed } from '@/features/workbench/client';
+import { MaintenanceSupport } from '../workbench/maintenance-support';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowUp, Bot, Check, ChevronDown, CircleDashed, CircleHelp, Clock3, Download, FileText, GitBranch, History, Info, ListTree, LoaderCircle, MessageSquare, Plus, RefreshCw, Route, ShieldCheck, Square, X } from 'lucide-react';
@@ -63,18 +64,18 @@ function ModelStamp({ model }: { model?: ModelSelection }) {
 
 function AgentActivity({ run }: { run: AuditRun }) {
   const events = run.agentEvents || [];
-  return <div className="aw-agent-activity"><span className="aw-detail-label">Agent 执行记录</span>
-    {events.length ? <ol aria-label="Agent 实际工具调用记录">{events.map(event => <li key={event.index} className={event.failed ? 'aw-agent-event-failed' : ''}>
+  return <div className="aw-agent-activity"><span className="aw-detail-label">内容核对记录</span>
+    {events.length ? <ol aria-label="内容核对工具记录">{events.map(event => <li key={event.index} className={event.failed ? 'aw-agent-event-failed' : ''}>
       <time dateTime={event.at}>{new Date(event.at).toLocaleTimeString('zh-CN', { hour12: false })}</time>
       <span>{event.kind === 'tool_end' ? event.failed ? '×' : '✓' : '·'}</span><p>{event.message}</p>
-    </li>)}</ol> : <p className="aw-muted">{run.model ? '执行后展示实际工具操作，不展示模型内部推理。' : '本次未启用 Agent。可在工作区设置中添加模型连接。'}</p>}
+    </li>)}</ol> : <p className="aw-muted">{run.model ? '执行后展示实际工具操作，不展示模型内部推理。' : '本次未启用内容研判。可在工作区设置中添加模型连接。'}</p>}
   </div>;
 }
 
 function markdown(report: AuditReport) {
   const text = (value: string) => value.replace(/\r/g, '').replace(/([\\`*_[\]<>])/g, '\\$1');
-  return [`# RepoCare 项目体检报告`, '', `仓库：${text(report.repository.fullName)}`, `分支：${text(report.repository.branch)}`, `提交：${report.repository.sha}`, `生成时间：${report.generatedAt}`, '', `## 检查范围`, '', text(report.scope), '', `Agent 状态：${report.agentStatus === 'completed' ? '分析完成' : report.agentStatus === 'disabled' ? '未启用，仅规则检查' : '分析失败，保留规则结果'}`, ...(report.model ? ['', `模型：${text(report.model.name)} / ${text(report.model.modelId)} / v${report.model.revision}`] : []), '', ...report.warnings.flatMap(value => [`> ${text(value).replace(/\n/g, '\n> ')}`, '']), ...report.checks.flatMap(check => [
-    `## ${text(check.title)} · ${checkLabels[check.status]}`, '', `类别：${check.category}；来源：${check.source === 'agent' ? 'Agent 分析' : '规则检查'}`, '', text(check.summary), '', '### 依据', '', ...check.evidence.flatMap(item => [`- 文件：${text(item.path)}`, ...(safeEvidenceUrl(item.url) ? [`  链接：${safeEvidenceUrl(item.url)}`] : []), ...(item.note ? [`  ${text(item.note)}`] : []), ...(item.excerpt ? ['', ...item.excerpt.split('\n').map(line => `    ${line}`), ''] : [])]), '', ...(check.suggestion ? ['### 改进建议', '', text(check.suggestion), ''] : []),
+  return [`# RepoCare 项目体检报告`, '', `仓库：${text(report.repository.fullName)}`, `分支：${text(report.repository.branch)}`, `提交：${report.repository.sha}`, `生成时间：${report.generatedAt}`, '', `## 检查范围`, '', text(report.scope), '', `内容研判状态：${report.agentStatus === 'completed' ? '分析完成' : report.agentStatus === 'disabled' ? '未启用，仅规则检查' : '分析失败，保留规则结果'}`, ...(report.model ? ['', `模型：${text(report.model.name)} / ${text(report.model.modelId)} / v${report.model.revision}`] : []), '', ...report.warnings.flatMap(value => [`> ${text(value).replace(/\n/g, '\n> ')}`, '']), ...report.checks.flatMap(check => [
+    `## ${text(check.title)} · ${checkLabels[check.status]}`, '', `类别：${check.category}；来源：${check.source === 'agent' ? '内容研判' : '规则检查'}`, '', text(check.summary), '', '### 依据', '', ...check.evidence.flatMap(item => [`- 文件：${text(item.path)}`, ...(safeEvidenceUrl(item.url) ? [`  链接：${safeEvidenceUrl(item.url)}`] : []), ...(item.note ? [`  ${text(item.note)}`] : []), ...(item.excerpt ? ['', ...item.excerpt.split('\n').map(line => `    ${line}`), ''] : [])]), '', ...(check.suggestion ? ['### 改进建议', '', text(check.suggestion), ''] : []),
   ]), '---', '检查结论仅对应上述提交版本。配置存在不代表已执行或测试通过。', ''].join('\n');
 }
 
@@ -105,7 +106,7 @@ function Report({ report, onNotify, onJourney }: { report: AuditReport; onNotify
     <div className="aw-section-heading"><div><span className="aw-section-label"><ShieldCheck size={15} aria-hidden="true" />本次体检报告</span><h2 id="aw-report-title">{report.repository.fullName}</h2><p><GitBranch size={13} aria-hidden="true" />{report.repository.branch}<code>{report.repository.sha.slice(0, 7)}</code><span>{dateLabel(report.generatedAt)}</span></p></div><div className="aw-downloads"><button className="button button-primary" type="button" onClick={onJourney}><Route size={14} />验证贡献路径</button><Link className="button button-secondary" href="/overview">查看项目概览</Link>{(['md', 'json'] as const).map(format => <button key={format} className="button button-secondary" onClick={() => { downloadReport(report, format); onNotify(`已导出 ${format === 'md' ? 'Markdown' : 'JSON'} 体检报告。`); }}><Download size={14} aria-hidden="true" />{format === 'md' ? 'Markdown' : 'JSON'}</button>)}</div></div>
     <div className="aw-report-stats"><div><strong>{passed}</strong><span><Check size={14} aria-hidden="true" />检查通过</span></div><div><strong>{attention}</strong><span><CircleDashed size={14} aria-hidden="true" />待完善</span></div><div><strong>{unknown}</strong><span><CircleHelp size={14} aria-hidden="true" />无法判断</span></div><p>{report.scope}<span>检查结果对应本次提交，不是项目质量评分。</span></p></div>
     {report.model && <div className="aw-report-model"><ModelStamp model={report.model} /></div>}
-    {report.agentStatus !== 'completed' && <div className="aw-notice"><Info size={15} aria-hidden="true" /><p>{report.agentStatus === 'disabled' ? '本次仅执行规则检查，Agent 内容分析未启用。' : 'Agent 内容分析未完成，以下保留已完成的规则检查。'}</p></div>}
+    {report.agentStatus !== 'completed' && <div className="aw-notice"><Info size={15} aria-hidden="true" /><p>{report.agentStatus === 'disabled' ? '本次仅执行规则检查，内容分析未启用。' : '内容分析未完成，以下保留已完成的规则检查。'}</p></div>}
     {report.warnings.length > 0 && <div className="aw-notice aw-notice-warning"><Info size={15} aria-hidden="true" /><ul>{report.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
     <div className="mv-section-title"><div><h2>维护检查清单</h2><p>先查看待完善项，展开结论可核对原始文件。</p></div><span className="mv-small-meta">共 {report.checks.length} 项检查</span></div>
     <div className="mv-filter-row" aria-label="按检查类别筛选">{filters.map(item => <button key={item} className={`mv-filter ${filter === item ? 'mv-filter-active' : ''}`} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}<span>{item === '全部' ? report.checks.length : report.checks.filter(check => check.category === item).length}</span></button>)}</div>
@@ -113,9 +114,10 @@ function Report({ report, onNotify, onJourney }: { report: AuditReport; onNotify
     <div className="mv-check-list"><div className="mv-list-head" aria-hidden="true"><span>检查项目</span><span>状态</span><span /></div>{visible.map(item => {
       const open = expanded === item.id;
       const statusClass = item.status === 'pass' ? 'passed' : item.status === 'needs_attention' ? 'pending' : 'unknown';
-      return <article className={`mv-check ${open ? 'mv-check-open' : ''}`} key={item.id}><button type="button" className="mv-check-trigger" aria-expanded={open} aria-controls={`aw-check-${item.id}`} onClick={() => setExpanded(open ? null : item.id)}><span className="mv-check-name"><span className={`mv-check-symbol mv-${statusClass}`}>{item.status === 'pass' ? <Check size={15} aria-hidden="true" /> : item.status === 'unknown' ? <CircleHelp size={16} aria-hidden="true" /> : <CircleDashed size={16} aria-hidden="true" />}</span><span><strong>{item.title}</strong><span className="mv-check-summary">{item.summary}</span></span></span><span className={`mv-check-status mv-status-${statusClass}`}>{checkLabels[item.status]}</span><ChevronDown size={16} className={open ? 'mv-chevron-open' : ''} aria-hidden="true" /></button>{open && <div id={`aw-check-${item.id}`} className="mv-check-detail"><div><span className="mv-detail-label"><FileText size={13} aria-hidden="true" />{item.source === 'agent' ? 'Agent 分析依据' : '规则检查依据'}</span><EvidenceList evidence={item.evidence} /></div><div><span className="mv-detail-label">改进建议</span><p>{item.suggestion || '本项暂无补充建议，请结合项目实际情况判断。'}</p></div></div>}</article>;
+      return <article className={`mv-check ${open ? 'mv-check-open' : ''}`} key={item.id}><button type="button" className="mv-check-trigger" aria-expanded={open} aria-controls={`aw-check-${item.id}`} onClick={() => setExpanded(open ? null : item.id)}><span className="mv-check-name"><span className={`mv-check-symbol mv-${statusClass}`}>{item.status === 'pass' ? <Check size={15} aria-hidden="true" /> : item.status === 'unknown' ? <CircleHelp size={16} aria-hidden="true" /> : <CircleDashed size={16} aria-hidden="true" />}</span><span><strong>{item.title}</strong><span className="mv-check-summary">{item.summary}</span></span></span><span className={`mv-check-status mv-status-${statusClass}`}>{checkLabels[item.status]}</span><ChevronDown size={16} className={open ? 'mv-chevron-open' : ''} aria-hidden="true" /></button>{open && <div id={`aw-check-${item.id}`} className="mv-check-detail"><div><span className="mv-detail-label"><FileText size={13} aria-hidden="true" />{item.source === 'agent' ? '内容研判依据' : '规则检查依据'}</span><EvidenceList evidence={item.evidence} /></div><div><span className="mv-detail-label">改进建议</span><p>{item.suggestion || '本项暂无补充建议，请结合项目实际情况判断。'}</p></div></div>}</article>;
     })}{visible.length === 0 && <p className="aw-empty-filter">此类别暂无检查结果。</p>}</div>
     <div className="mv-bottom-note"><ShieldCheck size={15} aria-hidden="true" /><p>只读检查不会修改仓库，也不会运行仓库脚本。配置存在不代表测试通过；是否采用建议，由你决定。</p></div>
+    <MaintenanceSupport kind="docs" anchor={`audit:${report.runId}`} sourceCommitSha={report.repository.sha} repoUrl={report.repository.url} branch={report.repository.branch} title="改进方案" actionLabel="核对跨文件改进依据" goal={`围绕体检报告中的待完善项 ${report.checks.filter(c=>c.status!=='pass').map(c=>c.title).join('、').slice(0,800)}，在固定提交 ${report.repository.sha} 中读取相关文档、实现与脚本约定，核对相互影响，给出有源码依据的改进建议；有明确原文时可提出补丁。不要把规则检查当作完整实现审查，不执行或发布。`}/>
   </section>;
 }
 

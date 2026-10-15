@@ -44,7 +44,7 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 
 ## 维护 Agent 执行链
 
-`/agent` 或 Issue/PR 详情预填入口 → 用户提交目标 → SQLite 持久队列 → 独立 Agent Worker → pi 工具循环 → 固定提交源码与协作证据 → 阶段报告、补丁、回复草稿和待确认执行计划。阶段可补充、停止和继续，知识由用户确认保存；复现与补丁对照验证复用隔离执行器。实现、恢复与资源边界见 [MAINTENANCE_AGENT.md](MAINTENANCE_AGENT.md)。
+现有分诊、PR 审查、文档生成动作 → 请求内的只读 pi 工具循环 → 固定提交源码与协作上下文 → 原有结构化结果及读取依据。Issue、PR、体检报告和文档草稿详情中的深入处理动作 → SQLite 持久队列 → 独立 Agent Worker → 阶段结论、补丁、回复草稿和待确认执行计划。结果留在对应业务页面，导航没有独立 Agent 模块。阶段可补充、停止和继续，知识由用户确认保存及停用；复现与补丁对照验证复用隔离执行器。实现、恢复与资源边界见 [MAINTENANCE_AGENT.md](MAINTENANCE_AGENT.md)。
 
 ## Issue 复现执行链
 

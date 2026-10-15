@@ -12,7 +12,6 @@ import { GitItems } from "@/features/workbench/git-items";
 import { DraftWorkspace } from "@/features/workbench/draft-workspace";
 import { useWorkbench } from "@/features/workbench/client";
 import { OverviewView } from "../../features/overview/overview-view";
-import { AgentWorkspace } from "../../features/agent/agent-workspace";
 import { AuditView } from "../../features/audit/audit-view";
 import { SettingsView } from "../../features/settings/settings-view";
 
@@ -21,7 +20,7 @@ import { RepositoryChooser } from "@/features/workbench/repository-chooser";
 type Modal = "search" | "project" | "help" | "notifications" | null;
 
 const navigationGroups: { label: string; items: ViewId[] }[] = [
-  { label: "项目", items: ["overview", "audit", "agent"] },
+  { label: "项目", items: ["overview", "audit"] },
   { label: "协作审阅", items: ["issues", "pull-requests"] },
   { label: "交付", items: ["improvements"] },
 ];
@@ -116,7 +115,6 @@ export function Workspace({ view }: { view: ViewId }) {
       <header className="topbar"><div className="breadcrumb"><button type="button" className="icon-button sidebar-toggle" aria-label={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} aria-expanded={!appearance.sidebarCollapsed} aria-controls="workspace-sidebar" onClick={() => updateAppearance({ sidebarCollapsed: !appearance.sidebarCollapsed })}>{appearance.sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button><button type="button" className="icon-button mobile-menu" aria-label="打开导航" aria-controls="workspace-sidebar" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Menu size={19} /></button><span className="breadcrumb-project"><GitFork size={16} /><span>{workspaceName}</span></span><ChevronRight size={13} /><span>{current.label}</span></div><div className="topbar-actions"><span className="demo-badge"><span />{workbench?.project ? "项目已连接" : "等待连接项目"}</span><button type="button" className="search-button" aria-label="快速跳转" onClick={() => { setQuery(""); setModal("search"); }}><Search size={16} /><span>快速跳转</span><kbd>Ctrl K</kbd></button><ThemePicker theme={appearance.theme} onChange={theme => updateAppearance({ theme })} /><div className="topbar-divider"/><button type="button" className="icon-button notification-button" aria-label="查看通知" onClick={() => { setModal("notifications"); setNotificationRead(true); }}><Bell size={18}/>{!notificationRead && <span />}</button></div></header>
       <main id="main-content" className={`main-content view-${view}`} tabIndex={-1}>
         {view === "overview" && <OverviewView onNotify={notify} />}
-        {view === "agent" && <AgentWorkspace />}
         {view === "audit" && <AuditView onNotify={notify} />}
         {view === "issues" && <GitItems kind="issues" />}
         {view === "pull-requests" && <GitItems kind="pulls" />}

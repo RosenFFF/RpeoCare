@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { getItem } from '../github/api';
 import type { GitItem, IssueAction, IssueCategory, IssueConfidence, IssuePriority, IssueReadinessLevel, IssueTriage, IssueWorkflowStatus } from '../../contracts/workbench';
-import { assistant } from './assistant';
+import { assistant, assistantWithEvidence } from './assistant';
 import { getIssueTriage, saveIssueTriage } from './store';
 
 const triageSchema = z.object({
@@ -72,19 +73,22 @@ export function parseTriage(text: string, item: GitItem): Omit<IssueTriage, 'rep
 
 export async function analyzeIssue(owner: string, repoUrl: string, item: GitItem, signal?: AbortSignal, force = false) {
   const current = getIssueTriage(owner, repoUrl, item.number);
-  if (!force && current && current.sourceUpdatedAt === item.updatedAt) return current;
+  if (!force && current?.investigation && current.sourceUpdatedAt === item.updatedAt) return current;
   const context = {
+    repository: { url: repoUrl },
     issue: { number: item.number, title: item.title, body: item.body, author: item.author, labels: item.labels, state: item.state, updatedAt: item.updatedAt },
     comments: (item.comments || []).map(comment => ({ id: comment.id, author: comment.author, body: comment.body, createdAt: comment.createdAt })),
   };
   const instruction = `只输出一个 JSON 对象，不要 Markdown 代码围栏，不要解释。严格返回以下全部字段：category、priority、confidence、needsMoreInfo、language、titleZh、summaryZh、bodyZh、actualBehavior、expectedBehavior、environment、providedInformation、missingInformation、suggestedLabels、suggestedAction、commentsZh。没有内容的可选文本返回空字符串；没有数组内容返回空数组；commentsZh 必须始终返回数组。category 只能是 bug、feature、question、documentation、performance、compatibility、security、other；priority 只能是 high、medium、low、unknown；confidence 只能是 high、medium、low；suggestedAction 只能是 request-information、reply、investigate、consider-feature、close、manual-review。不得凭空补充版本、错误或结论；信息不足时 needsMoreInfo=true、confidence=low 或 medium，并列出 missingInformation。commentsZh 必须保留输入评论 id 并逐条翻译，不能新增评论。`;
-  const text = await assistant(owner, 'issue-triage', instruction, context, [], signal);
+  const {text,investigation} = await assistantWithEvidence(owner, 'issue-triage', instruction, context, [], signal);
   let parsed: Omit<IssueTriage, 'repoUrl' | 'number' | 'sourceUpdatedAt' | 'analyzedAt'>;
   try { parsed = parseTriage(text, item); } catch (firstError) {
     const repaired = await assistant(owner, 'issue-triage-repair', `${instruction} 这是一次格式修复请求。请把 invalidOutput 修复为符合结构的 JSON，不要沿用额外字段。`, { issue: context.issue, comments: context.comments, invalidOutput: text.slice(0, 12000), validationError: firstError instanceof Error ? firstError.message : 'schema validation failed' }, [], signal);
     parsed = parseTriage(repaired, item);
   }
-  return saveIssueTriage(owner, repoUrl, { ...parsed, workflowStatus: current?.review?.workflowStatus || parsed.workflowStatus, review: current?.review, repoUrl, number: item.number, sourceUpdatedAt: item.updatedAt, analyzedAt: new Date().toISOString() });
+  const latest=await getItem(owner,repoUrl,'issues',item.number,signal);
+  if(latest.updatedAt!==item.updatedAt)throw new Error('分析期间Issue已更新，结果未保存，请重新分诊。');
+  return saveIssueTriage(owner, repoUrl, { ...parsed, investigation, workflowStatus: current?.review?.workflowStatus || parsed.workflowStatus, review: current?.review, repoUrl, number: item.number, sourceUpdatedAt: item.updatedAt, analyzedAt: new Date().toISOString() });
 }
 
 export type { IssueAction, IssueCategory, IssueConfidence, IssuePriority, IssueWorkflowStatus };

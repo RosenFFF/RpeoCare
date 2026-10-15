@@ -4,7 +4,7 @@ import { createTwoFilesPatch } from 'diff';
 import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { getItem, getPullRequestChecks } from '../github/api';
-import { createDraft, createReproductionJob, getReproductionJob } from '../workbench/store';
+import { createDraft, createReproductionJob, getDraft, getReproductionJob } from '../workbench/store';
 import { reproductionPlanSchema, validateReproductionPlan } from '../reproduction/plan';
 import { localProposal, memories, saveClaim } from './store';
 import { RepositoryReader, repositoryPath } from './repository';
@@ -12,7 +12,7 @@ import type { AgentArtifact, AgentPatchFile } from '../../contracts/agent';
 import type { ReproductionPlan } from '../../contracts/workbench';
 const patchSchema = z.object({ title: z.string().min(1).max(180), evidenceIds: z.array(z.string()).min(1).max(12), edits: z.array(z.object({ path: z.string(), before: z.string().max(20000), after: z.string().max(20000) }).strict()).min(1).max(4) }).strict();
 function defineTool<P extends TSchema>(tool: AgentTool<P>): AgentTool { return tool as AgentTool; }
-export async function maintenanceTools(reader: RepositoryReader): Promise<AgentTool[]> {
+export async function maintenanceTools(reader: RepositoryReader, readOnly=false): Promise<AgentTool[]> {
     const {Type}=await import('@mariozechner/pi-ai');
     const { claim, signal } = reader, { task } = claim;
     const result = (value: unknown) => {
@@ -41,7 +41,14 @@ export async function maintenanceTools(reader: RepositoryReader): Promise<AgentT
     };
     const string = (maxLength = 400) => Type.String({ minLength: 1, maxLength });
     const fingerprint=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
-    return [
+    const tools:AgentTool[] = [
+        defineTool({ name: 'read_draft', label: '读取当前文档改动', description: '读取当前任务绑定的已保存草稿及原文。草稿是未提交的方案，不是仓库事实；版本变化时需要重新发起核对。', parameters: Type.Object({}), async execute() {
+            const match = task.anchor?.match(/^draft:([a-f0-9-]+):r(\d+)$/i);
+            if (!match || task.kind !== 'docs') throw new Error('当前核对没有绑定文档草稿。');
+            const draft = getDraft(claim.owner, match[1]);
+            if (draft.repoUrl !== task.repoUrl || draft.baseSha !== task.commitSha || draft.revision !== Number(match[2])) throw new Error('草稿版本已经变化，请保存后重新核对。');
+            return result({ title: draft.title, path: draft.path, revision: draft.revision, before: draft.before, proposed: draft.content, uncommitted: true });
+        } }),
         defineTool({ name: 'set_plan', label: '更新任务步骤', description: '维护供用户查看的短步骤清单；只写行动与进度，不输出内部推理。', parameters: Type.Object({ steps: Type.Array(Type.Object({ title: string(160), status: Type.Union([Type.Literal('pending'), Type.Literal('active'), Type.Literal('done')]) }), { minItems: 1, maxItems: 8 }) }), async execute(_id, p) { task.plan = p.steps; return result({ saved: true }); } }),
         defineTool({ name: 'list_files', label: '浏览提交目录', description: '列出固定提交中的源码路径，每页80项。截断不代表文件不存在。', parameters: Type.Object({ prefix: Type.Optional(string()), offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 15000 })) }), async execute(_id, p) { const tree = await reader.tree(), entries = tree.tree.filter(f => f.path.startsWith(p.prefix || '')), offset = p.offset || 0; return result({ files: entries.slice(offset, offset + 80), truncated: tree.truncated, nextOffset: offset + 80 < entries.length ? offset + 80 : null, commitSha: task.commitSha }); } }),
         defineTool({ name: 'read_file', label: '按需读取源码', description: '读取固定提交中的文本，最多120行/12000字符。记录可回溯的证据ID。', parameters: Type.Object({ path: string(), startLine: Type.Optional(Type.Integer({ minimum: 1, maximum: 200000 })) }), async execute(_id, p) { return result(await reader.read(p.path, p.startLine)); } }),
@@ -65,7 +72,7 @@ export async function maintenanceTools(reader: RepositoryReader): Promise<AgentT
         defineTool({ name: 'propose_reply', label: '保存回复草稿', description: '为绑定的Issue生成本地回复草稿；不会发布。相同内容重试不会重复创建。PR审阅请使用原有PR检查工作台。', parameters: Type.Object({ content: string(18000), evidenceIds: Type.Array(string(40), { minItems: 1, maxItems: 12 }) }), async execute(_id, p) { if (task.kind !== 'issue' || !task.number)
                 throw new Error('仅Issue任务支持回复草稿。'); validEvidence(p.evidenceIds); const key=fingerprint(p.content),existing = task.artifacts.find(a => a.kind === 'reply'&&a.fingerprint===key); if (existing)
                 return result(existing); const current = await getItem(claim.owner, task.repoUrl, 'issues', task.number, signal); if (current.updatedAt !== task.sourceUpdatedAt)
-                throw new Error('Issue已更新，请新建任务读取最新反馈后生成回复。'); return result(localProposal(claim, () => { const draft = createDraft(claim.owner, { kind: 'issue', repoUrl: task.repoUrl, number: task.number!, baseSha: '', before: '', content: p.content, title: `Issue 回复 #${task.number} · Agent 第${task.artifacts.filter(a=>a.kind==='reply').length+1}版`,previousDraftId:task.artifacts.filter(a=>a.kind==='reply').at(-1)?.draftId, source: { type: 'github-item', kind: 'issue', number: task.number! } }); return artifact({ kind: 'reply', fingerprint:key, title: draft.title, draftId: draft.id, evidenceIds: p.evidenceIds }); })); } }),
+                throw new Error('Issue已更新，请新建任务读取最新反馈后生成回复。'); return result(localProposal(claim, () => { const draft = createDraft(claim.owner, { kind: 'issue', repoUrl: task.repoUrl, number: task.number!, baseSha: '', before: '', content: p.content, title: `Issue 回复 #${task.number} · 修订第${task.artifacts.filter(a=>a.kind==='reply').length+1}版`,previousDraftId:task.artifacts.filter(a=>a.kind==='reply').at(-1)?.draftId, source: { type: 'github-item', kind: 'issue', number: task.number! } }); return artifact({ kind: 'reply', fingerprint:key, title: draft.title, draftId: draft.id, evidenceIds: p.evidenceIds }); })); } }),
         defineTool({ name: 'prepare_reproduction', label: '准备复现计划', description: '保存待用户确认的隔离复现计划，不执行。planJson需符合现有复现计划结构，缺信息必须注明。', parameters: Type.Object({ planJson: string(40000), evidenceIds: Type.Array(string(40), { minItems: 1, maxItems: 12 }) }), async execute(_id, p) { if (task.kind !== 'issue' || !task.number)
                 throw new Error('仅Issue任务支持复现。'); if (claim.internal.cache.visibility === 'private')
                 throw new Error('当前隔离执行器仅支持公开仓库。'); validEvidence(p.evidenceIds); const plan=validateReproductionPlan(JSON.parse(p.planJson)),key=fingerprint(plan),existing = task.artifacts.find(a => a.kind === 'reproduction'&&a.fingerprint===key); if (existing)
@@ -106,6 +113,8 @@ export async function maintenanceTools(reader: RepositoryReader): Promise<AgentT
         defineTool({ name: 'read_execution', label: '读取隔离执行证据', description: '读取此任务已有复现/验证结果。reproduced表示命中了计划判据；all-steps-pass只表示这些命令通过，不证明全部问题解决。', parameters: Type.Object({ jobId: string(40) }), async execute(_id, p) { if (!task.artifacts.some(a => a.jobIds?.includes(p.jobId)))
                 throw new Error('执行记录不属于本任务。'); const job = getReproductionJob(claim.owner, p.jobId); if (!job || job.repoUrl !== task.repoUrl || job.commitSha !== task.commitSha)
                 throw new Error('执行版本不匹配。'); const excerpt = JSON.stringify({id:job.id,verificationRole:job.verificationRole,patchId:task.artifacts.find(a=>a.jobIds?.includes(job.id))?.patchId,status:job.status,commitSha:job.commitSha,oracle:job.plan.oracle,progress:job.progress,error:job.error,result:job.result,attemptHistory:job.attemptHistory,verificationSteps:job.verificationSteps,artifacts:job.artifacts.map(a=>({id:a.id,kind:a.kind,sha256:a.sha256,size:a.size}))}).slice(0,12000), evidenceId = reader.evidence('execution', `隔离执行 ${p.jobId}`, excerpt); return result({ job: excerpt, evidenceId }); } }),
-    ] as AgentTool[];
+    ];
+    const readTools=new Set(['list_files','read_file','search_files','read_item','read_checks','read_memory','read_evidence']);
+    return readOnly?tools.filter(tool=>readTools.has(tool.name)):tools;
 }
 export const reproductionSchemaDescription = JSON.stringify(z.toJSONSchema(reproductionPlanSchema));

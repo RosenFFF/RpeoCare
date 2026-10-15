@@ -2,14 +2,14 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
 import { getProject, getReproductionJob, queueReproductionJob } from '@/server/workbench/store';
-import { agentWorkerOnline, archiveMemory, createTask, getTask, listTasks, memories, mutateTask, remember } from '@/server/agent/store';
+import { agentWorkerOnline, archiveMemory, contextualTask, createTask, getTask, listTasks, memories, mutateTask, remember } from '@/server/agent/store';
 import { reproductionWorkerOnline } from '@/server/reproduction/queue';
 import { getBranchCommit, getItem } from '@/server/github/api';
 import type { MaintenanceTask } from '@/contracts/agent';
 export const runtime = 'nodejs';
 const id = z.string().uuid();
 const actions = z.discriminatedUnion('action', [
-    z.object({ action: z.literal('create'), repoUrl:z.string().url().max(500), branch:z.string().max(200).optional(), kind: z.enum(['repository', 'issue', 'pr', 'docs']), number: z.number().int().positive().optional(), goal: z.string().trim().min(8).max(4000) }).strict(),
+    z.object({ action: z.literal('create'), repoUrl:z.string().url().max(500), branch:z.string().max(200).optional(), kind: z.enum(['repository', 'issue', 'pr', 'docs']), anchor:z.string().max(200).optional(), sourceCommitSha:z.string().regex(/^[a-f0-9]{40}$/i).optional(), number: z.number().int().positive().optional(), goal: z.string().trim().min(8).max(4000) }).strict(),
     z.object({ action: z.literal('message'), id, content: z.string().trim().min(1).max(4000) }).strict(),
     z.object({ action: z.literal('resume'), id }).strict(), z.object({ action: z.literal('cancel'), id }).strict(),
     z.object({ action: z.literal('confirm'), id, jobId: id, confirmed: z.literal(true) }).strict(),
@@ -30,9 +30,12 @@ function ownedTask(owner: string, id: string, project: {
 export async function GET(request: NextRequest) {
     try {
         const { owner, project } = context(request), id = request.nextUrl.searchParams.get('id');
-        const task = id ? ownedTask(owner, id, project) : undefined;
+        if(request.nextUrl.searchParams.has('repoUrl')&&(request.nextUrl.searchParams.get('repoUrl')!==project.repoUrl||(request.nextUrl.searchParams.get('branch')||'')!==(project.branch||'')))throw new Error('项目已切换，请刷新当前页面。');
+        const kind=request.nextUrl.searchParams.get('kind'),number=Number(request.nextUrl.searchParams.get('number'))||undefined,anchor=request.nextUrl.searchParams.get('anchor')||undefined;
+        const scoped=kind&&['issue','pr','docs','repository'].includes(kind);
+        const task = id ? ownedTask(owner, id, project) : scoped?contextualTask(owner,project.repoUrl,project.branch,kind as MaintenanceTask['kind'],number,anchor)||undefined:undefined;
         const jobs = task?.artifacts.flatMap(a => a.jobIds || []).map(id => getReproductionJob(owner, id)) || [];
-        const tasks = listTasks(owner, project.repoUrl, project.branch).map(task => ({ ...task, evidence: [], events: [], dialogue: [], artifacts: [], report: undefined }));
+        const tasks = scoped?[]:listTasks(owner, project.repoUrl, project.branch).map(task => ({ ...task, evidence: [], events: [], dialogue: [], artifacts: [], report: undefined }));
         return jsonResponse({ tasks, task, memories: memories(owner, project.repoUrl), jobs, workerOnline: agentWorkerOnline(), reproductionWorkerOnline: reproductionWorkerOnline(), sandboxConfigured: process.env.REPOCARE_REPRO_ENABLED === 'true' });
     }
     catch (error) {
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
                 throw new Error('请输入Issue或PR编号。');
             if (!['issue', 'pr'].includes(input.kind) && input.number)
                 throw new Error('仓库任务不需要Issue/PR编号。');
-            return jsonResponse({ task: createTask(owner, project, {kind:input.kind,number:input.number,goal:input.goal}) });
+            return jsonResponse({ task: createTask(owner, project, {kind:input.kind,number:input.number,goal:input.goal,anchor:input.anchor,sourceCommitSha:input.kind==='docs'?input.sourceCommitSha:undefined}) });
         }
         if (input.action === 'archive-memory') {
             archiveMemory(owner, project.repoUrl, input.memoryId);

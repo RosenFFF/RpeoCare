@@ -45,6 +45,8 @@ export interface AgentArtifact {
     createdAt: string;
 }
 export interface MaintenanceTask {
+    anchor?: string;
+    sourceCommitSha?: string;
     id: string;
     repoUrl: string;
     requestedBranch?: string;

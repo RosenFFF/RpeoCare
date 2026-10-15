@@ -18,13 +18,12 @@ npm run dev
 | 模块 | 当前能力 |
 | --- | --- |
 | 统一项目 | 连接真实仓库、指定分支、概览与历史任务、草稿统计 |
-| 项目 Agent | 持久任务、按需读取固定提交源码、证据引用、用户确认的项目知识、Issue 回复草稿、可下载补丁与待确认的隔离对照验证 |
-| 体检 | 固定提交快照、8 项基础检查、pi Agent 分析、文件证据、报告导出 |
+| 体检 | 固定提交快照、8 项基础检查、内容研判、文件证据、报告导出与跨文件改进依据核对 |
 | 贡献路径验证 | 从固定快照的 README、CONTRIBUTING 和项目清单提取安装、测试与检查命令；维护者审阅后在隔离 Runner 中演练，并保留步骤证据 |
 | 执行 | SSE、取消、新建重试、快照检查点恢复、同机共享 SQLite 的多 Worker |
-| Issue / PR | Issue 问题地形图、PR 变更汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
-| PR 证据化审查 | 固定 head/base、实际 Diff 坐标、Checks/Status、关联需求、结构化 AI 线索、证据校验、人工筛选、历史、已筛选 COMMENT 草稿 |
-| 文档维护 | 从报告生成 README / CONTRIBUTING / Issue / PR 模板；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
+| Issue / PR | Issue 问题地形图、PR 变更汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；分诊按需读取源码、引用证据与项目约定；详情内可继续调查并下载修复补丁；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
+| PR 证据化审查 | 固定 head/base、关联源码调查、实际 Diff 坐标、Checks/Status、需求影响核对、结构化 AI 线索、人工筛选、历史、已筛选 COMMENT 草稿 |
+| 文档维护 | 从报告结合源码生成 README / CONTRIBUTING / Issue / PR 模板，核对已保存草稿的影响；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
 | 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
 | 模型 | 多协议配置、加密密钥、工具往返测试、调用及 token 用量 |

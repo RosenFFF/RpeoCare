@@ -36,7 +36,6 @@ export function OverviewView(_props: { onNotify: (message: string) => void }) {
   const journeyLabel = journeyStale ? "需要重新验证" : journeyActive ? "正在验证" : journeyPassed ? "路径已走通" : journeyReview ? "计划待确认" : journey ? ({ "not-reproduced": "发现贡献阻塞", blocked: "Runner 环境阻塞", unsafe: "计划未通过校验", failed: "验证执行失败", cancelled: "验证已取消", draft: "正在准备计划" } as Record<string, string>)[journey.status] || "尚未验证" : "尚未验证";
   const journeyCopy = journeyStale ? "项目提交已经变化，请在当前固定提交上重新演练。" : journey?.progress || "从 README、CONTRIBUTING 和项目脚本生成可审阅的执行计划。";
   return <>
-    <Link href="/agent" className="ma-overview-entry"><span>项目维护 Agent</span><span>围绕源码调查问题，准备补丁与验证计划<ArrowRight size={14}/></span></Link>
     <div className="overview-heading"><div><div className="eyebrow"><span className="tiny-square" /> 项目概览</div><h1>{report.repository.name}</h1><p>{report.repository.fullName} · {report.repository.branch} · {report.repository.sha.slice(0, 7)}</p></div><Link href="/audit?new=1" className="button button-secondary"><ScanLine size={16} />重新体检<ArrowUpRight size={15} /></Link></div>
     {overview.latestRun && overview.latestRun.id !== report.runId && <div className="overview-run-status" role="status"><span>{["queued", "running"].includes(overview.latestRun.status) ? "新体检正在进行，当前展示上一份成功报告。" : overview.latestRun.status === "cancelled" ? "最新体检已取消，已保留上一份成功报告。" : "最新体检未完成，已保留上一份成功报告。"}</span><Link href={`/audit?run=${overview.latestRun.id}`}>查看执行记录<ArrowRight size={14} /></Link></div>}
     <ProjectShowcase project={project} />

@@ -23,7 +23,7 @@ export const nodeDefinitions: { id: NodeId; label: string }[] = [
   { id: 'repository', label: '读取仓库' },
   { id: 'collect', label: '收集文件' },
   { id: 'rules', label: '规范检查' },
-  { id: 'agent', label: 'Agent 分析' },
+  { id: 'agent', label: '内容研判' },
   { id: 'report', label: '生成报告' },
 ];
 export const isTerminal = (status: RunStatus) => ['completed', 'failed', 'cancelled'].includes(status);

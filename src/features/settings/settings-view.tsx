@@ -174,7 +174,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
     }
 
     return <section className="sv-section sv-review-section sv-panel-section" aria-labelledby="sv-review-heading">
-      <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">03</span><div><h2 id="sv-review-heading">维护者审核</h2><p>建议由 Agent 准备，决定始终由你作出。</p></div></div>
+      <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">03</span><div><h2 id="sv-review-heading">维护者审核</h2><p>建议基于问题与源码准备，决定始终由你作出。</p></div></div>
       <div className="sv-setting-row sv-review-row"><div className="sv-review-copy"><span className="sv-review-icon"><LockKeyhole size={18} aria-hidden="true" /></span><div><h3>发布前必须审核 <span className="sv-required">始终开启</span></h3><p id="sv-review-help">对外回复、标签变更与文档修改必须经过维护者确认，此设置不可关闭。</p></div></div><Toggle checked label="发布前必须由维护者审核，始终开启" describedBy="sv-review-help" disabled /></div>
     </section>;
   }

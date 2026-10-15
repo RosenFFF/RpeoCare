@@ -22,7 +22,7 @@ type Tree = {
 };
 export class RepositoryReader {
     private requests = 0;
-    constructor(readonly claim: ClaimedTask, readonly signal: AbortSignal) { }
+    constructor(readonly claim: ClaimedTask, readonly signal: AbortSignal, private readonly onInitialize:()=>void=()=>saveClaim(claim)) { }
     async api<T>(path: string): Promise<T> {
         this.signal.throwIfAborted();
         if (++this.requests > 70)
@@ -41,7 +41,7 @@ export class RepositoryReader {
         const commit = await this.api<{
             sha: string;
         }>(`/commits/${encodeURIComponent(branch)}`);
-        let sha = commit.sha, sourceBranch=branch;
+        let sha = task.kind==='docs'&&task.sourceCommitSha?task.sourceCommitSha:commit.sha, sourceBranch=branch;
         if (task.kind === 'issue' || task.kind === 'pr') {
             const item = task.kind==='pr'?(await getPullRequestReviewContext(this.claim.owner,task.repoUrl,task.number!,this.signal)).item:await getItem(this.claim.owner,task.repoUrl,'issues',task.number!,this.signal);
             if (task.kind === 'pr' && item.headSha)
@@ -68,7 +68,7 @@ export class RepositoryReader {
         task.branch = sourceBranch;
         task.commitSha = sha;
         task.sourceUpdatedAt = this.claim.internal.cache.sourceUpdatedAt;
-        saveClaim(this.claim);
+        this.onInitialize();
     }
     async tree(): Promise<Tree> {
         const cache = this.claim.internal.cache;
