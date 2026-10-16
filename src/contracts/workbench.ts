@@ -1,6 +1,8 @@
 import type { AuditRun, Evidence, RepoSnapshot } from './audit';
 import type { ModelSelection } from './models';
 import type { InvestigationTrace } from './investigation';
+import type { PolicyAssessment, PolicyObservation } from './policy';
+import type { ReviewCoverage } from './review-task';
 
 export interface Project { repoUrl: string; branch?: string; fullName: string; updatedAt: string }
 export interface GitComment { id: number; body: string; url: string; author: string; createdAt: string; updatedAt: string }
@@ -18,6 +20,9 @@ export interface IssueTriageReview {
   confirmedAt: string;
 }
 export interface IssueTriage {
+  policyOutdated?: boolean;
+  policy?: PolicyAssessment;
+  policyEvidence?: PolicyObservation[];
   investigation?: InvestigationTrace;
   repoUrl: string;
   number: number;
@@ -179,6 +184,9 @@ export interface ReviewFinding {
 }
 export interface PullRequestCheck { name: string; status: 'queued' | 'in_progress' | 'completed' | 'unknown'; conclusion?: string | null; detailsUrl?: string; startedAt?: string; completedAt?: string }
 export interface PullRequestReview {
+  policy?: PolicyAssessment;
+  coverage?: ReviewCoverage;
+  snapshotFingerprint?: string;
   investigation?: InvestigationTrace;
   id: string;
   revision: number;
@@ -200,6 +208,9 @@ export interface PullRequestReview {
   promptVersion: string;
 }
 export interface PullReviewSnapshot {
+  coverageStatus?: ReviewCoverage['status'];
+  completedBlocks?: number;
+  totalBlocks?: number;
   state: 'current' | 'stale';
   findingCount: number;
   openFindingCount: number;
@@ -216,7 +227,7 @@ export type DraftSource =
 
 export interface DraftQualityItem { code: string; level: 'blocker' | 'warning' | 'info'; message: string }
 export interface DraftPublication { url?: string; branch?: string; batchId?: string; state?: 'open' | 'closed' | 'merged' | 'comment'; checkedAt?: string; mergeSha?: string; verification?: 'not-verified' | 'passed' | 'needs-attention'; verificationRunId?: string }
-export interface Draft { investigation?: InvestigationTrace; id: string; kind: 'file' | 'issue' | 'review'; repoUrl: string; runId?: string; number?: number; path?: string; baseSha: string; before: string; content: string; title: string; status: 'draft' | 'publishing' | 'published' | 'uncertain'; revision: number; createdAt: string; publishedUrl?: string; source?: DraftSource; branch?: string; archived?: boolean; previousDraftId?: string; publication?: DraftPublication }
+export interface Draft { policyRevision?: number; investigation?: InvestigationTrace; id: string; kind: 'file' | 'issue' | 'review'; repoUrl: string; runId?: string; number?: number; path?: string; baseSha: string; before: string; content: string; title: string; status: 'draft' | 'publishing' | 'published' | 'uncertain'; revision: number; createdAt: string; publishedUrl?: string; source?: DraftSource; branch?: string; archived?: boolean; previousDraftId?: string; publication?: DraftPublication }
 export interface Usage { calls: number; inputTokens: number; outputTokens: number; failures: number }
 export interface Workbench { project: Project | null; runs: AuditRun[]; drafts: Draft[]; usage: Usage; github: { login: string; canWrite: boolean } | null }
 export interface SnapshotRecord { runId: string; snapshot: RepoSnapshot }

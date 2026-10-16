@@ -14,6 +14,8 @@ import { api, changed, useWorkbench } from './client';
 import { parseDiff } from '@/shared/lib/pr-diff';
 import { MaintenanceSupport, SourceEvidence } from './maintenance-support';
 import { ReviewInbox } from './review-inbox';
+import { ReviewProgress } from './review-progress';
+import { PolicyEvidence } from './policy-evidence';
 import './workbench.css';
 import './review-inbox.css';
 import './issue-detail.css';
@@ -77,7 +79,7 @@ function TriageReadiness({ triage, busy, onDraft, onReproduction }: { triage: Is
   const level = triage.readinessLevel || (triage.needsMoreInfo ? 'partial' : 'ready');
   const canReproduce = triage.category === 'bug' && level === 'ready';
   return <section className="issue-readiness-card" aria-label="处理准备度与下一步">
-    <div className="issue-readiness-heading"><h4>处理准备度</h4><ReadinessBadge level={level} /></div>
+    <div className="issue-readiness-heading"><h4>信息准备度（规则估计）</h4><ReadinessBadge level={level} /></div>
     <div className="issue-readiness-main"><div className="issue-readiness-score"><strong>{score}</strong><span>/ 100</span><i aria-hidden="true"><b style={{ width: `${score}%` }} /></i></div><p className="issue-readiness-copy">{level === 'ready' ? '信息已基本满足项目级调查或复现准备条件。' : level === 'partial' ? '可以继续人工调查，但建议先补齐关键环境或行为信息。' : '当前更适合先请求补充信息，不建议直接执行复现。'}</p></div>
     <div className="issue-next-actions"><span>建议下一步</span><div>{canReproduce ? <button type="button" className="button button-primary" onClick={onReproduction} disabled={busy}><FlaskConical size={15} />生成复现方案</button> : <button type="button" className="button button-secondary" onClick={onDraft} disabled={busy}><MessageSquare size={15} />生成补充信息回复</button>}{canReproduce && <button type="button" className="button button-secondary" onClick={onDraft} disabled={busy}><MessageSquare size={15} />生成回复草稿</button>}</div></div>
   </section>;
@@ -228,29 +230,29 @@ const REVIEW_SEVERITY: Record<PullRequestReview['findings'][number]['severity'],
   info: { label: '信息', tone: 'slate' },
 };
 
-function PullRequestReviewPanel({ review, busy, onAnalyze, onFinding }: { review: PullRequestReview | null; busy: boolean; onAnalyze: (force?: boolean) => void; onFinding: (findingId: string, status: 'open' | 'accepted' | 'dismissed') => void }) {
-  if (!review) return <section className="pr-review-empty"><ShieldCheck size={24} /><h3>开始 AI 审查</h3><p>系统会固定当前 PR 的 head SHA，结合可见 Diff 和 GitHub Checks 生成带证据的审查发现。不会自动批准、拒绝或合并 PR。</p><button type="button" className="button button-primary" onClick={() => onAnalyze(false)} disabled={busy}>{busy ? '正在审查…' : '开始 AI 审查'}</button></section>;
+function PullRequestReviewPanel({ review, busy, onFinding }: { review: PullRequestReview | null; busy: boolean; onAnalyze: (force?: boolean) => void; onFinding: (findingId: string, status: 'open' | 'accepted' | 'dismissed') => void }) {
+  if (!review) return null;
   const openCount = review.findings.filter(finding => finding.status === 'open').length;
   const blockingCount = review.findings.filter(finding => finding.status === 'open' && finding.severity === 'blocking').length;
   return <section className="pr-review-panel">
     <div className="pr-review-summary"><div><span className="issue-section-kicker">EVIDENCE-FIRST REVIEW</span><h3><ShieldCheck size={17} />AI 审查结果</h3></div><div className="pr-review-summary-badges"><Badge tone={blockingCount ? 'red' : openCount ? 'amber' : 'green'}>{blockingCount ? `${blockingCount} 项阻塞` : openCount ? `${openCount} 项待确认` : '线索已处理，非合并批准'}</Badge><Badge tone="slate">提交 {review.headSha ? review.headSha.slice(0, 12) : '未知'}</Badge></div></div>
     <p className="pr-review-summary-copy">{review.summary}</p>
-    <div className="pr-review-scope"><div><span>文件</span><strong>{review.scope.files}</strong></div><div><span>新增</span><strong>+{review.scope.additions}</strong></div><div><span>删除</span><strong>−{review.scope.deletions}</strong></div><div><span>可见检查</span><strong>{review.checksAvailable === false ? '不可用' : review.checks.length}</strong></div><div><span>截断文件</span><strong>{review.scope.truncatedFiles}</strong></div></div>
+    <div className="pr-review-scope"><div><span>文件</span><strong>{review.scope.files}</strong></div><div><span>新增</span><strong>+{review.scope.additions}</strong></div><div><span>删除</span><strong>−{review.scope.deletions}</strong></div><div><span>可见检查</span><strong>{review.checksAvailable === false ? '不可用' : review.checks.length}</strong></div><div><span>{review.coverage ? '未完整审查' : '截断文件'}</span><strong>{review.scope.truncatedFiles}</strong></div></div>
     <p className="pr-review-muted">本次读取中：测试路径 {review.scope.testFiles?.length ?? 0} 个，文档路径 {review.scope.docsFiles?.length ?? 0} 个。路径存在不代表覆盖充分；未读取区域仍未知。</p><div className="pr-review-checks"><div className="pr-review-subheading"><strong>CI / Checks</strong><span>{review.checks.length ? '分析时的 CI 快照 · 当前状态见上方' : '分析时未读取到结果'}</span></div>{review.checks.length ? review.checks.map(check => <div className="pr-review-check" key={`${check.name}-${check.status}-${check.conclusion}`} ><span className={`pr-review-check-dot is-${check.conclusion === 'success' ? 'success' : ['failure','error','timed_out','cancelled','action_required'].includes(check.conclusion || '') ? 'failure' : 'unknown'}`} /><strong>{check.name}</strong><span>{check.conclusion || check.status}</span></div>) : <p className="pr-review-muted">当前没有可见的 GitHub Checks；不能据此判断测试是否通过。</p>}</div>
     <div className="pr-review-findings"><div className="pr-review-subheading"><strong>结构化发现</strong><span>AI 建议 · 维护者确认</span></div>{review.findings.length ? review.findings.map(finding => { const severity = REVIEW_SEVERITY[finding.severity]; return <article className={`pr-review-finding is-${finding.status}`} key={finding.id}><div className="pr-review-finding-top"><Badge tone={severity.tone}>{severity.label}</Badge><Badge tone="slate">{finding.confidence === 'high' ? '高置信度' : finding.confidence === 'medium' ? '中置信度' : '低置信度'}</Badge>{finding.path && <code>{finding.path}{finding.line ? `:${finding.line}` : ''}</code>}</div><h4>{finding.title}</h4>{!finding.evidenceVerified && <small className="pr-review-muted">无可核实代码证据：仅待核实线索，不能直接确认发布。</small>}<p>{finding.explanation}</p>{finding.evidence && <blockquote>已核对 Diff 原文：{finding.evidence}</blockquote>}{finding.status === 'open' && <div className="pr-review-finding-actions"><button type="button" className="button button-secondary" onClick={() => onFinding(finding.id, 'accepted')} disabled={busy || !finding.evidenceVerified}>确认发现</button><button type="button" className="button button-secondary" onClick={() => onFinding(finding.id, 'dismissed')} disabled={busy}>忽略</button></div>}{finding.status !== 'open' && <div className="pr-review-finding-status">{finding.status === 'accepted' ? '已由维护者确认' : '已由维护者忽略'} <button className="button button-secondary" type="button" disabled={busy} onClick={() => onFinding(finding.id, 'open')}>撤回判断</button></div>}</article>; }) : <p className="pr-review-muted">AI 没有提出需要确认的代码问题，但这不等于测试已通过。</p>}</div>
     {review.limitations.length > 0 && <div className="pr-review-limitations"><strong>审查边界</strong><TextList items={review.limitations} /></div>}
-    <div className="pr-review-actions"><button type="button" className="button button-secondary" onClick={() => onAnalyze(true)} disabled={busy}>重新审查当前提交</button><span>提示 {review.promptVersion} · {new Date(review.analyzedAt).toLocaleString('zh-CN')} · 模型 {review.model?.modelId || '旧记录未记录'}。审查不等于测试或合并批准。</span></div>
+    <div className="pr-review-actions"><span>提示 {review.promptVersion} · {new Date(review.analyzedAt).toLocaleString('zh-CN')} · 模型 {review.model?.modelId || '旧记录未记录'}。审查不等于测试或合并批准。</span></div>
   </section>;
 }
 
-function PullRequestDetail({ item, review, busy, onAnalyze, onFinding, onDraft, onShowList }: { item: GitItem; review: PullRequestReview | null; busy: boolean; onAnalyze: (force?: boolean) => void; onFinding: (findingId: string, status: 'open' | 'accepted' | 'dismissed') => void; onDraft: () => void; onShowList: () => void }) {
+function PullRequestDetail({ item, review, onReport, busy, onAnalyze, onFinding, onDraft, onShowList }: { item: GitItem; review: PullRequestReview | null; onReport: (review: PullRequestReview | null) => void; busy: boolean; onAnalyze: (force?: boolean) => void; onFinding: (findingId: string, status: 'open' | 'accepted' | 'dismissed') => void; onDraft: () => void; onShowList: () => void }) {
   const [history, setHistory] = useState<{ at: string; review: PullRequestReview }[]>([]);
   const [historyError, setHistoryError] = useState('');
   const [acknowledged, setAcknowledged] = useState(false);
   useEffect(() => { setHistory([]); setHistoryError(''); setAcknowledged(false); }, [item.number, item.headSha, review?.id, review?.revision]);
   const files = item.files || [];
-  const stale = !!review && (review.headSha !== item.headSha || review.baseSha !== item.baseSha);
-  const unresolved = !review || review.findings.some(f => f.status === 'open' || (f.status === 'accepted' && !f.evidenceVerified));
+  const stale = !!review && (review.headSha !== item.headSha || review.baseSha !== item.baseSha || review.coverage?.status === 'stale' || item.reviewSnapshot?.state === 'stale');
+  const unresolved = !review || !!review.coverage && ['queued','running','stale'].includes(review.coverage.status) || review.findings.some(f => f.status === 'open' || (f.status === 'accepted' && !f.evidenceVerified));
   async function loadHistory() {
     try { const value = await api<{ history: { at: string; review: PullRequestReview }[] }>(`/api/workbench/review?number=${item.number}&history=1`); setHistory(value.history); setHistoryError(''); }
     catch (error) { setHistoryError(error instanceof Error ? error.message : '历史暂不可用'); }
@@ -261,8 +263,10 @@ function PullRequestDetail({ item, review, busy, onAnalyze, onFinding, onDraft, 
     {item.filesTruncated && <p className="pr-review-alert">超过文件读取上限，仅展示前 100 项；未读取文件不能判定没有问题。</p>}
     <details className="pr-description"><summary>PR 原文与关联需求</summary><pre>{item.body || '未提供描述'}</pre>{(item.linkedIssues || []).map(issue => <div key={issue.number}><a href={issue.url} target="_blank" rel="noopener noreferrer">关联 Issue #{issue.number} · {issue.title}</a><p>{issue.body}</p></div>)}</details>
     <details className="pr-ci-details" open><summary>当前 GitHub CI 状态（未运行本地测试）</summary>{(item.checks || []).map((check,i) => <div key={i} className="pr-review-check"><span className={`pr-review-check-dot is-${check.conclusion === 'success' ? 'success' : ['failure','error','timed_out','cancelled'].includes(check.conclusion || '') ? 'failure' : 'unknown'}`} /><strong>{check.name}</strong><span>{check.conclusion || check.status}</span></div>)}{!item.checks?.length && <p>暂无可见结果，不代表通过。</p>}{(item.snapshotWarnings || []).map(warning => <p key={warning} className="pr-review-muted">{warning}</p>)}</details>
-    {stale && <p role="alert" className="pr-review-alert">PR head/base 已变化，以下是旧提交审查。请重新分析后确认或生成草稿。</p>}
-    <PullRequestReviewPanel review={review} busy={busy || stale} onAnalyze={() => onAnalyze(true)} onFinding={onFinding} />
+    {stale && <p role="alert" className="pr-review-alert">PR 或项目规则已变化，以下是历史审查。请重新分析后确认或生成草稿。</p>}
+    <ReviewProgress key={`${item.url}:${item.number}`} number={item.number} repoUrl={item.url.split('/pull/')[0]} headSha={item.headSha} busy={busy} onAnalyze={onAnalyze} onReport={onReport}/>
+    <PolicyEvidence assessment={review?.policy} repoUrl={item.url.split('/pull/')[0]}/>
+    <PullRequestReviewPanel review={review} busy={busy || stale || !!review?.coverage && ['queued','running'].includes(review.coverage.status)} onAnalyze={() => onAnalyze(true)} onFinding={onFinding} />
     <SourceEvidence trace={review?.investigation}/>
     <MaintenanceSupport kind="pr" number={item.number} sourceCommitSha={item.headSha} title="变更影响核对" actionLabel="追踪关联实现" disabled={busy} goal={`围绕 PR #${item.number} 读取变更与相关调用方、项目约定，核对跨文件影响和关联需求，返回有源码引用的事实、待验证疑点和后续建议。保留当前 head 提交，不替代正式审查的 Diff 行号校验与人工确认，不声称可以合并或测试通过，不发布。`}/>
     {stale && <button className="button button-primary pr-stale-refresh" type="button" disabled={busy} onClick={() => onAnalyze(true)}>审查最新提交</button>}
@@ -279,7 +283,7 @@ function IssueDetail({ item, relatedItems, busy, canWrite, reproductions, reprod
   const priority = triage?.priority ? PRIORITY_META[triage.priority] : null;
   const confirmedCategory = triage?.review?.category ? CATEGORY_META[triage.review.category] : null;
   const confirmedPriority = triage?.review?.priority ? PRIORITY_META[triage.review.priority] : null;
-  const fresh = Boolean(triage && triage.sourceUpdatedAt === item.updatedAt);
+  const fresh = Boolean(triage && triage.sourceUpdatedAt === item.updatedAt && !triage.policyOutdated);
   return <section className="issue-detail-panel issue-detail-layout" aria-label={`Issue #${item.number} 详情`}>
     <header className="issue-detail-header">
       <div className="issue-detail-title"><div className="issue-detail-eyebrow"><span>ISSUE #{item.number}</span><span className={`issue-state-dot ${item.state === 'open' ? 'is-open' : ''}`} />{item.state === 'open' ? '开放中' : '已关闭'}</div><h2>{item.title}</h2>{triage?.titleZh && <p className="issue-title-translation"><Languages size={13} />{triage.titleZh}</p>}<div className="issue-detail-meta"><span><UserRound size={13} />{item.author || '未知作者'}</span><span>更新于 {dateLabel(item.updatedAt)}</span>{item.assignees?.length ? <span>指派给 {item.assignees.join(', ')}</span> : <span>尚未指派</span>}{item.milestone && <span>里程碑：{item.milestone}</span>}</div></div>
@@ -297,6 +301,7 @@ function IssueDetail({ item, relatedItems, busy, canWrite, reproductions, reprod
           </div>
           <TriageReadiness triage={triage} busy={busy} onDraft={onDraft} onReproduction={() => onReproduction('plan')} />
         </div>
+        <PolicyEvidence assessment={triage.policy} repoUrl={item.url.split('/issues/')[0]}/>
         <SourceEvidence trace={triage.investigation}/>
         <div className="issue-triage-disclosures">
           <details key={`readiness-${item.number}`} className="issue-triage-details"><summary><span>判断依据与阻塞项</span><span className="issue-detail-count">{(triage.rationale?.length || 0) + (triage.readinessBlockers?.length || 0)} 项</span></summary><div className="issue-readiness-columns"><div><h4>判断依据</h4><TextList items={triage.rationale} empty="暂无依据" /></div><div><h4>阻塞项</h4><TextList items={triage.readinessBlockers} empty="没有标记的阻塞项" /></div></div></details>
@@ -434,7 +439,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function analyze(force = false) {
     if (!selected || !isIssues) return;
     setBusy(true); setError(''); setNotice('');
-    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { action: 'analyze', number: selected.number, force }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); setNotice('分诊建议和中文翻译已更新。'); }
+    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { repoUrl: data?.project?.repoUrl, action: 'analyze', number: selected.number, force }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); setNotice('分诊建议和中文翻译已更新。'); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Issue 分析未完成。'); }
     finally { setBusy(false); }
   }
@@ -442,21 +447,21 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     if (!isIssues) return;
     if (!numbers.length) { setNotice('当前页的 Issue 都已经有分诊结果。'); return; }
     setBusy(true); setError(''); setNotice('正在按当前页顺序建立分诊建议…');
-    try { const result = await api<{ triages: IssueTriage[]; errors: { number: number; message: string }[] }>('/api/workbench/triage', { action: 'batch', numbers }); const byNumber = new Map(result.triages.map(triage => [triage.number, triage])); setItems(current => current.map(item => ({ ...item, triage: byNumber.get(item.number) || item.triage }))); setNotice(result.errors.length ? `完成 ${result.triages.length} 条，${result.errors.length} 条失败。` : `已完成 ${result.triages.length} 条 Issue 分诊。`); }
+    try { const result = await api<{ triages: IssueTriage[]; errors: { number: number; message: string }[] }>('/api/workbench/triage', { repoUrl: data?.project?.repoUrl, action: 'batch', numbers }); const byNumber = new Map(result.triages.map(triage => [triage.number, triage])); setItems(current => current.map(item => ({ ...item, triage: byNumber.get(item.number) || item.triage }))); setNotice(result.errors.length ? `完成 ${result.triages.length} 条，${result.errors.length} 条失败。` : `已完成 ${result.triages.length} 条 Issue 分诊。`); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '批量分诊未完成。'); }
     finally { setBusy(false); }
   }
   async function updateStatus(nextStatus: IssueWorkflowStatus) {
     if (!selected || !selected.triage) return;
     setBusy(true); setError('');
-    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { action: 'status', number: selected.number, status: nextStatus }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); }
+    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { repoUrl: data?.project?.repoUrl, action: 'status', number: selected.number, status: nextStatus }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '处理状态更新失败。'); }
     finally { setBusy(false); }
   }
   async function reviewTriage(change: { category: IssueCategory; priority: IssuePriority; status: IssueWorkflowStatus; note?: string }) {
     if (!selected || !selected.triage) return;
     setBusy(true); setError('');
-    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { action: 'review', number: selected.number, ...change }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); setNotice('已保存维护者最终判断。'); }
+    try { const result = await api<{ triage: IssueTriage }>('/api/workbench/triage', { repoUrl: data?.project?.repoUrl, action: 'review', number: selected.number, ...change }); setItems(current => current.map(item => item.number === selected.number ? { ...item, triage: result.triage } : item)); setNotice('已保存维护者最终判断。'); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '维护者判断保存失败。'); }
     finally { setBusy(false); }
   }
@@ -492,7 +497,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
   async function analyzePull(force = false) {
     if (!selected || isIssues) return;
     setBusy(true); setError(''); setNotice('');
-    try { const number = selected.number, version = selectionVersion.current; const result = await api<{ review: PullRequestReview }>('/api/workbench/review', { action: 'analyze', number, force }); if (version !== selectionVersion.current) return; const context = await api<{ item: GitItem }>(`/api/workbench/review?number=${number}&context=1`); if (version !== selectionVersion.current) return; setItems(rows=>rows.map(row=>row.number===number ? context.item : row)); setPullReview(result.review); setNotice('PR AI 审查已更新，发现需要维护者逐项确认。'); }
+    try { const number = selected.number, version = selectionVersion.current; const result = await api<{ review: PullRequestReview | null }>('/api/workbench/review', { repoUrl: data?.project?.repoUrl, action: 'analyze', number, force }); if (version !== selectionVersion.current) return; const context = await api<{ item: GitItem }>(`/api/workbench/review?number=${number}&context=1`); if (version !== selectionVersion.current) return; setItems(rows=>rows.map(row=>row.number===number ? context.item : row)); setPullReview(result.review); setNotice('分块审查已入队，完成结果会逐块保存。'); window.dispatchEvent(new Event('repocare-review-change')); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'PR 审查未完成。'); }
     finally { setBusy(false); }
   }
@@ -500,7 +505,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
     if (!selected || isIssues) return;
     const version = selectionVersion.current;
     setBusy(true); setError('');
-    try { const result = await api<{ review: PullRequestReview }>('/api/workbench/review', { action: 'finding', number: selected.number, reviewId: pullReview?.id, revision: pullReview?.revision, findingId, status }); if (version !== selectionVersion.current) return; setPullReview(result.review); setNotice(status === 'accepted' ? '已确认审查发现。' : status === 'open' ? '已撤回判断，请重新筛选。' : '已忽略审查发现。'); }
+    try { const result = await api<{ review: PullRequestReview }>('/api/workbench/review', { repoUrl: data?.project?.repoUrl, action: 'finding', number: selected.number, reviewId: pullReview?.id, revision: pullReview?.revision, findingId, status }); if (version !== selectionVersion.current) return; setPullReview(result.review); setNotice(status === 'accepted' ? '已确认审查发现。' : status === 'open' ? '已撤回判断，请重新筛选。' : '已忽略审查发现。'); }
     catch (cause) { setError(cause instanceof Error ? cause.message : '审查发现更新失败。'); }
     finally { setBusy(false); }
   }
@@ -533,7 +538,7 @@ export function GitItems({ kind }: { kind: 'issues' | 'pulls' }) {
       <ReviewInbox key={`${kind}-${data?.project?.repoUrl || 'none'}`} kind={kind} items={!isIssues && pullLoadedScope !== pullScopeKey ? [] : items} page={page} connected={!!data?.project} busy={busy} loading={listLoading || (!isIssues && targetBranch !== null && pullLoadedScope !== pullScopeKey) || (!data && !workbenchError)} hidden={focused} failed={!!combinedError} onOpen={item=>void open(item)} onPage={setPage} onBatch={numbers=>void batchAnalyze(numbers)} onRefresh={() => void load()} pullBranches={!isIssues && data?.project ? { repoUrl: data.project.repoUrl, selected: targetBranch, onSelect: branch => { setTargetBranch(branch); setPage(1); }, hasNext: pullHasNext } : undefined}/>
       {focused && selected && <div className="review-detail-view" tabIndex={-1} ref={detailRef} aria-label={`${isIssues ? 'Issue' : 'PR'} #${selected.number} 工作区`}>
         <div className="review-back-bar"><button type="button" onClick={returnToList}><ChevronLeft size={15}/>返回{isIssues ? '反馈' : '变更'}收件箱</button><span>#{selected.number} · {busy ? '正在处理…' : '详情工作区'}</span></div>
-        {isIssues ? <IssueDetail item={selected} relatedItems={relatedItems} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={returnToList} onOpenRelated={item=>void open(item)} onReview={reviewTriage}/> : <PullRequestDetail item={selected} review={pullReview?.number === selected.number ? pullReview : null} busy={busy} onAnalyze={analyzePull} onFinding={updatePullFinding} onDraft={generateDraft} onShowList={returnToList}/>}
+        {isIssues ? <IssueDetail item={selected} relatedItems={relatedItems} busy={busy} reproductions={reproductions} reproductionSelectedId={selectedReproductionId} reproductionWorkerOnline={reproductionWorkerOnline} reproductionSandboxConfigured={reproductionSandboxConfigured} onReproduction={reproductionAction} onSelectReproduction={setSelectedReproductionId} canWrite={Boolean(data?.github?.canWrite)} onAnalyze={analyze} onDraft={generateDraft} onStatus={updateStatus} onUpdate={updateGitHubIssue} onShowList={returnToList} onOpenRelated={item=>void open(item)} onReview={reviewTriage}/> : <PullRequestDetail item={selected} onReport={setPullReview} review={pullReview?.number === selected.number ? pullReview : null} busy={busy} onAnalyze={analyzePull} onFinding={updatePullFinding} onDraft={generateDraft} onShowList={returnToList}/>}
       </div>}
     </div>
   </div>;

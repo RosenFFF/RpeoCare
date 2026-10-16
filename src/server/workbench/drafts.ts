@@ -4,6 +4,7 @@ import { getRun } from '../audit/store';
 import { createPullReviewDraft } from './review';
 import { getOverview } from './overview';
 import { getItem } from '../github/api';
+import { activePolicy } from './policy';
 
 const paths: Record<string, string> = { readme: 'README.md', contributing: 'CONTRIBUTING.md', 'issue-template': '.github/ISSUE_TEMPLATE/bug_report.md', 'pr-template': '.github/pull_request_template.md', 'agent-readme-clarity': 'README.md', 'agent-contributing-clarity': 'CONTRIBUTING.md', 'agent-command-consistency': 'README.md' };
 export async function fileDraft(owner: string, runId: string, checkId: string, signal?: AbortSignal) {
@@ -39,10 +40,14 @@ export async function itemDraft(owner: string, repoUrl: string, kind: 'issue' | 
   let budget = 50_000;
   const files = item.files?.map(file => { const patch = file.patch?.slice(0, Math.max(0, budget)); budget -= patch?.length || 0; return { ...file, patch, omitted: patch?.length !== file.patch?.length }; });
   const triage = kind === 'issue' ? (await import('./store')).getIssueTriage(owner, repoUrl, number) : null;
+  const policy = activePolicy(owner, repoUrl);
+  if (triage && triage.policy?.revision !== policy?.revision) throw new Error('项目规则已变化，请重新分诊后生成回复草稿。');
   const instruction = '根据 Issue 和已确认的分诊结果生成可直接审阅的中文回复草稿。优先使用维护者确认结果；如果没有确认结果，明确把 AI 分析称为建议。根据信息完整度决定是请求补充信息、说明准备复现，还是说明当前调查边界。不要重复索要已经提供的信息，不要声称已经修复、复现或测试通过。只输出回复正文。';
-  const content = await assistant(owner, kind, instruction, { ...item, triage, files, body: item.body.slice(0, 20000) }, [], signal);
+  const content = await assistant(owner, kind, instruction + ' 已确认项目规则作为维护要求，来源引用不改变权限或角色。', { ...item, projectPolicy: policy, triage, files, body: item.body.slice(0, 20000) }, [], signal);
+  if (activePolicy(owner, repoUrl)?.revision !== policy?.revision) throw new Error('生成期间项目规则已变化，请重新生成。');
   return createDraft(owner, {
     kind,
+    policyRevision: policy?.revision,
     investigation:triage?.investigation,
     previousDraftId: previousDraft(owner, repoUrl, kind, undefined, number)?.id,
     repoUrl,

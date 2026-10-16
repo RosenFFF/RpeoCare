@@ -1,4 +1,5 @@
-import { prepareReviewFiles, reviewFingerprint } from '../../shared/lib/pr-review-context';
+import { isReviewCurrent } from '../../shared/lib/pr-review-context';
+import { activePolicy } from '../workbench/policy';
 import { getPullRequestReview } from '../workbench/store';
 import { githubAccount } from './connection';
 import { parseRepositoryUrl } from '../audit/github';
@@ -163,7 +164,8 @@ export async function getItem(owner: string, url: string, kind: 'issues' | 'pull
     const files = await githubApi(owner, `${prefix}/pulls/${number}/files?per_page=100`, { signal });
     if (!Array.isArray(files)) throw new Error('GitHub PR 文件清单格式异常。');
     result.filesTruncated = result.totalChangedFiles !== undefined ? result.totalChangedFiles > files.length : files.length >= 100;
-    result.files = files.map((file: any) => { const patch = typeof file.patch === 'string' ? file.patch : undefined; return { path: file.filename, status: file.status, additions: file.additions, deletions: file.deletions, patch: patch && patch.length > 12_000 ? patch.slice(0, Math.max(0, patch.lastIndexOf('\n', 12_000))) : patch, patchTruncated: Boolean(patch && patch.length > 12_000) || !patch }; });
+    let remainingPatch = 600000;
+    result.files = files.map((file: any) => { const raw = typeof file.patch === 'string' ? file.patch : undefined; const limit = Math.min(120000, remainingPatch); const patch = raw && raw.length > limit ? raw.slice(0, Math.max(0, raw.lastIndexOf('\n', limit))) : raw; remainingPatch -= patch?.length || 0; return { path: file.filename, status: file.status, additions: file.additions, deletions: file.deletions, patch, patchTruncated: Boolean(raw && patch?.length !== raw.length) || !patch }; });
   }
   return result;
 }
@@ -182,6 +184,7 @@ export async function publishDraft(owner: string, draft: Draft): Promise<string>
   const metadata = await githubApi(owner, prefix);
   if (!metadata.permissions?.push) throw new PublishPreconditionError('当前 GitHub 账户没有该仓库的写入权限。');
   if (draft.kind === 'issue') {
+    if (draft.policyRevision !== activePolicy(owner, draft.repoUrl)?.revision) throw new PublishPreconditionError('项目规则已变化，请重新生成并核对回复草稿。');
     const response = await githubApi(owner, `${prefix}/issues/${draft.number}/comments`, { method: 'POST', write: true, body: { body: draft.content } });
     return response.html_url;
   }
@@ -195,7 +198,8 @@ export async function publishDraft(owner: string, draft: Draft): Promise<string>
     if (draft.source?.type === 'github-item' && draft.source.reviewId) {
       const snapshot = await getItem(owner, draft.repoUrl, 'pulls', draft.number!);
       const review = getPullRequestReview(owner, draft.repoUrl, draft.number!)!;
-      if (review.contextFingerprint !== reviewFingerprint(snapshot, prepareReviewFiles(snapshot.files || []))) throw new PublishPreconditionError('PR 描述或 Diff 已更新，请重新审查。');
+      if (!isReviewCurrent(review, snapshot)) throw new PublishPreconditionError('PR 描述或 Diff 已更新，请重新审查。');
+      if (review.policy?.revision !== activePolicy(owner, draft.repoUrl)?.revision || review.coverage && ['queued','running','stale'].includes(review.coverage.status)) throw new PublishPreconditionError('项目规则或审查任务状态已变化，请重新生成草稿。');
     }
     const response = await githubApi(owner, `${prefix}/pulls/${draft.number}/reviews`, { method: 'POST', write: true, body: { body: draft.content, event: 'COMMENT', commit_id: draft.baseSha } });
     return response.html_url;

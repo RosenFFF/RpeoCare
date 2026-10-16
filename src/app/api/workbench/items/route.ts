@@ -3,11 +3,13 @@ import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
 import { getIssueTriage, getProject, listIssueTriages, listPullRequestReviews } from '@/server/workbench/store';
 import { getItem, listItemsPage, updateIssue } from '@/server/github/api';
+import { activePolicy } from '@/server/workbench/policy';
 
 export async function GET(request: NextRequest) {
   try {
     const owner = session(request), project = owner ? getProject(owner) : null;
     if (!owner || !project) return errorResponse('请先连接项目。', 404);
+    const policyRevision = activePolicy(owner, project.repoUrl)?.revision;
     const expectedRepo = request.nextUrl.searchParams.get('repoUrl');
     if (expectedRepo && expectedRepo !== project.repoUrl) return errorResponse('项目已切换，请重新读取数据。', 409);
     const kind = request.nextUrl.searchParams.get('kind') === 'pulls' ? 'pulls' : 'issues';
@@ -16,7 +18,8 @@ export async function GET(request: NextRequest) {
     if (request.nextUrl.searchParams.has('number')) {
       if (!Number.isSafeInteger(number) || number < 1) return errorResponse('编号无效。');
       const item = await getItem(owner, project.repoUrl, kind, number);
-      return jsonResponse({ item: kind === 'issues' ? { ...item, triage: getIssueTriage(owner, project.repoUrl, number) || undefined } : item });
+      const triage = kind === 'issues' ? getIssueTriage(owner, project.repoUrl, number) : null;
+      return jsonResponse({ item: kind === 'issues' ? { ...item, triage: triage ? { ...triage, policyOutdated: triage.policy?.revision !== policyRevision } : undefined } : item });
     }
     const base = request.nextUrl.searchParams.get('base') || undefined;
     if (base && (base.length > 500 || [...base].some(character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127))) return errorResponse('目标分支名称无效。');
@@ -32,7 +35,7 @@ export async function GET(request: NextRequest) {
       }
       return jsonResponse({ items: items.map(item => ({
         ...item,
-        triage: triages.get(item.number),
+        triage: triages.has(item.number) ? { ...triages.get(item.number)!, policyOutdated: triages.get(item.number)!.policy?.revision !== policyRevision } : undefined,
         relatedPulls: relatedPulls.get(item.number),
       })), page });
     }
@@ -40,13 +43,16 @@ export async function GET(request: NextRequest) {
     return jsonResponse({ items: items.map(item => {
       const review = reviewsByNumber.get(item.number);
       if (!review) return item;
-      const current = Boolean(item.headSha && review.headSha === item.headSha && (!item.baseSha || !review.baseSha || review.baseSha === item.baseSha));
+      const current = Boolean(item.headSha && review.headSha === item.headSha && (!item.baseSha || !review.baseSha || review.baseSha === item.baseSha) && review.policy?.revision === policyRevision && review.coverage?.status !== 'stale');
       return {
         ...item,
         checks: current ? review.checks : undefined,
         checksAvailable: current ? review.checksAvailable : undefined,
         linkedIssues: current ? review.linkedIssues : undefined,
         reviewSnapshot: {
+          coverageStatus: review.coverage?.status,
+          completedBlocks: review.coverage?.completedBlocks,
+          totalBlocks: review.coverage?.totalBlocks,
           state: current ? 'current' : 'stale',
           findingCount: review.findings.length,
           openFindingCount: review.findings.filter(finding => finding.status === 'open').length,

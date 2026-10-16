@@ -33,6 +33,9 @@ export function pullChangeSignal(item: GitItem) {
 export function pullReviewSignal(item: GitItem) {
   if (item.reviewSnapshot?.state === 'stale') return { tone: 'stale' as const, label: '审查已过期', open: 0 };
   if (!item.reviewSnapshot) return { tone: 'unread' as const, label: '尚未审查', open: 0 };
+  const scope = item.reviewSnapshot;
+  if (scope.coverageStatus === 'queued' || scope.coverageStatus === 'running') return { tone: 'unread' as const, label: `审查中 ${scope.completedBlocks ?? 0}/${scope.totalBlocks ?? '?'}`, open: scope.openFindingCount };
+  if (scope.coverageStatus === 'partial' || scope.coverageStatus === 'cancelled') return { tone: 'unread' as const, label: `部分审查 ${scope.completedBlocks ?? 0}/${scope.totalBlocks ?? '?'}`, open: scope.openFindingCount };
   return { tone: 'reviewed' as const, label: item.reviewSnapshot.openFindingCount ? `${item.reviewSnapshot.openFindingCount} 条待确认` : '已有审查报告', open: item.reviewSnapshot.openFindingCount };
 }
 

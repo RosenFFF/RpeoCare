@@ -1,5 +1,7 @@
 # PR 证据化审查（2026-10-01）
 
+> 本文保留原实现与历史验收记录。当前页面行为以 [PR 分块审查](PR_REVIEW_WORKFLOW.md) 为准，旧记录中的输入预算、同步调用和缩放交互不代表当前行为。
+
 ## 旧模块审计
 
 真实入口 `/pull-requests` 使用 `GitItems kind="pulls"`。改造前只展示开放列表和原始 patch，再通过模型生成自由文本 Review 草稿。`features/pull-requests/pull-requests-view.tsx` 是未接入的静态演示，不代表真实功能。本轮只升级真实链路。

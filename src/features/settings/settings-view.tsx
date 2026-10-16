@@ -5,6 +5,7 @@ import { Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, Mess
 import './settings-view.css';
 import { GithubConnection } from '@/features/workbench/project-overview';
 import { ModelSettings } from './model-settings';
+import { ProjectPolicySettings } from './project-policy';
 
 type PluginId = 'issue-triage' | 'project-audit' | 'docs-generator' | 'pr-check';
 
@@ -35,9 +36,10 @@ const PLUGINS = [
   { id: 'pr-check' as const, name: 'PR 检查', description: '核对变更说明、测试信息与项目贡献规范。', icon: ShieldCheck },
 ];
 
-type SettingsSection = 'workspace' | 'plugins' | 'review' | 'github' | 'models';
+type SettingsSection = 'workspace' | 'plugins' | 'review' | 'github' | 'models' | 'policy';
 
 const SETTINGS_SECTIONS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
+  { id: 'policy', label: '项目专属规则', description: '项目约定、依据与确认版本', icon: ShieldCheck },
   { id: 'workspace', label: '本地工作区', description: '项目名称与语言偏好', icon: Settings2 },
   { id: 'plugins', label: '官方插件', description: '管理辅助能力', icon: Puzzle },
   { id: 'review', label: '维护者审核', description: '发布前的安全边界', icon: UserCheck },
@@ -92,6 +94,8 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const [savedAt, setSavedAt] = useState('');
   const [activeSection, setActiveSection] = useState<SettingsSection>('workspace');
   const [visited, setVisited] = useState<SettingsSection[]>(['workspace']);
+
+  useEffect(() => { if (new URLSearchParams(window.location.search).get('section') === 'policy') { setActiveSection('policy'); setVisited(current => current.includes('policy') ? current : [...current, 'policy']); } }, []);
 
   useEffect(() => {
     try {
@@ -209,6 +213,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
           <div className="sv-module-main" id="sv-panel-local" hidden={!localSection} inert={!localSection} role="region" aria-label="本地偏好">{renderLocalForm()}</div>
           <div className="sv-module-main" id="sv-panel-github" hidden={activeSection !== 'github'} inert={activeSection !== 'github'} role="region" aria-labelledby="sv-nav-github">{visited.includes('github') && <GithubConnection />}</div>
           <div className="sv-module-main" id="sv-panel-models" hidden={activeSection !== 'models'} inert={activeSection !== 'models'} role="region" aria-labelledby="sv-nav-models">{visited.includes('models') && <ModelSettings />}</div>
+          <div className="sv-module-main" id="sv-panel-policy" hidden={activeSection !== 'policy'} inert={activeSection !== 'policy'} role="region" aria-labelledby="sv-nav-policy">{visited.includes('policy') && <ProjectPolicySettings />}</div>
         </div>
       </div>
     </div>

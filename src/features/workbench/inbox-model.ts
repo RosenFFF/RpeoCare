@@ -5,7 +5,7 @@ export const issueStates: Record<IssueWorkflowStatus, string> = { untriaged: '�
 export const issuePriorities: Record<IssuePriority, string> = { high: '高优先级', medium: '中优先级', low: '低优先级', unknown: '待判断' };
 export function issueClassification(item: GitItem) {
   const triage = item.triage;
-  return { category: triage?.review?.category || triage?.category, priority: triage?.review?.priority || triage?.priority || 'unknown', status: triage?.review?.workflowStatus || triage?.workflowStatus || 'untriaged', source: triage?.review?.category ? '维护者确认' : triage ? 'AI 建议' : '未分析', stale: Boolean(triage && triage.sourceUpdatedAt !== item.updatedAt) };
+  return { category: triage?.review?.category || triage?.category, priority: triage?.review?.priority || triage?.priority || 'unknown', status: triage?.review?.workflowStatus || triage?.workflowStatus || 'untriaged', source: triage?.review?.category ? '维护者确认' : triage ? 'AI 建议' : '未分析', stale: Boolean(triage && (triage.sourceUpdatedAt !== item.updatedAt || triage.policyOutdated)) };
 }
 export const pullTypes = { dependency: '依赖更新', docs: '文档变更', fix: '缺陷修复', feature: '功能变更', other: '其他变更' } as const;
 export type PullType = keyof typeof pullTypes;

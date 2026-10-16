@@ -57,7 +57,9 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 
 ## PR 审查执行链
 
-真实页面 → `/api/workbench/review` → GitHub head/base 与前 100 个文件、CI/Status、最多 3 条关联需求 → 有界模型上下文 → Zod + Diff 坐标/原文校验 → SQLite 报告与人工事件历史 → 维护者筛选 → 草稿工作台 → 发布前版本校验 → GitHub COMMENT。PR 代码不执行，Docker 无前置依赖。详见 PR_REVIEW.md。
+真实页面 → `/api/workbench/review` → 固定 GitHub head/base、文件、CI/Status、关联需求及项目规则 → SQLite 分块队列 → 维护 Agent Worker 逐块调用模型 → Zod + Diff 坐标/原文校验 → 分块结果与汇总事务保存 → 人工筛选 → 草稿工作台 → 发布前版本校验 → GitHub COMMENT。页面可恢复进度、停止和仅重试失败块，未审范围单独显示。PR 代码不执行，Docker 无前置依赖。详见 [PR 分块审查](PR_REVIEW_WORKFLOW.md)。
+
+项目规则在工作区设置中建立候选并明确确认，按账户、仓库和版本保存。分诊与 PR 审查记录规则及依据，规则变化要求重新分析；pi 调查读取同一有效规则。来源及边界见 [项目专属规则](PROJECT_RULES.md)。
 
 
 ## 维护收件列表（2026-10-05）

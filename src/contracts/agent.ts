@@ -3,8 +3,9 @@ import type { ReproductionJob } from './workbench';
 export type MaintenanceKind = 'repository' | 'issue' | 'pr' | 'docs';
 export type MaintenanceStatus = 'queued' | 'running' | 'waiting-input' | 'awaiting-confirmation' | 'completed' | 'paused' | 'failed' | 'cancelled';
 export interface AgentEvidence {
+    policyRevision?: number;
     id: string;
-    kind: 'file' | 'issue' | 'pr' | 'checks' | 'execution';
+    kind: 'file' | 'issue' | 'pr' | 'checks' | 'execution' | 'policy';
     label: string;
     excerpt: string;
     url?: string;
