@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { ReproductionPlan, ReproductionStep } from '@/contracts/workbench';
+import { commandTokens, dependencyCommand } from '../../../reproduction/commands.mjs';
 
 const stepSchema = z.object({
   type: z.enum(['goto', 'click', 'fill', 'expect', 'run-test', 'run-command', 'create-file', 'request']),
@@ -15,6 +16,7 @@ const stepSchema = z.object({
 }).strict();
 
 export const reproductionPlanSchema = z.object({
+  workingDirectory: z.string().max(300).optional(),
   mode: z.enum(['command', 'browser', 'http', 'test']),
   confidence: z.enum(['high', 'medium', 'low']),
   summary: z.string().min(1).max(2000),
@@ -37,27 +39,8 @@ export const reproductionPlanSchema = z.object({
   requiresHumanApproval: z.literal(true),
 }).strict();
 
-const forbiddenShell = /[;&|><`$\n\r]|\$\(|\.\.[\\/]|(?:^|\s)(?:sudo|su|ssh|scp|curl|wget|nc|ncat|powershell|cmd|bash|sh|docker|podman|kubectl)(?:\s|$)/i;
-const allowedExecutables = new Set(['npm', 'npx', 'python', 'python3', 'pytest', 'go']);
-const allowedNpmScripts = /^(?:test(?::[a-z0-9:_-]+)?|lint|typecheck|check|dev|start|serve)$/i;
-
 export function splitCommand(command: string): string[] {
-  if (forbiddenShell.test(command)) throw new Error(`复现命令包含不允许的 shell 语法：${command}`);
-  const tokens = command.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g)?.map(token => token.replace(/^(?:"([\s\S]*)"|'([\s\S]*)')$/, '$1$2')) || [];
-  if (!tokens.length || !allowedExecutables.has(tokens[0].toLowerCase())) throw new Error(`复现命令入口不在允许列表：${command}`);
-  const executable = tokens[0].toLowerCase();
-  if (executable === 'npm') {
-    const operation = tokens[1]?.toLowerCase();
-    if (operation === 'ci' || operation === 'install') return tokens;
-    if (operation === 'test') return tokens;
-    if (operation === 'run' && tokens[2] && allowedNpmScripts.test(tokens[2])) return tokens;
-    throw new Error(`npm 命令不在允许列表：${command}`);
-  }
-  if (executable === 'npx' && !(tokens[1] === 'playwright' && tokens[2] === 'test')) throw new Error('npx 只允许调用项目内 Playwright 测试。');
-  if ((executable === 'python' || executable === 'python3') && tokens[1] !== '-m') throw new Error('Python 只允许通过 -m 调用测试模块。');
-  if ((executable === 'python' || executable === 'python3') && !['pytest', 'unittest'].includes(tokens[2] || '')) throw new Error('Python 只允许 pytest 或 unittest。');
-  if (executable === 'go' && tokens[1] !== 'test') throw new Error('Go 只允许 go test。');
-  return tokens;
+  return commandTokens(command);
 }
 
 function validateRelativePath(value: string, label: string) {
@@ -69,8 +52,8 @@ function validateRelativePath(value: string, label: string) {
 function validateStep(step: ReproductionStep, phase: 'setup' | 'execute') {
   if (step.type === 'run-command' || step.type === 'run-test') {
     if (!step.command) throw new Error('命令步骤缺少 command。');
-    const tokens = splitCommand(step.command);
-    const installs = tokens[0] === 'npm' && ['ci', 'install'].includes(tokens[1]);
+    splitCommand(step.command);
+    const installs = dependencyCommand(step.command);
     if (installs && phase !== 'setup') throw new Error('依赖安装只能出现在 setup 阶段。');
   }
   if (step.type === 'create-file') {
@@ -89,6 +72,7 @@ function validateStep(step: ReproductionStep, phase: 'setup' | 'execute') {
 
 export function validateReproductionPlan(value: unknown): ReproductionPlan {
   const plan = reproductionPlanSchema.parse(value) as ReproductionPlan;
+  if (plan.workingDirectory && plan.workingDirectory !== '.') validateRelativePath(plan.workingDirectory, '工作目录');
   plan.setup.forEach(step => validateStep(step, 'setup'));
   plan.steps.forEach(step => validateStep(step, 'execute'));
   if (plan.mode === 'browser' && !plan.steps.some(step => ['goto', 'click', 'fill', 'expect'].includes(step.type))) throw new Error('浏览器复现计划缺少浏览器操作。');

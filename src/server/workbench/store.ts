@@ -116,9 +116,10 @@ export function updatePullRequestFinding(owner: string, repoUrl: string, number:
   } catch (error) { database.exec('ROLLBACK'); throw error; }
 }
 
-export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan; agentTaskId?: string; verificationRole?: 'baseline' | 'patched' }): ReproductionJob {
+export function createReproductionJob(owner: string, input: { repoUrl: string; branch?: string; commitSha: string; issueNumber: number; sourceUpdatedAt: string; plan: ReproductionPlan; agentTaskId?: string; verificationRole?: 'baseline' | 'patched'; verification?: ReproductionJob['verification'] }): ReproductionJob {
   const now = new Date().toISOString();
   const job: ReproductionJob = { id: randomUUID(), repoUrl: input.repoUrl, branch: input.branch, commitSha: input.commitSha, issueNumber: input.issueNumber, sourceUpdatedAt: input.sourceUpdatedAt, ...(input.agentTaskId?{agentTaskId:input.agentTaskId}:{}), ...(input.verificationRole?{purpose:'agent-verification' as const,verificationRole:input.verificationRole}:{}), plan: input.plan, status: 'awaiting-confirmation', phase: 'planning', progress: input.verificationRole?'对照验证计划已生成，等待维护者确认':'复现计划已生成，等待维护者确认', totalAttempts: 3, totalSteps: input.plan.setup.length + input.plan.steps.length, attempts: 0, successfulAttempts: 0, attemptHistory: [], artifacts: [], createdAt: now, updatedAt: now };
+  job.verification = input.verification;
   workbenchDb().prepare('INSERT INTO reproduction_jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(job.id, owner, job.repoUrl, job.issueNumber, job.status, JSON.stringify(job), now, now);
   return job;
 }
@@ -157,7 +158,17 @@ export function updateReproductionJob(owner: string, id: string, change: Partial
   workbenchDb().prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
   return next;
 }
-export function queueReproductionJob(owner: string, id: string, repoUrl: string, validateBeforeQueue?:()=>void): ReproductionJob {
+export function updateLeasedReproduction(owner: string, id: string, worker: string, change: Partial<ReproductionJob>): ReproductionJob {
+  const db = workbenchDb();
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const lease = db.prepare("SELECT j.status FROM reproduction_jobs j JOIN reproduction_leases l ON l.job_id=j.id WHERE j.owner=? AND j.id=? AND l.worker=? AND l.expires>? AND j.status='running'").get(owner, id, worker, Date.now());
+    if (!lease) throw new Error('执行租约已失效，结果未写入。');
+    const next = updateReproductionJob(owner, id, change);
+    db.exec('COMMIT'); return next;
+  } catch (error) { db.exec('ROLLBACK'); throw error; }
+}
+export function queueReproductionJob(owner: string, id: string, repoUrl: string, validateBeforeQueue?:()=>void, review?: { fingerprint: string; requirementIds: string[] }): ReproductionJob {
   const database = workbenchDb();
   database.exec('BEGIN IMMEDIATE');
   try {
@@ -166,10 +177,12 @@ export function queueReproductionJob(owner: string, id: string, repoUrl: string,
     const job = JSON.parse(row.state) as ReproductionJob;
     if (job.repoUrl !== repoUrl) throw new Error('复现任务不属于当前项目。');
     if (job.status !== 'awaiting-confirmation') throw new Error('复现任务不在等待确认状态。');
+    if (job.verification && (!review || review.fingerprint !== job.verification.fingerprint || review.requirementIds.length !== job.verification.requirements.length || new Set(review.requirementIds).size !== review.requirementIds.length || job.verification.requirements.some(requirement => !review.requirementIds.includes(requirement.id)))) throw new Error('请逐条核对需求、共享测试及故障判据后确认当前版本。');
     validateBeforeQueue?.();
     const active = database.prepare("SELECT COUNT(*) AS n FROM reproduction_jobs WHERE owner=? AND repo_url=? AND status IN ('queued','running')").get(owner, repoUrl) as { n: number };
     if (active.n >= 2) throw new Error('每个项目最多同时排队或执行 2 个复现任务。');
     const next: ReproductionJob = { ...job, status: 'queued', phase: 'source', progress: '已确认，等待隔离执行服务', phaseStartedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    if (next.verification && review) next.verification = { ...next.verification, confirmedAt: new Date().toISOString(), confirmedRequirementIds: review.requirementIds };
     database.prepare('UPDATE reproduction_jobs SET status=?, state=?, updated_at=? WHERE owner=? AND id=?').run(next.status, JSON.stringify(next), next.updatedAt, owner, id);
     database.exec('COMMIT');
     return next;

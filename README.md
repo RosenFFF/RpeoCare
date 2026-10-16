@@ -24,6 +24,7 @@ npm run dev
 | Issue / PR | Issue 问题地形图、随全局主题切换的 2D 分支导航、舒展的 PR 汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；分诊按需读取源码、引用证据与项目约定；详情内可继续调查并下载修复补丁；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
 | PR 证据化审查 | 固定 head/base、分块进度持久化、失败块重试、未审范围、Diff 坐标校验、Checks/Status、项目规则、人工筛选与 COMMENT 草稿；详情可深入核对关联源码 |
 | 项目专属规则 | 从仓库读取候选或手动编辑，维护者确认后用于分诊和 PR 审查；展示字段、版本、标签、检查与来源依据 |
+| 需求与改动对照 | Issue 候选补丁和支持范围内的小型 PR，可准备原文要求、生产改动及共享 pytest 测试的双版本计划；逐条确认后在隔离环境执行，展示环境受阻、目标断言和改进证据，支持报告导出 |
 | 文档维护 | 从报告结合源码生成 README / CONTRIBUTING / Issue / PR 模板，核对已保存草稿的影响；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
 | 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
@@ -83,6 +84,7 @@ npm run cleanup -- --apply
 - [体检范围](docs/AUDIT_SETUP.md)
 - [PR 分块审查](docs/PR_REVIEW_WORKFLOW.md)
 - [项目专属规则](docs/PROJECT_RULES.md)
+- [需求、改动与对照验证](docs/MAINTENANCE_VERIFICATION.md)
 - [PR 审查历史记录](docs/PR_REVIEW.md)
 - [项目维护 Agent](docs/MAINTENANCE_AGENT.md)
 - [Bug 复现实验室](docs/REPRODUCTION.md)

@@ -54,6 +54,8 @@ Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → �
 
 体检固定快照 → README、CONTRIBUTING 与项目清单中的受支持命令 → 服务端安全校验 → 维护者核对命令及来源 → SQLite 队列 → 独立复现 Worker → 同一固定 commit 的 Docker Runner → 单次安装、测试与代码检查 → 分步退出码和 SHA-256 证据。贡献路径复用 Issue 复现的隔离执行器与制品存储，但使用独立任务语义和 `all-steps-pass` 判据。依赖准备可以在显式配置后受限联网；验证阶段断网。概览只显示当前项目最近一次验证状态，详细计划、执行状态和证据留在体检页的贡献路径标签中。
 
+Issue/PR 的需求对照复用维护任务和执行队列，使用相同测试的双版本计划及逐条人工确认。`server/workbench/maintenance-verification.ts` 固定需求来源、生产改动、测试与规则版本；`shared/lib/maintenance-verification.ts` 依据逐次执行和环境指纹生成有界判断。结果内嵌原业务页面，详见 [需求与对照验证](MAINTENANCE_VERIFICATION.md)。
+
 
 ## PR 审查执行链
 

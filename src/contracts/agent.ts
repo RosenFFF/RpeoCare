@@ -31,6 +31,9 @@ export interface AgentPatchFile {
     created?: boolean;
 }
 export interface AgentArtifact {
+    baseSha?: string;
+    verification?: import('./maintenance-verification').VerificationContext;
+    verificationStale?: boolean;
     id: string;
     kind: 'reply' | 'patch' | 'reproduction' | 'verification';
     title: string;

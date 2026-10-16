@@ -1,7 +1,9 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import { commandTokens as tokens, dependencyCommand as isInstall, pytestCommand } from './commands.mjs';
 
 const planPath = process.env.REPRO_PLAN || '/input/plan.json';
 const workspace = resolve(process.env.REPRO_WORKSPACE || '/workspace');
@@ -10,32 +12,12 @@ const phase = process.env.REPRO_PHASE || 'execution';
 const maxMs = Math.max(10_000, Math.min(Number(process.env.REPRO_TIMEOUT_MS || 120_000), 300_000));
 const plan = JSON.parse(await readFile(planPath, 'utf8'));
 const started = Date.now();
-const output = { phase, stdout: '', stderr: '', console: [], network: [], steps: [], reproduced: false, summary: '' };
+const output = { phase, stdout: '', stderr: '', console: [], network: [], steps: [], reproduced: false, summary: '', failureKind: undefined, environment: {} };
+let workdir = workspace;
 const background = [];
 const totalSteps = plan.setup.length + plan.steps.length;
 async function writeProgress(currentStep, currentStepLabel) {
   await writeFile(`${artifacts}/progress.json`, JSON.stringify({ phase, currentStep, totalSteps, currentStepLabel, updatedAt: new Date().toISOString() }), 'utf8').catch(() => {});
-}
-const allowedScripts = /^(?:test(?::[a-z0-9:_-]+)?|lint|typecheck|check|dev|start|serve)$/i;
-
-function tokens(command) {
-  if (/[;&|><`$\n\r]|\$\(|\.\.[\\/]|(?:^|\s)(?:sudo|su|ssh|scp|curl|wget|nc|ncat|powershell|cmd|bash|sh|docker|podman|kubectl)(?:\s|$)/i.test(command)) throw new Error('Unsafe command syntax.');
-  const list = command.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g)?.map(value => value.replace(/^(?:"([\s\S]*)"|'([\s\S]*)')$/, '$1$2')) || [];
-  const executable = String(list[0] || '').toLowerCase();
-  if (!['npm', 'npx', 'python', 'python3', 'pytest', 'go'].includes(executable)) throw new Error('Command is not allow-listed.');
-  if (executable === 'npm') {
-    const operation = String(list[1] || '').toLowerCase();
-    if (!['ci', 'install', 'test', 'run'].includes(operation)) throw new Error('npm operation is not allow-listed.');
-    if (operation === 'run' && !allowedScripts.test(list[2] || '')) throw new Error('npm script is not allow-listed.');
-  }
-  if (executable === 'npx' && !(list[1] === 'playwright' && list[2] === 'test')) throw new Error('npx only permits Playwright tests.');
-  if (['python', 'python3'].includes(executable) && !(list[1] === '-m' && ['pytest', 'unittest'].includes(list[2] || ''))) throw new Error('Python only permits test modules.');
-  if (executable === 'go' && list[1] !== 'test') throw new Error('Go only permits tests.');
-  return list;
-}
-function isInstall(command) {
-  const list = tokens(command);
-  return list[0] === 'npm' && ['ci', 'install'].includes(list[1]);
 }
 function inside(relativePath) {
   if (!relativePath || relativePath.startsWith('/') || /^[a-z]:[\\/]/i.test(relativePath) || relativePath.includes('..') || relativePath.includes('\\')) throw new Error('Unsafe relative path.');
@@ -51,15 +33,16 @@ function localUrl(target) {
 function run(command, detached = false, dependencyInstall = false) {
   let [file, ...args] = tokens(command);
   if (file === 'npx') args = ['--no-install', ...args];
-  if (dependencyInstall) args = [...args, '--ignore-scripts', '--no-audit', '--no-fund'];
-  const child = spawn(file, args, { cwd: workspace, env: { ...process.env, HOME: '/tmp/repocare-home', CI: '1', NO_COLOR: '1', npm_config_update_notifier: 'false' }, stdio: ['ignore', 'pipe', 'pipe'] });
-  child.stdout.on('data', chunk => { output.stdout = (output.stdout + chunk).slice(-1_000_000); });
-  child.stderr.on('data', chunk => { output.stderr = (output.stderr + chunk).slice(-1_000_000); });
+  if (dependencyInstall && file === 'npm') args = [...args, '--ignore-scripts', '--no-audit', '--no-fund'];
+  const child = spawn(file, args, { cwd: workdir, env: { ...process.env, HOME: '/tmp/repocare-home', CI: '1', NO_COLOR: '1', PYTHONPATH: `${workdir}/src:${workdir}:${workdir}/.repocare-python`, PYTHONDONTWRITEBYTECODE: '1', PIP_DISABLE_PIP_VERSION_CHECK: '1', npm_config_update_notifier: 'false' }, stdio: ['ignore', 'pipe', 'pipe'] });
+  let stdout = '', stderr = '';
+  child.stdout.on('data', chunk => { stdout = (stdout + chunk).slice(-6000); output.stdout = (output.stdout + chunk).slice(-1_000_000); });
+  child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-6000); output.stderr = (output.stderr + chunk).slice(-1_000_000); });
   if (detached) { background.push(child); return Promise.resolve({ code: 0, background: true }); }
   return new Promise((accept, reject) => {
-    const timer = setTimeout(() => { child.kill('SIGKILL'); reject(new Error('Command timed out.')); }, maxMs);
+    const timer = setTimeout(() => { child.kill('SIGKILL'); reject(Object.assign(new Error('Command timed out.'), { failureKind: 'timeout' })); }, Math.max(1, maxMs - (Date.now() - started)));
     child.once('error', error => { clearTimeout(timer); reject(error); });
-    child.once('exit', code => { clearTimeout(timer); accept({ code: code ?? 1 }); });
+    child.once('exit', code => { clearTimeout(timer); const failureKind = code === 0 ? undefined : dependencyInstall ? 'dependencies' : /ModuleNotFoundError|ImportError:/.test(stdout + stderr) ? 'dependencies' : pytestCommand(command) ? code === 1 ? 'assertion' : [2, 3, 4, 5].includes(code) ? 'collection' : 'unknown' : 'unknown'; accept({ code: code ?? 1, stdout, stderr, failureKind }); });
   });
 }
 async function waitFor(target) {
@@ -151,33 +134,55 @@ function observedOracle() {
   return false;
 }
 
+function environmentSnapshot() {
+  const python = spawnSync('python3', ['-c', 'import sys,json,importlib.metadata as m; print(json.dumps({"python":sys.version.split()[0],"dependencies":sorted((d.metadata.get("Name",""),d.version) for d in m.distributions(path=[sys.argv[1]]))},sort_keys=True))', resolve(workdir, '.repocare-python')], { encoding: 'utf8', timeout: 10000, maxBuffer: 500000 });
+  if (python.status !== 0) return { node: process.versions.node, platform: process.platform, dependencies: 'unavailable' };
+  const value = JSON.parse(python.stdout);
+  return { node: process.versions.node, platform: process.platform, python: value.python, dependencies: createHash('sha256').update(JSON.stringify(value.dependencies)).digest('hex') };
+}
+
 try {
   await mkdir(artifacts, { recursive: true });
+  if (plan.workingDirectory && plan.workingDirectory !== '.') {
+    workdir = inside(plan.workingDirectory);
+    let current = workspace;
+    for (const part of plan.workingDirectory.split('/')) { current = resolve(current, part); if ((await lstat(current)).isSymbolicLink()) throw new Error('Working directory cannot contain symlinks.'); }
+    if (!(await lstat(workdir)).isDirectory()) throw new Error('Working directory is not a directory.');
+  }
+  output.environment = environmentSnapshot();
+  if (plan.environment?.language === 'Python' && /^\d+(?:\.\d+){0,2}$/.test(plan.environment.version || '')) {
+    const expected = plan.environment.version.split('.');
+    if (!expected.every((part, index) => output.environment.python?.split('.')[index] === part)) throw Object.assign(new Error('The Runner Python version does not match the reviewed plan.'), { failureKind: 'setup' });
+  }
   await writeProgress(0, phase === 'dependencies' ? '正在进入依赖准备阶段' : '正在进入隔离执行阶段');
   if (phase === 'dependencies') {
     const installs = plan.setup.filter(step => (step.type === 'run-command' || step.type === 'run-test') && isInstall(step.command));
     await writeProgress(0, installs.length ? '正在准备测试依赖' : '项目无需单独准备依赖');
-    for (const [index, step] of installs.entries()) { const currentStep = index + 1; await writeProgress(currentStep, `正在安装依赖：${step.command}`); const result = await run(step.command, false, true); output.steps.push({ type: step.type, ...result, ok: result.code === 0 }); if (result.code !== 0) throw new Error('Dependency installation failed.'); await writeProgress(currentStep, `依赖准备完成：${step.command}`); }
-    output.summary = installs.length ? 'Dependencies installed without lifecycle scripts.' : 'No dependency installation was required.';
+    for (const [index, step] of installs.entries()) { const currentStep = index + 1; await writeProgress(currentStep, `正在安装依赖：${step.command}`); const result = await run(step.command, false, true); output.steps.push({ type: step.type, command: step.command, phase: 'dependencies', ...result, ok: result.code === 0 }); if (result.code !== 0) throw Object.assign(new Error('Dependency installation failed.'), { failureKind: 'dependencies' }); await writeProgress(currentStep, `依赖准备完成：${step.command}`); }
+    output.summary = installs.length ? 'Reviewed dependencies prepared in the isolated container.' : 'No dependency installation was required.';
   } else {
     await writeProgress(0, '正在启动隔离 Runner');
     for (const [index, step] of plan.setup.entries()) {
       if ((step.type === 'run-command' || step.type === 'run-test') && isInstall(step.command)) continue;
       const currentStep = index + 1;
       await writeProgress(currentStep, `正在准备：${step.command || step.target || step.path || step.type}`);
-      const result = await commandStep(step); output.steps.push({ type: step.type, command: step.command, target: step.target, path: step.path, ...result, ok: result.code === undefined || result.code === 0 });
+      const result = await commandStep(step); output.steps.push({ type: step.type, command: step.command, target: step.target, path: step.path, phase: 'setup', ...result, ok: result.code === undefined || result.code === 0 });
+      if (result.code !== undefined && result.code !== 0) throw Object.assign(new Error('A setup command failed before verification.'), { failureKind: result.failureKind === 'dependencies' ? 'dependencies' : 'setup' });
       await writeProgress(currentStep, `准备完成：${step.command || step.target || step.path || step.type}`);
     }
     if (plan.mode === 'browser') await browserSteps(plan.steps, plan.setup.length);
-    else for (const [index, step] of plan.steps.entries()) { const currentStep = plan.setup.length + index + 1; await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`); const result = await commandStep(step); output.steps.push({ index, type: step.type, command: step.command, target: step.target, path: step.path, ...result, ok: result.code === undefined || result.code === 0 }); await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`); }
+    else for (const [index, step] of plan.steps.entries()) { const currentStep = plan.setup.length + index + 1; await writeProgress(currentStep, `正在执行：${step.command || step.target || step.path || step.type}`); const result = await commandStep(step); output.steps.push({ index, type: step.type, command: step.command, target: step.target, path: step.path, phase: 'verify', ...result, ok: result.code === undefined || result.code === 0 }); await writeProgress(currentStep, `已完成：${step.command || step.target || step.path || step.type}`); }
     await writeProgress(totalSteps, '本次验证步骤已完成，正在判断机器判据');
-    output.reproduced = observedOracle();
+    output.failureKind = output.steps.find(step => step.failureKind && ['dependencies', 'collection'].includes(step.failureKind))?.failureKind || output.steps.find(step => step.failureKind)?.failureKind;
+    output.reproduced = !['dependencies', 'collection', 'setup'].includes(output.failureKind) && observedOracle();
     output.summary = output.reproduced ? 'Observed the plan oracle.' : 'The plan completed without observing the oracle.';
   }
 } catch (error) {
+  output.failureKind = error.failureKind || (phase === 'dependencies' ? 'dependencies' : 'unknown');
   output.error = error instanceof Error ? error.message : String(error);
   output.summary = phase === 'dependencies' ? 'Dependency preparation failed.' : 'The isolated attempt failed before the oracle could be evaluated.';
 } finally {
+  try { output.environment = environmentSnapshot(); } catch { output.environment = { dependencies: 'unavailable' }; }
   for (const child of background) child.kill('SIGTERM');
   output.durationMs = Date.now() - started;
   await writeFile(`${artifacts}/stdout.log`, output.stdout, 'utf8');

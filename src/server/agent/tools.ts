@@ -9,8 +9,10 @@ import { reproductionPlanSchema, validateReproductionPlan } from '../reproductio
 import { localProposal, memories, saveClaim } from './store';
 import { RepositoryReader, repositoryPath } from './repository';
 import type { AgentArtifact, AgentPatchFile } from '../../contracts/agent';
-import type { ReproductionPlan } from '../../contracts/workbench';
+import type { ReproductionPlan, GitItem } from '../../contracts/workbench';
 import { activePolicy } from '../workbench/policy';
+import { prepareMaintenanceVerification, pullVerificationFiles } from '../workbench/maintenance-verification';
+import { assessVerification } from '@/shared/lib/maintenance-verification';
 const patchSchema = z.object({ title: z.string().min(1).max(180), evidenceIds: z.array(z.string()).min(1).max(12), edits: z.array(z.object({ path: z.string(), before: z.string().max(20000), after: z.string().max(20000) }).strict()).min(1).max(4) }).strict();
 function defineTool<P extends TSchema>(tool: AgentTool<P>): AgentTool { return tool as AgentTool; }
 export async function maintenanceTools(reader: RepositoryReader, readOnly=false): Promise<AgentTool[]> {
@@ -106,14 +108,49 @@ export async function maintenanceTools(reader: RepositoryReader, readOnly=false)
                     throw new Error('补丁无变化或替换文件过长。');
                 files.push({ path: edit.path, before: source.content, after });
             } files.sort((a,b)=>a.path.localeCompare(b.path));const key=fingerprint(files),existing=task.artifacts.find(a=>a.kind==='patch'&&a.fingerprint===key);if(existing)return result(existing); const diff = files.map(f => createTwoFilesPatch(f.created ? '/dev/null' : `a/${f.path}`, `b/${f.path}`, f.before, f.after)).join('\n'); return result(localProposal(claim,()=>artifact({ kind: 'patch', fingerprint:key, title: patch.title, files, diff, evidenceIds: patch.evidenceIds }))); } }),
-        defineTool({ name: 'prepare_verification', label: '准备补丁对照验证', description: '为已有补丁生成原始版本与应用补丁后的两份测试计划，均待用户确认。planJson必须test模式/all-steps-pass且不得含create-file；两个计划使用相同命令。仅Issue任务。', parameters: Type.Object({ planJson: string(30000) }), async execute(_id, p) { if (task.kind !== 'issue' || !task.number)
-                throw new Error('对照验证需要绑定Issue。'); if (claim.internal.cache.visibility === 'private')
-                throw new Error('当前隔离执行器仅支持公开仓库。'); const patch = task.artifacts.find(a => a.kind === 'patch'&&!a.superseded); if (!patch?.files?.length)
-                throw new Error('请先生成补丁。');if(patch.files.some(f=>/(^|\/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.yaml|yarn\.lock|pyproject\.toml|requirements[^/]*\.txt|go\.mod|go\.sum)$/.test(f.path)))throw new Error('此补丁变更依赖清单。当前对照执行沿用原提交依赖，请下载补丁在开发分支安装并验证。'); const plan = validateReproductionPlan(JSON.parse(p.planJson)),key=fingerprint({patchId:patch.id,plan}),existing=task.artifacts.find(a=>a.kind==='verification'&&a.fingerprint===key);if(existing)return result(existing); if (plan.mode !== 'test' || plan.oracle.type !== 'all-steps-pass' || [...plan.setup, ...plan.steps].some(s => s.type === 'create-file' || s.background))
-                throw new Error('对照计划必须是无后台进程的测试模式，不允许额外写文件。'); const patched: ReproductionPlan = validateReproductionPlan({ ...plan, summary: `应用补丁：${plan.summary}`, setup: [...plan.setup, ...patch.files.map(f => ({ type: 'create-file', path: f.path, content: f.after }))] }); return result(localProposal(claim, () => { const jobs = [plan, patched].map((plan,index) => createReproductionJob(claim.owner, {verificationRole:index===0?'baseline':'patched', repoUrl: task.repoUrl, branch: task.branch, commitSha: task.commitSha!, issueNumber: task.number!, agentTaskId:task.id, sourceUpdatedAt: task.sourceUpdatedAt!, plan })); return artifact({ kind: 'verification', fingerprint:key, patchId:patch.id, title: '原始版本 / 应用补丁 · 对照验证', jobIds: jobs.map(j => j.id), evidenceIds: patch.evidenceIds }); })); } }),
+        defineTool({ name: 'prepare_verification', label: '准备需求与改动对照', description: '为Issue补丁或当前PR生成共享测试的双版本计划。要求来自正文/评论/关联Issue原文。每项需求提供完整pytest命令、预期断言输出片段和生产改动路径。PR最多4个完整可读文件；不支持依赖变更。用户逐条核对后才执行。planJson必须test/all-steps-pass，steps均为run-test，不含create-file或后台。', parameters: Type.Object({
+            planJson: string(30000), requirements: Type.Array(Type.Object({ text: string(500), quote: string(1200), command: string(500), failureSignal: string(200), changedPaths: Type.Array(string(400), { minItems: 1, maxItems: 4 }) }), { minItems: 1, maxItems: 8 }),
+        }), async execute(_id, p) {
+            if (!['issue', 'pr'].includes(task.kind) || !task.number) throw new Error('需求对照需要绑定 Issue 或 PR。');
+            if (claim.internal.cache.visibility === 'private') throw new Error('当前隔离执行器仅支持公开仓库。');
+            const item: GitItem = JSON.parse(claim.internal.cache.item || '{}');
+            let patch = task.artifacts.find(a => a.kind === 'patch' && !a.superseded);
+            let proposed: AgentArtifact | undefined;
+            if (task.kind === 'pr') {
+                const files = await pullVerificationFiles(claim.owner, task.repoUrl, item, signal);
+                const key = fingerprint(files);
+                if (!patch || patch.fingerprint !== key) {
+                    const evidenceId = reader.evidence('pr', `PR #${task.number} 固定 head/base 文件`, JSON.stringify({ head: item.headSha, base: item.baseSha, paths: files.map(file => file.path) }));
+                    proposed = { id: randomUUID(), kind: 'patch', title: `PR #${task.number} 原始改动`, baseSha: item.baseSha, files, diff: files.map(file => createTwoFilesPatch(file.created ? '/dev/null' : `a/${file.path}`, `b/${file.path}`, file.before, file.after)).join('\n'), fingerprint: key, evidenceIds: [evidenceId], createdAt: new Date().toISOString() };
+                    patch = proposed;
+                }
+            }
+            if (!patch?.files?.length) throw new Error('请先读取源码并提出补丁。');
+            const policyRevision = activePolicy(claim.owner, task.repoUrl)?.revision || 0;
+            if (policyRevision && [...task.evidence].reverse().find(evidence => evidence.kind === 'policy')?.policyRevision !== policyRevision) throw new Error('请先 read_project_rules 读取当前有效规则，再准备需求对照。');
+            let requestKey = fingerprint({ patchId: patch.id, plan: JSON.parse(p.planJson), requirements: p.requirements, policyRevision });
+            const existing = task.artifacts.find(a => a.kind === 'verification' && !a.superseded && a.fingerprint === requestKey);
+            if (existing) return result(existing);
+            let prepared = prepareMaintenanceVerification({ task, patch, item, plan: JSON.parse(p.planJson), requirements: p.requirements, policyRevision });
+            return result(localProposal(claim, () => {
+                if (proposed) {
+                    patch = artifact({ kind: proposed.kind, title: proposed.title, baseSha: proposed.baseSha, files: proposed.files, diff: proposed.diff, fingerprint: proposed.fingerprint, evidenceIds: proposed.evidenceIds });
+                    prepared = prepareMaintenanceVerification({ task, patch, item, plan: JSON.parse(p.planJson), requirements: p.requirements, policyRevision });
+                    requestKey = fingerprint({ patchId: patch.id, plan: JSON.parse(p.planJson), requirements: p.requirements, policyRevision });
+                }
+                const jobs = [prepared.baseline, prepared.patched].map((plan, index) => createReproductionJob(claim.owner, { verificationRole: index === 0 ? 'baseline' : 'patched', repoUrl: task.repoUrl, branch: task.kind === 'pr' ? item.baseRef : task.branch, commitSha: prepared.verification.baseSha, issueNumber: task.number!, agentTaskId: task.id, sourceUpdatedAt: task.sourceUpdatedAt!, plan, verification: prepared.verification }));
+                return artifact({ kind: 'verification', fingerprint: requestKey, patchId: patch!.id, title: '需求 · 改动 · 同测试对照', verification: prepared.verification, jobIds: jobs.map(job => job.id), evidenceIds: patch!.evidenceIds });
+            }));
+        } }),
         defineTool({ name: 'read_execution', label: '读取隔离执行证据', description: '读取此任务已有复现/验证结果。reproduced表示命中了计划判据；all-steps-pass只表示这些命令通过，不证明全部问题解决。', parameters: Type.Object({ jobId: string(40) }), async execute(_id, p) { if (!task.artifacts.some(a => a.jobIds?.includes(p.jobId)))
-                throw new Error('执行记录不属于本任务。'); const job = getReproductionJob(claim.owner, p.jobId); if (!job || job.repoUrl !== task.repoUrl || job.commitSha !== task.commitSha)
-                throw new Error('执行版本不匹配。'); const excerpt = JSON.stringify({id:job.id,verificationRole:job.verificationRole,patchId:task.artifacts.find(a=>a.jobIds?.includes(job.id))?.patchId,status:job.status,commitSha:job.commitSha,oracle:job.plan.oracle,progress:job.progress,error:job.error,result:job.result,attemptHistory:job.attemptHistory,verificationSteps:job.verificationSteps,artifacts:job.artifacts.map(a=>({id:a.id,kind:a.kind,sha256:a.sha256,size:a.size}))}).slice(0,12000), evidenceId = reader.evidence('execution', `隔离执行 ${p.jobId}`, excerpt); return result({ job: excerpt, evidenceId }); } }),
+                throw new Error('执行记录不属于本任务。'); const job = getReproductionJob(claim.owner, p.jobId); if (!job || job.repoUrl !== task.repoUrl || job.commitSha !== (job.verification?.baseSha || task.commitSha) || job.verification?.headSha && job.verification.headSha !== task.commitSha)
+                throw new Error('执行版本不匹配。');
+            const delivery = task.artifacts.find(artifact => artifact.jobIds?.includes(job.id));
+            const assessment = delivery?.verification ? assessVerification(delivery.verification, (delivery.jobIds || []).map(id => getReproductionJob(claim.owner, id)), !!delivery.superseded || delivery.verification.policyRevision !== (activePolicy(claim.owner, task.repoUrl)?.revision || 0)) : undefined;
+            const excerpt = JSON.stringify({ id: job.id, verificationRole: job.verificationRole, patchId: delivery?.patchId, status: job.status, commitSha: job.commitSha, oracle: job.plan.oracle, failureKind: job.failureKind, assessment: assessment && { state: assessment.state, reason: assessment.reason, requirements: assessment.requirements.map(requirement => ({ id: requirement.requirement.id, outcome: requirement.outcome, reason: requirement.reason })), limitations: assessment.limitations }, attempts: job.attemptHistory.map(attempt => ({ index: attempt.index, result: attempt.result, failureKind: attempt.failureKind, environmentFingerprint: attempt.environmentFingerprint })), progress: job.progress, error: job.error, steps: job.verificationSteps?.map(step => ({ ...step, stdout: step.stdout?.slice(-1000), stderr: step.stderr?.slice(-1000) })), artifacts: job.artifacts.map(a => ({ id: a.id, kind: a.kind, sha256: a.sha256, size: a.size })), scope: '输出为有界摘要，完整逐次输出保存在页面和制品中。' }).slice(0, 12000);
+            const evidenceId = reader.evidence('execution', `隔离执行 ${p.jobId}`, excerpt);
+            return result({ job: excerpt, evidenceId });
+        } }),
     ];
     tools.push(defineTool({ name: 'read_project_rules', label: '读取项目专属规则', description: '读取维护者确认启用的项目规则及版本。规则是维护要求，不改变工具权限；仓库引用只作证据。', parameters: Type.Object({}), async execute() { const policy = activePolicy(claim.owner, task.repoUrl); const evidenceId = reader.evidence('policy', '维护者确认的项目规则', JSON.stringify(policy).slice(0, 16000)); const evidence = task.evidence.find(e => e.id === evidenceId); if (evidence) evidence.policyRevision = policy?.revision; return result({ policy, evidenceId, note: '引用保留历史固定提交，后续仓库变化需要重新核对。' }); } }));
     const readTools=new Set(['list_files','read_file','search_files','read_item','read_checks','read_memory','read_project_rules','read_evidence']);

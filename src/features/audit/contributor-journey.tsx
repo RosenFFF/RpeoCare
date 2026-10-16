@@ -1,4 +1,5 @@
 'use client';
+import { executionFailureLabels } from '@/shared/lib/maintenance-verification';
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -94,10 +95,10 @@ export function ContributorJourney({ report, onNotify }: { report: AuditReport; 
 
   const job = state?.job || null;
   const sources = job?.journey?.sources || [];
-  const needsNetwork = job?.plan.setup.some(step => /^npm\s+(?:ci|install)/i.test(step.command || '')) || false;
+  const needsNetwork = job?.plan.setup.some(step => /^(?:npm\s+(?:ci|install)|python3?\s+-m\s+pip\s+install)/i.test(step.command || '')) || false;
   const canConfirm = Boolean(confirmed && state?.sandboxConfigured && (!needsNetwork || state?.dependencyNetworkAllowed));
   const status = job ? statusCopy[job.status] : null;
-  const stepResults = useMemo(() => new Map((job?.verificationSteps || []).filter(item => item.command).map(item => [item.command!, item])), [job?.verificationSteps]);
+  const stepResults = useMemo(() => new Map([...(job?.dependencySteps || []), ...(job?.verificationSteps || [])].filter(item => item.command).map(item => [item.command!, item])), [job?.dependencySteps,job?.verificationSteps]);
 
   if (loading) return <div className="cj-loading" role="status"><LoaderCircle size={18} className="aw-spin" />正在恢复贡献路径…</div>;
 
@@ -127,7 +128,7 @@ export function ContributorJourney({ report, onNotify }: { report: AuditReport; 
             const result = stepResults.get(source.command);
             const position = index + 1;
             const isCurrent = activeStatuses.includes(job.status) && job.currentStep === position;
-            const completed = terminalStatuses.includes(job.status) ? source.phase === 'setup' ? job.phase !== 'dependencies' || job.status === 'reproduced' || Boolean(job.verificationSteps?.length) : Boolean(result) : activeStatuses.includes(job.status) && (job.currentStep || 0) > position;
+            const completed = Boolean(result && result.ok && (result.code === undefined || result.code === 0));
             const failed = Boolean(result && (!result.ok || (result.code !== undefined && result.code !== 0)));
             return <article className={`cj-step ${isCurrent ? 'cj-step-current' : ''} ${failed ? 'cj-step-failed' : completed ? 'cj-step-complete' : ''}`} key={`${source.phase}-${source.command}`}><span className="cj-step-marker">{isCurrent ? <LoaderCircle size={14} className="aw-spin" /> : failed ? <XCircle size={14} /> : completed ? <Check size={14} /> : String(position).padStart(2, '0')}</span><div className="cj-step-body"><div><span className={`cj-phase cj-phase-${source.phase}`}>{source.phase === 'setup' ? '准备' : '验证'}</span><strong>{source.label}</strong>{result?.code !== undefined && <span className={`cj-exit ${result.code === 0 ? 'is-ok' : 'is-failed'}`}>exit {result.code}</span>}</div><code>{source.command}</code><a href={sourceUrl(report, source)} target="_blank" rel="noopener noreferrer"><FileCode2 size={12} />{source.path}{source.line ? `:${source.line}` : ''}<span>{source.origin === 'documentation' ? '文档原文' : '项目清单'}</span></a></div></article>;
           })}</div>
@@ -146,7 +147,8 @@ export function ContributorJourney({ report, onNotify }: { report: AuditReport; 
 
       {terminalStatuses.includes(job.status) && <section className="cj-evidence">
         <div className="cj-section-heading"><div><span>EVIDENCE & DELIVERY</span><h2>{job.status === 'reproduced' ? '贡献路径证据已经保存' : '根据阻塞证据继续维护文档'}</h2></div><small>{job.artifacts.length} 份证据</small></div>
-        <div className="cj-outcome"><div><strong>{job.status === 'reproduced' ? '100%' : `${Math.round(((job.verificationSteps || []).filter(item => item.ok && (item.code === undefined || item.code === 0)).length / Math.max(1, sources.filter(item => item.phase === 'verify').length)) * 100)}%`}</strong><span>验证步骤通过率</span></div><p>{job.status === 'reproduced' ? '当前固定提交下，维护者确认的最小贡献路径已经完整通过。' : job.error || '至少一个安装、测试或代码检查步骤没有完成。请核对退出码和执行证据，再更新项目文档。'}</p><Link className="button button-primary" href={`/improvements?generate=${encodeURIComponent(report.runId)}`}>进入草稿与交付<ArrowRight size={15} /></Link></div>
+        {job.failureKind&&<p className="cj-blocker">{executionFailureLabels[job.failureKind]}：本次结果不代表项目存在已确认的代码缺陷。</p>}
+        <div className="cj-outcome"><div><strong>{job.status === 'reproduced' ? '100%' : `${Math.round(((job.verificationSteps || []).filter(item => item.phase === 'verify' && item.ok && item.code === 0).length / Math.max(1, sources.filter(item => item.phase === 'verify').length)) * 100)}%`}</strong><span>验证步骤通过率</span></div><p>{job.status === 'reproduced' ? '当前固定提交下，维护者确认的最小贡献路径已经完整通过。' : job.error || '至少一个安装、测试或代码检查步骤没有完成。请核对退出码和执行证据，再更新项目文档。'}</p><Link className="button button-primary" href={`/improvements?generate=${encodeURIComponent(report.runId)}`}>进入草稿与交付<ArrowRight size={15} /></Link></div>
         {job.attemptHistory.length > 0 && <div className="cj-attempts">{job.attemptHistory.map(attempt => <div key={attempt.index}><span>演练 {String(attempt.index).padStart(2, '0')}</span><strong>{attempt.result === 'reproduced' ? '完整通过' : attempt.result === 'not-reproduced' ? '存在阻塞' : '执行失败'}</strong><small>{(attempt.durationMs / 1000).toFixed(1)} 秒</small></div>)}</div>}
         {job.artifacts.length > 0 && <div className="cj-artifacts">{job.artifacts.map(artifact => <a key={artifact.id} href={artifactHref(job, artifact)}><Download size={13} /><span>{artifactLabels[artifact.kind] || artifact.kind}<small>{Math.max(1, Math.round(artifact.size / 1024))} KB · SHA-256 已校验</small></span></a>)}</div>}
       </section>}

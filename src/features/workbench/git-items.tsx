@@ -13,6 +13,7 @@ import type {
 import { api, changed, useWorkbench } from './client';
 import { parseDiff } from '@/shared/lib/pr-diff';
 import { MaintenanceSupport, SourceEvidence } from './maintenance-support';
+import { executionFailureLabels } from '@/shared/lib/maintenance-verification';
 import { ReviewInbox } from './review-inbox';
 import { ReviewProgress } from './review-progress';
 import { PolicyEvidence } from './policy-evidence';
@@ -205,6 +206,7 @@ function ReproductionPanel({ jobs, selectedId, workerOnline, sandboxConfigured, 
     <ReproductionTimeline job={job} />
     <div className="issue-repro-overview"><div><span>固定提交</span><strong>{job.commitSha ? job.commitSha.slice(0, 12) : '已记录于计划'}</strong></div><div><span>复现策略</span><strong>{REPRO_MODE[job.plan.mode]}</strong></div><div><span>置信度</span><strong>{job.plan.confidence === 'high' ? '高' : job.plan.confidence === 'medium' ? '中' : '低'}</strong></div><div><span>机器判据</span><strong>{job.plan.oracle.type} = {job.plan.oracle.value}</strong></div><div><span>稳定性</span><strong>{job.attempts ? `${job.successfulAttempts}/${job.attempts} 次命中` : '等待执行'}</strong></div></div>
     <p className="issue-repro-summary">{job.plan.summary}</p>
+    {job.failureKind&&<p className="issue-repro-summary" role="status">本次结果：{executionFailureLabels[job.failureKind]}。仅测试断言与已确认故障信号相符时，才用于判断目标问题。</p>}
     {(job.progress || job.error) && <div className={`issue-repro-progress ${job.error ? 'is-error' : ''}`}><span>{job.phase ? `阶段 · ${job.phase}` : '状态'}</span><p>{job.error || job.progress}</p></div>}
     <div className="issue-repro-columns">
       <details open><summary>环境与执行步骤 <span>{job.plan.setup.length + job.plan.steps.length} 步</span></summary><div className="issue-repro-detail"><p className="issue-repro-expected"><span>预期故障</span>{job.plan.expected}</p>{job.plan.setup.length > 0 && <ol>{job.plan.setup.map((step, index) => <li key={`setup-${index}`}><b>准备</b><code>{step.command || step.path || step.target || step.type}</code></li>)}</ol>}<ol>{job.plan.steps.map((step, index) => <li key={`step-${index}`}><b>{index + 1}</b><code>{step.command || step.target || step.path || step.type}</code>{step.expected && <small>{step.expected}</small>}</li>)}</ol></div></details>
@@ -268,7 +270,7 @@ function PullRequestDetail({ item, review, onReport, busy, onAnalyze, onFinding,
     <PolicyEvidence assessment={review?.policy} repoUrl={item.url.split('/pull/')[0]}/>
     <PullRequestReviewPanel review={review} busy={busy || stale || !!review?.coverage && ['queued','running'].includes(review.coverage.status)} onAnalyze={() => onAnalyze(true)} onFinding={onFinding} />
     <SourceEvidence trace={review?.investigation}/>
-    <MaintenanceSupport kind="pr" number={item.number} sourceCommitSha={item.headSha} title="变更影响核对" actionLabel="追踪关联实现" disabled={busy} goal={`围绕 PR #${item.number} 读取变更与相关调用方、项目约定，核对跨文件影响和关联需求，返回有源码引用的事实、待验证疑点和后续建议。保留当前 head 提交，不替代正式审查的 Diff 行号校验与人工确认，不声称可以合并或测试通过，不发布。`}/>
+    <MaintenanceSupport kind="pr" number={item.number} sourceCommitSha={item.headSha} title="需求与变更核对" actionLabel="核对需求与改动" disabled={busy} goal={`围绕 PR #${item.number} 读取变更与相关调用方、项目约定，核对跨文件影响和关联需求，返回有源码引用的事实、待验证疑点和后续建议。对于支持范围内的小型Python PR，可准备逐条需求与同测试双版本对照；不支持时明确范围。保留当前 head 提交，不替代正式审查的 Diff 行号校验与人工确认，不声称可以合并或测试通过，不发布。`}/>
     {stale && <button className="button button-primary pr-stale-refresh" type="button" disabled={busy} onClick={() => onAnalyze(true)}>审查最新提交</button>}
     <div className="pr-draft-ack"><label><input type="checkbox" checked={acknowledged} onChange={e=>setAcknowledged(e.target.checked)} disabled={busy || stale || unresolved} />我已逐项筛选 AI 线索，理解生成草稿不会批准或合并 PR，且未在 RepoCare 执行测试。</label><Link href="/improvements">打开草稿工作台编辑与确认发布</Link></div>
     <details className="pr-diff-details" open><summary>查看原始 Diff <span>{files.length} 个文件</span></summary><div>{files.map(file => <details key={file.path}><summary><code>{file.path}</code><span>+{file.additions} / −{file.deletions}{file.patchTruncated ? ' · patch 不完整' : ''}</span></summary><div className="pr-code-scroll" tabIndex={0} role="region" aria-label={`${file.path} 差异内容`}><pre>{file.patch ? parseDiff(file.patch).map((row,i) => <div key={i} className={`pr-code-row is-${row.kind}`}><span>{row.oldLine || ''}</span><span>{row.newLine || ''}</span><code>{row.text}</code></div>) : 'GitHub 未提供文本 Diff，可能为二进制或大文件。'}</pre></div></details>)}</div></details>

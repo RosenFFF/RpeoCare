@@ -1,9 +1,10 @@
 import type { ContributorJourneyContext, ContributorJourneySource, ReproductionPlan, ReproductionStep } from '@/contracts/workbench';
 import type { RepoSnapshot } from '@/contracts/audit';
 import { splitCommand, validateReproductionPlan } from '@/server/reproduction/plan';
+import { dependencyCommand } from '../../../reproduction/commands.mjs';
 
 const documentPattern = /(^|\/)(readme|contributing)(?:\.(?:md|markdown|rst|txt|adoc))?$/i;
-const runnableStart = /^(?:npm\s+(?:ci|install|test|run\s+(?:test(?::[a-z0-9:_-]+)?|lint|typecheck|check))|npx\s+playwright\s+test|python3?\s+-m\s+(?:pytest|unittest)|pytest(?:\s|$)|go\s+test(?:\s|$))/i;
+const runnableStart = /^(?:npm\s+(?:ci|install|test|run\s+(?:test(?::[a-z0-9:_-]+)?|lint|typecheck|check))|npx\s+playwright\s+test|python3?\s+-m\s+(?:pytest|unittest|pip)|pytest(?:\s|$)|go\s+test(?:\s|$))/i;
 
 function commandFromLine(raw: string) {
   const value = raw.trim().replace(/^(?:\$|>)\s*/, '').replace(/\s+#.*$/, '').trim();
@@ -20,7 +21,7 @@ function documentationCommands(snapshot: RepoSnapshot): ContributorJourneySource
       if (/^\s*(?:```|~~~)/.test(line)) { fenced = !fenced; return; }
       const command = commandFromLine(line);
       if (!command || (!fenced && !/^\s*(?:\$|>)\s+/.test(line))) return;
-      const phase = /^npm\s+(?:ci|install)\b/i.test(command) ? 'setup' : 'verify';
+      const phase = dependencyCommand(command) ? 'setup' : 'verify';
       commands.push({ phase, command, label: phase === 'setup' ? '准备项目依赖' : '执行文档验证命令', path: file.path, line: index + 1, origin: 'documentation' });
     });
   }
@@ -72,6 +73,14 @@ function uniqueSources(items: ContributorJourneySource[]) {
   }).slice(0, 10);
 }
 
+function buildPythonSources(snapshot: RepoSnapshot, existing: ContributorJourneySource[]): ContributorJourneySource[] {
+  if (!existing.some(source => /^(?:python3?\s+-m\s+(?:pytest|unittest)|pytest\b)/.test(source.command)) || existing.some(source => source.phase === 'setup' && /\s-m\s+pip\s/.test(source.command))) return [];
+  const requirements = ['requirements-dev.txt', 'requirements-test.txt', 'requirements.txt'].find(path => snapshot.files.some(file => file.path === path));
+  const project = snapshot.files.some(file => file.path === 'pyproject.toml');
+  if (!requirements && !project) return [];
+  return [{ phase: 'setup', command: `python3 -m pip install --target .repocare-python --no-compile ${requirements ? `-r ${requirements}` : '--no-build-isolation .'}`, label: '准备 Python 项目依赖', path: requirements || 'pyproject.toml', origin: 'manifest' }];
+}
+
 function journeyLanguage(sources: ContributorJourneySource[], fallback?: string | null) {
   const languages = new Set<string>();
   for (const source of sources) {
@@ -85,7 +94,8 @@ function journeyLanguage(sources: ContributorJourneySource[], fallback?: string 
 export function createContributorJourneyPlan(snapshot: RepoSnapshot): { plan: ReproductionPlan; journey: ContributorJourneyContext } {
   const documented = documentationCommands(snapshot);
   const nodeSources = buildNodeSources(snapshot, documented);
-  const discovered = uniqueSources([...documented, ...nodeSources, ...fallbackSources(snapshot, [...documented, ...nodeSources])]);
+  const candidates = [...documented, ...nodeSources, ...fallbackSources(snapshot, [...documented, ...nodeSources])];
+  const discovered = uniqueSources([...buildPythonSources(snapshot, candidates), ...candidates]);
   const sources = [...discovered.filter(item => item.phase === 'setup'), ...discovered.filter(item => item.phase === 'verify')];
   const verify = sources.filter(item => item.phase === 'verify');
   if (!verify.length) throw new Error('当前快照中没有可安全执行的测试或检查命令。请先在 README、CONTRIBUTING 或项目配置中补充 npm、pytest 或 go test 命令。');
@@ -93,7 +103,7 @@ export function createContributorJourneyPlan(snapshot: RepoSnapshot): { plan: Re
   const setup = sources.filter(item => item.phase === 'setup').map(toStep);
   const steps = verify.map(toStep);
   const documents = snapshot.contents.filter(item => !item.error && documentPattern.test(item.path)).map(item => item.path);
-  const needsNetwork = setup.some(step => /^npm\s+(?:ci|install)/i.test(step.command || ''));
+  const needsNetwork = setup.some(step => dependencyCommand(step.command || ''));
   const plan = validateReproductionPlan({
     mode: 'test', confidence: documented.length ? 'high' : 'medium',
     summary: documented.length ? '按项目文档和清单验证依赖准备、测试与代码检查是否能在干净环境中完成。' : '项目文档未提供完整命令，已根据受支持的项目清单生成最小验证路径。',

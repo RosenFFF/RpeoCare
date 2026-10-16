@@ -18,7 +18,8 @@ const prompt = `你是 RepoCare 专属仓库维护 Agent。你服务于维护者
 Issue调查路径：反馈→源码证据→需要时准备复现→等待用户执行→读取真实执行结果→提出补丁→准备原始版本/应用补丁对照验证→给出回复草稿。按目标选必要步骤，缺信息时向用户列出具体问题。没有真实执行不能声称复现、测试通过、修复完成。GitHub检查与本地执行分开。对照测试全部通过也不证明所有问题解决。
 propose_patch生成精确原文替换差异；不会自动修改宿主或GitHub。所有复现和补丁验证必须由用户在界面完整审阅并确认。根据工具结果确认实际保存情况。每类交付物最多三版；内容相同复用已有版本，变更后保存新版本，旧计划不可再次确认。读取验证失败的实际结果后，可以针对原固定提交提出改进补丁并准备对应新验证，再根据真实结果修订回复。补丁必须是对原始提交的完整修订方案，不是对上一版补丁叠加替换。
 prepare_reproduction/prepare_verification的planJson须严格符合以下JSON Schema：${reproductionSchemaDescription}
-命令仅允许现有执行器的npm ci/install/test、npm run test:*/lint/typecheck/check/dev/start/serve、pytest、python -m pytest/unittest、go test、npx playwright test。禁止shell语法、任意下载或宿主路径。先读取实际项目命令。缺环境/选择器等信息写入missingInformation，不能猜测。
+prepare_verification还必须给出requirements数组，每项含text、quote（Issue/PR/关联Issue精确原文）、command（与steps中的run-test完全一致，每条要求指定一个pytest文件.py::用例节点）、failureSignal（预期断言输出片段）、changedPaths（生产改动路径）。可另加完整测试集命令核对其他行为。需求对应和断言是待人工核对的提议，不能编造用户要求。共享测试内容将同时应用于两个版本；只改测试不算生产修复。当前需求对照限pytest；PR限完整且最多4个文件的非依赖改动。信息不足先提问，不为了生成计划填造路径或断言。
+命令允许现有执行器的npm测试、pytest、python -m pytest/unittest、go test、npx playwright test；Python依赖安装仅在setup使用python3 -m pip install --target .repocare-python --no-compile -r requirements.txt（也支持requirements-dev.txt/requirements-test.txt），或后接--no-build-isolation .安装已读取的根项目。验证断网。禁止shell语法、任意下载或宿主路径。先读取实际项目命令。缺环境/选择器等信息写入missingInformation，不能猜测。
 完成本阶段后仅输出JSON，不要Markdown或内部推理：{"summary":"阶段结论","findings":[{"title":"...","detail":"...","certainty":"supported|hypothesis","evidenceIds":["E..."]}],"missingInformation":[],"nextSteps":[]}。supported必须有已存在的证据ID；hypothesis明确标为待验证。等待用户补充/确认时也按此格式输出阶段结果。`;
 /** Strip private reasoning, provider diagnostics and signatures from durable checkpoints. */
 function checkpoint(messages: AgentMessage[]): AgentMessage[] {

@@ -74,6 +74,7 @@ export interface ReproductionOracle {
   value: string;
 }
 export interface ReproductionPlan {
+  workingDirectory?: string;
   mode: ReproductionMode;
   confidence: IssueConfidence;
   summary: string;
@@ -97,6 +98,9 @@ export interface ReproductionArtifact {
   createdAt: string;
 }
 export interface ReproductionAttempt {
+  failureKind?: ExecutionFailureKind;
+  steps?: VerificationStepResult[];
+  environmentFingerprint?: string;
   index: number;
   result: ReproductionResult;
   durationMs: number;
@@ -120,6 +124,10 @@ export interface ContributorJourneyContext {
   derivedAt: string;
 }
 export interface VerificationStepResult {
+  phase?: 'setup' | 'verify' | 'dependencies';
+  stdout?: string;
+  stderr?: string;
+  failureKind?: ExecutionFailureKind;
   index?: number;
   type: ReproductionStep['type'];
   command?: string;
@@ -130,6 +138,10 @@ export interface VerificationStepResult {
   ok: boolean;
 }
 export interface ReproductionJob {
+  failureKind?: ExecutionFailureKind;
+  dependencySteps?: VerificationStepResult[];
+  executionEnvironment?: Record<string, string>;
+  verification?: import('./maintenance-verification').VerificationContext;
   id: string;
   repoUrl: string;
   branch?: string;
@@ -164,6 +176,7 @@ export interface ReproductionJob {
   startedAt?: string;
   finishedAt?: string;
 }
+export type ExecutionFailureKind = 'source' | 'sandbox' | 'dependencies' | 'collection' | 'assertion' | 'setup' | 'timeout' | 'unknown';
 export type ReviewFindingSeverity = 'blocking' | 'warning' | 'suggestion' | 'info';
 export type ReviewFindingStatus = 'open' | 'accepted' | 'dismissed';
 export interface ReviewFinding {
