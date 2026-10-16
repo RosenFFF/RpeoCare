@@ -16,6 +16,31 @@ test('builds all supported custom protocols without requiring a catalog model', 
   for (const url of ['http://remote.example', 'https://user:secret@provider.example', 'https://provider.example/v1/chat/completions', 'https://provider.example?key=secret']) assert.throws(() => validateModelEndpoint(url));
   assert.equal((await modelForConnection({ ...connection, baseUrl: 'http://127.0.0.1:8999/v1', apiKey: '' })).baseUrl, 'http://127.0.0.1:8999/v1');
 });
+
+test('official DeepSeek alias preserves thinking toggle without applying it to proxy endpoints', async () => {
+  for (const baseUrl of ['https://api.deepseek.com', 'https://api.deepseek.com/v1']) {
+    const model = await modelForConnection({ ...connection, provider: 'deepseek', modelId: 'deepseek-flash', baseUrl, contextWindow: null, maxTokens: 8192 });
+    assert.equal(model.id, 'deepseek-flash'); assert.equal(model.reasoning, true);
+    assert.ok(model.contextWindow > 0);
+    assert.equal(model.api, 'openai-completions');
+    assert.equal((model as Model<'openai-completions'>).compat?.thinkingFormat, 'deepseek');
+  }
+  const proxy = await modelForConnection({ ...connection, provider: 'deepseek', modelId: 'deepseek-flash' });
+  assert.equal(proxy.reasoning, false); assert.equal(proxy.contextWindow, 128000);
+});
+
+test('installed SDK actually emits disabled thinking for the official alias in off mode', async () => {
+  const sdk = await import('@mariozechner/pi-ai');
+  const model = await modelForConnection({ ...connection, provider: 'deepseek', modelId: 'deepseek-flash', baseUrl: 'https://api.deepseek.com' });
+  let captured: Record<string, unknown> | undefined;
+  // Stop before transport: this checks the installed SDK's real payload builder without a paid request.
+  const result = await sdk.streamSimple(model, { messages: [{ role: 'user', content: 'probe', timestamp: 0 }] }, {
+    apiKey: 'mock', onPayload: payload => { captured = payload as Record<string, unknown>; throw new Error('payload captured'); }, maxRetries: 0,
+  }).result();
+  assert.equal(result.stopReason, 'error'); assert.ok(captured);
+  assert.deepEqual(captured.thinking, { type: 'disabled' });
+  assert.equal(captured.reasoning_effort, undefined);
+});
 test('connection probe requires a tool call and successful result round trip for each protocol', async () => {
   const sdk = await import('@mariozechner/pi-ai');
   for (const protocol of ['openai-completions', 'openai-responses', 'anthropic-messages'] as const) {

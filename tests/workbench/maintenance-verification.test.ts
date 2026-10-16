@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { AgentArtifact, MaintenanceTask } from '../../src/contracts/agent';
 import type { GitItem, ReproductionJob, ReproductionPlan } from '../../src/contracts/workbench';
-import { prepareMaintenanceVerification } from '../../src/server/workbench/maintenance-verification';
+import { maintenanceTestPlan, prepareMaintenanceVerification } from '../../src/server/workbench/maintenance-verification';
 import { assessVerification, verificationNextAction } from '../../src/shared/lib/maintenance-verification';
 import { commandTokens, dependencyCommand } from '../../reproduction/commands.mjs';
 import { maintenanceProgressHint } from '../../src/shared/lib/maintenance-progress';
@@ -90,4 +90,14 @@ test('stage hint separates source reading, minimal patch and pending verificatio
   assert.match(maintenanceProgressHint(t), /最小且唯一/);
   t.artifacts = [patch]; assert.match(maintenanceProgressHint(t), /prepare_verification/);
   t.artifacts = [{ ...patch, superseded: true }]; assert.match(maintenanceProgressHint(t), /未保存补丁/);
+});
+
+test('shortcut plan keeps normal regressions separate from defect requirements and remains reviewable', () => {
+  const preparedPlan = maintenanceTestPlan({ requirements, regressionCommands: ['python3 -m pytest tests/test_value.py::test_normal -q'] });
+  const result = prepare({ plan: preparedPlan });
+  assert.equal(result.verification.requirements.length, 1);
+  assert.deepEqual(result.verification.regressionCommands, ['python3 -m pytest tests/test_value.py::test_normal -q']);
+  assert.equal(result.baseline.setup.length, 1); assert.equal(result.baseline.requiresHumanApproval, true);
+  assert.throws(() => maintenanceTestPlan({ requirements, setupCommands: ['python3 -m pip install pytest'] }), /安装/);
+  assert.throws(() => maintenanceTestPlan({ requirements, regressionCommands: ['python3 -m pytest; whoami'] }), /shell/);
 });

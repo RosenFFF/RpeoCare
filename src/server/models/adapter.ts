@@ -59,12 +59,21 @@ export async function modelForConnection(connection: RuntimeConnection): Promise
 
   const { getProviders, getModels } = await import('@mariozechner/pi-ai');
   const provider = getProviders().find((item) => item === connection.provider);
-  const catalogModel = provider ? getModels(provider).find((model) => model.id === connection.modelId) : undefined;
+  let catalogModel: Model<Api> | undefined = provider ? getModels(provider).find((model) => model.id === connection.modelId) : undefined;
+  // DeepSeek's current official alias is newer than the installed SDK catalog.
+  // Resolve compatibility only on the official Chat Completions endpoint.
+  const officialDeepSeek = connection.protocol === 'openai-completions' && connection.baseUrl.trim()
+    && /^https:\/\/api\.deepseek\.com(?:\/v1)?\/?$/.test(connection.baseUrl.trim());
+  if (!catalogModel && officialDeepSeek && connection.modelId === 'deepseek-flash') {
+    catalogModel = getModels('deepseek').find(model => model.id === 'deepseek-v4-flash');
+  }
   const baseUrl = connection.baseUrl.trim() || catalogModel?.baseUrl;
   if (!baseUrl) throw new Error('该模型不在内置模型目录中，请填写自定义模型的服务基础地址。');
   const endpoint = validateModelEndpoint(baseUrl);
   // Preserve catalog compatibility only for the exact built-in protocol AND endpoint.
-  const builtin = catalogModel?.api === connection.protocol && validateModelEndpoint(catalogModel.baseUrl) === endpoint
+  const canonicalEndpoint = (url: string) => url.replace(/\/v1$/, '');
+  const builtin = catalogModel?.api === connection.protocol && (validateModelEndpoint(catalogModel.baseUrl) === endpoint
+    || officialDeepSeek && canonicalEndpoint(validateModelEndpoint(catalogModel.baseUrl)) === canonicalEndpoint(endpoint))
     ? catalogModel : undefined;
   const common = {
     id: connection.modelId.trim(), name: catalogModel?.name ?? connection.modelId.trim(),

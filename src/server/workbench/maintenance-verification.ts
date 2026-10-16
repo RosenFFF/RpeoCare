@@ -13,6 +13,18 @@ export const verificationRequirementsSchema = z.array(z.object({
   command: z.string().min(1).max(500), failureSignal: z.string().trim().min(5).max(200),
   changedPaths: z.array(z.string().min(1).max(400)).min(1).max(4),
 }).strict()).min(1).max(8);
+
+/** Build the routine pytest plan from explicit model proposals; all execution still requires review. */
+export function maintenanceTestPlan(input: { requirements: unknown; regressionCommands?: string[]; setupCommands?: string[]; missingInformation?: string[] }): ReproductionPlan {
+  const requirements = verificationRequirementsSchema.parse(input.requirements);
+  const commands = [...new Set([...requirements.map(requirement => requirement.command), ...(input.regressionCommands || [])])];
+  return validateReproductionPlan({ mode: 'test', confidence: 'medium', summary: `逐条需求对照：${requirements.map(requirement => requirement.text).join('；')}`.slice(0, 1800),
+    environment: { language: 'Python', dependencies: input.setupCommands?.length ? ['仅准备已列出的依赖命令；需人工核对来源。'] : [] },
+    setup: (input.setupCommands || []).map(command => ({ type: 'run-command', command })),
+    steps: commands.map(command => ({ type: 'run-test', command })), oracle: { type: 'all-steps-pass', value: '所有计划内验证命令退出码为 0' },
+    expected: '目标需求测试和额外回归命令均通过。', evidence: ['stdout', 'stderr', 'test-result'],
+    risks: ['测试与原文要求的语义对应仍需人工核对。'], missingInformation: input.missingInformation || [], requiresHumanApproval: true });
+}
 export const verificationHash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export const testPath = (path: string) => /(^|\/)(?:tests?\/|test_[^/]+\.py$|[^/]+_test\.py$|conftest\.py$)/.test(path);
 const dependencyPath = /(^|\/)(?:package\.json|package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.yaml|yarn\.lock|pyproject\.toml|requirements[^/]*\.txt|uv\.lock|poetry\.lock|go\.mod|go\.sum)$/;

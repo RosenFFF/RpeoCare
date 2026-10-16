@@ -1,0 +1,1478 @@
+{
+  "date": "2026-10-16",
+  "unit": "One public historical issue; all pilots and repeats use the same input, not independent cases.",
+  "model": "deepseek-flash",
+  "case": {
+    "url": "https://github.com/pallets/itsdangerous/issues/237",
+    "commit": "d101100c395958d67368b8c37d95a9c404598c2e",
+    "blind": false
+  },
+  "scope": "Agent-produced production patches; operator-reviewed plans and correction notes; no upstream publication, no full-suite or browser confirmation acceptance.",
+  "pilots": [
+    {
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-16T09-16-04-882Z/pilot.json",
+        "sha256": "1c26cf8712cf314afa867b5407e795069f7d526aeeb834789ec73abc3a328bbb",
+        "status": "failed",
+        "budget": {
+          "turns": 10,
+          "tools": 15,
+          "maxTurns": 10,
+          "maxTools": 18,
+          "inputTokens": 104987,
+          "outputTokens": 2197,
+          "compactions": 0
+        },
+        "artifactKinds": [],
+        "executionEvidenceCount": 0
+      },
+      "operatorAssistance": null,
+      "continuations": []
+    },
+    {
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-16T09-20-13-864Z/pilot.json",
+        "sha256": "981225e65cf911c11c94aba9c7a41990b235070c4199d917de9cf3ceb996a0f2",
+        "status": "failed",
+        "budget": {
+          "turns": 16,
+          "tools": 26,
+          "maxTurns": 16,
+          "maxTools": 32,
+          "inputTokens": 278502,
+          "outputTokens": 11258,
+          "compactions": 1
+        },
+        "artifactKinds": [
+          {
+            "kind": "patch",
+            "revision": 1,
+            "superseded": false,
+            "paths": [
+              "src/itsdangerous/signer.py",
+              "tests/test_itsdangerous/test_serializer.py",
+              "tests/test_itsdangerous/test_signer.py"
+            ],
+            "fingerprint": "d8cb660f2a6119a2c45a0ed50c2b74a78192d5c70bcde3715b8e53ac592ce611"
+          }
+        ],
+        "executionEvidenceCount": 0
+      },
+      "operatorAssistance": "Plan scope, failure signals and delivery feedback; production patch unchanged.",
+      "continuations": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-16T09-20-13-864Z/continuation-2026-10-16T09-25-02-355Z.json",
+          "sha256": "aed034415906f194967d441ce7599ea95f35c56b2b0500362d09dcb46e734bbc",
+          "status": "failed",
+          "budget": {
+            "turns": 18,
+            "tools": 27,
+            "maxTurns": 24,
+            "maxTools": 42,
+            "inputTokens": 344335,
+            "outputTokens": 13029,
+            "compactions": 4
+          },
+          "artifactKinds": [
+            {
+              "kind": "patch",
+              "revision": 1,
+              "superseded": false,
+              "paths": [
+                "src/itsdangerous/signer.py",
+                "tests/test_itsdangerous/test_serializer.py",
+                "tests/test_itsdangerous/test_signer.py"
+              ],
+              "fingerprint": "d8cb660f2a6119a2c45a0ed50c2b74a78192d5c70bcde3715b8e53ac592ce611"
+            },
+            {
+              "kind": "verification",
+              "revision": 1,
+              "superseded": false,
+              "fingerprint": "4f91a0e09807650cec19b97a1838784601f6d0fe9ecc70b5512e1b376ec9afe8"
+            }
+          ],
+          "executionEvidenceCount": 0
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-16T09-20-13-864Z/continuation-2026-10-16T09-32-43-323Z.json",
+          "sha256": "10bc775eb5ae83511d0749460243215d082c5049fa80ebb05232abe4888ecaf7",
+          "status": "awaiting-confirmation",
+          "budget": {
+            "turns": 21,
+            "tools": 30,
+            "maxTurns": 26,
+            "maxTools": 43,
+            "inputTokens": 441426,
+            "outputTokens": 14777,
+            "compactions": 11
+          },
+          "artifactKinds": [
+            {
+              "kind": "patch",
+              "revision": 1,
+              "superseded": false,
+              "paths": [
+                "src/itsdangerous/signer.py",
+                "tests/test_itsdangerous/test_serializer.py",
+                "tests/test_itsdangerous/test_signer.py"
+              ],
+              "fingerprint": "d8cb660f2a6119a2c45a0ed50c2b74a78192d5c70bcde3715b8e53ac592ce611"
+            },
+            {
+              "kind": "verification",
+              "revision": 1,
+              "superseded": true,
+              "fingerprint": "4f91a0e09807650cec19b97a1838784601f6d0fe9ecc70b5512e1b376ec9afe8"
+            },
+            {
+              "kind": "verification",
+              "revision": 2,
+              "superseded": false,
+              "fingerprint": "2e802bda21a68c830c2682d99fb9e7f040f3f997d19c9f96267d5b4ebd3cc04b"
+            }
+          ],
+          "executionEvidenceCount": 0
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-16T09-20-13-864Z/continuation-2026-10-16T09-36-56-693Z.json",
+          "sha256": "5102cc42e712658ee76d40ca28b19780e8ee171a6a1ca57ac967db7d5329002d",
+          "status": "completed",
+          "budget": {
+            "turns": 23,
+            "tools": 33,
+            "maxTurns": 29,
+            "maxTools": 46,
+            "inputTokens": 511435,
+            "outputTokens": 16196,
+            "compactions": 15
+          },
+          "artifactKinds": [
+            {
+              "kind": "patch",
+              "revision": 1,
+              "superseded": false,
+              "paths": [
+                "src/itsdangerous/signer.py",
+                "tests/test_itsdangerous/test_serializer.py",
+                "tests/test_itsdangerous/test_signer.py"
+              ],
+              "fingerprint": "d8cb660f2a6119a2c45a0ed50c2b74a78192d5c70bcde3715b8e53ac592ce611"
+            },
+            {
+              "kind": "verification",
+              "revision": 1,
+              "superseded": true,
+              "fingerprint": "4f91a0e09807650cec19b97a1838784601f6d0fe9ecc70b5512e1b376ec9afe8"
+            },
+            {
+              "kind": "verification",
+              "revision": 2,
+              "superseded": false,
+              "fingerprint": "2e802bda21a68c830c2682d99fb9e7f040f3f997d19c9f96267d5b4ebd3cc04b"
+            }
+          ],
+          "executionEvidenceCount": 2
+        }
+      ]
+    },
+    {
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-16T09-32-35-187Z/pilot.json",
+        "sha256": "635a9db433b9613a9c1d866d974ddeb43b9e4999aa06eb97d557b2e47b0e1624",
+        "status": "waiting-input",
+        "budget": {
+          "turns": 14,
+          "tools": 22,
+          "maxTurns": 16,
+          "maxTools": 32,
+          "inputTokens": 204434,
+          "outputTokens": 5543,
+          "compactions": 0
+        },
+        "artifactKinds": [
+          {
+            "kind": "patch",
+            "revision": 1,
+            "superseded": true,
+            "paths": [
+              "src/itsdangerous/serializer.py",
+              "src/itsdangerous/signer.py"
+            ],
+            "fingerprint": "f4de77ee03f212e505cc8fc32a94bc6710135e6a658d359434d8e090cdc7e47a"
+          },
+          {
+            "kind": "patch",
+            "revision": 2,
+            "superseded": false,
+            "paths": [
+              "tests/test_itsdangerous/test_serializer.py"
+            ],
+            "fingerprint": "1c0d8ba5bdac70b8ace91c4656c7057be6c8848a0b30f11ac8c9420edb308169"
+          }
+        ],
+        "executionEvidenceCount": 0
+      },
+      "operatorAssistance": null,
+      "continuations": []
+    },
+    {
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-16T09-38-19-957Z/pilot.json",
+        "sha256": "dd2176d98dfe4fcfbbecc181c20ac786aa5cecd4d9a7598a69ad5168f011c05d",
+        "status": "waiting-input",
+        "budget": {
+          "turns": 14,
+          "tools": 22,
+          "maxTurns": 16,
+          "maxTools": 32,
+          "inputTokens": 209865,
+          "outputTokens": 5659,
+          "compactions": 0
+        },
+        "artifactKinds": [
+          {
+            "kind": "patch",
+            "revision": 1,
+            "superseded": true,
+            "paths": [
+              "src/itsdangerous/serializer.py",
+              "src/itsdangerous/signer.py"
+            ],
+            "fingerprint": "e2772fd11b7faac649802b10f41c853cf36e2b43b7af3a6f0b31eb227c59d69d"
+          },
+          {
+            "kind": "patch",
+            "revision": 2,
+            "superseded": true,
+            "paths": [
+              "src/itsdangerous/serializer.py",
+              "src/itsdangerous/signer.py"
+            ],
+            "fingerprint": "6434d8a8d3b276e9332f66ec08e7a32fb5a3f8095398fe0d0be8f21b03fb34bd"
+          },
+          {
+            "kind": "patch",
+            "revision": 3,
+            "superseded": false,
+            "paths": [
+              "src/itsdangerous/serializer.py",
+              "src/itsdangerous/signer.py",
+              "tests/test_itsdangerous/test_serializer.py",
+              "tests/test_itsdangerous/test_signer.py"
+            ],
+            "fingerprint": "638a6ffc40dfcd2d6e6a371866e5133c6ded6493eeabb4524361fcc8446e3e74"
+          },
+          {
+            "kind": "verification",
+            "revision": 1,
+            "superseded": false,
+            "fingerprint": "2727906087e5b425cf80be4fb634a4731df7b45709e580e1bb49a72c48bf325f"
+          }
+        ],
+        "executionEvidenceCount": 0
+      },
+      "operatorAssistance": "Corrected proposed failure signal after first assertion review; production patch unchanged.",
+      "continuations": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-16T09-38-19-957Z/continuation-2026-10-16T09-41-17-328Z.json",
+          "sha256": "34ea6ecb1c8059f236656e85fd91edbde42a6f8920c3ae8ba522f617786545a3",
+          "status": "awaiting-confirmation",
+          "budget": {
+            "turns": 16,
+            "tools": 24,
+            "maxTurns": 22,
+            "maxTools": 38,
+            "inputTokens": 262639,
+            "outputTokens": 6782,
+            "compactions": 0
+          },
+          "artifactKinds": [
+            {
+              "kind": "patch",
+              "revision": 1,
+              "superseded": true,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py"
+              ],
+              "fingerprint": "e2772fd11b7faac649802b10f41c853cf36e2b43b7af3a6f0b31eb227c59d69d"
+            },
+            {
+              "kind": "patch",
+              "revision": 2,
+              "superseded": true,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py"
+              ],
+              "fingerprint": "6434d8a8d3b276e9332f66ec08e7a32fb5a3f8095398fe0d0be8f21b03fb34bd"
+            },
+            {
+              "kind": "patch",
+              "revision": 3,
+              "superseded": false,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py",
+                "tests/test_itsdangerous/test_serializer.py",
+                "tests/test_itsdangerous/test_signer.py"
+              ],
+              "fingerprint": "638a6ffc40dfcd2d6e6a371866e5133c6ded6493eeabb4524361fcc8446e3e74"
+            },
+            {
+              "kind": "verification",
+              "revision": 1,
+              "superseded": true,
+              "fingerprint": "2727906087e5b425cf80be4fb634a4731df7b45709e580e1bb49a72c48bf325f"
+            },
+            {
+              "kind": "verification",
+              "revision": 2,
+              "superseded": false,
+              "fingerprint": "c018a7027c8fc815197dc7b30aa48615e4feab3e2f8d3e78c7d217cfab4c26f6"
+            }
+          ],
+          "executionEvidenceCount": 0
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-16T09-38-19-957Z/continuation-2026-10-16T09-48-05-314Z.json",
+          "sha256": "6d81410e235d414f59cc6ab2a55f1dccf5e62969d1f55a1e7ff6bf47355c5720",
+          "status": "completed",
+          "budget": {
+            "turns": 18,
+            "tools": 27,
+            "maxTurns": 24,
+            "maxTools": 40,
+            "inputTokens": 325204,
+            "outputTokens": 7675,
+            "compactions": 4
+          },
+          "artifactKinds": [
+            {
+              "kind": "patch",
+              "revision": 1,
+              "superseded": true,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py"
+              ],
+              "fingerprint": "e2772fd11b7faac649802b10f41c853cf36e2b43b7af3a6f0b31eb227c59d69d"
+            },
+            {
+              "kind": "patch",
+              "revision": 2,
+              "superseded": true,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py"
+              ],
+              "fingerprint": "6434d8a8d3b276e9332f66ec08e7a32fb5a3f8095398fe0d0be8f21b03fb34bd"
+            },
+            {
+              "kind": "patch",
+              "revision": 3,
+              "superseded": false,
+              "paths": [
+                "src/itsdangerous/serializer.py",
+                "src/itsdangerous/signer.py",
+                "tests/test_itsdangerous/test_serializer.py",
+                "tests/test_itsdangerous/test_signer.py"
+              ],
+              "fingerprint": "638a6ffc40dfcd2d6e6a371866e5133c6ded6493eeabb4524361fcc8446e3e74"
+            },
+            {
+              "kind": "verification",
+              "revision": 1,
+              "superseded": true,
+              "fingerprint": "2727906087e5b425cf80be4fb634a4731df7b45709e580e1bb49a72c48bf325f"
+            },
+            {
+              "kind": "verification",
+              "revision": 2,
+              "superseded": false,
+              "fingerprint": "c018a7027c8fc815197dc7b30aa48615e4feab3e2f8d3e78c7d217cfab4c26f6"
+            }
+          ],
+          "executionEvidenceCount": 2
+        }
+      ]
+    }
+  ],
+  "executions": [
+    {
+      "localEvidence": "data/model-pilot-2026-10-16T09-20-13-864Z/execution-2026-10-16T09-34-07-412Z.json",
+      "sha256": "c045bf93a583cbd720ee59d7aed4531f87298e0ff0943e165bbd59604448aac7",
+      "assessment": "improved",
+      "requirements": [
+        {
+          "id": "R1-004f3ff6e3",
+          "outcome": "improved"
+        },
+        {
+          "id": "R2-7d9649bb87",
+          "outcome": "improved"
+        }
+      ],
+      "productionHash": "48a0618300dd4a90b35fabd45ac1ea6aec0e0bd5c1ee77424993c576879ec804",
+      "sharedTestsHash": "147546d321bb732df48499ad5c54c9758f09e8e29622a563585327a6e09e225a",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.89s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.80s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.68s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 1.24s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 42 passed in 1.22s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.51s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.11s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.96s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.62s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 0.95s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 42 passed in 1.36s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.55s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.03s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.14s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.77s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 1.02s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 42 passed in 1.21s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.87s"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.66s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.60s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.54s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.82s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "43 passed in 0.76s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.65s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.57s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.52s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.55s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.55s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "43 passed in 0.70s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.59s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::test_salt_none_signer -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.73s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_salt_none_compat -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.88s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_default_salt_unchanged -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.66s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.60s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "43 passed in 0.73s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "8 passed in 0.50s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/model-pilot-2026-10-16T09-38-19-957Z/execution-2026-10-16T09-45-34-536Z.json",
+      "sha256": "c29b9253401a05763360418fae202cd459bc5c30ffa6a72d608efd2aceb57a37",
+      "assessment": "improved",
+      "requirements": [
+        {
+          "id": "R1-58e1eb67a6",
+          "outcome": "improved"
+        },
+        {
+          "id": "R2-bbd2139f64",
+          "outcome": "improved"
+        }
+      ],
+      "productionHash": "6434d8a8d3b276e9332f66ec08e7a32fb5a3f8095398fe0d0be8f21b03fb34bd",
+      "sharedTestsHash": "3ccc9916ae7bec1bc781fe3d103b11cc594ffe565967531fe1023d9401d5c2c7",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.82s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.77s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 41 passed in 1.35s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 1.03s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.74s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.74s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 41 passed in 0.98s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 0.77s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.81s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.92s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 41 passed in 0.95s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed, 17 passed in 1.11s"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.82s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.47s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "42 passed in 0.81s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.62s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.75s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.56s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "42 passed in 1.16s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.61s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::TestSerializer::test_salt_none -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.55s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py::TestSigner::test_salt_none_uses_default -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.56s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "42 passed in 0.72s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "18 passed in 0.62s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-16T09-34-16-606Z/results.json",
+      "sha256": "0f219ab3b0fe81f7f720ef4f28c74f390598cbd0ba63e403c2c7e8e239d4ef08",
+      "assessment": "improved",
+      "requirements": [
+        {
+          "id": "R1-b0fcfff6e0",
+          "outcome": "improved"
+        }
+      ],
+      "productionHash": "48a0618300dd4a90b35fabd45ac1ea6aec0e0bd5c1ee77424993c576879ec804",
+      "sharedTestsHash": "451ade23c2f059e642d9495968dc54bfd7702d6ea7ebb28379563d520d2aa897",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.79s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.64s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "2 failed, 67 passed in 1.87s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.70s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.45s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "2 failed, 67 passed in 1.80s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 0.92s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.50s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "2 failed, 67 passed in 2.00s"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.56s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.42s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "69 passed in 1.31s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.39s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.33s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "69 passed in 1.19s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.37s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.39s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "69 passed in 1.07s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "independentTests": true
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-16T09-46-08-126Z/results.json",
+      "sha256": "821c597683c08a4900feda6387a81809511e3748eb251ee6e63ef530b1ca8e22",
+      "assessment": "improved",
+      "requirements": [
+        {
+          "id": "R1-47a58c8243",
+          "outcome": "improved"
+        }
+      ],
+      "productionHash": "6434d8a8d3b276e9332f66ec08e7a32fb5a3f8095398fe0d0be8f21b03fb34bd",
+      "sharedTestsHash": "898783fd4e1e1f2304cba4fc0de2e618b594cf7e6ef7353fadec39f0dd431491",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.24s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.64s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "3 failed, 67 passed in 2.40s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.06s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 1.14s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "3 failed, 67 passed in 2.04s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "failureKind": "assertion",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "1 failed in 1.06s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.84s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 1,
+                  "ok": false,
+                  "pytestSummary": [
+                    "3 failed, 67 passed in 1.52s"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.72s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.54s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "70 passed in 1.27s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.56s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.55s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "70 passed in 1.12s"
+                  ]
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "steps": [
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_none_salt -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.55s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_serializer.py::test_normal_salts -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "1 passed in 0.58s"
+                  ]
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "ok": true,
+                  "pytestSummary": [
+                    "70 passed in 1.10s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "independentTests": true
+    }
+  ],
+  "limitations": [
+    "Only one historical Issue with explanatory clues in its body.",
+    "Selected tests only; earlier full-suite attempt blocked by missing freezegun remains unresolved.",
+    "Several exploratory runs failed and implementation or budget changed; no paired generic-model advantage established.",
+    "Independent tests were defined before model pilots and added by the operator only after candidate creation.",
+    "No maintainer adoption, production effectiveness metrics, browser interaction or latest-GitHub HTTP confirmation acceptance.",
+    "Older sourceDigest identifies declared snapshot metadata, not actual cached bytes. New script records cacheDigest and implementationDigest; missing historical fields are not backfilled."
+  ]
+}
