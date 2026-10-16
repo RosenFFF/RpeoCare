@@ -85,6 +85,7 @@ npm run cleanup -- --apply
 - [PR 分块审查](docs/PR_REVIEW_WORKFLOW.md)
 - [项目专属规则](docs/PROJECT_RULES.md)
 - [需求、改动与对照验证](docs/MAINTENANCE_VERIFICATION.md)
+- [维护链路实测与失败记录](docs/MAINTENANCE_ACCEPTANCE.md)
 - [PR 审查历史记录](docs/PR_REVIEW.md)
 - [项目维护 Agent](docs/MAINTENANCE_AGENT.md)
 - [Bug 复现实验室](docs/REPRODUCTION.md)

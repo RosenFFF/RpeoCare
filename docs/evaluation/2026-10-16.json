@@ -1,0 +1,1073 @@
+{
+  "date": "2026-10-16",
+  "unit": "one historical issue; repeated attempts are not independent samples",
+  "inputs": {
+    "controlled": {
+      "localEvidence": "data/acceptance-2026-10-16T08-38-31-124Z/results.json",
+      "sha256": "157e18114e02a6a54f97b3ab35a48f7d75e70a29fe30000a73d79959543b0a72",
+      "image": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+      "cases": [
+        {
+          "name": "valid-patch",
+          "actual": "improved",
+          "expected": "improved",
+          "passed": true
+        },
+        {
+          "name": "invalid-patch",
+          "actual": "still-failing",
+          "expected": "still-failing",
+          "passed": true
+        },
+        {
+          "name": "normal-already-passes",
+          "actual": "not-demonstrated",
+          "expected": "not-demonstrated",
+          "passed": true
+        },
+        {
+          "name": "environment-failure",
+          "actual": "blocked",
+          "expected": "blocked",
+          "passed": true
+        },
+        {
+          "name": "missing-dependency",
+          "actual": "blocked",
+          "expected": "blocked",
+          "passed": true
+        },
+        {
+          "name": "collection-error",
+          "actual": "blocked",
+          "expected": "blocked",
+          "passed": true
+        },
+        {
+          "name": "regression-failure",
+          "actual": "inconclusive",
+          "expected": "inconclusive",
+          "passed": true
+        }
+      ]
+    },
+    "dependency": {
+      "localEvidence": "data/acceptance-2026-10-16T08-51-13-187Z/results.json",
+      "sha256": "3db831a10ac069eab020300650e9ddc25e405d33ff2c74e2e4c740cccf0fd7c6",
+      "image": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+      "cases": [
+        {
+          "name": "local-python-dependency",
+          "actual": "dependency-import-passed",
+          "expected": null,
+          "passed": true
+        }
+      ]
+    },
+    "historical_scoped": {
+      "localEvidence": "data/workflow-2026-10-16T08-45-11-374Z/results.json",
+      "sha256": "adfbe691968e529e4be13af485319423329c856c405b40c2baa0945cab6af62a",
+      "assessment": {
+        "state": "improved",
+        "reason": "同测试、同环境下，原版命中约定故障，改动版的计划内命令全部通过。",
+        "requirements": [
+          {
+            "requirement": {
+              "text": "Restore None salt compatibility",
+              "quote": "Calling `Serializer` in 1.1.0  with a salt set to `None` used to work fine:",
+              "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+              "failureSignal": "SALT_NONE_COMPAT",
+              "changedPaths": [
+                "src/itsdangerous/signer.py"
+              ],
+              "source": "#237 正文",
+              "id": "R1-b0fcfff6e0"
+            },
+            "outcome": "improved",
+            "reason": "同测试、同环境下，原版命中约定故障，改动版的计划内命令全部通过。"
+          }
+        ],
+        "limitations": [
+          "结果仅适用于记录的需求、版本、测试和判据；需求与改动的语义对应仍需人工核对。",
+          "测试由项目或候选方案提供；同一测试通过不证明系统没有其他缺陷。"
+        ]
+      },
+      "baseSha": "d101100c395958d67368b8c37d95a9c404598c2e",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "assertion",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "assertion",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "assertion",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            }
+          ],
+          "artifacts": [
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "85bc47fd576eb8ced5a119c5982c4cf4446afdd2b2f5354b0647d9ca74ba0f4d",
+              "size": 1893
+            },
+            {
+              "kind": "test-result",
+              "sha256": "97b0dde98a2b5668e2bdc6933c05d0a25a746b65baa83ec55d3ed8e31c3c855d",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "b37cebdfb9be5aae01280827a34d7359f88985956aa8646b2aeb541e51b84915",
+              "size": 7596
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "a4ac4154a29119568bfd75b163c58624903c793321f2c202d9b9154013faec2a",
+              "size": 2997
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "85bc47fd576eb8ced5a119c5982c4cf4446afdd2b2f5354b0647d9ca74ba0f4d",
+              "size": 1893
+            },
+            {
+              "kind": "test-result",
+              "sha256": "17c9eeedcce3f8eff8e2900e88576cb56df411d6662110dfd27eeacc369c2479",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "72de3245418eee6452e5346a38a930d0a97c1662a0cd60cb1f4d04c198537493",
+              "size": 7596
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "d5ddeb1cdf9f6ed0571a4c35df6c64ec36b70f2ea8822ddc8af4718536816c53",
+              "size": 2997
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "85bc47fd576eb8ced5a119c5982c4cf4446afdd2b2f5354b0647d9ca74ba0f4d",
+              "size": 1893
+            },
+            {
+              "kind": "test-result",
+              "sha256": "79302b4b6b6c5c1d690d7a296e8f18b31e577ef38aae90bf79741cf61b5161c0",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "c06bea0034f904e717c9f6447a29ec17a8eaa6b8a3e98346ae4c8a11216befe8",
+              "size": 7596
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "3d60103a6a96b9b52d9eeeb6fb5e4be33e7244e7678482a30aa154477aca5338",
+              "size": 2997
+            },
+            {
+              "kind": "source-log",
+              "sha256": "87a945dc3e30c2cc51978d8b82b3ec732817ff7af981754516e8dd8ffcfcefa0",
+              "size": 759
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": null,
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": null,
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": null,
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests/test_itsdangerous/test_signer.py tests/test_itsdangerous/test_serializer.py tests/test_itsdangerous/test_encoding.py -q",
+                  "code": 0,
+                  "failureKind": null
+                }
+              ]
+            }
+          ],
+          "artifacts": [
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "4ef5dcac8399c9b21d5ebe753014dd471d3abcca04b95ca2365989437e50917a",
+              "size": 12194
+            },
+            {
+              "kind": "test-result",
+              "sha256": "07b7f2de1ac6055139aaa0d3132320a290a15848a6ea075fa9070e717dbe33ab",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "ea55b681f947c6d27671703d9842df0d74de1f033a708d0a6fe4152ad2be83f7",
+              "size": 2131
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "06ea01fe67d606811834d1847572e44f2aaab071a0c930c1182c965bb0a9c05d",
+              "size": 295
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "4ef5dcac8399c9b21d5ebe753014dd471d3abcca04b95ca2365989437e50917a",
+              "size": 12194
+            },
+            {
+              "kind": "test-result",
+              "sha256": "698a690bf61bc63f55a9613980aa4a0347dacab895ccd25e016d6639be9e4667",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "58ac455acb6a261d69320e69cccdb8f56fc90cd59fde9bc4d0b514de81b05b6d",
+              "size": 2131
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "110f56c214ced4d86d7b441ca02134e4270368f03a84522fca4dd43f35a2e8d7",
+              "size": 295
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "4ef5dcac8399c9b21d5ebe753014dd471d3abcca04b95ca2365989437e50917a",
+              "size": 12194
+            },
+            {
+              "kind": "test-result",
+              "sha256": "4f0a4ed960c09b1672b50092787f7ec07cf822fbc3c9286b9433869de013cb64",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "7df0d541853d030fee42865e620ea7e1c09211cbd0adb55b298fac76319398c0",
+              "size": 2131
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "c95da68bff820b1eaee2dcc3c227c1c432deda077493c3c2de752820ad46d8fc",
+              "size": 295
+            },
+            {
+              "kind": "source-log",
+              "sha256": "8e1ed6c54eb838587bc3c492ac1550ce61038abd88cca3115f55cb8fff08c76e",
+              "size": 759
+            }
+          ]
+        }
+      ]
+    },
+    "historical_full": {
+      "localEvidence": "data/workflow-2026-10-16T08-47-55-523Z/results.json",
+      "sha256": "b7b579666e8d2edb1f0543a27f7fb1131643ee3feae240529873374210332a0e",
+      "assessment": {
+        "state": "blocked",
+        "reason": "环境或测试收集受阻，不能据此判断目标问题。",
+        "requirements": [
+          {
+            "requirement": {
+              "text": "Restore None salt compatibility",
+              "quote": "Calling `Serializer` in 1.1.0  with a salt set to `None` used to work fine:",
+              "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+              "failureSignal": "SALT_NONE_COMPAT",
+              "changedPaths": [
+                "src/itsdangerous/signer.py"
+              ],
+              "source": "#237 正文",
+              "id": "R1-b0fcfff6e0"
+            },
+            "outcome": "blocked",
+            "reason": "环境或测试收集受阻，不能据此判断目标问题。"
+          }
+        ],
+        "limitations": [
+          "结果仅适用于记录的需求、版本、测试和判据；需求与改动的语义对应仍需人工核对。",
+          "测试由项目或候选方案提供；同一测试通过不证明系统没有其他缺陷。"
+        ]
+      },
+      "baseSha": "d101100c395958d67368b8c37d95a9c404598c2e",
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "blocked",
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "attempts": [
+            {
+              "index": 1,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 1,
+                  "failureKind": "assertion"
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            }
+          ],
+          "artifacts": [
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "3e52699bdc99d217191e5c8ca5df15b7d6e8735c396780fb6f6ea71d1ce07fac",
+              "size": 1776
+            },
+            {
+              "kind": "test-result",
+              "sha256": "5e927184a7f3e3d406cde8d97f0a9d8673d2c81837b7044f15e30e43a91a1c86",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "12f668814d2fcdc02477e54c43bb9dd39321bed50f758abb602c70e30425c72b",
+              "size": 11802
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "30e0cfacd18f2fd9c985841f3c51627ac6de9f83a57b3cb345795a4098fbd8d4",
+              "size": 5101
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "3e52699bdc99d217191e5c8ca5df15b7d6e8735c396780fb6f6ea71d1ce07fac",
+              "size": 1776
+            },
+            {
+              "kind": "test-result",
+              "sha256": "cb7f51123fdd0fbc7183f3a20fa2d048529b037bd222d563c17efea6ea9e91bf",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "5c9059288257d6d978aad4f50df5e56ac6a6a31a4a306a784da681170b91a66e",
+              "size": 11802
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "cd18962fd99344e98e25de630dcd79f722e93aaaca2b29e76ba2b4c344e61d32",
+              "size": 5101
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "3e52699bdc99d217191e5c8ca5df15b7d6e8735c396780fb6f6ea71d1ce07fac",
+              "size": 1776
+            },
+            {
+              "kind": "test-result",
+              "sha256": "b5cbdfc05af5070edb3d3aa5f550cc0ca655542fee1ea7cc66f8e631876f3d2f",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "8aea526096ecf5f01c1b4e3ba57442eef308f1a7c4a9e40344399197dbbed4f3",
+              "size": 11802
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "609fcc96b9fe3e1ebf1d12763850164a9b4540b2a160df1cefd0e5ea8cc4f60a",
+              "size": 5101
+            },
+            {
+              "kind": "source-log",
+              "sha256": "145f23dfb82d519792a49c6001e86de6bbe0011a6e857ba364f11cbeb520168b",
+              "size": 759
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "blocked",
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:5658b273d25ad6ccc00537ddff00afa4d517dbf1acf68f3b8025bf0a850cb09a",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "attempts": [
+            {
+              "index": 1,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "result": "blocked",
+              "environmentFingerprint": "c961942945d9e2cfdd66b4430dd868aeb9f5b3d78875da2791a9e828b6f280ba",
+              "failureKind": "dependencies",
+              "commands": [
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_none_salt -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest acceptance/test_history.py::test_normal_salts -q",
+                  "code": 0,
+                  "failureKind": null
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 2,
+                  "failureKind": "dependencies"
+                }
+              ]
+            }
+          ],
+          "artifacts": [
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "c13d4736253e563d2ec0ed54cc96f1fb1f11be3638a8f8bea8fd743c01faed21",
+              "size": 12077
+            },
+            {
+              "kind": "test-result",
+              "sha256": "dab3974e66fb7bf89d227e94641c5f1314ec5f3251342904accd449a77772dc7",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "1b750567e2d4a0840574545833b2caf37b41801fb113b32d170d3721fd058f8f",
+              "size": 6391
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "62460a2286c4bbc0cd13988a73815aca7df45b140a8120ee239c9865237751f3",
+              "size": 2399
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "c13d4736253e563d2ec0ed54cc96f1fb1f11be3638a8f8bea8fd743c01faed21",
+              "size": 12077
+            },
+            {
+              "kind": "test-result",
+              "sha256": "816864d959efab5e588289952ec90c72f13402df3a0bc8956d2f7b8c4d1ef484",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "8f889209b77119943820a18c94292e6f91cf67e9b5eea024c15e3a32bae3f371",
+              "size": 6391
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "adab6fb81a2d58a2c3bf5cd8b8815152b0f542cfa541b7067a850c686974a511",
+              "size": 2399
+            },
+            {
+              "kind": "console",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "network",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "size": 2
+            },
+            {
+              "kind": "plan",
+              "sha256": "c13d4736253e563d2ec0ed54cc96f1fb1f11be3638a8f8bea8fd743c01faed21",
+              "size": 12077
+            },
+            {
+              "kind": "test-result",
+              "sha256": "4480daeca2dddb90e2be790a14d4d14b28ea00875e9c1ca2b1e61786089cdc19",
+              "size": 167
+            },
+            {
+              "kind": "result",
+              "sha256": "3e1832b3bf6e75c491e6d04dcf88fdf9c34f6acc69fa95a56479245adb171729",
+              "size": 6391
+            },
+            {
+              "kind": "stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "size": 0
+            },
+            {
+              "kind": "stdout",
+              "sha256": "1e733f60e58da76ed65c4ccd843ebd54f1bd20df450ae33c4a39f0062769aa47",
+              "size": 2399
+            },
+            {
+              "kind": "source-log",
+              "sha256": "2966ae3d9e9dc6e58b31194840dacfde3f5590d434e23db52881bcbe49eebfaf",
+              "size": 759
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "sourceBeforeChanges": "a9b601dd842bce81bb8a95475c2b7c450b59f15e",
+  "modelPilots": [
+    {
+      "label": "invalid-orchestration",
+      "localEvidence": "data/model-pilot-2026-10-16T08-40-50-117Z/pilot.json",
+      "sha256": "36d60a8108e9fc0618618f36ae69cf369b370912422f37a404789b9e85038a36",
+      "maxTurns": 10,
+      "maxTools": 18,
+      "maxOutputPerCall": 4096,
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 43910,
+          "status": "queued",
+          "budget": {
+            "turns": 8,
+            "tools": 13,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 16908,
+            "outputTokens": 5850,
+            "compactions": 0
+          },
+          "artifactCount": 0,
+          "notice": null
+        }
+      ]
+    },
+    {
+      "label": "paired-original",
+      "localEvidence": "data/model-pilot-2026-10-16T08-42-31-015Z/pilot.json",
+      "sha256": "710aa55c15862de699a7b176b44f555888998d08ca821c1f310c8b9c87255773",
+      "maxTurns": 10,
+      "maxTools": 18,
+      "maxOutputPerCall": 4096,
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 42336,
+          "status": "completed",
+          "budget": {
+            "turns": 7,
+            "tools": 13,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 13789,
+            "outputTokens": 6491,
+            "compactions": 0
+          },
+          "artifactCount": 0,
+          "notice": null
+        },
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 37260,
+          "status": "failed",
+          "budget": {
+            "turns": 8,
+            "tools": 12,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 15006,
+            "outputTokens": 5013,
+            "compactions": 0
+          },
+          "artifactCount": 0,
+          "notice": "模型请求未正常完成，已有记录保留。当前没有足够证据确定原因；请查看模型设置中的请求诊断，必要时主动测试连接。（诊断 e3628438）"
+        }
+      ]
+    },
+    {
+      "label": "paired-stage-hint",
+      "localEvidence": "data/model-pilot-2026-10-16T08-49-07-053Z/pilot.json",
+      "sha256": "2d90a881a5d51f95df0246a2eac467dbc031b193b9128bbcc8f9ca089bcb2ba5",
+      "maxTurns": 10,
+      "maxTools": 18,
+      "maxOutputPerCall": 4096,
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 34962,
+          "status": "failed",
+          "budget": {
+            "turns": 6,
+            "tools": 11,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 11037,
+            "outputTokens": 4771,
+            "compactions": 0
+          },
+          "artifactCount": 0,
+          "notice": null
+        },
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 52081,
+          "status": "failed",
+          "budget": {
+            "turns": 8,
+            "tools": 14,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 79739,
+            "outputTokens": 7419,
+            "compactions": 5
+          },
+          "artifactCount": 0,
+          "notice": "模型输出达到本次长度上限，结果不完整。请缩小输入或核对最大输出设置；推理内容也可能占用输出预算，已有记录保留。（诊断 2229f43b）"
+        }
+      ]
+    },
+    {
+      "label": "output-diagnostic-only",
+      "localEvidence": "data/model-pilot-2026-10-16T08-52-21-228Z/pilot.json",
+      "sha256": "429b2d7fffba150e8c604a7313346ecde1ce7a40b1e715e8335ede22107cb90d",
+      "maxTurns": 10,
+      "maxTools": 18,
+      "maxOutputPerCall": 8192,
+      "rows": [
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "revision": "d101100c395958d67368b8c37d95a9c404598c2e",
+          "sourceDigest": "616c0d48e416f53f2840369035325ef67aa0ab1fa57dd519e53b45ed922bf801",
+          "wallMs": 58433,
+          "status": "failed",
+          "budget": {
+            "turns": 8,
+            "tools": 15,
+            "maxTurns": 10,
+            "maxTools": 18,
+            "inputTokens": 58818,
+            "outputTokens": 1286,
+            "compactions": 5
+          },
+          "artifactCount": 0,
+          "notice": "模型单次请求超过40秒未完成。已有检查点保留，请稍后继续。（诊断 63cea509）"
+        }
+      ]
+    }
+  ],
+  "implementationHashes": {
+    "src/server/agent/runtime.ts": "a4167e442071dc51f785486704b52047e61edd1545f0a4e3012c0ad3f4ea7cac",
+    "src/server/agent/tools.ts": "e19c588b2f6704be529f2c703c39438dd9325f7517d1027dbdd52d2df92e3785",
+    "src/shared/lib/maintenance-verification.ts": "d1e13b19dcd282f3929af0470ce03e3f1deaf6edcf8120bd3f2a8ca8d7b8a749",
+    "src/shared/lib/maintenance-progress.ts": "200afa4462be5a3135085c7780edd2a6f04a66105b33a6fe123143d2b6344616",
+    "reproduction/runner.mjs": "45dca22a801edf823edc2f53456c31f075f2cee5222d3b33003050fde6f80e27",
+    "reproduction/commands.mjs": "a862b2cfa05f98a95ec9c7adc4ac79bd82ff7a238167b5a3caeff2cc35fea3a3"
+  }
+}

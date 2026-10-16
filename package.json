@@ -18,6 +18,9 @@
     "backup": "tsx scripts/backup.ts",
     "cleanup": "tsx scripts/cleanup.ts",
     "test:e2e": "playwright test",
+    "accept:maintenance": "tsx scripts/accept-maintenance.ts",
+    "accept:maintenance:workflow": "tsx scripts/accept-maintenance-workflow.ts",
+    "evaluate:maintenance": "tsx scripts/evaluate-maintenance.ts",
     "repro-worker": "tsx scripts/reproduction-worker.ts",
     "repro:image": "docker build -t repocare-repro-runner:local reproduction"
   },

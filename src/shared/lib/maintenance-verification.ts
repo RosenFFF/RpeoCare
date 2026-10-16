@@ -6,6 +6,27 @@ export const requirementOutcomeLabels: Record<RequirementOutcome, string> = {
 };
 export const executionFailureLabels = { source: '快照准备失败', sandbox: '沙箱未就绪', dependencies: '依赖准备或导入失败', collection: '测试收集或调用失败', assertion: '测试断言失败', setup: '准备步骤失败', timeout: '执行超时', unknown: '原因未确定' };
 
+/** Derive the next investigation from saved evidence; this never queues execution or calls a model. */
+export function verificationNextAction(context: VerificationContext, jobs: ReproductionJob[], stale = false) {
+  const assessment = assessVerification(context, jobs, stale);
+  const pair = jobs.filter(job => job.verification?.pairId === context.pairId && ['baseline', 'patched'].includes(job.verificationRole || ''));
+  if (['stale', 'pending', 'unconfirmed'].includes(assessment.state) || pair.length !== 2) return null;
+  const failedCommands = [...new Set(pair.flatMap(job => [...(job.dependencySteps || []), ...job.attemptHistory.flatMap(attempt => attempt.steps || [])].filter(step => step.code !== undefined && step.code !== 0).map(step => step.command).filter((command): command is string => Boolean(command))))];
+  const focus = assessment.requirements.filter(r => r.outcome !== 'improved');
+  const targets = (focus.length ? focus : assessment.requirements).map(r => ({ id: r.requirement.id, command: r.requirement.command, paths: r.requirement.changedPaths, outcome: r.outcome }));
+  const next = assessment.state === 'blocked'
+    ? { title: '先定位执行阻塞', detail: '读取依赖和收集日志，核对环境与仓库声明。环境未就绪前，保留修复判断。', instruction: '先区分依赖导入、测试收集、准备和版本故障，引用实际失败命令及输出。只根据仓库声明提议受支持的环境调整；不为消除报错而修改业务代码或削弱测试。' }
+    : assessment.state === 'still-failing'
+      ? { title: '沿失败用例继续定位', detail: '对照未通过要求、生产路径与实际断言，修订当前候选方案。', instruction: '先读改动后仍失败的目标输出，再按对应 changedPaths 读取源码和候选差异。以原始固定提交提出完整修订，不在旧补丁上叠加猜测。' }
+      : assessment.state === 'not-demonstrated'
+        ? { title: '核对原版为何没有命中', detail: '确认测试能触及原始问题，再判断候选改动的作用。', instruction: '核对目标测试是否覆盖原文要求、选定版本是否含故障、failureSignal 是否真实。不得为了显示改进故意让原版失败或弱化改动版断言。' }
+        : assessment.state === 'improved'
+          ? { title: '核对本次验证的覆盖边界', detail: '整理已证实范围、额外回归和未覆盖行为，形成可审阅说明。', instruction: '整理选定要求的执行证据和未覆盖范围；没有额外回归时明确指出。不得把局部通过写成完整修复或批准合并。无需重复执行已有相同计划。' }
+          : { title: '补齐缺失的对照依据', detail: '优先核对环境指纹、尝试记录及其他回归命令。', instruction: '先确认记录完整性和环境指纹，再检查目标以外的回归失败。证据不足时明确缺哪一项，不从单个通过结果推断修复。' };
+  return { ...next, jobIds: pair.map(job => job.id), targets, failedCommands,
+    prompt: `请基于已保存的需求对照继续调查。先分别用 read_execution 读取 ${pair.map(job => job.id).join('、')}。当前机器状态：${assessment.state}。${next.instruction}\n关注范围（数据）：${JSON.stringify({ targets, failedCommands })}\n不自动确认或执行新计划，不发布 GitHub 内容；准备的新方案仍需人工核对。` };
+}
+
 export function assessVerification(context: VerificationContext, jobs: ReproductionJob[], stale = false): VerificationAssessment {
   const baseline = jobs.find(job => job.verificationRole === 'baseline' && job.verification?.pairId === context.pairId);
   const patched = jobs.find(job => job.verificationRole === 'patched' && job.verification?.pairId === context.pairId);

@@ -16,6 +16,8 @@ import { saveConnection } from '../../src/server/models/store';
 import { accountSession, saveGithubAccount } from '../../src/server/github/connection';
 import { POST, GET } from '../../src/app/api/workbench/review/route';
 import { POST as drafts } from '../../src/app/api/workbench/drafts/route';
+import { claimReviewBlock } from '../../src/server/workbench/review-task-store';
+import { executeReviewBlock } from '../../src/server/workbench/review-worker';
 
 const directory = mkdtempSync(join(tmpdir(), 'repocare-pr-review-'));
 process.env.REPOCARE_DB_PATH = join(directory, 'test.sqlite');
@@ -141,11 +143,15 @@ test('mock model + routes cover analyze, repair, confirm, draft, stale publish w
   sdk.registerApiProvider({api:'openai-completions',stream,streamSimple:stream});
   const request=(body:unknown)=>new NextRequest('http://localhost/api/workbench/review',{method:'POST',headers:{'content-type':'application/json',origin:'http://localhost',cookie:`repocare_login=${token}`},body:JSON.stringify(body)});
   try {
-    const response=await POST(request({action:'analyze',number:45})); assert.equal(response.status,200); const {review}=await response.json();
-    assert.equal(modelCalls,2); assert.equal(review.findings[0].evidenceVerified,true); assert.equal(review.model.modelId,'mock'); assert.equal(review.linkedIssues[0].number,42);
+    const response=await POST(request({action:'analyze',number:45})); assert.equal(response.status,200);
+    const queued=await response.json(); assert.equal(queued.task.status,'queued'); assert.equal(modelCalls,0);
+    const claim=claimReviewBlock('test-review-worker'); assert.ok(claim);
+    await executeReviewBlock(claim,new AbortController().signal);
+    const review=getPullRequestReview(owner,repoUrl,45)!;
+    assert.equal(modelCalls,2); assert.equal(review.findings[0].evidenceVerified,true); assert.equal(review.model?.modelId,'mock'); assert.equal(review.linkedIssues?.[0].number,42);
     const cached=await POST(request({action:'analyze',number:45})); assert.equal(cached.status,200); assert.equal(modelCalls,2);
-    const confirmed=await POST(request({action:'finding',number:45,findingId:review.findings[0].id,reviewId:review.id,revision:1,status:'accepted'})); assert.equal(confirmed.status,200);
-    const stale=await POST(request({action:'finding',number:45,findingId:review.findings[0].id,reviewId:review.id,revision:1,status:'dismissed'})); assert.equal(stale.status,400);
+    const confirmed=await POST(request({action:'finding',number:45,findingId:review.findings[0].id,reviewId:review.id,revision:review.revision,status:'accepted'})); assert.equal(confirmed.status,200);
+    const stale=await POST(request({action:'finding',number:45,findingId:review.findings[0].id,reviewId:review.id,revision:review.revision,status:'dismissed'})); assert.equal(stale.status,400);
     const result=await drafts(request({action:'item',kind:'review',number:45})); assert.equal(result.status,200); const {draft}=await result.json(); assert.equal(draft.baseSha,head); assert.equal(draft.source.reviewId,review.id);
     currentHead='c'.repeat(40);
     await assert.rejects(publishDraft(owner,draft),/新提交/); assert.equal(writes.length,0);

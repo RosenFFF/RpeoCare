@@ -3,13 +3,14 @@
 import { CheckCircle2, CircleHelp, Download, FileCheck2, GitCompareArrows, ShieldAlert } from 'lucide-react';
 import type { AgentArtifact, MaintenanceTask } from '@/contracts/agent';
 import type { ReproductionJob } from '@/contracts/workbench';
-import { assessVerification, executionFailureLabels, requirementOutcomeLabels } from '@/shared/lib/maintenance-verification';
+import { assessVerification, executionFailureLabels, requirementOutcomeLabels, verificationNextAction } from '@/shared/lib/maintenance-verification';
 import './maintenance-verification.css';
 
-export function MaintenanceVerification({ artifact, task, jobs, stale }: { artifact: AgentArtifact; task: MaintenanceTask; jobs: ReproductionJob[]; stale?: boolean }) {
+export function MaintenanceVerification({ artifact, task, jobs, stale, onInvestigate, busy }: { artifact: AgentArtifact; task: MaintenanceTask; jobs: ReproductionJob[]; stale?: boolean; onInvestigate?: (content: string) => void; busy?: boolean }) {
   const context = artifact.verification;
   if (!context) return <p>历史方案未包含逐条需求和共享测试依据，请重新准备。</p>;
   const assessment = assessVerification(context, jobs, stale || artifact.verificationStale);
+  const next = verificationNextAction(context, jobs, stale || artifact.verificationStale);
   const improved = assessment.requirements.filter(requirement => requirement.outcome === 'improved').length;
   const downloadMarkdown = () => {
     const lines = ['# RepoCare 需求对照记录', '', `仓库：${task.repoUrl}`, `任务：${task.kind} #${task.number}`, `原始提交：${context.baseSha}`, `PR head：${context.headSha || '本地候选补丁'}`, `计划指纹：${context.fingerprint}`, `规则版本：${context.policyRevision}`, `整体状态：${requirementOutcomeLabels[assessment.state]}`, '', ...assessment.requirements.flatMap(({ requirement, outcome, reason }) => [`## ${requirement.id} ${requirement.text}`, `状态：${requirementOutcomeLabels[outcome]}`, `原文来源：${requirement.source}`, `原文：${requirement.quote}`, `生产改动：${requirement.changedPaths.join('、')}`, `测试命令：${requirement.command}`, `预期故障信号：${requirement.failureSignal}`, `说明：${reason}`, '']), '## 结论范围', ...assessment.limitations.map(text => `- ${text}`), '- 记录属于固定版本；导出不自动查询最新 GitHub 内容。'];
@@ -21,6 +22,7 @@ export function MaintenanceVerification({ artifact, task, jobs, stale }: { artif
     <header className="mv-heading"><div><GitCompareArrows size={19} aria-hidden="true" /><h4>每条要求，都能追溯依据</h4></div><span className={`mv-state mv-${assessment.state}`}>{requirementOutcomeLabels[assessment.state]}</span></header>
     <div className="mv-summary"><div><strong>{improved}<small> / {context.requirements.length}</small></strong><span>要求观察到改进</span></div><p role="status" aria-atomic="true">{assessment.reason}</p></div>
     <div className="mv-context"><span>原版 <code>{context.baseSha.slice(0, 10)}</code></span><span>{context.headSha ? <>PR <code>{context.headSha.slice(0, 10)}</code></> : '候选补丁'}</span><span>规则 r{context.policyRevision}</span><span>{context.sharedTestPaths.length} 个测试改动共享到两组</span><span>{context.regressionCommands?.length||0} 项额外验证命令</span></div>
+    {next && <div className="mv-next"><div><strong>{next.title}</strong><p>{next.detail}</p><small>基于当前执行记录 · 继续调查会调用已配置模型</small></div>{onInvestigate && <button type="button" className="button button-secondary" disabled={busy} onClick={() => onInvestigate(next.prompt)}>继续此项调查</button>}</div>}
     <div className="mv-requirements">{assessment.requirements.map(({ requirement, outcome, reason }, index) => <article className={`mv-requirement mv-${outcome}`} key={requirement.id}>
       <div className="mv-requirement-title"><span className="mv-number">{String(index + 1).padStart(2, '0')}</span><h5>{requirement.text}</h5><span className="mv-state">{outcome === 'improved' ? <CheckCircle2 size={14} aria-hidden="true" /> : outcome === 'blocked' || outcome === 'still-failing' ? <ShieldAlert size={14} aria-hidden="true" /> : <CircleHelp size={14} aria-hidden="true" />}{requirementOutcomeLabels[outcome]}</span></div>
       <p>{reason}</p><div className="mv-evidence-grid"><div><span>原始要求 · {requirement.source}</span><blockquote>{requirement.quote}</blockquote></div><div><span>对应生产改动</span>{requirement.changedPaths.map(path => <code key={path}>{path}</code>)}</div><div><span>同一回归命令</span><code>{requirement.command}</code><small>原版预期断言：{requirement.failureSignal}</small></div></div>

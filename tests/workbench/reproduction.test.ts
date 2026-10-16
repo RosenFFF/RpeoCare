@@ -11,7 +11,7 @@ process.env.REPOCARE_REPRO_ARTIFACTS = join(directory, 'artifacts');
 process.env.REPOCARE_REPRO_ENABLED = 'false';
 
 import { db } from '../../src/server/audit/store';
-import { cancelReproductionJob, createReproductionJob, getReproductionJob, listReproductionJobs, queueReproductionJob, updateReproductionJob, workbenchDb } from '../../src/server/workbench/store';
+import { cancelReproductionJob, createReproductionJob, getReproductionJob, listReproductionJobs, queueReproductionJob, updateLeasedReproduction, workbenchDb } from '../../src/server/workbench/store';
 import { validateReproductionPlan } from '../../src/server/reproduction/plan';
 import { claimReproduction, pulseReproductionWorker, releaseReproduction, reproductionWorkerOnline } from '../../src/server/reproduction/queue';
 import { executeReproduction } from '../../src/server/reproduction/executor';
@@ -76,10 +76,23 @@ test('reproduction jobs isolate owners and queue claims exactly once', () => {
 
 test('executor fails closed when Docker reproduction is disabled', async () => {
   const job = createReproductionJob('alice', { repoUrl: 'https://github.com/example/project', commitSha: 'a'.repeat(40), issueNumber: 99, sourceUpdatedAt: new Date().toISOString(), plan: browserPlan });
-  updateReproductionJob('alice', job.id, { status: 'running' });
-  await executeReproduction('alice', getReproductionJob('alice', job.id), 'worker-test');
+  queueReproductionJob('alice', job.id, job.repoUrl);
+  const claim = claimReproduction('worker-test');
+  assert.ok(claim);
+  await executeReproduction(claim.owner, claim.job, 'worker-test');
   const final = getReproductionJob('alice', job.id);
   assert.equal(final.status, 'blocked');
   assert.match(final.error || '', /尚未启用/);
   assert.equal(final.artifacts.some(artifact => artifact.path.includes('/workspace/')), false);
+});
+
+test('expired worker cannot overwrite a reclaimed reproduction', () => {
+  const job = createReproductionJob('alice', { repoUrl: 'https://github.com/example/project', commitSha: 'a'.repeat(40), issueNumber: 100, sourceUpdatedAt: new Date().toISOString(), plan: browserPlan });
+  queueReproductionJob('alice', job.id, job.repoUrl);
+  assert.ok(claimReproduction('old-worker', -1));
+  assert.ok(claimReproduction('new-worker'));
+  assert.throws(() => updateLeasedReproduction('alice', job.id, 'old-worker', { status: 'reproduced' }), /租约/);
+  assert.equal(updateLeasedReproduction('alice', job.id, 'new-worker', { progress: 'claimed' }).status, 'running');
+  assert.throws(() => cancelReproductionJob('alice', job.id, job.repoUrl), /不能取消/);
+  assert.equal(getReproductionJob('alice', job.id).status, 'running');
 });
