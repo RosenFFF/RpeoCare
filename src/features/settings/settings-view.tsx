@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, PlugZap, Puzzle, RotateCcw, Save, Settings2, ShieldCheck, UserCheck } from 'lucide-react';
 import './settings-view.css';
 import { GithubConnection } from '@/features/workbench/project-overview';
@@ -94,8 +94,23 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const [savedAt, setSavedAt] = useState('');
   const [activeSection, setActiveSection] = useState<SettingsSection>('workspace');
   const [visited, setVisited] = useState<SettingsSection[]>(['workspace']);
+  const activeNavItem = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { if (new URLSearchParams(window.location.search).get('section') === 'policy') { setActiveSection('policy'); setVisited(current => current.includes('policy') ? current : [...current, 'policy']); } }, []);
+
+  useEffect(() => {
+    const revealActiveModule = () => {
+      if (!window.matchMedia('(max-width: 720px)').matches) return;
+      activeNavItem.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    };
+    revealActiveModule();
+    window.addEventListener('resize', revealActiveModule);
+    return () => window.removeEventListener('resize', revealActiveModule);
+  }, [activeSection]);
 
   useEffect(() => {
     try {
@@ -205,7 +220,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
         <nav className="sv-module-nav" aria-label="设置模块">
           <p className="sv-nav-label">设置模块</p>
           <div className="sv-nav-list">
-            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} id={`sv-nav-${id}`} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} aria-pressed={activeSection === id} aria-controls={id === 'workspace' || id === 'plugins' || id === 'review' ? 'sv-panel-local' : `sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
+            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} id={`sv-nav-${id}`} ref={activeSection === id ? activeNavItem : undefined} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} aria-pressed={activeSection === id} aria-controls={id === 'workspace' || id === 'plugins' || id === 'review' ? 'sv-panel-local' : `sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
           </div>
           <p className="sv-nav-hint">切换模块保留填写内容，保存后生效。</p>
         </nav>

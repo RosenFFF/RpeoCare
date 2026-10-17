@@ -167,6 +167,8 @@
   .breadcrumb { min-width: 0; }
   .breadcrumb-project { max-width: 80px; }
   .mobile-menu { width: 29px; }
+  .mobile-menu, .theme-toggle, .notification-button { min-width: 44px; min-height: 44px; }
+  .topbar .search-button { min-width: 44px; min-height: 44px; justify-content: center; }
 }
 @media (max-width: 360px) {
   .topbar { padding-inline: 12px; }
