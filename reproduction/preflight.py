@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 import re
+import shlex
 from pathlib import Path
 import sys
 import tomllib
@@ -22,6 +23,13 @@ def inspect(workspace, plan):
     working = plan.get('workingDirectory', '.')
     prefix = '' if working == '.' else working.rstrip('/') + '/'
     installs = any('pip install ' in step.get('command', '') for step in plan['setup'])
+    project_installs = [step['command'] for step in plan['setup'] if re.search(r'--no-build-isolation\s+[\"\']?\.(?:\[|[\"\']?$)', step.get('command', ''))]
+    requested_extras = set()
+    requested_groups = [shlex.split(step['command'])[-1] for step in plan['setup'] if 'pip install ' in step.get('command', '') and ' --group ' in step['command']]
+    for command in project_installs:
+        target = shlex.split(command)[-1]
+        if target.startswith('.['):
+            requested_extras.update(target[2:-1].split(','))
 
     def add(identity, status, title, detail, path=None, remedy=None):
         if identity in seen_checks:
@@ -78,13 +86,27 @@ def inspect(workspace, plan):
         manifest_text = text(prefix+'pyproject.toml')
         manifest = tomllib.loads(manifest_text) if manifest_text else {}
         project = manifest.get('project', {})
+        extras = project.get('optional-dependencies', {})
+        groups = manifest.get('dependency-groups', {})
+        for group in requested_groups:
+            add('group-'+group, 'pass' if group in groups else 'blocked', '项目依赖组 '+group, '已读取根目录pyproject.toml声明；具体解析和安装仍由pip完成。' if group in groups else '根目录清单没有声明此依赖组。', prefix+'pyproject.toml')
+        for extra in sorted(requested_extras):
+            known = extra in extras
+            dynamic = not project or 'optional-dependencies' in project.get('dynamic', [])
+            add('extra-'+extra, 'pass' if known else 'unknown' if dynamic else 'blocked', '项目扩展 '+extra, '读取项目声明；依赖实际安装仍需审阅并执行准备步骤。' if known else '当前静态清单不能确认该扩展存在。', prefix+'pyproject.toml', None if known else '核对扩展名称；不能把pip忽略未知扩展的警告当成安装成功。')
         python_rule = project.get('requires-python')
         if python_rule:
             matches = SpecifierSet(python_rule).contains(runtime['python'], prereleases=True)
             add('project-python', 'pass' if matches else 'blocked', '项目Python要求', python_rule, prefix+'pyproject.toml', None if matches else '按项目声明选择兼容的Runner。')
         requirements = list(project.get('dependencies', []))
-        for name, values in project.get('optional-dependencies', {}).items():
-            if name in ('test', 'tests', 'testing', 'dev'):
+        for group in requested_groups:
+            for dependency in groups.get(group, []):
+                if isinstance(dependency, str):
+                    requirements.append(dependency)
+                else:
+                    add('group-include-'+group, 'unknown', '依赖组包含其他组', '静态检查不展开继承组；pip准备阶段仍需解析并记录真实结果。', prefix+'pyproject.toml')
+        for name, values in extras.items():
+            if name in ('test', 'tests', 'testing', 'dev') or name in requested_extras:
                 requirements.extend(values)
         for requirement_text in requirements:
             try:
@@ -104,9 +126,11 @@ def inspect(workspace, plan):
         for requirement_text in build.get('requires', []):
             try:
                 requirement = Requirement(requirement_text)
+                if requirement.marker and not requirement.marker.evaluate():
+                    continue
                 installed = version(requirement.name)
                 matches = bool(installed) and requirement.specifier.contains(installed, prereleases=True)
-                add('build-'+requirement.name, 'pass' if matches else 'warning', '构建依赖 '+requirement.name, installed or '当前镜像未安装；直接从src导入不一定需要构建。', prefix+'pyproject.toml', None if matches else '本地包安装需要兼容构建后端；当前预检不安装依赖。')
+                add('build-'+requirement.name, 'pass' if matches else 'blocked' if project_installs else 'warning', '构建依赖 '+requirement.name, installed or '当前镜像未安装；直接从src导入不一定需要构建。', prefix+'pyproject.toml', None if matches else '本地包安装需要兼容构建后端；当前预检不安装依赖。')
             except InvalidRequirement:
                 add('build-unknown', 'unknown', '构建依赖需核对', '无法解析构建声明。', prefix+'pyproject.toml')
     except (ValueError, tomllib.TOMLDecodeError):
@@ -186,7 +210,7 @@ def inspect(workspace, plan):
 
     for step in plan['steps']:
         command = step.get('command', '')
-        selectors = [token.split('::')[0] for token in command.split() if token.split('::')[0].endswith('.py')]
+        selectors = [token.split('::')[0] for token in shlex.split(command) if token.split('::')[0].endswith('.py')]
         if not selectors:
             add('selector-'+str(len(checks)), 'unknown', '命令未指定单个测试文件', '目录或模块形式的完整收集不在本次静态扫描范围。')
         for selector in selectors:

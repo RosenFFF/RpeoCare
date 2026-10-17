@@ -79,15 +79,21 @@ Markdown 导出包含覆盖说明与额外回归命令；现有 JSON 导出增�
 
 ## 贡献路径与 Python 准备
 
-受支持的安装命令使用 `python3 -m pip install --target .repocare-python --no-compile`，随后选择根目录 `-r requirements.txt`、`-r requirements-dev.txt`、`-r requirements-test.txt`，或 `--no-build-isolation .`。文档和清单生成均经过同一命令校验。
+受支持的安装命令使用 `python3 -m pip install --target .repocare-python --no-compile`，随后选择根目录 `-r requirements.txt`、`-r requirements-dev.txt`、`-r requirements-test.txt`、`--no-build-isolation .`，或 `--group test`。本地项目可以选择最多三个声明的扩展，例如 `--no-build-isolation .[test,dev]`。扩展和组名仅接受受限标识符，不能指定其他路径、URL 或附加安装选项。依赖组来自根目录 `pyproject.toml`，扩展与依赖组分别使用 pip 的标准解析机制，见 [pip install](https://pip.pypa.io/en/stable/cli/pip_install/)。
 
-根项目安装需要 Runner 已有可用构建后端。当前镜像提供 pip、setuptools 和 wheel。项目使用其他后端、未声明测试依赖或依赖需要系统组件时可能受阻，需要依据日志补充环境。没有宣称兼容任意 Python 项目。
+Runner 使用独立虚拟环境，其工具版本及下载哈希列在 [python-requirements.txt](../reproduction/python-requirements.txt)。当前配置包括 pytest 9.0.2、pip 25.1.1、setuptools、wheel、hatchling 和 hatch-vcs。构建镜像时只安装经过哈希校验的 wheel，并运行 `pip check`。镜像 ID 仍是执行时固定的环境标识，不把基础镜像标签当作不可变版本。
+
+根项目安装使用 `--no-build-isolation`，需要 Runner 已有兼容构建后端；该选项的责任边界见 [pip 构建系统说明](https://pip.pypa.io/en/stable/reference/build-system/)。预检发现根项目安装所需后端缺失时阻塞，直接从 `src` 运行则保留警告。清单能确定扩展或组不存在时预检阻塞；动态扩展声明保留未知。包含其他组的声明只标记静态未知，由 pip 在实际准备阶段解析。其他后端、系统库、Python 版本和插件组合仍可能受阻。
 
 Python 安装可能执行项目构建代码，仍需人工审阅并在受限容器准备阶段运行。npm 安装继续附加禁止生命周期脚本的选项。依赖联网配置保持默认关闭，详见 [隔离执行](REPRODUCTION.md)。
 
-验证时优先从仓库根和 `src` 导入源码，再读取本次目标依赖目录。Runner 记录实际 Python 版本和依赖版本摘要。计划明确声明简单 Python 版本前缀且与 Runner 不符时，执行保持受阻。贡献路径页面只把有实际步骤结果的准备步骤标为完成。
+验证时优先从仓库根和 `src` 导入源码，再读取本次目标依赖目录。每个阶段的 `dependencies.json` 记录 Python、内置工具及最多三百个目标目录发行包的名称与版本，超限明确标记。数据来自发行包元信息，不导入项目模块，也不保存下载 URL。环境指纹包含该记录摘要；目标目录安装了另一版 pytest 时分别保留内置与目标版本。它不等同于每个第三方 wheel 的内容锁定，未锁版本的项目依赖仍可能随注册表变化。
+
+计划明确声明简单 Python 版本前缀且与 Runner 不符时，执行保持受阻。贡献路径页面只把有实际步骤结果的准备步骤标为完成。PR 对照按固定 base SHA 获取源码，不要求 fork 中的分支在上游存在；普通 Issue 的显式标签仍可供 VCS 构建后端生成版本信息。
 
 独立测试放在 `tests/` 内仍会加载其祖先 `conftest.py`，可能依赖额外包；只使用标准库的测试正文不代表整个收集过程无依赖。缩小范围时保留原套件未验证的限制，不禁用原项目配置来伪造全量通过。Windows 下载及恢复源码使用单次 Git 命令的 `core.longpaths=true`，不改用户的持久 Git 配置。
+
+Humanize 固定版本的真实 VCS 版本生成、cattrs 声明依赖组安装及正常行为检查见 [新案例实测](MAINTENANCE_FRESH_EVALUATION.md)。`scripts/accept-python-preparation.ts` 提供显式 `--reviewed` 验收；只有额外传入 `--allow-network` 才启用该次准备联网。它使用隔离数据库与制品目录，不改变 Web 服务的持久配置，也不提供模型调用。
 
 ## 验收边界
 

@@ -80,5 +80,22 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(report['status'], 'review')
         self.assertTrue(any(check['id']=='check-budget' for check in report['checks']))
 
+    def test_missing_backend_blocks_a_project_install(self):
+        report = self.check_plan({'pyproject.toml': '[build-system]\nrequires=["repocare-missing-backend"]\n', 'test_value.py': 'def test_value(): pass\n'}, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .'}])
+        self.assertEqual(report['status'], 'blocked')
+
+    def test_project_extra_requires_actual_declaration(self):
+        for name, status in (('test', 'ready'), ('typo', 'blocked')):
+            report = self.check_plan({'pyproject.toml': '[project]\nname="local"\n[project.optional-dependencies]\ntest=[]\n', 'test_value.py': 'def test_value(): pass\n'}, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .['+name+']'}])
+            self.assertEqual(report['status'], status)
+
+    def test_declared_group_is_read_without_installing(self):
+        files = {'pyproject.toml': '[dependency-groups]\ntest=["pytest>=999"]\n', 'test_value.py': 'def test_value(): pass\n'}
+        report = self.check_plan(files, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --group test'}])
+        self.assertEqual(report['status'], 'review')
+        self.assertTrue(any(check['id']=='project-pytest' and check['status']=='warning' for check in report['checks']))
+        report = self.check_plan(files, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --group typo'}])
+        self.assertEqual(report['status'], 'blocked')
+
 
 unittest.main()

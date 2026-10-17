@@ -24,7 +24,7 @@ Issue调查路径：反馈→源码证据→需要时准备复现→等待用户
 propose_patch生成精确原文替换差异；不会自动修改宿主或GitHub。所有复现和补丁验证必须由用户在界面完整审阅并确认。根据工具结果确认实际保存情况。每类交付物最多三版；内容相同复用已有版本，变更后保存新版本，旧计划不可再次确认。读取验证失败的实际结果后，可以针对原固定提交提出改进补丁并准备对应新验证，再根据真实结果修订回复。每个变更文件仍以原始提交为before，形成完整候选版本。propose_patch默认保留当前候选未触及的文件，便于随后添加测试；同文件修订应包含该文件所需全部改动。只有明确丢弃旧候选其他文件时设置replaceAll=true。
 prepare_reproduction 的 planJson（以及 prepare_verification 的可选高级 planJson）须严格符合以下JSON Schema：${reproductionSchemaDescription}
 prepare_verification 优先使用快捷参数 requirements、regressionCommands 和可选 setupCommands，由服务端构建待核对的pytest计划，不必拼装planJson。Runner已提供pytest；只有确实需要额外依赖时才提议安装。requirements只包含原版应失败的缺陷要求，正常行为与完整套件放regressionCommands。每条failureSignal须与测试真实失败方式一致，assert断言不应随意写成TypeError。requirements数组每项含text、quote（Issue/PR/关联Issue精确原文）、command（与steps中的run-test完全一致，每条要求指定一个pytest文件.py::用例节点）、failureSignal（预期断言输出片段）、changedPaths（生产改动路径）。可另加完整测试集命令核对其他行为。需求对应和断言是待人工核对的提议，不能编造用户要求。共享测试内容将同时应用于两个版本；只改测试不算生产修复。当前需求对照限pytest；PR限完整且最多4个文件的非依赖改动。信息不足先提问，不为了生成计划填造路径或断言。
-命令允许现有执行器的npm测试、pytest、python -m pytest/unittest、go test、npx playwright test；Python依赖安装仅在setup使用python3 -m pip install --target .repocare-python --no-compile -r requirements.txt（也支持requirements-dev.txt/requirements-test.txt），或后接--no-build-isolation .安装已读取的根项目。验证断网。禁止shell语法、任意下载或宿主路径。先读取实际项目命令。缺环境/选择器等信息写入missingInformation，不能猜测。
+命令允许现有执行器的npm测试、pytest、python -m pytest/unittest、go test、npx playwright test；Python依赖安装仅在setup使用python3 -m pip install --target .repocare-python --no-compile -r requirements.txt（也支持requirements-dev.txt/requirements-test.txt），或后接--no-build-isolation .安装已读取的根项目（可用.[test]等最多三个真实声明的扩展），也支持--group test安装根pyproject.toml已声明的单个依赖组。不要猜扩展或组名。验证断网。禁止shell语法、任意下载或宿主路径。先读取实际项目命令。缺环境/选择器等信息写入missingInformation，不能猜测。
 完成本阶段后优先调用 submit_report 保存阶段报告。报告 evidenceIds 只允许工具返回的 E 开头证据编号，不能填补丁/验证交付物 UUID；交付状态可写 summary，findings 可以为空。submit_report 会校验并结束本阶段，不执行或发布。也兼容最终仅输出JSON：{"summary":"阶段结论","findings":[{"title":"...","detail":"...","certainty":"supported|hypothesis","evidenceIds":["E..."]}],"missingInformation":[],"nextSteps":[]}。不要Markdown或内部推理。supported必须有已存在的证据ID；hypothesis明确标为待验证。等待用户补充/确认时也按此格式保存阶段结果。`;
 /** Strip private reasoning, provider diagnostics and signatures from durable checkpoints. */
 function checkpoint(messages: AgentMessage[]): AgentMessage[] {
@@ -59,7 +59,8 @@ function compact(messages: AgentMessage[], claim: ClaimedTask, limit: number): A
     task.budget.compactions++;
     return [summary, ...messages.slice(start)];
 }
-export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSignal) {
+export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSignal, tuning: { systemPrompt?: string; temperature?: number } = {}) {
+    const selectedPrompt = tuning.systemPrompt ?? prompt;
     const { task, connection } = claim, controller = new AbortController(), started = Date.now();
     const signal = AbortSignal.any([controller.signal, shutdown]), deadline = setTimeout(() => controller.abort(), 180000);
     let status: number | undefined, stopReason: string | undefined, transportFailure: 'network' | 'blocked-endpoint' | undefined, modelFailed = false, budgetStopped = false, requestTimedOut = false;
@@ -83,7 +84,7 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
         const injected = new Set<string>(), delivered = new Set<string>();
         let requestDialogueIds: string[] = [];
         // Byte cap is a conservative application budget, not a token measurement.
-        const overhead = Buffer.byteLength(prompt + JSON.stringify(tools.map(t => ({ name: t.name, description: t.description, parameters: t.parameters }))), 'utf8');
+        const overhead = Buffer.byteLength(selectedPrompt + JSON.stringify(tools.map(t => ({ name: t.name, description: t.description, parameters: t.parameters }))), 'utf8');
         const outputReserve=connection.maxTokens??options.maxTokens??4096;
         const contextBytes = Math.min(120000, model.contextWindow > 0 ? Math.floor((model.contextWindow - outputReserve) * 0.7) - overhead : 48000);
         if (contextBytes < 8000) {
@@ -111,11 +112,11 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
             const requestTimer=setTimeout(()=>{requestTimedOut=true;requestController.abort();},40000);
             const requestSignals=[signal,requestController.signal];
             if(streamOptions?.signal)requestSignals.push(streamOptions.signal);
-            const response=withModelTransport(model, () => streamSimple(currentModel, context, { ...streamOptions, ...options, signal:AbortSignal.any(requestSignals), timeoutMs: 40000, maxRetries: 0, cacheRetention: 'none', transport: 'sse' }), { onStatus: value => { status = value; }, onFailure: value => { transportFailure = value; } });
+            const response=withModelTransport(model, () => streamSimple(currentModel, context, { ...streamOptions, ...options, ...(tuning.temperature !== undefined ? { temperature: tuning.temperature } : {}), signal:AbortSignal.any(requestSignals), timeoutMs: 40000, maxRetries: 0, cacheRetention: 'none', transport: 'sse' }), { onStatus: value => { status = value; }, onFailure: value => { transportFailure = value; } });
             void response.result().then(()=>clearTimeout(requestTimer),()=>clearTimeout(requestTimer));
             return response;
         };
-        const agent = await createPiAgent({ initialState: { model, systemPrompt: prompt, tools, messages: claim.internal.messages }, streamFn: stream, getApiKey: () => connection.apiKey || 'local', sessionId: task.id,
+        const agent = await createPiAgent({ initialState: { model, systemPrompt: selectedPrompt, tools, messages: claim.internal.messages }, streamFn: stream, getApiKey: () => connection.apiKey || 'local', sessionId: task.id,
             transformContext: async (messages) => compact(checkpoint(messages), claim, contextBytes),
             beforeToolCall: async () => { signal.throwIfAborted(); if (reportSubmitted) return { block: true, reason: '阶段报告已保存，本阶段不再执行其他工具。' }; if (task.budget.tools >= task.budget.maxTools) {
                 budgetStopped = true;

@@ -14,7 +14,7 @@ import { db } from '../../src/server/audit/store';
 import { cancelReproductionJob, createReproductionJob, getReproductionJob, listReproductionJobs, queueReproductionJob, updateLeasedReproduction, workbenchDb } from '../../src/server/workbench/store';
 import { validateReproductionPlan } from '../../src/server/reproduction/plan';
 import { claimReproduction, pulseReproductionWorker, releaseReproduction, reproductionWorkerOnline } from '../../src/server/reproduction/queue';
-import { executeReproduction } from '../../src/server/reproduction/executor';
+import { executeReproduction, sourceCloneArguments } from '../../src/server/reproduction/executor';
 
 
 const browserPlan: ReproductionPlan = {
@@ -84,6 +84,20 @@ test('executor fails closed when Docker reproduction is disabled', async () => {
   assert.equal(final.status, 'blocked');
   assert.match(final.error || '', /尚未启用/);
   assert.equal(final.artifacts.some(artifact => artifact.path.includes('/workspace/')), false);
+});
+
+test('pinned PR verification does not require a fork-only branch on the upstream repository', () => {
+  const job = createReproductionJob('alice', { repoUrl: 'https://github.com/example/project', branch: 'fix/fork-only', commitSha: 'a'.repeat(40), issueNumber: 12, sourceUpdatedAt: '', plan: browserPlan });
+  const pr = { ...job, verification: { headSha: 'b'.repeat(40) } } as typeof job;
+  assert.equal(sourceCloneArguments(pr, '/scratch/source').includes('--branch'), false);
+  assert.equal(sourceCloneArguments({ ...job, purpose: 'environment-preflight' }, '/scratch/source').includes('--branch'), false);
+  assert.deepEqual(sourceCloneArguments(pr, '/scratch/source').slice(-3), ['--', 'https://github.com/example/project.git', '/scratch/source']);
+});
+
+test('explicit issue tags remain available to VCS build backends and unsafe refs are ignored', () => {
+  const job = createReproductionJob('alice', { repoUrl: 'https://github.com/example/project', branch: '4.16.0', commitSha: 'a'.repeat(40), issueNumber: 12, sourceUpdatedAt: '', plan: browserPlan });
+  assert.ok(sourceCloneArguments(job, '/scratch/source').includes('4.16.0'));
+  assert.equal(sourceCloneArguments({ ...job, branch: '--upload-pack=bad' }, '/scratch/source').includes('--branch'), false);
 });
 
 test('expired worker cannot overwrite a reclaimed reproduction', () => {

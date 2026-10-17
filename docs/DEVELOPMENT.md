@@ -51,6 +51,10 @@ npm run check
 
 复现相关改动至少运行 `node --check reproduction/runner.mjs`、单元测试和完整 `npm run check`。本地 Docker 可用时再运行 `npm run repro:image`，并使用专用公开测试仓库验收。不要在测试中回退到宿主机执行仓库命令。配置与生产隔离要求见 [REPRODUCTION.md](REPRODUCTION.md)。
 
+Python 工具的固定版本与 wheel 哈希位于 `reproduction/python-requirements.txt`。显式准备验收可以运行 `npx tsx scripts/accept-python-preparation.ts manifest.json --reviewed`；联网准备还需 `--allow-network`。manifest 包含公开 `repoUrl`、固定 `commitSha`、可选 `branch`、完整 `plan` 及可选预期状态 `expected`。先审阅全部命令与来源；默认工程检查不运行这类容器或真实模型任务。
+
+`evaluate-maintenance.ts --run-models --snapshot=... --goal=...` 在独立数据库中执行系统提示消融。两组共用维护运行时、工具与限制，只有提示不同；`--order=repocare-first` 可以调换顺序。固定快照默认按需重放经过 Git blob 校验的源码，未读取文件不提前消耗源码缓存预算；`--eager-cache` 仅用于复查旧预加载记录。它不表示与独立通用助手的产品对比。历史预加载问题、诊断重跑及真实失败见 [新案例实测](MAINTENANCE_FRESH_EVALUATION.md)。
+
 ## 模型已配置但请求失败的诊断（2026-10-07）
 
 Issue／PR／回复和文档草稿生成使用当前账户默认模型，保存连接不代表真实请求成功。过去 workbench assistant 捕获异常只返回“模型请求未完成”，model_usage 只有失败标记，无法追溯旧失败的 HTTP 状态或停止原因。

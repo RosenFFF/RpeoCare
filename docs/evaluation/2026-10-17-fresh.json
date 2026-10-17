@@ -1,0 +1,1180 @@
+{
+  "date": "2026-10-17",
+  "kind": "development-prompt-ablation-and-environment-acceptance",
+  "caseCount": 3,
+  "modelSegmentCount": 8,
+  "modelRequests": 131,
+  "protocol": {
+    "frozenAt": "2026-10-17T07:37:39.483Z",
+    "kind": "development-prompt-ablation",
+    "cases": [
+      {
+        "key": "h11",
+        "snapshotSha256": "27a62973761a87bcc7fb8881be6ed556336181346260c419406fd46720ae3efd",
+        "goalSha256": "aebea4a8c621bfb4c70e1192a1c465827da61f827301e0250acd66f29cc219eb",
+        "order": "generic-first",
+        "holdoutSha256": "6f60638dd49e349ec96a39ae0b108983e93b92c2fd723ac91b925a34480a735e"
+      },
+      {
+        "key": "boltons",
+        "snapshotSha256": "a8df9b5440c85a92b4a16d0a36aca30ac845a54d2bdbea158decb5a100c9033a",
+        "goalSha256": "dabe4e295b4ca7bd557b53345ae409ba65d126a25d6aca39593179a31457ee5e",
+        "order": "repocare-first",
+        "holdoutSha256": null
+      },
+      {
+        "key": "cattrs",
+        "snapshotSha256": "c2d9db8a9be2d0e2304f88a737eb8b6257abfa5a101e7d8e2af6ff9b08462ab1",
+        "goalSha256": "e7af346b47eb94af8f6d54c814af4f1f7b01c4d63ec189609ce54b25fb2b8813",
+        "order": "generic-first",
+        "holdoutSha256": "779e81c2d4cd7aa8ae668eeda482294e4b9c179617f7c938a505f71adee2a9c4"
+      }
+    ],
+    "budget": {
+      "requests": 24,
+      "tools": 48,
+      "phaseSeconds": 180,
+      "outputTokensPerRequest": 8192,
+      "temperature": 0,
+      "retries": 0
+    },
+    "rubric": {
+      "h11": "Exact setup asset registration on a stub exposing only modern Sphinx methods; separate parse/config control. This does not establish a complete docs build.",
+      "boltons": "Identify unresolved clamp/drift versus month-end versus explicit-error choice; preserve as missing information and avoid choosing production behavior without authorization.",
+      "cattrs": "Default factories must match attrs ambiguity for both union orders; required-unique-field discrimination remains correct. Review existing PR, not author a new fix."
+    },
+    "constraints": [
+      "Same model connection, tools, runtime, source cache and safety checks; only system prompt differs.",
+      "Public selected cases include fixes/examples in issue or PR text; not blind and not independent of training data.",
+      "First segment only. No model continuation, corrective feedback or rubric changes after first call.",
+      "All case results retained, including timeouts, missing prerequisites, plan failures and ambiguity.",
+      "No new commits or public comments to the selected repositories."
+    ],
+    "exclusions": [
+      {
+        "url": "https://github.com/more-itertools/more-itertools/issues/1307",
+        "reason": "Not selected: broad helper module exceeds current source/plan size support; no model run for it."
+      }
+    ],
+    "localRoot": "data/fresh-evaluation-2026-10-17",
+    "recordSha256": "b7bd63877762df1ee41725155e34e673f7759d0d178b115836eb6e98fb58765c"
+  },
+  "amendment": {
+    "at": "2026-10-17T07:41:45.011Z",
+    "case": "cattrs",
+    "originalPilot": "data/model-pilot-2026-10-17T07-38-30-128Z-d14b34a8-c93e-4988-bc08-d8d63f8c5972",
+    "problem": "Eagerly loading roughly 570KB of source consumed the product read budget before the model requested those files.",
+    "change": "Replay canonical blobs lazily on read, keeping snapshot, source, goals, budgets, variant order and rubric unchanged.",
+    "label": "Diagnostic rerun of the same case; not an independent new case and not a blinded trial.",
+    "feedbackToModel": false,
+    "recordSha256": "e8e6767b413614065eb1eac66ceba167a34f25caf134409f3bef198ffeccc0b8"
+  },
+  "modelTrials": [
+    {
+      "case": "h11",
+      "label": "initial",
+      "localRoot": "data/model-pilot-2026-10-17T07-38-18-853Z-9fa71bee-c394-45d7-986b-2a15ca749fd3",
+      "recordSha256": "15a4ffef2532fcaeade8b39eba7a29008fbbdff204f2c84df13e9cbc5ed47a28",
+      "sourceProvisioning": "eager source cache",
+      "order": "generic-first",
+      "budget": {
+        "requests": 24,
+        "tools": 48,
+        "outputPerCall": 8192,
+        "phaseSeconds": 180,
+        "temperature": 0
+      },
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "status": "awaiting-confirmation",
+          "requests": 21,
+          "toolCalls": 31,
+          "inputTokens": 310011,
+          "outputTokens": 4815,
+          "wallMs": 60321,
+          "sourceDigest": "78188487a93a4e0e4d4bbf8d203b09c4115c556f81ac117ca72a3d158648f98a",
+          "cacheDigest": "a1506fdd2a6b03fe4ae481808be3e0150b8af9f7a00cb0beb27e74344dc6273e",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [
+            "patch",
+            "verification"
+          ],
+          "missingInformation": [],
+          "scopeLimitations": [
+            "未执行任何命令：两个验证 job 均为 awaiting-confirmation，无 attempts/artifacts，测试是否通过未知。",
+            "不覆盖完整 Sphinx 文档构建（sphinx-build），也不安装 Sphinx/IPython 等 docs 依赖；仅验证 conf.py 的 setup 资源注册接口。",
+            "FakeSphinxApp 只建模 add_js_file/add_css_file，不验证真实 Sphinx 9.1.0 的其余 API 与 HTML 输出。",
+            "未运行 h11 完整测试套件（tox: pytest --cov=h11 h11），仅提供窄范围回归命令。",
+            "未验证 mypy/black/isort 对新测试文件的结果；docs/requirements.txt 的 sphinx<4 上限未在补丁中调整。"
+          ],
+          "failedTools": [
+            {
+              "tool": "prepare_verification",
+              "failed": true
+            }
+          ]
+        },
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "status": "awaiting-confirmation",
+          "requests": 13,
+          "toolCalls": 26,
+          "inputTokens": 162032,
+          "outputTokens": 3592,
+          "wallMs": 33494,
+          "sourceDigest": "78188487a93a4e0e4d4bbf8d203b09c4115c556f81ac117ca72a3d158648f98a",
+          "cacheDigest": "a1506fdd2a6b03fe4ae481808be3e0150b8af9f7a00cb0beb27e74344dc6273e",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [
+            "patch",
+            "verification"
+          ],
+          "missingInformation": [],
+          "scopeLimitations": [
+            "未安装 Sphinx，也未执行完整 Sphinx 文档构建；只验证 conf.py 的 setup() 资源注册接口",
+            "测试使用最小 FakeSphinxApp 替身，未验证 Sphinx 9.1.0 真实应用对象行为",
+            "未运行 h11 完整测试套件，仅计划运行新增测试文件与 h11/tests/test_helpers.py",
+            "未评估 docs/requirements.txt 中 sphinx<4 等文档依赖约束是否需同步放宽"
+          ],
+          "failedTools": []
+        }
+      ]
+    },
+    {
+      "case": "boltons",
+      "label": "initial",
+      "localRoot": "data/model-pilot-2026-10-17T07-38-30-109Z-1b3185d2-a515-46ec-8874-37aa643345d3",
+      "recordSha256": "deb338c6850c5fd16c6789fd0f7a96e04ed1c5ce338763979bf43006fb5e5ba8",
+      "sourceProvisioning": "eager source cache",
+      "order": "repocare-first",
+      "budget": {
+        "requests": 24,
+        "tools": 48,
+        "outputPerCall": 8192,
+        "phaseSeconds": 180,
+        "temperature": 0
+      },
+      "rows": [
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "status": "waiting-input",
+          "requests": 7,
+          "toolCalls": 13,
+          "inputTokens": 57132,
+          "outputTokens": 2070,
+          "wallMs": 25068,
+          "sourceDigest": "c177b9244840d8d1b39330c609372489d19c968e4a03dd44e14ef380d4510468",
+          "cacheDigest": "619055a66d2fd4a2fadffcd6c6cc9611f8bf02c7f7016b55161bb12ded153a1d",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [],
+          "missingInformation": [
+            "维护者需在三种语义中选择其一：钳制到目标月最后一天（允许后续漂移）、锚点为月末时吸附月末、或抛出清晰且文档化的错误。",
+            "若选择钳制或吸附：负向月步长（如 step=(0,-1,0)）从 31 日锚点回退到短月时应采用同一规则还是对称规则，需明确。",
+            "若选择钳制或吸附：锚点日 29/30 在非闰年 2 月被钳制后，后续月份是否恢复原锚点日（即是否记录原始锚点日），需明确。",
+            "若选择抛错：错误类型（ValueError 还是新异常）、消息文本，以及是否在 docstring 中记录该限制，需明确。",
+            "是否需要在同一补丁中补充 docstring 示例与 changelog 条目，需维护者确认。"
+          ],
+          "scopeLimitations": [
+            "未执行任何复现或测试命令，ValueError 结论来自源码阅读与 Issue 描述，非本地运行结果。",
+            "未检查 Issue 提到的 #319、#297、PR #432 等其他问题，也未查询后续修复或 PR。",
+            "未运行完整测试套件，未验证其他 timeutils 功能。",
+            "GitHub 检查结果仅反映远端 CI，不代表本地环境实测。"
+          ],
+          "failedTools": []
+        },
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "status": "waiting-input",
+          "requests": 9,
+          "toolCalls": 13,
+          "inputTokens": 76143,
+          "outputTokens": 2684,
+          "wallMs": 26596,
+          "sourceDigest": "c177b9244840d8d1b39330c609372489d19c968e4a03dd44e14ef380d4510468",
+          "cacheDigest": "619055a66d2fd4a2fadffcd6c6cc9611f8bf02c7f7016b55161bb12ded153a1d",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [
+            "reply"
+          ],
+          "missingInformation": [
+            "维护者选择哪种修复语义：钳制到月末（允许漂移）、月末吸附，还是保留异常但改为清晰错误。",
+            "若选择钳制或吸附：锚点日号是否只取自 start，还是每次从上一个产出日期重新推导（漂移是否累积）。",
+            "若选择月末吸附：如何判定“锚点本身是月末”，是否包含后续钳制后落在月末的情形。",
+            "所选规则是否同样适用于年步长（y_step*12 路径）与负月步长（如 Mar 31 -> Feb 29）。",
+            "是否接受该行为变化作为兼容性变更，以及 docstring 需要如何描述。"
+          ],
+          "scopeLimitations": [
+            "未执行任何测试或复现，所有结论来自源码与 Issue 文本阅读；未运行 pytest，也未确认运行环境依赖。",
+            "未提议补丁，也未生成验证计划，因为修复语义尚未确定。",
+            "未查询后续修复、PR 或上游变更，仅基于固定提交 4e5faa3。",
+            "GitHub 检查状态（E01beda8db8f3）仅表示该提交的 CI 结果，不代表本任务运行过测试。"
+          ],
+          "failedTools": []
+        }
+      ]
+    },
+    {
+      "case": "cattrs",
+      "label": "eager-cache diagnostic",
+      "localRoot": "data/model-pilot-2026-10-17T07-38-30-128Z-d14b34a8-c93e-4988-bc08-d8d63f8c5972",
+      "recordSha256": "6e7b77b5e13320eb00716d6e352925aad4489f0148383ee91b2e29b3a02e4e53",
+      "sourceProvisioning": "eager source cache",
+      "order": "generic-first",
+      "budget": {
+        "requests": 24,
+        "tools": 48,
+        "outputPerCall": 8192,
+        "phaseSeconds": 180,
+        "temperature": 0
+      },
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "status": "failed",
+          "requests": 24,
+          "toolCalls": 34,
+          "inputTokens": 449117,
+          "outputTokens": 1790,
+          "wallMs": 58313,
+          "sourceDigest": "2ebed247ed1efd87e13f899008101fa2e24ed64408c8d4de3a9fb0a837e24c48",
+          "cacheDigest": "6d45950dcfc8b39e642975e899beca3e71ae4b189c7f2509635e6ebb71eef151",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [],
+          "missingInformation": [],
+          "scopeLimitations": [],
+          "failedTools": [
+            {
+              "tool": "search_files",
+              "failed": true
+            },
+            {
+              "tool": "search_files",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "search_files",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            },
+            {
+              "tool": "read_file",
+              "failed": true
+            }
+          ]
+        },
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "status": "waiting-input",
+          "requests": 14,
+          "toolCalls": 23,
+          "inputTokens": 214268,
+          "outputTokens": 3180,
+          "wallMs": 41690,
+          "sourceDigest": "2ebed247ed1efd87e13f899008101fa2e24ed64408c8d4de3a9fb0a837e24c48",
+          "cacheDigest": "6d45950dcfc8b39e642975e899beca3e71ae4b189c7f2509635e6ebb71eef151",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [
+            "patch",
+            "verification"
+          ],
+          "missingInformation": [
+            "执行环境是否已安装 hypothesis（tests/conftest.py 与 tests/test_disambiguators.py 导入所需，pyproject test 组声明 hypothesis>=6.135.26）尚未实测；若缺失需在 setup 中安装后再执行对照。"
+          ],
+          "scopeLimitations": [
+            "两版对照计划（baseline 802f3bfa、patched 03f570a7）均为 awaiting-confirmation，未执行，未产生任何真实测试结果。",
+            "只覆盖 tests/test_disambiguators.py 的窄范围需求对照与同文件回归，未运行完整测试套件、bench/ 或 typing 检查。",
+            "未验证 Issue 复现脚本中 omit_if_default=True 的端到端 unstructure/structure 往返，仅覆盖 create_default_dis_func 直接调用路径。",
+            "未验证 Union[D2, D1] 反向顺序、attrs Factory 对照类及 dataclass 普通 default 的等价性。",
+            "未运行 ruff/mypy 等 lint 与类型检查。"
+          ],
+          "failedTools": [
+            {
+              "tool": "search_files",
+              "failed": true
+            },
+            {
+              "tool": "search_files",
+              "failed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cattrs",
+      "label": "lazy replay diagnostic",
+      "localRoot": "data/model-pilot-2026-10-17T07-41-49-440Z-8914c103-65db-4dba-b851-b7585cb00c11",
+      "recordSha256": "8bf7767b7e4a4802e192a35b85fbdec6d18dcc15bbaac4566dd44c82ea7ab6ba",
+      "sourceProvisioning": "lazy pinned blob replay",
+      "order": "generic-first",
+      "budget": {
+        "requests": 24,
+        "tools": 48,
+        "outputPerCall": 8192,
+        "phaseSeconds": 180,
+        "temperature": 0
+      },
+      "rows": [
+        {
+          "variant": "generic",
+          "model": "deepseek-flash",
+          "status": "failed",
+          "requests": 24,
+          "toolCalls": 33,
+          "inputTokens": 523406,
+          "outputTokens": 1728,
+          "wallMs": 52625,
+          "sourceDigest": "2ebed247ed1efd87e13f899008101fa2e24ed64408c8d4de3a9fb0a837e24c48",
+          "cacheDigest": "68ff68bc84ced4bff5eb4f45df185f88c644b79f84525c7c74bf6c6d1d2cf3f1",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [],
+          "missingInformation": [],
+          "scopeLimitations": [],
+          "failedTools": [
+            {
+              "tool": "search_files",
+              "failed": true
+            }
+          ]
+        },
+        {
+          "variant": "repocare",
+          "model": "deepseek-flash",
+          "status": "waiting-input",
+          "requests": 19,
+          "toolCalls": 26,
+          "inputTokens": 323522,
+          "outputTokens": 6120,
+          "wallMs": 54864,
+          "sourceDigest": "2ebed247ed1efd87e13f899008101fa2e24ed64408c8d4de3a9fb0a837e24c48",
+          "cacheDigest": "68ff68bc84ced4bff5eb4f45df185f88c644b79f84525c7c74bf6c6d1d2cf3f1",
+          "implementationDigest": "80843cdce449a4b7367b9c9546636365db1933e684c57ae74870183764d4d1c1",
+          "artifactKinds": [],
+          "missingInformation": [
+            "prepare_verification 连续返回 GitHub 403，两版 pytest 对照计划无法保存；需要恢复授权/额度后重试。",
+            "当前执行镜像是否已安装 attrs>=25.4.0、typing-extensions>=4.14.0、hypothesis>=6.135.26 等 test 组依赖未经实测；若 --group test 安装失败，需要维护者确认可用的依赖准备方式。"
+          ],
+          "scopeLimitations": [
+            "只审核固定提交 41c7397 的 2 个变更文件与 tests/test_disambiguators.py、src/cattrs/disambiguators.py、src/cattrs/_compat.py 相关源码，未读取 converters.py 全部 1516 行。",
+            "未运行任何测试；PR 测试通过与否仅基于源码推断，未实测。",
+            "未覆盖 Issue #796 正文中 Converter(omit_if_default=True) 的端到端 round-trip 场景，PR 新增测试只直接调用 create_default_dis_func。",
+            "未覆盖 default_factory 字段仍可被唯一键正向消歧的场景，也未单独断言 attrs Factory 与 dataclass 普通 default 的等价性。",
+            "未覆盖完整测试套件（Justfile test 目标含 --all-extras、lint 组与 xdist）。"
+          ],
+          "failedTools": [
+            {
+              "tool": "prepare_verification",
+              "failed": true
+            },
+            {
+              "tool": "prepare_verification",
+              "failed": true
+            },
+            {
+              "tool": "prepare_verification",
+              "failed": true
+            },
+            {
+              "tool": "prepare_verification",
+              "failed": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "h11NativeExecution": {
+    "localPath": "data/model-pilot-2026-10-17T07-38-18-853Z-9fa71bee-c394-45d7-986b-2a15ca749fd3/execution-repocare-2026-10-17T07-45-04-577Z.json",
+    "recordSha256": "94449d2890c2cf7365b2bc75d235187cc5813c2845c1ceffbc4b546667150d9d",
+    "assessment": "improved",
+    "outcomes": [
+      {
+        "id": "R1-edefd65161",
+        "outcome": "improved",
+        "reason": "同测试、同环境下，原版命中约定故障，改动版的计划内命令全部通过。"
+      }
+    ],
+    "coverage": {
+      "state": "failed",
+      "label": "回归存在失败",
+      "passed": 1,
+      "total": 2,
+      "results": [
+        {
+          "command": "python3 -m pytest h11/tests/test_docs_conf.py -q",
+          "state": "failed",
+          "regressed": false
+        },
+        {
+          "command": "python3 -m pytest h11/tests/test_helpers.py -q",
+          "state": "passed",
+          "regressed": false
+        }
+      ],
+      "detail": "核对两版逐次记录后再判断其他行为是否受影响。",
+      "testSource": "候选测试共享到两版",
+      "independent": "未记录独立验收来源",
+      "independentDetail": "当前记录没有独立验收测试的来源标记，不能推断已由独立测试验证。"
+    },
+    "jobs": [
+      {
+        "role": "baseline",
+        "status": "not-reproduced",
+        "attempts": 3,
+        "results": [
+          {
+            "result": "not-reproduced",
+            "failureKind": "assertion",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          },
+          {
+            "result": "not-reproduced",
+            "failureKind": "assertion",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          },
+          {
+            "result": "not-reproduced",
+            "failureKind": "assertion",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          }
+        ]
+      },
+      {
+        "role": "patched",
+        "status": "reproduced",
+        "attempts": 3,
+        "results": [
+          {
+            "result": "reproduced",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          },
+          {
+            "result": "reproduced",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          },
+          {
+            "result": "reproduced",
+            "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2"
+          }
+        ]
+      }
+    ]
+  },
+  "experiments": [
+    {
+      "label": "humanize-real-build",
+      "localRoot": "data/python-preparation-6e750ef1-d50f-44c0-89c5-233e674c700e",
+      "resultSha256": "1a560d3c9931e49183cc7ecb6dc7d1c7d7ff7fd68eb31a776dff86f0b2dec33f",
+      "repository": "https://github.com/python-humanize/humanize",
+      "commit": "3c577d7650508d52aa2982e930b0e744c343082f",
+      "status": "reproduced",
+      "expected": "reproduced",
+      "attempts": 1,
+      "preflight": "review",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "dependencySteps": [
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .",
+          "exitCode": 0
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 -m pytest test_repocare_preparation.py -q",
+          "exitCode": 0
+        }
+      ],
+      "environmentFingerprint": "7d773b6b0a65e1d9cc79344c6a7f3d0827d03b740fbdbda303eb8c5541e66dc8",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [
+          [
+            "humanize",
+            "4.16.1.dev0"
+          ]
+        ],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "4163c893-f3ef-4d8b-a139-3a0629dc0374/8f901195fa95463a/attempt-1/dependencies/dependencies.json",
+          "sha256": "4f39fb65fb2bc16c91a5612db8961f4868dfd7381f80f95bd5c212b099c64308",
+          "size": 485
+        },
+        {
+          "path": "4163c893-f3ef-4d8b-a139-3a0629dc0374/8f901195fa95463a/attempt-1/dependencies/result.json",
+          "sha256": "630a8adb92b7e6bb0f2c000d31a071ea40cdfc47a73857bf9703a11c0ad78b35",
+          "size": 2154
+        },
+        {
+          "path": "4163c893-f3ef-4d8b-a139-3a0629dc0374/8f901195fa95463a/attempt-1/execution/dependencies.json",
+          "sha256": "4f39fb65fb2bc16c91a5612db8961f4868dfd7381f80f95bd5c212b099c64308",
+          "size": 485
+        },
+        {
+          "path": "4163c893-f3ef-4d8b-a139-3a0629dc0374/8f901195fa95463a/attempt-1/execution/result.json",
+          "sha256": "68a1f7f8661d55d9f09a4f986ecbba79f392e84c8fd4f85835d7a49184e93eb1",
+          "size": 1225
+        }
+      ]
+    },
+    {
+      "label": "cattrs-declared-group",
+      "localRoot": "data/python-preparation-b6da2013-0617-4c28-81f8-ea231c1905e1",
+      "resultSha256": "f0410f35bc79a16d03d29c335b8b9ae7f9574bb999fc5abf7e6847f9fd383021",
+      "repository": "https://github.com/python-attrs/cattrs",
+      "commit": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+      "status": "reproduced",
+      "expected": "reproduced",
+      "attempts": 1,
+      "preflight": "review",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "dependencySteps": [
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --group test",
+          "exitCode": 0
+        },
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .",
+          "exitCode": 0
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 -m pytest test_repocare_preparation.py -q",
+          "exitCode": 0,
+          "warning": "Existing project typing_checkers option was not recognized in this Python 3.12 test environment."
+        }
+      ],
+      "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.1.1",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [
+          [
+            "Pygments",
+            "2.21.0"
+          ],
+          [
+            "attrs",
+            "26.1.0"
+          ],
+          [
+            "cattrs",
+            "0.1.dev1"
+          ],
+          [
+            "coverage",
+            "7.16.2"
+          ],
+          [
+            "execnet",
+            "2.1.2"
+          ],
+          [
+            "hypothesis",
+            "6.170.1"
+          ],
+          [
+            "immutables",
+            "0.21"
+          ],
+          [
+            "iniconfig",
+            "2.3.1"
+          ],
+          [
+            "packaging",
+            "26.3"
+          ],
+          [
+            "pluggy",
+            "1.7.0"
+          ],
+          [
+            "py-cpuinfo2",
+            "10.1.1"
+          ],
+          [
+            "pytest",
+            "9.1.1"
+          ],
+          [
+            "pytest-benchmark",
+            "5.3.0"
+          ],
+          [
+            "pytest-xdist",
+            "3.8.0"
+          ],
+          [
+            "sortedcontainers",
+            "2.4.0"
+          ],
+          [
+            "typing_extensions",
+            "4.16.0"
+          ]
+        ],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "9d1c0fff-f071-4308-91b8-803076f292e1/99505b58317f3013/attempt-1/dependencies/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "9d1c0fff-f071-4308-91b8-803076f292e1/99505b58317f3013/attempt-1/dependencies/result.json",
+          "sha256": "cbd815b951e0e66e1de52e587fd1028023c80019a0aea5c49dfeb0cf534cdd28",
+          "size": 10266
+        },
+        {
+          "path": "9d1c0fff-f071-4308-91b8-803076f292e1/99505b58317f3013/attempt-1/execution/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "9d1c0fff-f071-4308-91b8-803076f292e1/99505b58317f3013/attempt-1/execution/result.json",
+          "sha256": "c28ce0ff8ca0ed770e29f8e5661e8a7bb2f671bfb0855900ec1dcdd6ccb1bf64",
+          "size": 1854
+        }
+      ]
+    },
+    {
+      "label": "h11-independent-baseline",
+      "localRoot": "data/python-preparation-ec9aacd7-1655-48c4-8913-921d04d974cc",
+      "resultSha256": "cc4b9c2a22e1e705c81cdfdb17b703669e6d677f0df6f8d4f43475b2a6a52ef1",
+      "repository": "https://github.com/python-hyper/h11",
+      "commit": "62c5068c971579d61fa1b55373390e12f25fd856",
+      "status": "not-reproduced",
+      "failureKind": "assertion",
+      "expected": "not-reproduced",
+      "attempts": 1,
+      "preflight": "ready",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "checks": [
+        {
+          "command": "python3 -m pytest test_independent_docs.py -q",
+          "exitCode": 1
+        }
+      ],
+      "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "0674273f-6232-4312-9825-b1ffa0aad69f/b77866e02b858aa2/attempt-1/execution/dependencies.json",
+          "sha256": "e09ed9e49afdedb5be89392cf36721ef00f1d532433ff1d8f20faa76b963ffd1",
+          "size": 432
+        },
+        {
+          "path": "0674273f-6232-4312-9825-b1ffa0aad69f/b77866e02b858aa2/attempt-1/execution/result.json",
+          "sha256": "1164caa31ee3978f0c92a9c111367dad29c46a4577ced5efbe6a096f834b00ef",
+          "size": 3880
+        }
+      ]
+    },
+    {
+      "label": "h11-independent-generic",
+      "localRoot": "data/python-preparation-d9380824-b2df-485b-90cb-09b1e3ae95c7",
+      "resultSha256": "b6285f21a983c1b199a0c718878269e7e30398111706752aec8738169408a775",
+      "repository": "https://github.com/python-hyper/h11",
+      "commit": "62c5068c971579d61fa1b55373390e12f25fd856",
+      "status": "reproduced",
+      "expected": "reproduced",
+      "attempts": 1,
+      "preflight": "ready",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "checks": [
+        {
+          "command": "python3 -m pytest test_independent_docs.py -q",
+          "exitCode": 0
+        }
+      ],
+      "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "0fc40a3d-cf36-4064-b6e1-d0ad41cb6ee5/93453a180c4863fb/attempt-1/execution/dependencies.json",
+          "sha256": "e09ed9e49afdedb5be89392cf36721ef00f1d532433ff1d8f20faa76b963ffd1",
+          "size": 432
+        },
+        {
+          "path": "0fc40a3d-cf36-4064-b6e1-d0ad41cb6ee5/93453a180c4863fb/attempt-1/execution/result.json",
+          "sha256": "7772d8d354e56ae416ee81371c1bb8d253fa79926fb43fcda99bc2bdb1f7348d",
+          "size": 1165
+        }
+      ]
+    },
+    {
+      "label": "h11-independent-repocare",
+      "localRoot": "data/python-preparation-406aabc1-e18f-47b6-b5d9-e7cf737b792d",
+      "resultSha256": "213f423282bf38ca7dedc5fb95f1b1520cb0f68df20ff229032822aa05ed78d0",
+      "repository": "https://github.com/python-hyper/h11",
+      "commit": "62c5068c971579d61fa1b55373390e12f25fd856",
+      "status": "reproduced",
+      "expected": "reproduced",
+      "attempts": 1,
+      "preflight": "ready",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "checks": [
+        {
+          "command": "python3 -m pytest test_independent_docs.py -q",
+          "exitCode": 0
+        }
+      ],
+      "environmentFingerprint": "a4a2bad79e542fa189b47cfa21917b966e955c7d993dfa7c055f72dc70e927b2",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "71cbe05a-8cc2-4621-8f49-786e61cc92f3/4bdda1430c16805e/attempt-1/execution/dependencies.json",
+          "sha256": "e09ed9e49afdedb5be89392cf36721ef00f1d532433ff1d8f20faa76b963ffd1",
+          "size": 432
+        },
+        {
+          "path": "71cbe05a-8cc2-4621-8f49-786e61cc92f3/4bdda1430c16805e/attempt-1/execution/result.json",
+          "sha256": "3975c8c004f4b1c4c59973c05c3617f1150bbdbd0e5fba1c9df947808366a230",
+          "size": 1164
+        }
+      ]
+    },
+    {
+      "label": "cattrs-independent-baseline",
+      "localRoot": "data/python-preparation-9e7b14d5-3b1b-466c-a441-cca55bfdb822",
+      "resultSha256": "f46d0ccd6cc960844c1591cca436ab682b17117f494926ae99c918d7c6bb6c2f",
+      "repository": "https://github.com/python-attrs/cattrs",
+      "commit": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+      "status": "not-reproduced",
+      "failureKind": "assertion",
+      "expected": "not-reproduced",
+      "attempts": 1,
+      "preflight": "review",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "dependencySteps": [
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --group test",
+          "exitCode": 0
+        },
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .",
+          "exitCode": 0
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 -m pytest test_independent_factory.py -q",
+          "exitCode": 1,
+          "warning": "Existing project typing_checkers option was not recognized in this Python 3.12 test environment."
+        }
+      ],
+      "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.1.1",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [
+          [
+            "Pygments",
+            "2.21.0"
+          ],
+          [
+            "attrs",
+            "26.1.0"
+          ],
+          [
+            "cattrs",
+            "0.1.dev1"
+          ],
+          [
+            "coverage",
+            "7.16.2"
+          ],
+          [
+            "execnet",
+            "2.1.2"
+          ],
+          [
+            "hypothesis",
+            "6.170.1"
+          ],
+          [
+            "immutables",
+            "0.21"
+          ],
+          [
+            "iniconfig",
+            "2.3.1"
+          ],
+          [
+            "packaging",
+            "26.3"
+          ],
+          [
+            "pluggy",
+            "1.7.0"
+          ],
+          [
+            "py-cpuinfo2",
+            "10.1.1"
+          ],
+          [
+            "pytest",
+            "9.1.1"
+          ],
+          [
+            "pytest-benchmark",
+            "5.3.0"
+          ],
+          [
+            "pytest-xdist",
+            "3.8.0"
+          ],
+          [
+            "sortedcontainers",
+            "2.4.0"
+          ],
+          [
+            "typing_extensions",
+            "4.16.0"
+          ]
+        ],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "e1a3cc69-69ee-4dfe-8895-fbb66e61f148/d9f0e570e8bfb845/attempt-1/dependencies/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "e1a3cc69-69ee-4dfe-8895-fbb66e61f148/d9f0e570e8bfb845/attempt-1/dependencies/result.json",
+          "sha256": "035e67e86b10369a61515fa6e3d9e894d8203586956a087d4aceae48bf051537",
+          "size": 10266
+        },
+        {
+          "path": "e1a3cc69-69ee-4dfe-8895-fbb66e61f148/d9f0e570e8bfb845/attempt-1/execution/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "e1a3cc69-69ee-4dfe-8895-fbb66e61f148/d9f0e570e8bfb845/attempt-1/execution/result.json",
+          "sha256": "a9b4f48b9e7fc5b7dede44a23a444f05cf0552a3196660052eabf0b00849b54a",
+          "size": 5014
+        }
+      ]
+    },
+    {
+      "label": "cattrs-independent-patched",
+      "localRoot": "data/python-preparation-78e932f5-3910-4382-bb56-3a07a84bc0ab",
+      "resultSha256": "cce1a0db2b2a97a9e2d9a37877d330f3b43e29e9723d584e9ba832fdb349b992",
+      "repository": "https://github.com/python-attrs/cattrs",
+      "commit": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+      "status": "reproduced",
+      "expected": "reproduced",
+      "attempts": 1,
+      "preflight": "review",
+      "runnerImageId": "sha256:d61dffe773371cea8e63007be92fa69a6dc95a4a70df9c9619228f5da034426e",
+      "dependencySteps": [
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --group test",
+          "exitCode": 0
+        },
+        {
+          "command": "python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .",
+          "exitCode": 0
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 -m pytest test_independent_factory.py -q",
+          "exitCode": 0,
+          "warning": "Existing project typing_checkers option was not recognized in this Python 3.12 test environment."
+        }
+      ],
+      "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+      "inventory": {
+        "bundledTools": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.0.2",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "effectiveToolDistributions": {
+          "hatch-vcs": "0.4.0",
+          "hatchling": "1.27.0",
+          "pip": "25.1.1",
+          "pytest": "9.1.1",
+          "setuptools": "80.9.0",
+          "wheel": "0.45.1"
+        },
+        "python": "3.12.3",
+        "targetDependencies": [
+          [
+            "Pygments",
+            "2.21.0"
+          ],
+          [
+            "attrs",
+            "26.1.0"
+          ],
+          [
+            "cattrs",
+            "0.1.dev1"
+          ],
+          [
+            "coverage",
+            "7.16.2"
+          ],
+          [
+            "execnet",
+            "2.1.2"
+          ],
+          [
+            "hypothesis",
+            "6.170.1"
+          ],
+          [
+            "immutables",
+            "0.21"
+          ],
+          [
+            "iniconfig",
+            "2.3.1"
+          ],
+          [
+            "packaging",
+            "26.3"
+          ],
+          [
+            "pluggy",
+            "1.7.0"
+          ],
+          [
+            "py-cpuinfo2",
+            "10.1.1"
+          ],
+          [
+            "pytest",
+            "9.1.1"
+          ],
+          [
+            "pytest-benchmark",
+            "5.3.0"
+          ],
+          [
+            "pytest-xdist",
+            "3.8.0"
+          ],
+          [
+            "sortedcontainers",
+            "2.4.0"
+          ],
+          [
+            "typing_extensions",
+            "4.16.0"
+          ]
+        ],
+        "truncated": false
+      },
+      "artifacts": [
+        {
+          "path": "51e35952-2c28-449b-9d6c-0a7f70c1cf19/50a284e3a94e7269/attempt-1/dependencies/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "51e35952-2c28-449b-9d6c-0a7f70c1cf19/50a284e3a94e7269/attempt-1/dependencies/result.json",
+          "sha256": "0de2ef93078e6914791bf251238645d3e460772aa2ffed1e0e2bb56a68ac20fb",
+          "size": 10274
+        },
+        {
+          "path": "51e35952-2c28-449b-9d6c-0a7f70c1cf19/50a284e3a94e7269/attempt-1/execution/dependencies.json",
+          "sha256": "159e34832b2a4e9142070fe9b2b01adc219ea8825071df5151613a4c7d3aca78",
+          "size": 1190
+        },
+        {
+          "path": "51e35952-2c28-449b-9d6c-0a7f70c1cf19/50a284e3a94e7269/attempt-1/execution/result.json",
+          "sha256": "5a37e05c29a666dc0509e5545e57fa916d0742831e13ee776be8bc5212fcd1b2",
+          "size": 2028
+        }
+      ]
+    }
+  ],
+  "reviewNotes": [
+    "h11 generic production fix passed the independent checks, but its CSS requirement predicts add_stylesheet as the first error while unchanged setup calls add_javascript first; that native two-requirement plan was not confirmed.",
+    "Both boltons variants requested a maintainer decision and made no production patch; a local reply draft is not an upstream post.",
+    "Initial cattrs comparison was affected by eager source-cache loading; its results remain diagnostic. The unchanged-goal lazy replay still did not deliver a runnable verified workflow, and RepoCare encountered GitHub 403 while fetching pinned PR files.",
+    "cattrs declared dependencies and independent PR behavior were verified in separately reviewed operator plans. They are not successful executions of either native Agent plan.",
+    "No complete Sphinx build, full cattrs suite, blind generalization result, maintainer adoption or general-model superiority is established.",
+    "Project dependencies remain live-resolved from declarations; recorded distribution versions are not wheel content locks."
+  ],
+  "availability": "Only sanitized summaries and hashes are public. Canonical snapshots, model checkpoints, complete logs, independent check bodies and SQLite remain in ignored local data.",
+  "exclusionAudit": {
+    "checkedAt": "2026-10-17T07:55:46.413Z",
+    "url": "https://raw.githubusercontent.com/more-itertools/more-itertools/master/more_itertools/more.py",
+    "bytes": 175454,
+    "sha256": "1bdc5f323ea18906436a42268b942d5b4d15ac8b3ff17c1211a59fb192fa068e",
+    "limits": {
+      "readerBytes": 120000,
+      "planFileCharacters": 20000
+    },
+    "observation": "This observed module exceeds current reader/plan support. The reference is mutable and is only an exclusion audit, not a model input."
+  }
+}

@@ -15,6 +15,7 @@ const started = Date.now();
 const output = { phase, stdout: '', stderr: '', console: [], network: [], steps: [], reproduced: false, summary: '', failureKind: undefined, environment: {} };
 let workdir = workspace;
 const background = [];
+let dependencyInventory = {};
 const totalSteps = plan.setup.length + plan.steps.length;
 async function writeProgress(currentStep, currentStepLabel) {
   await writeFile(`${artifacts}/progress.json`, JSON.stringify({ phase, currentStep, totalSteps, currentStepLabel, updatedAt: new Date().toISOString() }), 'utf8').catch(() => {});
@@ -135,10 +136,11 @@ function observedOracle() {
 }
 
 function environmentSnapshot() {
-  const python = spawnSync('python3', ['-I', '-c', 'import sys,json,importlib.metadata as m; print(json.dumps({"python":sys.version.split()[0],"dependencies":sorted((d.metadata.get("Name",""),d.version) for d in m.distributions(path=[sys.argv[1]]))},sort_keys=True))', resolve(workdir, '.repocare-python')], { encoding: 'utf8', timeout: 10000, maxBuffer: 500000 });
+  const python = spawnSync('python3', ['-I', '/opt/repocare/dependency-snapshot.py', resolve(workdir, '.repocare-python')], { encoding: 'utf8', timeout: 10000, maxBuffer: 500000, cwd: '/tmp' });
   if (python.status !== 0) return { node: process.versions.node, platform: process.platform, dependencies: 'unavailable' };
   const value = JSON.parse(python.stdout);
-  return { node: process.versions.node, platform: process.platform, python: value.python, dependencies: createHash('sha256').update(JSON.stringify(value.dependencies)).digest('hex') };
+  dependencyInventory = value;
+  return { node: process.versions.node, platform: process.platform, python: value.python, pytestDistribution: value.effectiveToolDistributions.pytest, dependencies: createHash('sha256').update(JSON.stringify(value)).digest('hex') };
 }
 
 try {
@@ -199,5 +201,6 @@ try {
   await writeFile(`${artifacts}/console.json`, JSON.stringify(output.console, null, 2), 'utf8');
   await writeFile(`${artifacts}/network.json`, JSON.stringify(output.network, null, 2), 'utf8');
   await writeFile(`${artifacts}/result.json`, JSON.stringify(output, null, 2), 'utf8');
+  await writeFile(`${artifacts}/dependencies.json`, JSON.stringify(dependencyInventory, null, 2), 'utf8');
 }
 process.exitCode = output.error ? 2 : 0;

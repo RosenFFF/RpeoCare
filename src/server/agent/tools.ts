@@ -59,7 +59,7 @@ export async function maintenanceTools(reader: RepositoryReader, readOnly=false)
         defineTool({ name: 'list_files', label: '浏览提交目录', description: '列出固定提交中的源码路径，每页80项。prefix为空或省略时从根目录浏览。截断不代表文件不存在。', parameters: Type.Object({ prefix: Type.Optional(Type.String({ maxLength: 400 })), offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 15000 })) }), async execute(_id, p) { const tree = await reader.tree(), entries = tree.tree.filter(f => f.path.startsWith(p.prefix || '')), offset = p.offset || 0; return result({ files: entries.slice(offset, offset + 80), truncated: tree.truncated, nextOffset: offset + 80 < entries.length ? offset + 80 : null, commitSha: task.commitSha }); } }),
         defineTool({ name: 'read_verification_environment', label: '读取验证环境边界', description: '读取内置执行器的声明与限制；不启动Docker，不探测或承诺当前镜像中的依赖已安装。', parameters: Type.Object({}), async execute() {
             return result({ scope: 'bundled-runner-contract', observed: false, language: 'Python', framework: 'pytest', moduleSearchPaths: ['<workspace>/src', '<workspace>', '<workspace>/.repocare-python'],
-                bundledImageDeclares: ['python3', 'pytest', 'pip', 'setuptools', 'wheel'], unknown: ['当前Docker是否可用', '当前镜像实际Python与pytest版本', '项目额外依赖、构建后端和生成版本元数据是否齐备'],
+                bundledImageDeclares: ['Python 3.12', 'pytest 9.0.2', 'pip 25.1.1', 'setuptools', 'wheel', 'hatchling', 'hatch-vcs'], unknown: ['当前Docker是否可用', '当前镜像实际Python与pytest版本', '项目额外依赖、构建后端和生成版本元数据是否齐备'],
                 limits: { patchFiles: 4, patchVersions: 3, executionNetwork: 'none', automaticExecution: false },
                 guidance: 'src布局会加入PYTHONPATH，无需只为导入src而安装项目。读取实际依赖与测试入口；全套件与窄范围测试分别记录。缺失包不能算缺陷复现，未运行不能算真实缺口已确认。' });
         } }),

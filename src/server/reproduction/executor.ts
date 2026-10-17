@@ -42,15 +42,23 @@ async function ensureDocker() {
   return { docker: version.stdout.trim(), runnerImageId: imageId };
 }
 
-async function prepareSource(job: ReproductionJob, workspace: string, branch?: string) {
+export function sourceCloneArguments(job: ReproductionJob, workspace: string) {
+  const repository = parseRepositoryUrl(job.repoUrl);
+  const safeUrl = `https://github.com/${repository.owner}/${repository.name}.git`;
+  const branch = job.branch;
+  const args = ['clone', '--depth', '1', '--single-branch'];
+  // PR head branches can exist only in forks. Fetch the pinned base commit for
+  // those jobs; retain explicit issue tags for build backends using Git tags.
+  if (!job.verification?.headSha && job.purpose !== 'environment-preflight' && branch && /^[A-Za-z0-9._/-]{1,200}$/.test(branch) && !branch.startsWith('-') && !branch.includes('..')) args.push('--branch', branch);
+  args.push('--', safeUrl, workspace);
+  return args;
+}
+
+async function prepareSource(job: ReproductionJob, workspace: string) {
   assertScratchPath(workspace);
   await rm(workspace, { recursive: true, force: true });
   await mkdir(dirname(workspace), { recursive: true });
-  const repository = parseRepositoryUrl(job.repoUrl);
-  const safeUrl = `https://github.com/${repository.owner}/${repository.name}.git`;
-  const args = ['clone', '--depth', '1', '--single-branch'];
-  if (branch && /^[A-Za-z0-9._/-]{1,200}$/.test(branch) && !branch.startsWith('-') && !branch.includes('..')) args.push('--branch', branch);
-  args.push('--', safeUrl, workspace);
+  const args = sourceCloneArguments(job, workspace);
   const cloned = await run('git', ['-c', 'core.longpaths=true', ...args], { timeout: 90_000 });
   if (cloned.code !== 0) throw new Error(`无法准备仓库快照：${cloned.stderr.slice(-500)}`);
   const revision = await run('git', ['-C', workspace, 'rev-parse', 'HEAD'], { timeout: 15_000 });
@@ -189,7 +197,7 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
   try {
     const docker = await ensureDocker();
     job = save({ phase: 'source', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '正在获取仓库并锁定提交版本', progress: '正在获取仓库并锁定提交版本', environment: { ...docker, runnerImage: image(), network: requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK === 'true' ? 'dependency preparation only; execution disabled' : 'disabled', isolation: 'read-only rootfs, no capabilities, resource limits' } });
-    const source = await prepareSource(job, workspace, job.branch);
+    const source = await prepareSource(job, workspace);
     await writeFile(resolve(jobDir, 'source.log'), source.log, 'utf8');
     if (job.purpose === 'environment-preflight') {
       const directory = resolve(jobDir, 'preflight');

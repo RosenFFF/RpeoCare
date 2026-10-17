@@ -17,8 +17,9 @@ export function commandTokens(command) {
       if (!prefix.every((value, index) => args[index] === value)) throw new Error('Python 安装需使用 --target .repocare-python --no-compile。');
       const tail = args.slice(prefix.length);
       const requirements = tail.length === 2 && tail[0] === '-r' && /^(?:requirements(?:[-.](?:dev|test))?\.txt)$/.test(tail[1]);
-      const project = tail.length === 2 && tail[0] === '--no-build-isolation' && tail[1] === '.';
-      if (!requirements && !project) throw new Error('Python 仅支持仓库根目录 requirements 文件或 --no-build-isolation .。');
+      const project = tail.length === 2 && tail[0] === '--no-build-isolation' && /^\.(?:\[[A-Za-z0-9][A-Za-z0-9_-]{0,39}(?:,[A-Za-z0-9][A-Za-z0-9_-]{0,39}){0,2}\])?$/.test(tail[1]);
+      const group = tail.length === 2 && tail[0] === '--group' && /^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$/.test(tail[1]);
+      if (!requirements && !project && !group) throw new Error('Python 仅支持根目录 requirements、根项目及已声明扩展，或单个根目录依赖组。');
     }
   }
   return parts;
