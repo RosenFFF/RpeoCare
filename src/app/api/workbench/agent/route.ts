@@ -8,7 +8,7 @@ import { getBranchCommit, getItem, getPullRequestReviewContext } from '@/server/
 import type { MaintenanceTask } from '@/contracts/agent';
 import { activePolicy } from '@/server/workbench/policy';
 import { verificationSourceFingerprint, verificationHash } from '@/server/workbench/maintenance-verification';
-import { assessVerification } from '@/shared/lib/maintenance-verification';
+import { assessVerification, verificationCoverage } from '@/shared/lib/maintenance-verification';
 export const runtime = 'nodejs';
 const id = z.string().uuid();
 const actions = z.discriminatedUnion('action', [
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         if (exported) {
             const artifact = task?.artifacts.find(artifact => artifact.id === exported && artifact.verification);
             if (!task || !artifact?.verification) throw new Error('需求对照记录不存在。');
-            const report = { schemaVersion: 1, exportedAt: new Date().toISOString(), repository: task.repoUrl, taskId: task.id, kind: task.kind, number: task.number, context: artifact.verification, assessment: assessVerification(artifact.verification, jobs, artifact.verificationStale), jobs: jobs.filter(job => artifact.jobIds?.includes(job.id)), freshness: '结论属于记录的固定版本；导出不自动查询 GitHub 最新提交。' };
+            const report = { schemaVersion: 1, exportedAt: new Date().toISOString(), repository: task.repoUrl, taskId: task.id, kind: task.kind, number: task.number, context: artifact.verification, assessment: assessVerification(artifact.verification, jobs, artifact.verificationStale), coverage: verificationCoverage(artifact.verification, jobs, artifact.verificationStale), jobs: jobs.filter(job => artifact.jobIds?.includes(job.id)), freshness: '结论属于记录的固定版本；导出不自动查询 GitHub 最新提交。' };
             return new Response(JSON.stringify(report, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': `attachment; filename="repocare-verification-${task.id.slice(0, 8)}.json"`, 'cache-control': 'no-store' } });
         }
         const tasks = scoped?[]:listTasks(owner, project.repoUrl, project.branch).map(task => ({ ...task, evidence: [], events: [], dialogue: [], artifacts: [], report: undefined }));

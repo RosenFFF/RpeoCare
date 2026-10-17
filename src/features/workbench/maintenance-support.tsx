@@ -1,13 +1,12 @@
 'use client';
-import Link from 'next/link';
-import {useEffect,useState} from 'react';
-import {ArrowRight,ChevronRight,Download,ExternalLink,FileCode2,LoaderCircle,Search,Square} from 'lucide-react';
-import type {AgentArtifact,AgentWorkspaceData,MaintenanceTask,MaintenanceKind} from '@/contracts/agent';
-import type {ReproductionJob,ReproductionStep} from '@/contracts/workbench';
+import {useEffect,useRef,useState} from 'react';
+import {ArrowRight,ExternalLink,LoaderCircle,Search,Square} from 'lucide-react';
+import type {AgentWorkspaceData,MaintenanceTask,MaintenanceKind} from '@/contracts/agent';
+import type {ReproductionJob} from '@/contracts/workbench';
 import type {InvestigationTrace} from '@/contracts/investigation';
 import {api,changed,useWorkbench} from './client';
-import {MaintenanceVerification} from './maintenance-verification';
-import {executionFailureLabels} from '@/shared/lib/maintenance-verification';
+import {EvidenceLinks,MaintenanceArtifact as Artifact} from './maintenance-artifacts';
+import {MaintenanceTaskWorkspace} from './maintenance-task-workspace';
 import './maintenance-support.css';
 
 export function SourceEvidence({trace}:{trace?:InvestigationTrace}){
@@ -22,6 +21,7 @@ export function MaintenanceSupport(props:SupportProps){
 }
 function ContextSupport({project,...props}:SupportProps&{project:{repoUrl:string;branch?:string}}){
   const [data,setData]=useState<AgentWorkspaceData|null>(null),[error,setError]=useState(''),[loadError,setLoadError]=useState(''),[busy,setBusy]=useState(false),[revision,setRevision]=useState(0),[message,setMessage]=useState('');
+  const actionLock=useRef(false);
   useEffect(()=>{const controller=new AbortController();let timer:ReturnType<typeof setTimeout>;
     const refresh=async()=>{let delay=8000;try{const query=new URLSearchParams({repoUrl:project.repoUrl,branch:project.branch||'',kind:props.kind,...(props.number?{number:String(props.number)}:{}),...(props.anchor?{anchor:props.anchor}:{})});const response=await fetch(`/api/workbench/agent?${query}`,{cache:'no-store',signal:controller.signal});const body=await response.json();if(!response.ok)throw new Error(body.error||'处理依据暂时无法读取。');if(!controller.signal.aborted){setData(body);setLoadError('');if(body.task&&['queued','running'].includes(body.task.status)||body.jobs?.some((j:ReproductionJob)=>['queued','running'].includes(j.status)))delay=2500;}}catch(cause){if(!controller.signal.aborted)setLoadError(cause instanceof Error?cause.message:'读取失败。');}finally{if(!controller.signal.aborted)timer=setTimeout(refresh,delay);}};void refresh();return()=>{controller.abort();clearTimeout(timer);};
   },[props.kind,props.number,props.anchor,project.repoUrl,project.branch,revision]);
@@ -29,8 +29,9 @@ function ContextSupport({project,...props}:SupportProps&{project:{repoUrl:string
   const unavailable=busy||!!props.disabled;
   const active=!!task&&['queued','running'].includes(task.status);
   const stale=!!task&&!!((props.sourceUpdatedAt&&task.sourceUpdatedAt&&props.sourceUpdatedAt!==task.sourceUpdatedAt)||(props.sourceCommitSha&&task.commitSha&&props.sourceCommitSha!==task.commitSha));
-  async function action(body:unknown){setBusy(true);setError('');try{await api('/api/workbench/agent',body);setRevision(v=>v+1);changed();return true;}catch(cause){setError(cause instanceof Error?cause.message:'操作未完成。');return false;}finally{setBusy(false);}}
+  async function action(body:unknown){if(actionLock.current)return false;actionLock.current=true;setBusy(true);setError('');try{await api('/api/workbench/agent',body);setRevision(v=>v+1);changed();return true;}catch(cause){setError(cause instanceof Error?cause.message:'操作未完成。');return false;}finally{actionLock.current=false;setBusy(false);}}
   const start=()=>action({action:'create',repoUrl:project.repoUrl,branch:project.branch,kind:props.kind,number:props.number,anchor:props.anchor,sourceCommitSha:props.sourceCommitSha,goal:props.goal});
+  if(props.kind==='issue'||props.kind==='pr')return <MaintenanceTaskWorkspace title={props.title} actionLabel={props.actionLabel} data={data} error={error||loadError} busy={unavailable} stale={stale} onStart={start} onAction={action} onRefresh={()=>setRevision(value=>value+1)}/>;
   return <section className="maintenance-support ma-workspace" aria-label={props.title}>
     <div className="maintenance-support-heading"><div><Search size={16}/><h3>{props.title}</h3>{active&&<span role="status"><LoaderCircle size={12} className="ma-spin"/>正在核对相关实现</span>}</div>{!task||stale&&!active?<button type="button" className="button button-secondary" disabled={unavailable||!data?.workerOnline} onClick={start}>{props.actionLabel}<ArrowRight size={13}/></button>:active?<button type="button" disabled={unavailable} onClick={()=>action({action:'cancel',id:task.id})}><Square size={11}/>停止核对</button>:<button type="button" className="button button-secondary" disabled={unavailable||!data?.workerOnline} onClick={()=>action({action:'resume',id:task.id})}>继续处理<ArrowRight size={13}/></button>}</div>
     {!task&&<p className="maintenance-support-intro">围绕当前内容查阅相关实现，准备有依据的后续方案。点击后会调用已配置的模型。</p>}
@@ -49,38 +50,4 @@ function ContextSupport({project,...props}:SupportProps&{project:{repoUrl:string
       {!stale&&<details className="maintenance-supplement" open={task.status==='waiting-input'}><summary>补充线索或调整处理方向</summary><form onSubmit={async e=>{e.preventDefault();if(await action({action:'message',id:task.id,content:message}))setMessage('');}}><textarea aria-label="补充当前问题的线索" required maxLength={4000} value={message} onChange={e=>setMessage(e.target.value)} placeholder="例如：实际运行环境、补充步骤，或需要进一步核对的实现…"/><button className="button button-secondary" type="submit" disabled={unavailable||!message.trim()||!data?.workerOnline}>补充并继续</button></form></details>}
     </>}
   </section>;
-}
-function EvidenceLinks({task,ids}:{task:MaintenanceTask;ids:string[]}){return <div className="ma-refs">{ids.map(id=><a key={id} href={`#maintenance-${task.id}-${id}`} onClick={()=>{const element=document.getElementById(`maintenance-${task.id}-${id}`);if(element instanceof HTMLDetailsElement){element.open=true;let parent=element.parentElement;while(parent){if(parent instanceof HTMLDetailsElement)parent.open=true;parent=parent.parentElement;}}}}>{task.evidence.find(e=>e.id===id)?.label||id}<ChevronRight size={11}/></a>)}</div>;}
-type ArtifactProps={artifact:AgentArtifact;task:MaintenanceTask;data:AgentWorkspaceData;busy:boolean;stale?:boolean;action:(body:unknown)=>Promise<boolean>};
-function Artifact(props:ArtifactProps){return props.artifact.superseded?<details className="ma-history"><summary>历史方案 · {props.artifact.title} · 第 {props.artifact.revision||1} 版</summary><ArtifactBody {...props}/></details>:<ArtifactBody {...props}/>;}
-function ArtifactBody({artifact,task,data,busy,action,stale}:ArtifactProps){
-  const download=()=>{const url=URL.createObjectURL(new Blob([artifact.diff||''],{type:'text/x-diff;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=`repocare-${task.id.slice(0,8)}.patch`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-  return <article className="ma-artifact"><div className="ma-artifact-heading"><FileCode2 size={18}/><h4>{artifact.title} <small>第 {artifact.revision||1} 版{artifact.superseded?' · 历史方案':''}</small></h4>{artifact.draftId&&<Link href={`/improvements?draft=${artifact.draftId}`}>审阅草稿<ArrowRight size={13}/></Link>}{artifact.diff&&<button type="button" onClick={download}><Download size={13}/>下载补丁</button>}</div><EvidenceLinks task={task} ids={artifact.evidenceIds}/>{artifact.diff&&<details><summary>查看 {artifact.files?.length} 个文件的差异 <small>基于 {(artifact.baseSha||task.commitSha)?.slice(0,10)}</small></summary><pre tabIndex={0} className="ma-diff">{artifact.diff.split('\n').map((line,i)=><span key={i} className={line.startsWith('+')?'is-add':line.startsWith('-')?'is-remove':''}>{line}{'\n'}</span>)}</pre><p>补丁尚未应用或提交。下载后可在对应提交的本地分支审阅。</p></details>}{artifact.kind==='verification'&&<MaintenanceVerification artifact={artifact} task={task} jobs={data.jobs} stale={stale||artifact.superseded} busy={busy||!data.workerOnline||['queued','running','cancelled'].includes(task.status)} onInvestigate={content=>{void action({action:'message',id:task.id,content});}}/>} {artifact.jobIds?.map((id,index)=>{const job=data.jobs.find(j=>j.id===id);return job?<ExecutionPlan key={id} task={task} job={job} historical={artifact.superseded||artifact.verificationStale} label={artifact.kind==='verification'?(index===0?'原始版本':'应用补丁后'):'复现计划'} data={data} busy={busy} action={action}/>:<p key={id}>执行记录暂不可用</p>;})}</article>;
-}
-function PlanSteps({steps}:{steps:ReproductionStep[]}){
-  return <ol className="ma-plan-steps">{steps.map((step,index)=><li key={index}><span>{index+1}</span><div><strong>{step.command||step.path||step.target||step.type}</strong>{step.background&&<small>后台服务</small>}{step.expected&&<p>{step.expected}</p>}{step.type==='create-file'&&<details><summary>查看要写入沙箱的文件内容</summary><pre tabIndex={0}>{step.content}</pre></details>}{step.value&&<p>输入 / 期望值：{step.value}</p>}{step.method&&<p>{step.method} {step.body}</p>}</div></li>)}</ol>;
-}
-function ExecutionPlan({task,job,label,data,busy,action,historical}:{task:MaintenanceTask;job:ReproductionJob;label:string;data:AgentWorkspaceData;busy:boolean;action:(body:unknown)=>Promise<boolean>;historical?:boolean}){
-  const [confirmed,setConfirmed]=useState(false);
-  const [requirementIds,setRequirementIds]=useState<string[]>([]);
-  const reviewed=!job.verification||job.verification.requirements.every(requirement=>requirementIds.includes(requirement.id));
-  const waiting=job.status==='awaiting-confirmation';
-  const status=waiting?'待确认':job.status==='reproduced'?job.plan.oracle.type==='all-steps-pass'?'计划内命令通过':'命中复现判据':job.status==='not-reproduced'?'未命中判据':({queued:'排队中',running:'执行中',blocked:'环境阻塞',failed:'执行失败',unsafe:'计划被阻止',cancelled:'已取消',draft:'准备中'} as Record<string,string>)[job.status]||job.status;
-  return <div className="ma-execution">
-    <div><strong>{label}</strong><span>{status}</span></div><p>{job.progress||job.plan.summary}</p>
-    {job.failureKind&&<p className="ma-notice">{executionFailureLabels[job.failureKind]}。请结合本次阶段与日志核对，不将环境失败作为目标故障。</p>}
-    <details><summary>审阅完整计划、环境与风险</summary><p>{job.plan.summary}</p><p>固定提交 <code>{job.commitSha}</code> · 分支 {job.branch} · 独立执行 {job.totalAttempts||3} 次</p>
-      <dl className="ma-plan-environment"><dt>环境</dt><dd>{[job.plan.environment.language,job.plan.environment.version,job.plan.environment.os].filter(Boolean).join(' · ')||'未指定'}</dd><dt>依赖</dt><dd>{job.plan.environment.dependencies.join('、')||'未列出额外依赖'}</dd><dt>机器判据</dt><dd><code>{job.plan.oracle.type}: {job.plan.oracle.value}</code></dd><dt>期望</dt><dd>{job.plan.expected}</dd></dl>
-      {job.plan.setup.length>0&&<><h5>准备步骤</h5><PlanSteps steps={job.plan.setup}/></>}<h5>验证步骤</h5><PlanSteps steps={job.plan.steps}/>
-      {job.plan.risks.length>0&&<div className="ma-plan-risks"><h5>需要注意</h5><ul>{job.plan.risks.map((risk,i)=><li key={i}>{risk}</li>)}</ul></div>}
-      {job.plan.missingInformation.length>0&&<><h5>缺失信息</h5><ul>{job.plan.missingInformation.map((item,i)=><li key={i}>{item}</li>)}</ul></>}
-      <details><summary>查看计划原始数据</summary><pre tabIndex={0}>{JSON.stringify(job.plan,null,2)}</pre></details>
-    </details>
-    {job.dependencySteps?.length ? <details><summary>依赖准备的实际结果</summary><pre tabIndex={0}>{JSON.stringify(job.dependencySteps,null,2)}</pre></details> : null}
-    {waiting&&job.verification&&<fieldset className="ma-requirement-confirm"><legend>逐条核对需求与故障判据</legend>{job.verification.requirements.map(requirement=><label key={requirement.id}><input type="checkbox" checked={requirementIds.includes(requirement.id)} onChange={event=>setRequirementIds(current=>event.target.checked?[...current,requirement.id]:current.filter(id=>id!==requirement.id))}/><span>{requirement.text}<small>原文：{requirement.quote}</small><small>测试：{requirement.command}</small><small>原版预期断言：{requirement.failureSignal}</small></span></label>)}<p>已核对本页补丁 Diff 及两组共同使用的测试内容；同意以这些要求和信号判读本次结果。</p></fieldset>}
-    {job.attemptHistory?.length>0&&<details><summary>执行结果与尝试记录</summary><pre tabIndex={0}>{JSON.stringify({status:job.status,attempts:job.attemptHistory,steps:job.verificationSteps},null,2)}</pre></details>}
-    {job.artifacts.length>0&&<div className="ma-artifact-downloads">{job.artifacts.map(artifact=><a key={artifact.id} href={`/api/workbench/reproduction/artifacts/${artifact.id}?job=${job.id}`} title={`SHA-256 ${artifact.sha256}`}><Download size={12}/>{artifact.kind}<small>{Math.max(1,Math.round(artifact.size/1024))}KB</small></a>)}</div>}
-    {waiting&&<><label className="ma-confirm"><input type="checkbox" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>我已审阅此计划，同意在隔离环境执行仓库代码</label><button type="button" className="button button-secondary" disabled={busy||historical||!confirmed||!reviewed||!data.sandboxConfigured||!data.reproductionWorkerOnline||!!job.plan.missingInformation.length||task.status==='cancelled'} onClick={()=>action({action:'confirm',id:task.id,jobId:job.id,confirmed:true,...(job.verification?{review:{fingerprint:job.verification.fingerprint,requirementIds}}:{})})}>确认执行此计划<ArrowRight size={14}/></button>{(!data.sandboxConfigured||!data.reproductionWorkerOnline)&&<small className="ma-execution-note">需要启用 Docker 沙箱并启动复现 Worker。</small>}{job.plan.missingInformation.length>0&&<p className="ma-notice">计划仍有缺失信息，请补充后重新核对方案。</p>}</>}
-    {!waiting&&!['queued','running'].includes(job.status)&&<button type="button" className="button button-secondary" disabled={busy||!data.workerOnline} onClick={()=>action({action:'message',id:task.id,content:`请用 read_execution 读取执行记录 ${job.id}，根据实际结果继续调查。不要把命令通过等同于全部问题已修复。`})}>读取结果并继续<ArrowRight size={14}/></button>}
-  </div>;
 }

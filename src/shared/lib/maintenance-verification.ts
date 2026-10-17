@@ -6,6 +6,38 @@ export const requirementOutcomeLabels: Record<RequirementOutcome, string> = {
 };
 export const executionFailureLabels = { source: '快照准备失败', sandbox: '沙箱未就绪', dependencies: '依赖准备或导入失败', collection: '测试收集或调用失败', assertion: '测试断言失败', setup: '准备步骤失败', timeout: '执行超时', unknown: '原因未确定' };
 
+export type RegressionState = 'passed' | 'failed' | 'pending' | 'blocked' | 'unknown' | 'not-planned' | 'stale';
+/** Extra regression coverage needs complete, reviewed records from both versions. */
+export function verificationCoverage(context: VerificationContext, jobs: ReproductionJob[], stale = false) {
+  const commands = [...new Set(context.regressionCommands || [])];
+  const pair = ['baseline', 'patched'].map(role => jobs.find(job => job.verificationRole === role && job.verification?.pairId === context.pairId));
+  const recordsValid = pair.every(job => job && job.verification?.fingerprint === context.fingerprint && job.commitSha === context.baseSha);
+  const reviewed = pair.every(job => job?.verification?.confirmedAt && context.requirements.every(requirement => job.verification?.confirmedRequirementIds?.includes(requirement.id)));
+  const complete = pair.every(job => job && !!job.totalAttempts && job.attemptHistory.length === job.totalAttempts);
+  const environments = new Set(pair.flatMap(job => job?.attemptHistory.map(attempt => attempt.environmentFingerprint) || []));
+  const results = commands.map(command => {
+    let state: RegressionState;
+    const steps = pair.flatMap(job => job?.attemptHistory.map(attempt => attempt.steps?.find(step => step.phase === 'verify' && step.command === command)) || []);
+    if (stale) state = 'stale';
+    else if (!recordsValid) state = 'unknown';
+    else if (pair.some(job => job && ['awaiting-confirmation', 'queued', 'running'].includes(job.status))) state = 'pending';
+    else if (!reviewed) state = 'unknown';
+    else if (pair.some(job => job?.status === 'blocked')) state = 'blocked';
+    else if (!complete || environments.size !== 1 || environments.has(undefined) || pair.some(job => job && ['failed', 'unsafe', 'cancelled'].includes(job.status))) state = 'unknown';
+    else if (steps.some(step => step?.code !== undefined && step.code !== 0)) state = 'failed';
+    else if (!steps.length || steps.some(step => !step || step.code !== 0 || !step.ok)) state = 'unknown';
+    else state = 'passed';
+    return { command, state };
+  });
+  const order: RegressionState[] = ['stale', 'blocked', 'failed', 'pending', 'unknown', 'passed'];
+  const state: RegressionState = stale ? 'stale' : results.length ? order.find(state => results.some(result => result.state === state)) || 'unknown' : 'not-planned';
+  const labels: Record<RegressionState, string> = { passed: '两版回归通过', failed: '回归存在失败', pending: '回归等待执行', blocked: '回归环境受阻', unknown: '回归依据不足', 'not-planned': '未安排额外回归', stale: '回归记录已过期' };
+  return { state, label: labels[state], passed: results.filter(result => result.state === 'passed').length, total: commands.length, results,
+    detail: state === 'passed' ? '两版全部尝试中的额外回归命令均通过，仅覆盖所列命令。' : state === 'not-planned' ? '目前只检查目标要求，其他行为尚未由额外命令验证。' : '核对两版逐次记录后再判断其他行为是否受影响。',
+    testSource: context.sharedTestPaths.length ? '候选测试共享到两版' : '复用仓库现有测试',
+    independent: '未记录独立验收来源', independentDetail: '当前记录没有独立验收测试的来源标记，不能推断已由独立测试验证。' };
+}
+
 /** Derive the next investigation from saved evidence; this never queues execution or calls a model. */
 export function verificationNextAction(context: VerificationContext, jobs: ReproductionJob[], stale = false) {
   const assessment = assessVerification(context, jobs, stale);

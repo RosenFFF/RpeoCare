@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import type { AgentArtifact, MaintenanceTask } from '../../src/contracts/agent';
 import type { GitItem, ReproductionJob, ReproductionPlan } from '../../src/contracts/workbench';
 import { maintenanceTestPlan, prepareMaintenanceVerification } from '../../src/server/workbench/maintenance-verification';
-import { assessVerification, verificationNextAction } from '../../src/shared/lib/maintenance-verification';
+import { assessVerification, verificationCoverage, verificationNextAction } from '../../src/shared/lib/maintenance-verification';
 import { commandTokens, dependencyCommand } from '../../reproduction/commands.mjs';
 import { maintenanceProgressHint } from '../../src/shared/lib/maintenance-progress';
 
@@ -100,4 +100,31 @@ test('shortcut plan keeps normal regressions separate from defect requirements a
   assert.equal(result.baseline.setup.length, 1); assert.equal(result.baseline.requiresHumanApproval, true);
   assert.throws(() => maintenanceTestPlan({ requirements, setupCommands: ['python3 -m pip install pytest'] }), /安装/);
   assert.throws(() => maintenanceTestPlan({ requirements, regressionCommands: ['python3 -m pytest; whoami'] }), /shell/);
+});
+
+test('regression coverage requires both versions and every attempt, independently of target improvement', () => {
+  const p = pair();
+  assert.equal(verificationCoverage(p.context, p.jobs).state, 'not-planned');
+  const regression = 'python3 -m pytest tests/test_value.py::test_normal -q';
+  p.context.regressionCommands = [regression];
+  for (const job of p.jobs) for (const attempt of job.attemptHistory) attempt.steps!.push({ phase: 'verify', type: 'run-test', command: regression, code: 0, ok: true });
+  const coverage = verificationCoverage(p.context, p.jobs);
+  assert.equal(coverage.state, 'passed'); assert.equal(coverage.passed, 1);
+  assert.match(coverage.independent, /未记录/);
+  p.jobs[0].attemptHistory[1].steps!.at(-1)!.code = 1;
+  assert.equal(verificationCoverage(p.context, p.jobs).state, 'failed');
+  p.jobs[0].attemptHistory[1].steps!.pop();
+  assert.equal(verificationCoverage(p.context, p.jobs).state, 'unknown');
+  assert.equal(verificationCoverage(p.context, p.jobs, true).state, 'stale');
+});
+
+test('regression coverage never treats pending, unreviewed or mismatched records as passed', () => {
+  const p = pair(); p.context.regressionCommands = ['python3 -m pytest tests -q'];
+  p.jobs[1].status = 'running'; assert.equal(verificationCoverage(p.context, p.jobs).state, 'pending');
+  p.jobs[1].status = 'blocked'; assert.equal(verificationCoverage(p.context, p.jobs).state, 'blocked');
+  p.jobs[1].status = 'reproduced'; p.jobs[0].verification!.confirmedRequirementIds = [];
+  assert.equal(verificationCoverage(p.context, p.jobs).state, 'unknown');
+  p.jobs[0].verification!.confirmedRequirementIds = p.context.requirements.map(r => r.id);
+  p.jobs[1].verification!.fingerprint = 'different';
+  assert.equal(verificationCoverage(p.context, p.jobs).state, 'unknown');
 });
