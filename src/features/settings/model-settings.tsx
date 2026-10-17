@@ -13,12 +13,21 @@ async function request<T>(url: string, body?: unknown): Promise<T> {
   return value as T;
 }
 const taskLabels: Record<string, string> = { issue: 'Issue 回复', 'issue-triage': 'Issue 分诊', 'issue-triage-repair': '分诊格式修复', 'file-draft': '文档草稿', 'pull-request-review': 'PR 审查' };
+function generatedConnectionName(label: string, modelId: string, peers: ModelConnection[]) {
+  const base = `${label}${modelId.trim() ? ` · ${modelId.trim()}` : ''}`.slice(0, 80).trim();
+  if (!peers.some(item => connectionName(item.name) === connectionName(base))) return base;
+  for (let index = 2; ; index++) {
+    const suffix = ` · ${index}`;
+    const candidate = `${base.slice(0, 80 - suffix.length).trimEnd()}${suffix}`;
+    if (!peers.some(item => connectionName(item.name) === connectionName(candidate))) return candidate;
+  }
+}
 
 export function ModelSettings() {
   const [settings, setSettings] = useState<ModelSettingsResponse | null>(null);
   const [editing, setEditing] = useState<ModelConnection | null>(null), [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<ConnectionInput>(blank), [baseline, setBaseline] = useState('');
-  const [presetId, setPresetId] = useState('custom'), [showKey, setShowKey] = useState(false), [makeDefault, setMakeDefault] = useState(false), [allowDuplicate, setAllowDuplicate] = useState(false);
+  const [presetId, setPresetId] = useState('custom'), [presetChanged, setPresetChanged] = useState(false), [showKey, setShowKey] = useState(false), [makeDefault, setMakeDefault] = useState(false), [allowDuplicate, setAllowDuplicate] = useState(false);
   const [busy, setBusy] = useState(''), [error, setError] = useState(''), [message, setMessage] = useState('');
   const [removeId, setRemoveId] = useState(''), [defaultId, setDefaultId] = useState(''), [testId, setTestId] = useState('');
   const operationLock = useRef(false), headingRef = useRef<HTMLHeadingElement>(null);
@@ -29,6 +38,7 @@ export function ModelSettings() {
   const duplicates = peers.filter(item => draft.modelId.trim() && sameModelTarget(item, draft));
   const duplicateRequiresConfirmation = duplicates.length > 0 && (!editing || !sameModelTarget(editing, draft));
   const officialAddressChanged = preset.id !== 'custom' && endpointIdentity(draft.baseUrl,draft.provider) !== endpointIdentity(preset.baseUrl,preset.provider);
+  const customBaseRequired = preset.id === 'custom' && (!editing || presetChanged);
   const dirty = editorOpen && JSON.stringify(draft) !== baseline;
 
   useEffect(() => { let disposed = false; void request<ModelSettingsResponse>('/api/models').then(value => { if (!disposed) setSettings(value); }).catch(cause => { if (!disposed) setError(cause.message); }); return () => { disposed = true; }; }, []);
@@ -42,13 +52,13 @@ export function ModelSettings() {
   function edit(item: ModelConnection | null) {
     if (operationLock.current || !canSwitch()) return;
     const value: ConnectionInput = item ? { name: item.name, provider: item.provider, protocol: item.protocol, baseUrl: item.baseUrl, modelId: item.modelId, contextWindow: item.contextWindow ?? null, maxTokens: item.maxTokens ?? null, apiKey: '', keyAction: 'keep' } : blank();
-    setEditing(item); setDraft(value); setBaseline(JSON.stringify(value)); setEditorOpen(true); setPresetId(item ? inferredPreset(item) : 'custom');
+    setEditing(item); setDraft(value); setBaseline(JSON.stringify(value)); setEditorOpen(true); setPresetId(item ? inferredPreset(item) : 'custom'); setPresetChanged(false);
     setAllowDuplicate(false); setMakeDefault(false); setShowKey(false); setError(''); setMessage(''); setRemoveId(''); setDefaultId(''); setTestId('');
     setTimeout(() => headingRef.current?.focus(), 30);
   }
   function closeEditor() {
     if (!canSwitch()) return;
-    setEditorOpen(false); setDraft(blank()); setBaseline(''); setEditing(null); setShowKey(false); setAllowDuplicate(false);
+    setEditorOpen(false); setDraft(blank()); setBaseline(''); setEditing(null); setShowKey(false); setAllowDuplicate(false); setPresetChanged(false);
   }
   async function action(name: string, operation: () => Promise<void>) {
     if (operationLock.current) return;
@@ -58,11 +68,12 @@ export function ModelSettings() {
   }
   async function mutate(body: unknown) { const value = await request<ModelSettingsResponse>('/api/models', body); setSettings(value); return value; }
   function field<K extends keyof ConnectionInput>(key: K, value: ConnectionInput[K]) { setDraft(row => ({ ...row, [key]: value })); if (['baseUrl','provider','protocol','modelId'].includes(key)) setAllowDuplicate(false); }
+  function keyAction(value: NonNullable<ConnectionInput['keyAction']>) { setDraft(row => ({ ...row, keyAction: value, apiKey: '' })); setShowKey(false); }
   function choosePreset(id: string) {
     const next = modelPresets.find(item => item.id === id)!;
     if (presetId !== id && (draft.modelId || draft.apiKey || editing?.hasKey) && !window.confirm('切换服务类型将清空本表单的模型 ID，并要求重新填写对应平台密钥；已保存连接不会立即改变。继续？')) return;
-    setPresetId(id); setAllowDuplicate(false); setShowKey(false);
-    setDraft(row => ({ ...row, name: editing ? row.name : next.label, provider: next.provider, protocol: next.protocol, baseUrl: next.baseUrl, modelId: '', apiKey: '', keyAction: next.id === 'ollama' ? 'clear' : 'replace' }));
+    setPresetId(id); setPresetChanged(true); setAllowDuplicate(false); setShowKey(false);
+    setDraft(row => ({ ...row, provider: next.provider, protocol: next.protocol, baseUrl: next.baseUrl, modelId: '', apiKey: '', keyAction: next.id === 'ollama' ? 'clear' : 'replace' }));
   }
   async function save() {
     if (nameConflict) { setError('已有同名连接。请编辑已有项，或使用清晰不同的名称。'); return; }
@@ -70,12 +81,13 @@ export function ModelSettings() {
     if (editing && draft.keyAction === 'keep' && draft.baseUrl.trim().replace(/\/+$/, '') !== editing.baseUrl.trim().replace(/\/+$/, '') && !window.confirm('基础地址已改变，但仍会使用旧密钥。确认这把 Key 属于新地址平台且愿意发送给它？不确定请取消并替换密钥。')) return;
     if (draft.contextWindow != null && draft.maxTokens != null && draft.maxTokens > draft.contextWindow) { setError('最大输出不能大于填写的上下文长度。'); return; }
     const wasNew = !editing;
-    const value = await mutate({ action: 'save', input: draft, ...(editing ? { id: editing.id, revision: editing.revision } : {}), makeDefault, allowDuplicate: duplicateRequiresConfirmation && allowDuplicate });
+    const input = { ...draft, ...(preset.id === 'ollama' && !editing && draft.keyAction === 'replace' && !draft.apiKey?.trim() ? { keyAction: 'clear' as const } : {}), name: draft.name.trim() || generatedConnectionName(preset.label, draft.modelId, peers) };
+    const value = await mutate({ action: 'save', input, ...(editing ? { id: editing.id, revision: editing.revision } : {}), makeDefault, allowDuplicate: duplicateRequiresConfirmation && allowDuplicate });
     const id = value.savedId || editing?.id;
     const saved = value.connections.find(item => item.id === id);
     if (!saved) { setError('已保存但未能定位返回连接，请刷新后检查；不要重复新建。'); return; }
     const next: ConnectionInput = { name: saved.name, provider: saved.provider, protocol: saved.protocol, baseUrl: saved.baseUrl, modelId: saved.modelId, contextWindow: saved.contextWindow ?? null, maxTokens: saved.maxTokens ?? null, apiKey: '', keyAction: 'keep' };
-    setEditing(saved); setDraft(next); setBaseline(JSON.stringify(next)); setShowKey(false); setMakeDefault(false); setAllowDuplicate(false);
+    setEditing(saved); setDraft(next); setBaseline(JSON.stringify(next)); setPresetChanged(false); setShowKey(false); setMakeDefault(false); setAllowDuplicate(false);
     setMessage(`${wasNew ? '已创建连接' : '已更新原连接，没有新增记录'}。${value.defaultId === saved.id ? '它是当前默认连接。' : '默认连接未切换；需要使用它时请选择设为默认。'}保存不会自动测试或调用模型。`);
   }
   return <section className="mc-section" aria-labelledby="ms-heading">
@@ -86,28 +98,36 @@ export function ModelSettings() {
     {!settings && !error && <p role="status">正在读取模型连接…</p>}
     {settings && <>
       <section className="mc-default" aria-label="当前默认模型"><div><span className="mc-caption">之后的 AI 任务实际使用</span><h3>{current ? current.name : settings.environmentConfigured ? '服务端环境变量连接' : '未选择默认模型'}</h3><p>{current ? `${current.modelId} · ${protocolLabels[current.protocol]} · ${endpointSummary(current.baseUrl, current.provider)}` : settings.environmentConfigured ? '未选择账户默认时使用环境变量；环境密钥不会显示。' : '项目体检仍可运行基础规则；Issue 分析、PR 审查与草稿生成需要选择模型。'}</p><small>已经排队的体检保留原配置。保存第二份连接不会自动替换默认。</small></div>{current && <button type="button" className="button button-secondary" disabled={!!busy} onClick={() => edit(current)}>编辑当前默认</button>}</section>
-    {editorOpen && <form className="mc-editor" onSubmit={event=>{event.preventDefault();void action('save',save);}}>
+    {editorOpen && <form className="mc-editor" onInvalidCapture={event=>{let details=(event.target as HTMLElement).closest('details');while(details){details.open=true;details=details.parentElement?.closest('details')||null;}}} onSubmit={event=>{event.preventDefault();void action('save',save);}}>
       <header><div><span className="mc-caption">{editing ? `更新原连接 ${editing.id.slice(0,8)} · 版本 ${editing.revision}` : '明确新建一份连接'}</span><h3 ref={headingRef} tabIndex={-1}>{editing ? '编辑连接，不会新增记录' : '新增模型连接'}</h3></div><button type="button" className="mc-text-button" disabled={!!busy} onClick={closeEditor}><ArrowLeft size={15}/>关闭表单</button></header>
       <fieldset disabled={!!busy}><legend className="mc-sr-only">模型连接配置</legend>
-        <div className="mc-fields"><div className="mc-field"><label htmlFor="mc-preset">服务类型</label><select id="mc-preset" value={presetId} onChange={event=>choosePreset(event.target.value)}>{modelPresets.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select><p>预设只填写协议和基础地址，不保证模型权限或工具能力。</p></div><div className="mc-field"><label htmlFor="mc-name">连接名称</label><input id="mc-name" autoComplete="off" required maxLength={80} value={draft.name} onChange={event=>field('name',event.target.value)} placeholder="如：DeepSeek · 工作账户"/><p>用于区分账户和用途；不是模型 ID。</p></div></div>
-        <p className="mc-provider-note"><Info size={16}/>{preset.note}</p>{officialAddressChanged && <p className="mc-duplicate">当前地址已偏离所选服务预设。请确认这是你信任的平台，并使用它提供的 Key；不会自动纠正地址或挪用旧密钥。</p>}
-        <div className="mc-field"><label htmlFor="mc-base">API 基础地址</label><input id="mc-base" type="url" autoComplete="off" maxLength={1000} value={draft.baseUrl} onChange={event=>field('baseUrl',event.target.value)} placeholder={preset.baseUrl || 'https://your-provider.example/v1'}/><p>只填基础地址，不含 /chat/completions、/responses 或 /messages。HTTPS 必须；本机可用 HTTP。</p></div>
-        <div className="mc-fields"><div className="mc-field"><label htmlFor="mc-model">模型 ID</label><input id="mc-model" required maxLength={160} autoComplete="off" value={draft.modelId} onChange={event=>field('modelId',event.target.value)} placeholder="按当前平台提供的 ID 填写"/><p>{preset.modelHint}不会自动查询模型列表。</p></div><div className="mc-field"><label htmlFor="mc-protocol">请求协议</label><select id="mc-protocol" value={draft.protocol} onChange={event=>field('protocol',event.target.value as ConnectionInput['protocol'])}>{Object.entries(protocolLabels).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select><p>模型名称与协议不是同一件事；中转必须采用平台实际支持的协议。</p></div></div>
-        <section className="mc-key"><div className="mc-field"><label htmlFor="mc-key-action">密钥操作</label><select id="mc-key-action" value={draft.keyAction} onChange={event=>{field('keyAction',event.target.value as ConnectionInput['keyAction']);field('apiKey','');setShowKey(false);}}>{editing && <option value="keep">保留已保存密钥</option>}<option value="replace">{editing ? '替换为新密钥' : '填写此平台密钥'}</option><option value="clear">不使用密钥 / 清除（仅适合本机服务）</option></select></div>{draft.keyAction==='replace' ? <div className="mc-field"><label htmlFor="mc-key">{preset.keyLabel}</label><div className="mc-key-input"><input id="mc-key" type={showKey?'text':'password'} autoComplete="new-password" required maxLength={2000} value={draft.apiKey || ''} onChange={event=>field('apiKey',event.target.value)} placeholder="仅输入密钥本身，不添加 Bearer 前缀"/><button type="button" aria-label={showKey?'隐藏密钥输入':'显示当前输入的密钥'} onClick={()=>setShowKey(value=>!value)}>{showKey?<EyeOff size={17}/>:<Eye size={17}/>}</button></div><p>这里只显示你本次输入的内容，服务端旧密钥永远不会回显。</p></div> : <p>旧密钥不会显示。{draft.keyAction==='keep' ? '保存会保留原密钥。' : '远程服务通常需要密钥；清除后可能无法调用。'}</p>}</section>
-        {(duplicates.length>0||nameConflict) && <section className="mc-duplicate-editor" aria-label="重复连接提示"><h4>已有相似连接，优先编辑而不是再次新增</h4><p>{nameConflict?'已有相同名称。请更新原连接或填写不同名称。':'同一个接口、协议和模型已经配置；更换 Key 应编辑那一份。'}</p>{(duplicates.length?duplicates:peers.filter(row=>connectionName(row.name)===connectionName(draft.name))).map(item=><button type="button" className="button button-secondary" key={item.id} onClick={()=>edit(item)}>编辑已有：{item.name} · {item.id.slice(0,8)}{item.id===settings?.defaultId?' · 当前默认':''}</button>)}{duplicateRequiresConfirmation && <label className="mc-checkbox"><input type="checkbox" checked={allowDuplicate} onChange={event=>setAllowDuplicate(event.target.checked)}/>我确实需要另一账户／用途的独立连接，会使用不同名称；不是替换原连接密钥。</label>}</section>}
-        <section className="mc-token-settings" aria-labelledby="mc-token-heading">
-          <h4 id="mc-token-heading">上下文与最大输出</h4><p>新连接默认留空，不再额外限制为 4096 / 3500 tokens。已有连接保留保存值；清空并保存后改为自动模式。</p>
-          <div className="mc-fields">
-            <div className="mc-field"><label htmlFor="mc-context">上下文长度（tokens，可留空）</label><input id="mc-context" type="number" min={1} step={1} value={draft.contextWindow ?? ''} placeholder="自动：已知目录值，否则由服务商校验" onChange={event=>field('contextWindow',event.target.value === '' ? null : Number(event.target.value))}/><p>填写时声明模型上下文能力，传给 pi 的模型元数据；不是修改服务商容量，也不是精确 token 计数。留空时自定义未知模型不会被假装成无限上下文。</p></div>
-            <div className="mc-field"><label htmlFor="mc-tokens">最大输出（tokens，可留空）</label><input id="mc-tokens" type="number" min={1} step={1} max={draft.contextWindow ?? undefined} value={draft.maxTokens ?? ''} placeholder="自动：不发送额外输出上限" onChange={event=>field('maxTokens',event.target.value === '' ? null : Number(event.target.value))}/><p>填写后按原值用于 Issue / PR / 草稿及体检的单轮请求，不再被工作流悄悄压低。推理可能占用服务商输出预算。</p></div>
-          </div>
-          <button type="button" className="button button-secondary" onClick={()=>setDraft(value=>({...value,contextWindow:null,maxTokens:null}))}>清空两项，使用自动模式</button>
-          <p className="mc-token-effective">当前选择：上下文 {draft.contextWindow == null ? '自动 / 未知由服务商校验' : `${draft.contextWindow.toLocaleString('zh-CN')} tokens`}；输出 {draft.maxTokens == null ? draft.protocol === 'anthropic-messages' ? '使用匹配 SDK 目录值；未知模型需填写' : '省略额外上限，由服务商决定默认值' : `${draft.maxTokens.toLocaleString('zh-CN')} tokens`}。</p>
-          {draft.protocol === 'anthropic-messages' && draft.maxTokens == null && <p className="mc-duplicate">Anthropic Messages 强制要求 max_tokens；自动模式仅能使用完全匹配的 SDK 模型目录值。自定义模型无目录值时，需要明确填写，不会偷偷代填。</p>}
-          <details className="mc-advanced"><summary>仍保留的边界（与这两个 tokens 字段不同）</summary><p>模型真实容量及默认输出由服务商决定。当前工作流还有：输入 100,000 字符、草稿文本 30,000 字符、普通请求 60 秒；体检内容研判 7 轮 / 18 次工具 / 90 秒 / 报告 24,000 字符及快照分页。连接测试单独使用最多 512 输出 tokens / 25 秒。这些不因清空两项而取消。</p><p>分诊、PR 审查和文档生成最多 6 轮 / 12 次只读工具调用，仍在 60 秒请求期限内。深入调查在后台保存检查点与有界上下文摘要，原始证据可重读；不会把字符数当作精确 tokens。体检报告结构、来源校验和发布确认保留。</p></details>
+        <div className="mc-fields"><div className="mc-field"><label htmlFor="mc-preset">服务类型</label><select id="mc-preset" value={presetId} onChange={event=>choosePreset(event.target.value)}>{modelPresets.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}</select><p>预设会自动带入服务地址和协议；不展开更多设置时使用默认值。</p></div><div className="mc-field"><label htmlFor="mc-model">模型 ID（必填）</label><input id="mc-model" required maxLength={160} autoComplete="off" value={draft.modelId} onChange={event=>field('modelId',event.target.value)} placeholder="按当前平台提供的 ID 填写"/><p>{preset.modelHint}不会自动查询模型列表。</p></div></div>
+        <p className="mc-provider-note"><Info size={16}/>{preset.note}</p>
+        {preset.id === 'custom' && <div className="mc-field"><label htmlFor="mc-base">API 基础地址{customBaseRequired ? '（必填）' : '（可选）'}</label><input id="mc-base" type="url" autoComplete="off" required={customBaseRequired} maxLength={1000} value={draft.baseUrl} onChange={event=>field('baseUrl',event.target.value)} placeholder="https://your-provider.example/v1"/><p>填写平台提供的 API 根地址，不含接口路径。HTTPS 必须；本机可用 HTTP。</p></div>}
+        {officialAddressChanged && <p className="mc-duplicate">当前地址已偏离所选服务预设。请确认这是你信任的平台，并使用它提供的 Key；不会自动纠正地址或挪用旧密钥。</p>}
+        <section className="mc-key" aria-label="API 密钥">
+          {draft.keyAction === 'replace' ? <div className="mc-field"><label htmlFor="mc-key">{preset.keyLabel}{preset.id === 'ollama' && !editing ? '（可选）' : '（必填）'}</label><div className="mc-key-input"><input id="mc-key" type={showKey?'text':'password'} autoComplete="new-password" required={preset.id !== 'ollama' || Boolean(editing)} maxLength={2000} value={draft.apiKey || ''} onChange={event=>field('apiKey',event.target.value)} placeholder={preset.id === 'ollama' ? '可留空；仅在本机服务启用鉴权时填写' : '仅输入密钥本身，不添加 Bearer 前缀'}/><button type="button" aria-label={showKey?'隐藏密钥输入':'显示当前输入的密钥'} onClick={()=>setShowKey(value=>!value)}>{showKey?<EyeOff size={17}/>:<Eye size={17}/>}</button></div><p>只显示你本次输入的内容，已保存的密钥不会回显。{preset.id === 'ollama' ? '本机 Ollama 通常无需密钥。' : ''}</p>{editing && <div className="mc-key-actions"><button type="button" className="mc-text-button" onClick={()=>keyAction(editing.hasKey?'keep':'clear')}>{editing.hasKey?'保留已保存密钥':'不使用密钥'}</button>{editing.hasKey && <button type="button" className="mc-text-button danger" onClick={()=>keyAction('clear')}>清除密钥</button>}</div>}</div> : draft.keyAction === 'keep' ? <><p>{editing?.hasKey ? '已保存密钥会继续使用；出于安全原因不会回显。' : '当前没有已保存密钥。'}</p><div className="mc-key-actions"><button type="button" className="mc-text-button" onClick={()=>keyAction('replace')}>{editing?.hasKey?'更换 API Key':'填写 API Key'}</button>{editing?.hasKey && <button type="button" className="mc-text-button danger" onClick={()=>keyAction('clear')}>清除密钥</button>}</div></> : <><p>{preset.id === 'ollama' ? '本机 Ollama 通常无需密钥。' : '此连接将不使用 API Key；远程服务通常需要密钥。'}</p><div className="mc-key-actions">{editing?.hasKey && <button type="button" className="mc-text-button" onClick={()=>keyAction('keep')}>保留已保存密钥</button>}<button type="button" className="mc-text-button" onClick={()=>keyAction('replace')}>{preset.id === 'ollama'?'添加可选密钥':'填写 API Key'}</button></div></>}
         </section>
-        <details className="mc-advanced"><summary>高级设置：服务商标识</summary><div className="mc-field"><label htmlFor="mc-provider">服务商标识</label><input id="mc-provider" required maxLength={80} pattern={"[a-zA-Z0-9._\\-]+"} value={draft.provider} onChange={event=>field('provider',event.target.value)}/><p>预设自动填写；自定义平台可使用 custom。不是显示名称。</p></div></details>
-        <div className="mc-request-preview"><span>按当前字段拼接的请求路径（示意，不是连接测试）</span><code>{requestEndpoint(draft)}</code><p>Key 必须来自上述地址的平台；中转 Key 不能发往官方地址。</p></div>
+        {(duplicates.length>0||nameConflict) && <section className="mc-duplicate-editor" aria-label="重复连接提示"><h4>已有相似连接，优先编辑而不是再次新增</h4><p>{nameConflict?'已有相同名称。请更新原连接或填写不同名称。':'同一个接口、协议和模型已经配置；更换 Key 应编辑那一份。'}</p>{(duplicates.length?duplicates:peers.filter(row=>connectionName(row.name)===connectionName(draft.name))).map(item=><button type="button" className="button button-secondary" key={item.id} onClick={()=>edit(item)}>编辑已有：{item.name} · {item.id.slice(0,8)}{item.id===settings?.defaultId?' · 当前默认':''}</button>)}{duplicateRequiresConfirmation && <label className="mc-checkbox"><input type="checkbox" checked={allowDuplicate} onChange={event=>setAllowDuplicate(event.target.checked)}/>我确实需要另一账户／用途的独立连接，会使用不同名称；不是替换原连接密钥。</label>}</section>}
+        <details className="mc-more-settings"><summary>更多设置</summary><div className="mc-more-content">
+          <p className="mc-more-hint">以下内容都可以留用默认值。连接名称会按服务类型和模型 ID 自动生成。</p>
+          <div className="mc-field"><label htmlFor="mc-name">连接名称（可选）</label><input id="mc-name" autoComplete="off" maxLength={80} value={draft.name} onChange={event=>field('name',event.target.value)} placeholder={`${preset.label} · ${draft.modelId || '工作账户'}`}/><p>用于区分账户和用途；留空时自动生成。</p></div>
+          {preset.id !== 'custom' && <><div className="mc-field"><label htmlFor="mc-base">API 基础地址</label><input id="mc-base" type="text" autoComplete="off" maxLength={1000} value={draft.baseUrl} onChange={event=>field('baseUrl',event.target.value)} placeholder={preset.baseUrl}/><p>默认使用 {preset.label} 的地址。修改时只填根地址，不含接口路径；HTTPS 必须，本机可用 HTTP。</p></div>{officialAddressChanged && <p className="mc-duplicate">当前地址已偏离所选服务预设。请确认这是你信任的平台，并使用它提供的 Key；不会自动纠正地址或挪用旧密钥。</p>}</>}
+          <div className="mc-field"><label htmlFor="mc-protocol">请求协议</label><select id="mc-protocol" value={draft.protocol} onChange={event=>field('protocol',event.target.value as ConnectionInput['protocol'])}>{Object.entries(protocolLabels).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select><p>默认使用所选服务类型对应的协议；自定义服务需要匹配平台实际支持的协议。</p></div>
+          <section className="mc-token-settings" aria-labelledby="mc-token-heading">
+            <h4 id="mc-token-heading">上下文与最大输出</h4><p>默认使用自动模式；已有连接保留原值。清空并保存后恢复自动模式。</p>
+            <div className="mc-fields">
+              <div className="mc-field"><label htmlFor="mc-context">上下文长度（tokens，可留空）</label><input id="mc-context" type="number" value={draft.contextWindow ?? ''} placeholder="自动：已知目录值，否则由服务商校验" onChange={event=>field('contextWindow',event.target.value === '' ? null : Number(event.target.value))}/><p>填写时声明模型上下文能力，传给 pi 的模型元数据；不是修改服务商容量，也不是精确 token 计数。留空时自定义未知模型不会被假装成无限上下文。</p></div>
+              <div className="mc-field"><label htmlFor="mc-tokens">最大输出（tokens，可留空）</label><input id="mc-tokens" type="number" value={draft.maxTokens ?? ''} placeholder="自动：不发送额外输出上限" onChange={event=>field('maxTokens',event.target.value === '' ? null : Number(event.target.value))}/><p>填写后按原值用于 Issue / PR / 草稿及体检的单轮请求，不再被工作流悄悄压低。推理可能占用服务商输出预算。</p></div>
+            </div>
+            <button type="button" className="button button-secondary" onClick={()=>setDraft(value=>({...value,contextWindow:null,maxTokens:null}))}>清空两项，使用自动模式</button>
+            <p className="mc-token-effective">当前选择：上下文 {draft.contextWindow == null ? '自动 / 未知由服务商校验' : `${draft.contextWindow.toLocaleString('zh-CN')} tokens`}；输出 {draft.maxTokens == null ? draft.protocol === 'anthropic-messages' ? '使用匹配 SDK 目录值；未知模型需填写' : '省略额外上限，由服务商决定默认值' : `${draft.maxTokens.toLocaleString('zh-CN')} tokens`}。</p>
+            {draft.protocol === 'anthropic-messages' && draft.maxTokens == null && <p className="mc-duplicate">Anthropic Messages 强制要求 max_tokens；自动模式仅能使用完全匹配的 SDK 模型目录值。自定义模型无目录值时，需要明确填写，不会偷偷代填。</p>}
+            <details className="mc-advanced"><summary>请求与输出边界</summary><p>模型真实容量及默认输出由服务商决定。当前工作流还有：输入 100,000 字符、草稿文本 30,000 字符、普通请求 60 秒；体检内容研判 7 轮 / 18 次工具 / 90 秒 / 报告 24,000 字符及快照分页。连接测试单独使用最多 512 输出 tokens / 25 秒。这些不因清空两项而取消。</p><p>分诊、PR 审查和文档生成最多 6 轮 / 12 次只读工具调用，仍在 60 秒请求期限内。深入调查在后台保存检查点与有界上下文摘要，原始证据可重读；不会把字符数当作精确 tokens。体检报告结构、来源校验和发布确认保留。</p></details>
+          </section>
+          <div className="mc-field"><label htmlFor="mc-provider">服务商标识（高级）</label><input id="mc-provider" maxLength={80} value={draft.provider} onChange={event=>field('provider',event.target.value)}/><p>预设自动填写；自定义平台通常保留 custom。不是显示名称。</p></div>
+          <div className="mc-request-preview"><span>按当前字段拼接的请求路径（示意，不是连接测试）</span><code>{draft.baseUrl.trim() ? requestEndpoint(draft) : '填写 API 基础地址后显示请求路径'}</code><p>Key 必须来自上述地址的平台；中转 Key 不能发往官方地址。</p></div>
+        </div></details>
         <label className="mc-checkbox"><input type="checkbox" checked={makeDefault} disabled={settings?.defaultId===editing?.id&&!!editing} onChange={event=>setMakeDefault(event.target.checked)}/>{settings?.defaultId===editing?.id&&editing?'此项已经是当前默认，保存只更新原连接。':'保存后明确设为当前默认（不发请求、不影响已排队体检）'}</label>
         <p className="mc-note">{!editing&&!settings?.connections.length?'第一份连接会成为默认。':'不勾选时，保存不会切换到这份连接。'}模型能力只在用户主动测试后验证。</p>
         <footer><button type="submit" className="button button-primary" disabled={!!busy||nameConflict||duplicateRequiresConfirmation&&!allowDuplicate}><Save size={15}/>{busy==='save'?'保存中…':editing?'保存此连接的修改':'创建这份新连接'}</button><button type="button" className="button button-secondary" disabled={!!busy} onClick={closeEditor}>取消编辑</button>{dirty&&<span>有未保存修改</span>}</footer>
