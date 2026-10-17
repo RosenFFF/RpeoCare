@@ -1,0 +1,1179 @@
+{
+  "date": "2026-10-17",
+  "kind": "development-field-test",
+  "model": "deepseek-flash",
+  "unit": "Three selected public Python issues, one per repository. Repeats and continuations are not additional cases.",
+  "initialBudget": {
+    "requests": 24,
+    "tools": 48,
+    "phaseSeconds": 180,
+    "outputTokensPerRequest": 8192
+  },
+  "holdoutsFrozenBeforeInitialModelCalls": {
+    "frozenAt": "2026-10-17T02:48:54.170Z",
+    "rows": [
+      {
+        "case": "markup",
+        "sha256": "e90515e3c4f9d024a94a5132ea68b42c573e14d06d7eb52a114e601cd6c361e6"
+      },
+      {
+        "case": "dotenv",
+        "sha256": "2f1847227b019065f3ec971fec67797f58594e7c9e6b7fd59d121c82d9e9943a"
+      },
+      {
+        "case": "human",
+        "sha256": "5b2886bbaef07d7db49e793888b1187615e8001e68db8e28f77490ae32d76e12"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "key": "markup",
+      "repository": "pallets/markupsafe",
+      "issue": "https://github.com/pallets/markupsafe/issues/417",
+      "issueStateAtCollection": "closed",
+      "commit": "b7cd6523579ea5a08d89799f2a64ec2c2bc45eca",
+      "ref": "2.1.4",
+      "blind": false,
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-17T02-49-03-942Z/pilot.json",
+        "sha256": "76fa9adbf1c8e441b3bd7e0dccc3910c171f9f09e705a5baff215ff087a630cc",
+        "status": "waiting-input",
+        "budget": {
+          "turns": 12,
+          "tools": 19,
+          "maxTurns": 24,
+          "maxTools": 48,
+          "inputTokens": 104079,
+          "outputTokens": 3297,
+          "compactions": 0
+        },
+        "wallMs": 32628,
+        "sourceDigest": "24150fc8996bf02f518d0dcc5d29689a04afa347e5dbcc93dfaa63a6822926e1",
+        "cacheDigest": "198979499c972e1cbd4b5bd4a1baafb1db30ee501905d10e2e250c81d8fd9049",
+        "implementationDigest": "50cc923b6abcd33193c054ef0eb47c94ade296563a0e5da7d8259eadcff68dd1",
+        "artifactKinds": [
+          "patch",
+          "verification"
+        ]
+      },
+      "continuations": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-942Z/continuation-2026-10-17T02-57-14-018Z.json",
+          "sha256": "8c6a6c3109b6de52898fa67fbaa455426eda92b64c08b4b115df7ba52355d566",
+          "wallMs": 20688,
+          "status": "awaiting-confirmation",
+          "budget": {
+            "turns": 17,
+            "tools": 25,
+            "maxTurns": 20,
+            "maxTools": 35,
+            "inputTokens": 197660,
+            "outputTokens": 6481,
+            "compactions": 0
+          }
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-942Z/continuation-2026-10-17T03-04-18-091Z.json",
+          "sha256": "4ad8fa21a92ae9c437d31aad9c40437fe48f78e2056a42f3fc4ba19e18a1142c",
+          "wallMs": 13676,
+          "status": "completed",
+          "budget": {
+            "turns": 19,
+            "tools": 28,
+            "maxTurns": 25,
+            "maxTools": 41,
+            "inputTokens": 248824,
+            "outputTokens": 7765,
+            "compactions": 0
+          }
+        }
+      ],
+      "operatorFeedback": [
+        {
+          "localEvidence": "data/cross-repo-markup-feedback.txt",
+          "sha256": "4717a6b0c1a13b2824e5ac49449ecc56653276c9185e359ad465408475a33c4b"
+        },
+        {
+          "localEvidence": "data/cross-repo-markup-results-feedback.txt",
+          "sha256": "b721f11065de164f1a10d72f19389274b9f8d324520d34481fe187f730fd4144"
+        }
+      ],
+      "latestTaskStatus": "completed",
+      "latestPatchRevision": 2,
+      "latestProductionHash": "8790c73325fb41e67673e86e0a7746935f333b090ebc5a204751cdd24e393962",
+      "holdout": {
+        "localEvidence": "data/cross-repo-markup-holdout.py",
+        "sha256": "e90515e3c4f9d024a94a5132ea68b42c573e14d06d7eb52a114e601cd6c361e6"
+      },
+      "executions": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-942Z/execution-2026-10-17T02-58-09-989Z.json",
+          "sha256": "4f905d49541c7406112cec89b55a25f33d30f5e01669c7c33a7fd5fd83c5525f",
+          "recordedAssessment": "improved",
+          "currentAssessment": "improved",
+          "requirements": [
+            "improved"
+          ],
+          "jobs": [
+            {
+              "role": "baseline",
+              "status": "not-reproduced",
+              "failureKind": "assertion",
+              "attempts": [
+                {
+                  "index": 1,
+                  "result": "not-reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 2,
+                  "result": "not-reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 3,
+                  "result": "not-reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                }
+              ],
+              "environment": {
+                "docker": "29.8.2",
+                "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+                "runnerImage": "repocare-repro-runner:local",
+                "network": "disabled",
+                "isolation": "read-only rootfs, no capabilities, resource limits"
+              },
+              "commands": [
+                {
+                  "command": "python3 -m pytest tests/test_markupsafe.py::test_striptags_comments -q",
+                  "code": 1,
+                  "failureKind": "assertion",
+                  "summary": "1 failed in 0.22s"
+                },
+                {
+                  "command": "python3 -m pytest tests/test_markupsafe.py::test_escaping -q",
+                  "code": 0,
+                  "summary": "1 passed, 1 skipped in 0.12s"
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 1,
+                  "failureKind": "assertion",
+                  "summary": "1 failed, 36 passed, 17 skipped in 0.60s"
+                }
+              ]
+            },
+            {
+              "role": "patched",
+              "status": "reproduced",
+              "attempts": [
+                {
+                  "index": 1,
+                  "result": "reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 2,
+                  "result": "reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 3,
+                  "result": "reproduced",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                }
+              ],
+              "environment": {
+                "docker": "29.8.2",
+                "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+                "runnerImage": "repocare-repro-runner:local",
+                "network": "disabled",
+                "isolation": "read-only rootfs, no capabilities, resource limits"
+              },
+              "commands": [
+                {
+                  "command": "python3 -m pytest tests/test_markupsafe.py::test_striptags_comments -q",
+                  "code": 0,
+                  "summary": "1 passed in 0.13s"
+                },
+                {
+                  "command": "python3 -m pytest tests/test_markupsafe.py::test_escaping -q",
+                  "code": 0,
+                  "summary": "1 passed, 1 skipped in 0.10s"
+                },
+                {
+                  "command": "python3 -m pytest tests -q",
+                  "code": 0,
+                  "summary": "37 passed, 17 skipped in 0.42s"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dotenv",
+      "repository": "theskumar/python-dotenv",
+      "issue": "https://github.com/theskumar/python-dotenv/issues/256",
+      "issueStateAtCollection": "closed",
+      "commit": "784102284471252f418e797c1874a00063426210",
+      "ref": "v0.13.0",
+      "blind": false,
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-17T02-49-03-946Z/pilot.json",
+        "sha256": "ddc9d3d9ddd9995bb17e79da931d98c04af5ce19de212c5118ec5ba8b3223cd7",
+        "status": "waiting-input",
+        "budget": {
+          "turns": 17,
+          "tools": 24,
+          "maxTurns": 24,
+          "maxTools": 48,
+          "inputTokens": 190527,
+          "outputTokens": 3558,
+          "compactions": 0
+        },
+        "wallMs": 42075,
+        "sourceDigest": "e1279a1db18abfc48a85bedc3e99ae86aa60e5536961d0124003f8d58860964f",
+        "cacheDigest": "c09c0f2fb5b9b37ecdce3c4b7a2c8e1b79b0ab509ef4610a6f9318513afd7aa9",
+        "implementationDigest": "50cc923b6abcd33193c054ef0eb47c94ade296563a0e5da7d8259eadcff68dd1",
+        "artifactKinds": [
+          "patch",
+          "verification"
+        ]
+      },
+      "continuations": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-946Z/continuation-2026-10-17T02-57-12-124Z.json",
+          "sha256": "85fe60854a2842dcbf7f1ebcdc26f9f5b260d1f939683f47c5cbdec3730bc520",
+          "wallMs": 18789,
+          "status": "failed",
+          "budget": {
+            "turns": 25,
+            "tools": 34,
+            "maxTurns": 25,
+            "maxTools": 40,
+            "inputTokens": 367328,
+            "outputTokens": 4234,
+            "compactions": 0
+          }
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-946Z/continuation-2026-10-17T03-00-26-837Z.json",
+          "sha256": "34062b82f7a01415457a697e1a92a923391725e8d0adfb07fb1bd2a403d590b5",
+          "wallMs": 31015,
+          "status": "awaiting-confirmation",
+          "budget": {
+            "turns": 32,
+            "tools": 42,
+            "maxTurns": 33,
+            "maxTools": 50,
+            "inputTokens": 567706,
+            "outputTokens": 9078,
+            "compactions": 2
+          }
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-946Z/continuation-2026-10-17T03-02-44-284Z.json",
+          "sha256": "45d9c8b792e1614ce2de78acce1e007d38236796fd72631fe8f2701782812c86",
+          "wallMs": 20084,
+          "status": "waiting-input",
+          "budget": {
+            "turns": 37,
+            "tools": 48,
+            "maxTurns": 40,
+            "maxTools": 58,
+            "inputTokens": 736597,
+            "outputTokens": 11294,
+            "compactions": 13
+          }
+        }
+      ],
+      "operatorFeedback": [
+        {
+          "localEvidence": "data/cross-repo-dotenv-collection-feedback.txt",
+          "sha256": "2b0757dfb8b517b2ac619a489425c2c640a609e1b29a4cc58ca97755193f5149"
+        },
+        {
+          "localEvidence": "data/cross-repo-dotenv-feedback.txt",
+          "sha256": "8144608410ff5b390557bedcf9d99075428e745294c37a1f91817a5bb6bf4994"
+        },
+        {
+          "localEvidence": "data/cross-repo-dotenv-revision-feedback.txt",
+          "sha256": "3726a8fb359279d56052c5ece8b8399553badfdd1dbc3f52367123790421dec4"
+        }
+      ],
+      "latestTaskStatus": "waiting-input",
+      "latestPatchRevision": 3,
+      "latestProductionHash": "7a70d8b953068b0691ea165844b3630dcc66d1a27a98792ce8cc29cff88d61fd",
+      "holdout": {
+        "localEvidence": "data/cross-repo-dotenv-holdout.py",
+        "sha256": "2f1847227b019065f3ec971fec67797f58594e7c9e6b7fd59d121c82d9e9943a"
+      },
+      "executions": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-946Z/execution-2026-10-17T03-01-06-797Z.json",
+          "sha256": "54fdd34dca2ff982dd86e171975a5f79b48ce2ad639a009d8ce6abc06a95862f",
+          "recordedAssessment": "blocked",
+          "currentAssessment": "blocked",
+          "requirements": [
+            "blocked"
+          ],
+          "jobs": [
+            {
+              "role": "baseline",
+              "status": "blocked",
+              "failureKind": "dependencies",
+              "attempts": [
+                {
+                  "index": 1,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 2,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 3,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                }
+              ],
+              "environment": {
+                "docker": "29.8.2",
+                "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+                "runnerImage": "repocare-repro-runner:local",
+                "network": "disabled",
+                "isolation": "read-only rootfs, no capabilities, resource limits"
+              },
+              "commands": [
+                {
+                  "command": "python3 -m pytest tests/test_issue256_standalone.py::test_issue_256_override_interpolates_with_current_file_values -q",
+                  "code": 4,
+                  "failureKind": "dependencies"
+                },
+                {
+                  "command": "python3 -m pytest tests/test_issue256_standalone.py::test_issue_256_no_override_keeps_existing_interpolated_value -q",
+                  "code": 4,
+                  "failureKind": "dependencies"
+                }
+              ]
+            },
+            {
+              "role": "patched",
+              "status": "blocked",
+              "failureKind": "dependencies",
+              "attempts": [
+                {
+                  "index": 1,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 2,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                },
+                {
+                  "index": 3,
+                  "result": "blocked",
+                  "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+                }
+              ],
+              "environment": {
+                "docker": "29.8.2",
+                "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+                "runnerImage": "repocare-repro-runner:local",
+                "network": "disabled",
+                "isolation": "read-only rootfs, no capabilities, resource limits"
+              },
+              "commands": [
+                {
+                  "command": "python3 -m pytest tests/test_issue256_standalone.py::test_issue_256_override_interpolates_with_current_file_values -q",
+                  "code": 4,
+                  "failureKind": "dependencies"
+                },
+                {
+                  "command": "python3 -m pytest tests/test_issue256_standalone.py::test_issue_256_no_override_keeps_existing_interpolated_value -q",
+                  "code": 4,
+                  "failureKind": "dependencies"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "human",
+      "repository": "python-humanize/humanize",
+      "issue": "https://github.com/python-humanize/humanize/issues/366",
+      "issueStateAtCollection": "open",
+      "commit": "3c577d7650508d52aa2982e930b0e744c343082f",
+      "ref": "4.16.0",
+      "blind": false,
+      "initial": {
+        "localEvidence": "data/model-pilot-2026-10-17T02-49-03-940Z/pilot.json",
+        "sha256": "5667a05bd3833bbde1df4d36193bb73ba351e8adf4196fd4165b01b84902487a",
+        "status": "waiting-input",
+        "budget": {
+          "turns": 15,
+          "tools": 22,
+          "maxTurns": 24,
+          "maxTools": 48,
+          "inputTokens": 206187,
+          "outputTokens": 4967,
+          "compactions": 0
+        },
+        "wallMs": 46275,
+        "sourceDigest": "1a4aa7f1b0134fe64f148ce3f5587ccc0f55c344c5db34bdc05b838211b446fb",
+        "cacheDigest": "4a7682e54980c34d4e187553975e8b5beb5d95bb60da1a46902dbbf65d1e06c1",
+        "implementationDigest": "50cc923b6abcd33193c054ef0eb47c94ade296563a0e5da7d8259eadcff68dd1",
+        "artifactKinds": [
+          "patch",
+          "verification",
+          "patch",
+          "verification"
+        ]
+      },
+      "continuations": [
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-940Z/continuation-2026-10-17T02-57-24-593Z.json",
+          "sha256": "00d81a8262aa45bbddd4d5c8945a3a1dd5081182a25bb47cf0931cf72670076a",
+          "wallMs": 31244,
+          "status": "failed",
+          "budget": {
+            "turns": 23,
+            "tools": 31,
+            "maxTurns": 23,
+            "maxTools": 38,
+            "inputTokens": 445031,
+            "outputTokens": 9808,
+            "compactions": 0
+          }
+        },
+        {
+          "localEvidence": "data/model-pilot-2026-10-17T02-49-03-940Z/continuation-2026-10-17T03-00-19-191Z.json",
+          "sha256": "bf9c834ad2b216ac496f9b9b43997abff2f82f1a526f3b7ad80f949ef08e66b2",
+          "wallMs": 23366,
+          "status": "waiting-input",
+          "budget": {
+            "turns": 27,
+            "tools": 36,
+            "maxTurns": 31,
+            "maxTools": 47,
+            "inputTokens": 589960,
+            "outputTokens": 13338,
+            "compactions": 6
+          }
+        }
+      ],
+      "operatorFeedback": [
+        {
+          "localEvidence": "data/cross-repo-human-feedback.txt",
+          "sha256": "cb0ad8b7374e5dff9e061dc7b0f8a9ba59e119c3ab3c6cf42022aded5c59bc95"
+        },
+        {
+          "localEvidence": "data/cross-repo-human-revision-feedback.txt",
+          "sha256": "aeac48a97bd814a467d259a0d984664f03bdaaa44d2455f2675c748c47b781e7"
+        }
+      ],
+      "latestTaskStatus": "waiting-input",
+      "latestPatchRevision": 3,
+      "latestProductionHash": "be1920f7e0e573a6f9959d06b4e2664c42abcdceeb23279fd1b6ec9228d7ad17",
+      "holdout": {
+        "localEvidence": "data/cross-repo-human-holdout.py",
+        "sha256": "5b2886bbaef07d7db49e793888b1187615e8001e68db8e28f77490ae32d76e12"
+      },
+      "executions": []
+    }
+  ],
+  "workflows": [
+    {
+      "localEvidence": "data/workflow-2026-10-17T02-55-53-336Z-e8510192-9889-408e-987a-5a0ce382fe9a/results.json",
+      "sha256": "3040311597b667d3fffd2229794a50a90aa7b636022456f2192a2ab85be430ca",
+      "repository": "https://github.com/theskumar/python-dotenv",
+      "recordedAssessment": "inconclusive",
+      "currentAssessment": "inconclusive",
+      "requirements": [
+        {
+          "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+          "outcome": "inconclusive"
+        }
+      ],
+      "coverage": {
+        "state": "failed",
+        "label": "候选引入回归 · 1 项"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed in 0.27s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "1 passed in 0.21s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_false -q",
+              "code": 0,
+              "summary": "1 passed in 0.18s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+              "code": 0,
+              "summary": "1 passed in 0.17s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "1 passed in 0.21s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_false -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed in 0.23s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-17T02-55-53-394Z-9405ec5a-c96b-411a-b59c-ac8a0d2dbd0d/results.json",
+      "sha256": "71516cc43468e2891532dcee424c65a3bd713eabe0d32d1ea2420905ce84cbc0",
+      "repository": "https://github.com/pallets/markupsafe",
+      "recordedAssessment": "improved",
+      "currentAssessment": "improved",
+      "requirements": [
+        {
+          "command": "python3 -m pytest test_repocare_independent.py::test_issue_boundary -q",
+          "outcome": "improved"
+        }
+      ],
+      "coverage": {
+        "state": "passed",
+        "label": "两版回归通过"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_issue_boundary -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "5 failed in 0.35s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "5 passed in 0.24s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_issue_boundary -q",
+              "code": 0,
+              "summary": "5 passed in 0.16s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "5 passed in 0.28s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-17T02-55-53-419Z-66c1b276-1a01-4720-984e-19f06b99b17c/results.json",
+      "sha256": "7d4400809e47172fd7cb0de68f777ca1ab808672ebf2a1c60d4644f224b1dc8e",
+      "repository": "https://github.com/python-humanize/humanize",
+      "recordedAssessment": "improved",
+      "currentAssessment": "improved",
+      "requirements": [
+        {
+          "command": "python3 -m pytest test_repocare_independent.py::test_custom_format -q",
+          "outcome": "improved"
+        }
+      ],
+      "coverage": {
+        "state": "passed",
+        "label": "两版回归通过"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_custom_format -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "3 failed, 1 passed in 0.52s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "5 passed in 0.24s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_custom_format -q",
+              "code": 0,
+              "summary": "4 passed in 0.29s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "5 passed in 0.26s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-17T03-02-02-511Z-22671b57-7f4f-4f69-9c10-42fd5cd18818/results.json",
+      "sha256": "ed2b19ba67cf51e7bd18fa05bf1b4382d6bfe60fb834ed411bbc5e532c04f1c7",
+      "repository": "https://github.com/python-humanize/humanize",
+      "recordedAssessment": "inconclusive",
+      "currentAssessment": "still-failing",
+      "requirements": [
+        {
+          "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_prefix -q",
+          "outcome": "inconclusive"
+        },
+        {
+          "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_text -q",
+          "outcome": "still-failing"
+        }
+      ],
+      "coverage": {
+        "state": "failed",
+        "label": "回归存在失败"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_prefix -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed in 0.39s"
+            },
+            {
+              "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_text -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "5 failed in 0.55s"
+            },
+            {
+              "command": "python3 -m pytest tests/test_filesize.py -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "6 failed, 76 passed in 1.00s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_prefix -q",
+              "code": 0,
+              "summary": "1 passed in 0.27s"
+            },
+            {
+              "command": "python3 -m pytest tests/test_filesize.py::test_naturalsize_format_with_text -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed, 4 passed in 0.60s"
+            },
+            {
+              "command": "python3 -m pytest tests/test_filesize.py -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed, 81 passed in 0.77s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-17T03-02-13-019Z-449a4a9d-65b7-4083-8829-159116f90b28/results.json",
+      "sha256": "3be7d08006ffb379c2e12a551ed110087428ed3bd5146fb2397c5198b7777032",
+      "repository": "https://github.com/theskumar/python-dotenv",
+      "recordedAssessment": "improved",
+      "currentAssessment": "improved",
+      "requirements": [
+        {
+          "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+          "outcome": "improved"
+        }
+      ],
+      "coverage": {
+        "state": "passed",
+        "label": "两版回归通过"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed in 0.31s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "1 passed in 0.19s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_false -q",
+              "code": 0,
+              "summary": "1 passed in 0.15s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_true -q",
+              "code": 0,
+              "summary": "1 passed in 0.19s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_normal -q",
+              "code": 0,
+              "summary": "1 passed in 0.19s"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_independent.py::test_override_false -q",
+              "code": 0,
+              "summary": "1 passed in 0.13s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "localEvidence": "data/workflow-2026-10-17T03-03-38-569Z-9c6546b3-5603-4369-9c28-e4d046864ab5/results.json",
+      "sha256": "915b6989b1f26032b4c21f0eca5f0ee61c6470835c9203c5486954e8f8f1f79f",
+      "repository": "https://github.com/theskumar/python-dotenv",
+      "recordedAssessment": "improved",
+      "currentAssessment": "improved",
+      "requirements": [
+        {
+          "command": "python3 -m pytest test_issue256.py::test_issue_256_override_interpolates_with_current_file_values -q",
+          "outcome": "improved"
+        }
+      ],
+      "coverage": {
+        "state": "failed",
+        "label": "回归存在失败"
+      },
+      "jobs": [
+        {
+          "role": "baseline",
+          "status": "not-reproduced",
+          "failureKind": "assertion",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "not-reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_issue256.py::test_issue_256_override_interpolates_with_current_file_values -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed in 0.28s"
+            },
+            {
+              "command": "python3 -m pytest test_issue256.py::test_issue_256_no_override_keeps_existing_interpolated_value -q",
+              "code": 0,
+              "summary": "1 passed in 0.15s"
+            },
+            {
+              "command": "python3 -m pytest test_issue256.py -q",
+              "code": 1,
+              "failureKind": "assertion",
+              "summary": "1 failed, 1 passed in 0.23s"
+            }
+          ]
+        },
+        {
+          "role": "patched",
+          "status": "reproduced",
+          "attempts": [
+            {
+              "index": 1,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 2,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            },
+            {
+              "index": 3,
+              "result": "reproduced",
+              "environmentFingerprint": "d06ad30510690f978c9f219e141cbf0cd9cfc7ae6a7ccaed2077edaa37a1cc63"
+            }
+          ],
+          "environment": {
+            "docker": "29.8.2",
+            "runnerImageId": "sha256:b5b7c87278b9b369ec7832eaf875d79a86ad68b016ccf2747b02ab588fb184b3",
+            "runnerImage": "repocare-repro-runner:local",
+            "network": "disabled",
+            "isolation": "read-only rootfs, no capabilities, resource limits"
+          },
+          "commands": [
+            {
+              "command": "python3 -m pytest test_issue256.py::test_issue_256_override_interpolates_with_current_file_values -q",
+              "code": 0,
+              "summary": "1 passed in 0.20s"
+            },
+            {
+              "command": "python3 -m pytest test_issue256.py::test_issue_256_no_override_keeps_existing_interpolated_value -q",
+              "code": 0,
+              "summary": "1 passed in 0.16s"
+            },
+            {
+              "command": "python3 -m pytest test_issue256.py -q",
+              "code": 0,
+              "summary": "2 passed in 0.19s"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "discardedOrBlockedSetup": {
+    "missingRunnerImage": "02:51 workflow records, no target execution.",
+    "directoryCollision": "02:53 workflow records shared a millisecond directory; excluded from per-case conclusions and rerun with UUIDs.",
+    "windowsLongPaths": "02:54 workflow records blocked before attempts; fixed with per-command Git core.longpaths and rerun.",
+    "manifestSchema": "One 03:01 humanize manifest rejected extra source/id fields before execution; corrected in separate invocation."
+  },
+  "limitations": [
+    "Historical inputs and issue bodies contain hints; not blind or randomly sampled.",
+    "No paired generic model comparison, no success-rate estimate or maintainer adoption claim.",
+    "Tool implementation changed during operator-assisted continuations; no same-condition before/after performance claim.",
+    "Independent holdouts passed on some bounded production changes but did not expose all Humanize defects; expanded generated tests still failed.",
+    "Humanize compatibility experiment uses pytest7.4.4 below declared pytest9 and a shared test-only version stub; not project-supported full-suite acceptance.",
+    "Dotenv root-test experiment keeps original plans unchanged and treats full-suite gaps as documented scope limits after explicit operator review.",
+    "No browser confirmation-path acceptance or upstream publication.",
+    "Full source snapshots, checkpoints, credentials, databases and independent test bodies remain local and ignored."
+  ],
+  "validation": {
+    "command": "npm run check",
+    "exitCode": 0,
+    "tests": 170,
+    "failures": 0,
+    "scope": "Product unit tests with mock models, ESLint, TypeScript and production build. Separate explicit real-model and Docker records appear above.",
+    "localLog": "data/cross-repo-final-check.log",
+    "logSha256": "90ee0bed8110c99c7bd68f01b2c1a11d7294dabf25f51292724a068e4bf1eee6"
+  }
+}

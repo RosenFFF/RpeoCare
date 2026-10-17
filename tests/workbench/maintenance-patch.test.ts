@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { combinePatchFiles, preparePatchFiles } from '../../src/server/agent/patch';
+import { combinePatchFiles, preparePatchFiles, preparePatchRevision } from '../../src/server/agent/patch';
 
 function reader(contents: Record<string, string>, truncated = false, blockedParents: string[] = []) {
   return { async file(path: string) { assert.ok(Object.hasOwn(contents, path)); return { content: contents[path] }; },
@@ -35,4 +35,16 @@ test('adding tests preserves production files while explicit replacement can dis
   assert.deepEqual(combinePatchFiles([production], [tests], true), [tests]);
   assert.throws(() => combinePatchFiles([production], [{ ...production, before: 'different snapshot' }]), /基准不同/);
   assert.equal(production.after, 'fixed');
+});
+
+test('explicit candidate revision edits candidate bytes but keeps original review and execution baseline', async () => {
+  const previous = [{ path: 'value.py', before: 'return -1\r\n', after: 'return 0\r\n', created: false }, { path: 'tests/test_value.py', before: '', after: 'assert value() == 0\n', created: true }];
+  const changes = await preparePatchRevision([{ path: 'value.py', before: 'return 0', after: 'return 1' }, { path: 'tests/test_value.py', before: '== 0', after: '== 1' }], previous, reader({ 'value.py': 'return -1\r\n' }), () => false);
+  const production = changes.find(file => file.path === 'value.py')!, test = changes.find(file => file.path === 'tests/test_value.py')!;
+  assert.equal(production.before, 'return -1\r\n'); assert.equal(production.after, 'return 1\r\n'); assert.equal(production.created, false);
+  assert.equal(test.before, ''); assert.equal(test.created, true); assert.equal(test.after, 'assert value() == 1\n');
+  assert.deepEqual(previous.map(file => file.after), ['return 0\r\n', 'assert value() == 0\n']);
+  assert.equal(combinePatchFiles(previous, changes).length, 2);
+  await assert.rejects(preparePatchRevision([{ path: 'value.py', before: 'return -1', after: 'return 2' }], previous, reader({}), () => true), /唯一/);
+  await assert.rejects(preparePatchRevision([{ path: '.env', before: '', after: 'no' }], previous, reader({}), () => true));
 });

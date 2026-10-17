@@ -4,6 +4,22 @@ import { repositoryPath } from './repository';
 export interface PatchEdit { path: string; before: string; after: string }
 interface PatchReader { file(path: string): Promise<{ content: string }>; tree(): Promise<{ tree: { path: string }[]; truncated: boolean; occupied?: string[]; blockedParents?: string[] }> }
 
+/** Candidate edits retain original before bytes for review and paired execution. */
+export async function preparePatchRevision(edits: PatchEdit[], previous: AgentPatchFile[], reader: PatchReader, wasRead: (path: string) => boolean) {
+  const tree = await reader.tree();
+  const candidateReader: PatchReader = {
+    tree: async () => ({ ...tree, tree: [...tree.tree, ...previous.filter(file => !tree.tree.some(entry => entry.path === file.path)).map(file => ({ path: file.path }))] }),
+    file: async path => { const file = previous.find(file => file.path === path); return file ? { content: file.after } : reader.file(path); },
+  };
+  const changes = await preparePatchFiles(edits, candidateReader, path => previous.some(file => file.path === path) || wasRead(path));
+  return changes.map(change => {
+    const original = previous.find(file => file.path === change.path);
+    if (!original) return change;
+    if (change.after === original.before) throw new Error('修订撤销了整个文件的改动，请显式重新准备完整候选。');
+    return { ...change, before: original.before, created: original.created };
+  });
+}
+
 /** Keep untouched candidate files when a later stage adds tests; touched files are rebuilt from the original. */
 export function combinePatchFiles(previous: AgentPatchFile[], changes: AgentPatchFile[], replaceAll = false) {
   const paths = new Set(changes.map(file => file.path));

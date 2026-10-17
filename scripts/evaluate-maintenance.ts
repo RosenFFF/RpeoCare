@@ -1,11 +1,12 @@
 /** Opt-in, bounded model pilot. All task writes use a separate ignored DB. */
 import { DatabaseSync } from 'node:sqlite';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import type { RuntimeConnection } from '../src/contracts/models';
 import { loadEnvConfig } from '@next/env';
+import { maintenancePilotSource } from './lib/maintenance-pilot-source';
 
 async function main() {
   if (!process.argv.includes('--run-models')) throw new Error('This pilot calls a configured model. Pass --run-models explicitly.');
@@ -20,7 +21,7 @@ async function main() {
   if (selected) { const m = JSON.parse(selected.state); connection = { ...m, apiKey: decryptSecret(selected.secret, `model:${selected.owner}:${selected.id}`) }; }
   live.close();
   if (!connection) throw new Error('No local model connection is available.');
-  const root = resolve('data', `model-pilot-${new Date().toISOString().replace(/[:.]/g, '-')}`);
+  const root = resolve('data', `model-pilot-${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`);
   mkdirSync(root, { recursive: true });
   const keyFile = join(dirname(liveDb), '.model-key');
   // Keep the key in memory; do not copy it into evidence or model prompts.
@@ -41,17 +42,20 @@ async function main() {
     return value;
   };
   const maxTurns = flagNumber('turns', 10, 24), maxTools = flagNumber('tools', 18, 48);
+  const snapshotFlag = process.argv.find(value => value.startsWith('--snapshot='));
+  const snapshot = snapshotFlag ? maintenancePilotSource(JSON.parse(readFileSync(resolve(snapshotFlag.slice('--snapshot='.length)), 'utf8'))) : null;
   const sourceDir = resolve('data/acceptance-itsdangerous-source');
-  const revision = spawnSync('git', ['-C', sourceDir, 'rev-parse', 'HEAD'], { encoding: 'utf8', windowsHide: true }).stdout.trim();
-  const issueRaw = JSON.parse(readFileSync('data/acceptance-itsdangerous-issue.json', 'utf8'));
-  const item = { number: issueRaw.number, title: issueRaw.title, body: issueRaw.body, updatedAt: issueRaw.updated_at, author: issueRaw.user.login, state: 'closed', labels: [], url: issueRaw.html_url, comments: [] };
-  const tree = spawnSync('git', ['-C', sourceDir, 'ls-tree', '-r', '--long', 'HEAD'], { encoding: 'utf8', windowsHide: true }).stdout.trim().split('\n').map(line => {
+  const revision = snapshot?.revision || spawnSync('git', ['-C', sourceDir, 'rev-parse', 'HEAD'], { encoding: 'utf8', windowsHide: true }).stdout.trim();
+  const issueRaw = snapshot ? null : JSON.parse(readFileSync('data/acceptance-itsdangerous-issue.json', 'utf8'));
+  const item = snapshot?.item || { number: issueRaw.number, title: issueRaw.title, body: issueRaw.body, updatedAt: issueRaw.updated_at, author: issueRaw.user.login, state: 'closed', labels: [], url: issueRaw.html_url, comments: [] };
+  const tree = snapshot?.tree || spawnSync('git', ['-C', sourceDir, 'ls-tree', '-r', '--long', 'HEAD'], { encoding: 'utf8', windowsHide: true }).stdout.trim().split('\n').map(line => {
     const m = line.match(/^(\d+) (\w+) ([a-f0-9]+)\s+(\d+)\t(.+)$/); if (!m) throw new Error('Invalid pinned tree.');
     return { mode: m[1], type: m[2], sha: m[3], size: Number(m[4]), path: m[5] };
   });
-  const cache: Record<string, string> = { tree: JSON.stringify({ tree, truncated: false, occupied: tree.map(f => f.path), blockedParents: [] }), item: JSON.stringify(item), visibility: 'public' };
+  const cache: Record<string, string> = snapshot?.cache || { tree: JSON.stringify({ tree, truncated: false, occupied: tree.map(f => f.path), blockedParents: [] }), item: JSON.stringify(item), visibility: 'public' };
   let bytes = 0;
-  for (const f of tree.filter(f => /^(src\/|tests\/|README|LICENSE|setup\.|pyproject)/.test(f.path))) {
+  for (const f of (snapshot ? [] : tree.filter(f => /^(src\/|tests\/|README|LICENSE|setup\.|pyproject)/.test(f.path)))) {
+    if (f.size === undefined) throw new Error('Pinned blob size is missing.');
     if (f.size > 120000 || bytes + f.size > 600000) continue;
     const blob = spawnSync('git', ['-C', sourceDir, 'cat-file', 'blob', f.sha], { encoding: 'utf8', windowsHide: true });
     if (blob.status !== 0) throw new Error('Pinned blob could not be read.');
@@ -60,7 +64,7 @@ async function main() {
     if (digest !== f.sha) throw new Error('Pinned blob content hash mismatch.');
     cache[`blob:${f.sha}`] = content; bytes += f.size;
   }
-  const goal = '解决固定版本中 Issue #237 的 salt=None 兼容问题。使用工具读取原文和相关源码，生成最小生产补丁和 pytest 测试，再准备需求对照计划，至少含一个正常行为回归命令。测试命令使用 python3 -m pytest 文件.py::测试节点 -q。requirements 引用必须来自 Issue 正文。这里只准备方案，不确认执行，不发布到 GitHub。最终只输出 JSON：{"summary":"简述","findings":[{"title":"标题","detail":"依据","certainty":"supported或hypothesis","evidenceIds":[]}],"missingInformation":[],"nextSteps":[]}。不要查询后续修复或提交历史。';
+  const goal = `解决固定版本中 Issue #${item.number}：${item.title}。使用工具读取原文和相关源码，生成最小生产补丁和 pytest 测试，再准备需求对照计划，至少含一个正常行为回归命令。测试命令使用 python3 -m pytest 文件.py::测试节点 -q。requirements 引用必须来自 Issue 正文。这里只准备方案，不确认执行，不发布到 GitHub。最终只输出 JSON：{"summary":"简述","findings":[{"title":"标题","detail":"依据","certainty":"supported或hypothesis","evidenceIds":[]}],"missingInformation":[],"nextSteps":[]}。不要查询后续修复或提交历史。`;
   const { createTask, claimTask, saveClaim, pulseWorker, finishClaim } = await import('../src/server/agent/store');
   const { executeMaintenance } = await import('../src/server/agent/runtime');
   const { db } = await import('../src/server/audit/store');
@@ -76,7 +80,8 @@ async function main() {
   const implementationDigest = createHash('sha256').update(JSON.stringify(implementationFiles.map(path => ({ path, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') })))).digest('hex');
   const variants = process.argv.includes('--repocare-only') ? ['repocare'] as const : ['generic', 'repocare'] as const;
   for (const variant of variants) {
-    const created = createTask('pilot', { repoUrl: 'https://github.com/pallets/itsdangerous', branch: '2.0.0' }, { kind: 'issue', number: 237, goal });
+    const repoUrl = snapshot?.repoUrl || 'https://github.com/pallets/itsdangerous';
+    const created = createTask('pilot', { repoUrl, branch: snapshot?.branch || '2.0.0' }, { kind: 'issue', number: item.number, goal });
     const claim = claimTask(`pilot-${variant}`); if (!claim || claim.task.id !== created.id) throw new Error('Unable to claim isolated task.');
     claim.connection = bounded; claim.task.commitSha = revision; claim.task.sourceUpdatedAt = item.updatedAt;
     claim.task.budget.maxTurns = maxTurns; claim.task.budget.maxTools = maxTools; claim.internal.cache = structuredClone(cache); saveClaim(claim);
@@ -104,7 +109,7 @@ async function main() {
         });
         const abort = () => agent.abort(); controller.signal.addEventListener('abort', abort, { once: true });
         try {
-          await agent.prompt(`Repository https://github.com/pallets/itsdangerous; fixed commit ${revision}; Issue 237.\n${goal}`);
+          await agent.prompt(`Repository ${repoUrl}; fixed commit ${revision}; Issue ${item.number}.\n${goal}`);
           const last = [...agent.state.messages].reverse().find(message => message.role === 'assistant');
           claim.task.status = agent.state.errorMessage || !last || last.role !== 'assistant' || last.stopReason !== 'stop' ? 'failed' : 'completed';
           if (last?.role === 'assistant') {

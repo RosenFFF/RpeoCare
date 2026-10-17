@@ -20,6 +20,10 @@ type Tree = {
     occupied?: string[];
     blockedParents?: string[];
 };
+export function assertReadableSource(content: string) {
+    if (content.includes('\0')) throw new Error('不能将二进制文件作为源码读取。');
+    if (/(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)/.test(content)) throw new Error('文件包含疑似凭据，未向模型提供此文件。');
+}
 export class RepositoryReader {
     private requests = 0;
     constructor(readonly claim: ClaimedTask, readonly signal: AbortSignal, private readonly onInitialize:()=>void=()=>saveClaim(claim)) { }
@@ -104,14 +108,14 @@ export class RepositoryReader {
                 throw new Error('文件过大或编码不受支持。');
             const bytes = Buffer.from(blob.content, 'base64');
             const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-            if (content.includes('\0'))
-                throw new Error('不能将二进制文件作为源码读取。');
-            if (/(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)/.test(content))
-                throw new Error('文件包含疑似凭据，未向模型提供此文件。');
+            assertReadableSource(content);
             if (Object.entries(cache).filter(([name]) => name.startsWith('blob:')).reduce((size, [, text]) => size + text.length, 0) + content.length > 600000)
                 throw new Error('任务源码缓存达到 600,000 字符上限，请新建更聚焦的任务。');
             cache[key] = content;
         }
+        // Restored checkpoints and opt-in evaluation caches use the same guards.
+        assertReadableSource(cache[key]);
+        if (Buffer.byteLength(cache[key]) > 120000) throw new Error('文件超过 120KB 的按需读取限制。');
         return { path, sha: entry.sha, content: cache[key] };
     }
     evidence(kind: AgentEvidence['kind'], label: string, excerpt: string, url?: string) {

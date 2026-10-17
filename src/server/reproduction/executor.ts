@@ -51,15 +51,15 @@ async function prepareSource(job: ReproductionJob, workspace: string, branch?: s
   const args = ['clone', '--depth', '1', '--single-branch'];
   if (branch && /^[A-Za-z0-9._/-]{1,200}$/.test(branch) && !branch.startsWith('-') && !branch.includes('..')) args.push('--branch', branch);
   args.push('--', safeUrl, workspace);
-  const cloned = await run('git', args, { timeout: 90_000 });
+  const cloned = await run('git', ['-c', 'core.longpaths=true', ...args], { timeout: 90_000 });
   if (cloned.code !== 0) throw new Error(`无法准备仓库快照：${cloned.stderr.slice(-500)}`);
   const revision = await run('git', ['-C', workspace, 'rev-parse', 'HEAD'], { timeout: 15_000 });
   if (revision.code !== 0 || !/^[a-f0-9]{40}$/i.test(revision.stdout.trim())) throw new Error('无法锁定仓库提交版本。');
   const commitSha = revision.stdout.trim();
   if (job.commitSha && commitSha !== job.commitSha) {
     if (!/^[a-f0-9]{40}$/i.test(job.commitSha)) throw new Error('固定提交无效。');
-    const fetched = await run('git', ['-C', workspace, 'fetch', '--depth', '1', 'origin', job.commitSha], { timeout: 90000 });
-    const checkout = fetched.code === 0 ? await run('git', ['-C', workspace, 'checkout', '--detach', job.commitSha], { timeout: 20000 }) : null;
+    const fetched = await run('git', ['-c', 'core.longpaths=true', '-C', workspace, 'fetch', '--depth', '1', 'origin', job.commitSha], { timeout: 90000 });
+    const checkout = fetched.code === 0 ? await run('git', ['-c', 'core.longpaths=true', '-C', workspace, 'checkout', '--detach', job.commitSha], { timeout: 20000 }) : null;
     if (!checkout || checkout.code !== 0) throw new Error('无法获取计划绑定的仓库快照。');
     return { commitSha: job.commitSha, log: `${cloned.stdout}\n${fetched.stdout}\n已固定 ${job.commitSha}` };
   }
@@ -69,8 +69,8 @@ async function prepareSource(job: ReproductionJob, workspace: string, branch?: s
 function dockerPath(path: string) { return path.replace(/\\/g, '/'); }
 
 async function resetWorkspace(workspace: string, commitSha: string) {
-  const reset = await run('git', ['-C', workspace, 'reset', '--hard', commitSha], { timeout: 20_000 });
-  const clean = await run('git', ['-C', workspace, 'clean', '-ffdx'], { timeout: 20_000 });
+  const reset = await run('git', ['-c', 'core.longpaths=true', '-C', workspace, 'reset', '--hard', commitSha], { timeout: 20_000 });
+  const clean = await run('git', ['-c', 'core.longpaths=true', '-C', workspace, 'clean', '-ffdx'], { timeout: 20_000 });
   if (reset.code !== 0 || clean.code !== 0) throw new Error('无法为下一次验证恢复干净的仓库快照。');
 }
 

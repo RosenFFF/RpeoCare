@@ -1,5 +1,6 @@
 /** Full public-source -> queue -> leased Docker executor -> shared assessment acceptance. */
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { prepareMaintenanceVerification } from '../src/server/workbench/maintenance-verification';
@@ -7,7 +8,8 @@ import { assessVerification } from '../src/shared/lib/maintenance-verification';
 
 async function main() {
   const manifest = JSON.parse(readFileSync(resolve(process.argv[2]), 'utf8'));
-  const root = resolve('data', `workflow-${new Date().toISOString().replace(/[:.]/g, '-')}`); mkdirSync(root, { recursive: true });
+  const root = resolve('data', `workflow-${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID()}`); mkdirSync(root, { recursive: true });
+  console.log(`Workflow evidence: ${root}`);
   process.env.REPOCARE_DB_PATH = join(root, 'workflow.sqlite'); process.env.REPOCARE_REPRO_ARTIFACTS = join(root, 'reproduction'); process.env.REPOCARE_REPRO_ENABLED = 'true';
   const { createReproductionJob, queueReproductionJob, getReproductionJob } = await import('../src/server/workbench/store');
   const { claimReproduction } = await import('../src/server/reproduction/queue');

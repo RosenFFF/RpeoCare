@@ -128,3 +128,35 @@ test('regression coverage never treats pending, unreviewed or mismatched records
   p.jobs[1].verification!.fingerprint = 'different';
   assert.equal(verificationCoverage(p.context, p.jobs).state, 'unknown');
 });
+
+test('stable normal-behavior regression is named and drives investigation without weakening tests', () => {
+  const p = pair(), command = 'python3 -m pytest tests/test_value.py::test_normal -q';
+  p.context.regressionCommands = [command]; p.jobs[1].status = 'not-reproduced';
+  for (const job of p.jobs) for (const attempt of job.attemptHistory) attempt.steps!.push({ phase: 'verify', type: 'run-test', command, code: job.verificationRole === 'baseline' ? 0 : 1, ok: job.verificationRole === 'baseline', failureKind: job.verificationRole === 'baseline' ? undefined : 'assertion' });
+  assert.match(verificationCoverage(p.context, p.jobs).label, /候选引入回归/);
+  assert.equal(verificationCoverage(p.context, p.jobs).results[0].regressed, true);
+  assert.equal(assessVerification(p.context, p.jobs).state, 'inconclusive');
+  assert.match(assessVerification(p.context, p.jobs).reason, /存在回归/);
+  const next = verificationNextAction(p.context, p.jobs)!;
+  assert.match(next.title, /修复候选引入的回归/); assert.match(next.prompt, /不得删除、弱化/); assert.ok(next.prompt.includes(command));
+  p.jobs[1].attemptHistory[0].environmentFingerprint = 'different';
+  assert.equal(verificationCoverage(p.context, p.jobs).results[0].regressed, false);
+  p.jobs[1].attemptHistory[0].environmentFingerprint = 'same-image-and-deps';
+  p.jobs[0].attemptHistory[0].steps!.at(-1)!.code = 1;
+  assert.equal(verificationCoverage(p.context, p.jobs).results[0].regressed, false);
+  assert.doesNotMatch(verificationCoverage(p.context, p.jobs).label, /候选引入/);
+});
+
+test('a known failing requirement remains prominent when another target is inconclusive', () => {
+  const p = pair(), second = { ...p.context.requirements[0], id: 'second', command: 'python3 -m pytest tests/test_value.py::test_other -q' };
+  p.context.requirements.push(second); p.jobs[1].status = 'not-reproduced';
+  for (const job of p.jobs) {
+    job.verification!.confirmedRequirementIds!.push(second.id);
+    for (const attempt of job.attemptHistory) attempt.steps!.push({ phase: 'verify', type: 'run-test', command: second.command, code: 1, ok: false, failureKind: 'assertion', stdout: 'EMPTY_EXPECTED' });
+  }
+  const assessment = assessVerification(p.context, p.jobs);
+  assert.equal(assessment.requirements[0].outcome, 'inconclusive');
+  assert.equal(assessment.requirements[1].outcome, 'still-failing');
+  assert.equal(assessment.state, 'still-failing');
+  assert.match(verificationNextAction(p.context, p.jobs)!.title, /失败用例/);
+});
