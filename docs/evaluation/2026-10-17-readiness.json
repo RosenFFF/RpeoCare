@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-17",
+  "kind": "static-environment-preflight-acceptance",
+  "unit": "Four candidate-plan scenarios from three previously explored public issues; no new model calls or test execution.",
+  "evidence": {
+    "localRoot": "data/readiness-acceptance-4de2b90a",
+    "resultSha256": "b72cd6207717c4bdbbdb71d48a1d7d596696814b653b7fa4981fbfb289c8dce0",
+    "availability": "Full plans and artifacts remain local and ignored; public index is not a complete replay bundle."
+  },
+  "cases": [
+    {
+      "case": "markup",
+      "repository": "https://github.com/pallets/markupsafe",
+      "issue": "https://github.com/pallets/markupsafe/issues/417",
+      "commit": "b7cd6523579ea5a08d89799f2a64ec2c2bc45eca",
+      "planSha256": "52f67757b5f7318cddea20ddbf5d9828699f3912e4563b4ef947c6b1b6f3f7d6",
+      "runnerImageId": "sha256:0ccdf2e5c4a2310c00ff36486fc5f1fae8464ced01e5131926c42a51b5d0bf65",
+      "checkedAt": "2026-10-17T03:35:34.136Z",
+      "runtime": {
+        "python": "3.12.3",
+        "pytest": "7.4.4"
+      },
+      "status": "review",
+      "checks": [
+        {
+          "id": "selector-5",
+          "status": "unknown",
+          "title": "命令未指定单个测试文件",
+          "detail": "目录或模块形式的完整收集不在本次静态扫描范围。"
+        }
+      ],
+      "limitations": [
+        "仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。",
+        "条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。"
+      ],
+      "attemptCount": 0,
+      "artifacts": [
+        {
+          "path": "5944b5a7-defe-4478-9af4-e54521831e8f/1ef8980c7e5c38ab/preflight/preflight.json",
+          "sha256": "f48f4d08df64fd2cad3ebdf034b8e45a7dd88e2ae1b59324ef6de6ac9aaf375b",
+          "size": 1554
+        }
+      ]
+    },
+    {
+      "case": "dotenv-nested",
+      "repository": "https://github.com/theskumar/python-dotenv",
+      "issue": "https://github.com/theskumar/python-dotenv/issues/256",
+      "commit": "784102284471252f418e797c1874a00063426210",
+      "planSha256": "031e9ee734440f550303722f3bf2ff7ef4e8e54cd150a1bead7bb1cc2eb96754",
+      "runnerImageId": "sha256:0ccdf2e5c4a2310c00ff36486fc5f1fae8464ced01e5131926c42a51b5d0bf65",
+      "checkedAt": "2026-10-17T03:35:40.963Z",
+      "runtime": {
+        "python": "3.12.3",
+        "pytest": "7.4.4"
+      },
+      "status": "blocked",
+      "checks": [
+        {
+          "id": "import-click-tests/conftest.py",
+          "status": "blocked",
+          "title": "导入依赖 click",
+          "detail": "选定文件的顶层导入在当前镜像中不可用。",
+          "path": "tests/conftest.py",
+          "remedy": "依据固定仓库声明准备依赖，或明确调整验证范围；不禁用原配置。"
+        }
+      ],
+      "limitations": [
+        "仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。",
+        "条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。"
+      ],
+      "attemptCount": 0,
+      "artifacts": [
+        {
+          "path": "4a6b8c13-3ede-4ab0-90e8-15db26239e3b/9a85e1f87bb3b6c6/preflight/preflight.json",
+          "sha256": "a4ed8de7d1df346174fe6441306b6bb3d5a9bd2fb9b9489892f2383e252e08df",
+          "size": 2437
+        }
+      ]
+    },
+    {
+      "case": "dotenv-root",
+      "repository": "https://github.com/theskumar/python-dotenv",
+      "issue": "https://github.com/theskumar/python-dotenv/issues/256",
+      "commit": "784102284471252f418e797c1874a00063426210",
+      "planSha256": "6ec72df904e5a128d4788cce760743d64bce4c2d5fc23f52adac877eabcf1a8d",
+      "runnerImageId": "sha256:0ccdf2e5c4a2310c00ff36486fc5f1fae8464ced01e5131926c42a51b5d0bf65",
+      "checkedAt": "2026-10-17T03:35:47.336Z",
+      "runtime": {
+        "python": "3.12.3",
+        "pytest": "7.4.4"
+      },
+      "status": "ready",
+      "checks": [],
+      "limitations": [
+        "仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。",
+        "条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。"
+      ],
+      "attemptCount": 0,
+      "artifacts": [
+        {
+          "path": "0d66242a-54f3-4f57-856f-d9cb3c0107d2/661009c4fb018caf/preflight/preflight.json",
+          "sha256": "7f541e78b18692eb51a8c9bfd88c363716e91ea18802321e02322dbb6104ce01",
+          "size": 1817
+        }
+      ]
+    },
+    {
+      "case": "human",
+      "repository": "https://github.com/python-humanize/humanize",
+      "issue": "https://github.com/python-humanize/humanize/issues/366",
+      "commit": "3c577d7650508d52aa2982e930b0e744c343082f",
+      "planSha256": "263547df2bd6d062c62ee779da43260f50caa4587b1437b6f0f84927706d0187",
+      "runnerImageId": "sha256:0ccdf2e5c4a2310c00ff36486fc5f1fae8464ced01e5131926c42a51b5d0bf65",
+      "checkedAt": "2026-10-17T03:35:54.654Z",
+      "runtime": {
+        "python": "3.12.3",
+        "pytest": "7.4.4"
+      },
+      "status": "blocked",
+      "checks": [
+        {
+          "id": "project-pytest",
+          "status": "blocked",
+          "title": "项目声明的pytest要求",
+          "detail": "pytest>=9",
+          "path": "pyproject.toml",
+          "remedy": "使用符合项目声明的pytest；依赖准备后的实际版本仍需核对。"
+        },
+        {
+          "id": "pytest-minimum",
+          "status": "blocked",
+          "title": "pytest配置的最低版本",
+          "detail": "9.0",
+          "path": "pyproject.toml",
+          "remedy": "更新受支持Runner的pytest版本后再检查。"
+        },
+        {
+          "id": "build-hatch-vcs",
+          "status": "warning",
+          "title": "构建依赖 hatch-vcs",
+          "detail": "当前镜像未安装；直接从src导入不一定需要构建。",
+          "path": "pyproject.toml",
+          "remedy": "本地包安装需要兼容构建后端；当前预检不安装依赖。"
+        },
+        {
+          "id": "build-hatchling",
+          "status": "warning",
+          "title": "构建依赖 hatchling",
+          "detail": "当前镜像未安装；直接从src导入不一定需要构建。",
+          "path": "pyproject.toml",
+          "remedy": "本地包安装需要兼容构建后端；当前预检不安装依赖。"
+        },
+        {
+          "id": "relative-src/humanize/__init__.py-35",
+          "status": "unknown",
+          "title": "本地相对导入需核对",
+          "detail": "可能涉及生成模块、扩展或动态注入，静态检查不能证明可导入。",
+          "path": "src/humanize/__init__.py"
+        }
+      ],
+      "limitations": [
+        "仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。",
+        "条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。"
+      ],
+      "attemptCount": 0,
+      "artifacts": [
+        {
+          "path": "83de02ae-2cbb-4031-ab8b-92108c17315e/6949165394c58005/preflight/preflight.json",
+          "sha256": "5128c5d27366997737b500318cbed81eadef71cd254eb3e5d8c2b9fd11f7350b",
+          "size": 3952
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Static checks do not execute repository code, install dependencies or collect tests.",
+    "A ready result does not establish test success or repair correctness.",
+    "These are reused development cases, without independent maintainer adoption or comparative model evidence.",
+    "UI server rendering was checked; browser interaction and visual acceptance were not completed because an earlier policy block remained in effect."
+  ]
+}

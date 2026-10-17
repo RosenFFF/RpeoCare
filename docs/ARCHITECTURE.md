@@ -46,6 +46,8 @@ pi Agent 通过 npm SDK 接入，版本由锁文件固定。旁边的 `pi-agent`
 
 现有分诊、PR 审查、文档生成动作 → 请求内的只读 pi 工具循环 → 固定提交源码与协作上下文 → 原有结构化结果及读取依据。Issue、PR、体检报告和文档草稿详情中的深入处理动作 → SQLite 持久队列 → 独立 Agent Worker → 阶段结论、补丁、回复草稿和待确认执行计划。结果留在对应业务页面，导航没有独立 Agent 模块。阶段可补充、停止和继续，知识由用户确认保存及停用；复现与补丁对照验证复用隔离执行器。实现、恢复与资源边界见 [MAINTENANCE_AGENT.md](MAINTENANCE_AGENT.md)。
 
+Python 计划确认前的静态环境预检复用复现队列，使用独立任务用途及只读源码挂载。前置条件复核独立存储，保持原计划指纹。共享纯函数供页面、接口和导出计算有效阻塞；执行准备边界见 [MAINTENANCE_VERIFICATION.md](MAINTENANCE_VERIFICATION.md#执行阻塞与结论范围)。
+
 ## Issue 复现执行链
 
 Issue 正文与评论 → AI 严格 JSON 计划 → 服务端安全校验 → 维护者人工确认 → SQLite 队列 → 独立复现 Worker → 固定 Git commit → Docker Runner 三次执行 → 机器判据与 SHA-256 证据。Web 进程不执行仓库代码；执行阶段网络关闭，Docker 不可用时不回退宿主机。详细边界见 [REPRODUCTION.md](REPRODUCTION.md)。

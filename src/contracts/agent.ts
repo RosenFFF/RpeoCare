@@ -19,6 +19,7 @@ export interface AgentFinding {
     evidenceIds: string[];
 }
 export interface AgentReport {
+    scopeLimitations?: string[];
     summary: string;
     findings: AgentFinding[];
     missingInformation: string[];
@@ -49,6 +50,8 @@ export interface AgentArtifact {
     createdAt: string;
 }
 export interface MaintenanceTask {
+    reportRevision?: number;
+    prerequisiteReviews?: import('./execution-readiness').PrerequisiteReview[];
     anchor?: string;
     sourceCommitSha?: string;
     id: string;

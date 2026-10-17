@@ -13,6 +13,7 @@ RepoCare 的复现实验室将 Issue 文本转化为**先审阅、再执行、�
 
 - `REPOCARE_REPRO_ENABLED` 默认关闭；Docker 不可用时任务安全阻塞，**绝不回退到宿主机执行仓库代码**。
 - Web 进程只生成和确认计划；实际执行由 `scripts/reproduction-worker.ts` 处理。
+- 维护 Agent 的 Python 计划还提供独立静态环境预检。预检只读取固定源码，不能作为复现或测试通过记录；支持范围见 [确认前环境检查](MAINTENANCE_VERIFICATION.md#固定-runner-环境预检)。
 - 仅支持 GitHub 公开仓库的 HTTPS 克隆。当前不会把用户 GitHub token 注入 Runner。
 - 最多同时排队或执行 2 个任务；任务按账户与项目隔离。
 - 执行阶段 `--network none`。只有经人工审阅后显式设置 `REPOCARE_REPRO_ALLOW_NETWORK=true`，依赖准备阶段才使用网络。

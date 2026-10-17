@@ -135,7 +135,7 @@ function observedOracle() {
 }
 
 function environmentSnapshot() {
-  const python = spawnSync('python3', ['-c', 'import sys,json,importlib.metadata as m; print(json.dumps({"python":sys.version.split()[0],"dependencies":sorted((d.metadata.get("Name",""),d.version) for d in m.distributions(path=[sys.argv[1]]))},sort_keys=True))', resolve(workdir, '.repocare-python')], { encoding: 'utf8', timeout: 10000, maxBuffer: 500000 });
+  const python = spawnSync('python3', ['-I', '-c', 'import sys,json,importlib.metadata as m; print(json.dumps({"python":sys.version.split()[0],"dependencies":sorted((d.metadata.get("Name",""),d.version) for d in m.distributions(path=[sys.argv[1]]))},sort_keys=True))', resolve(workdir, '.repocare-python')], { encoding: 'utf8', timeout: 10000, maxBuffer: 500000 });
   if (python.status !== 0) return { node: process.versions.node, platform: process.platform, dependencies: 'unavailable' };
   const value = JSON.parse(python.stdout);
   return { node: process.versions.node, platform: process.platform, python: value.python, dependencies: createHash('sha256').update(JSON.stringify(value.dependencies)).digest('hex') };
@@ -150,6 +150,14 @@ try {
     if (!(await lstat(workdir)).isDirectory()) throw new Error('Working directory is not a directory.');
   }
   output.environment = environmentSnapshot();
+  if (phase === 'preflight') {
+    const checked = spawnSync('python3', ['-I', '/opt/repocare/preflight.py'], { encoding: 'utf8', timeout: Math.min(maxMs, 30000), maxBuffer: 500000, cwd: '/tmp' });
+    if (checked.status !== 0) throw Object.assign(new Error('Static environment inspection did not complete; repository code was not executed.'), { failureKind: 'setup' });
+    const preflight = JSON.parse(checked.stdout);
+    await writeFile(`${artifacts}/preflight.json`, JSON.stringify(preflight, null, 2), 'utf8');
+    output.summary = 'Static environment inspection completed; no project code or tests ran.';
+    output.reproduced = false;
+  } else {
   if (plan.environment?.language === 'Python' && /^\d+(?:\.\d+){0,2}$/.test(plan.environment.version || '')) {
     const expected = plan.environment.version.split('.');
     if (!expected.every((part, index) => output.environment.python?.split('.')[index] === part)) throw Object.assign(new Error('The Runner Python version does not match the reviewed plan.'), { failureKind: 'setup' });
@@ -176,6 +184,7 @@ try {
     output.failureKind = output.steps.find(step => step.failureKind && ['dependencies', 'collection'].includes(step.failureKind))?.failureKind || output.steps.find(step => step.failureKind)?.failureKind;
     output.reproduced = !['dependencies', 'collection', 'setup'].includes(output.failureKind) && observedOracle();
     output.summary = output.reproduced ? 'Observed the plan oracle.' : 'The plan completed without observing the oracle.';
+  }
   }
 } catch (error) {
   output.failureKind = error.failureKind || (phase === 'dependencies' ? 'dependencies' : 'unknown');

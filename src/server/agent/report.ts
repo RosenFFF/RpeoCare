@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { MaintenanceTask } from '../../contracts/agent';
 
-export const maintenanceReportSchema = z.object({ summary: z.string().min(1).max(2000), findings: z.array(z.object({ title: z.string().max(200), detail: z.string().max(2000), certainty: z.enum(['supported', 'hypothesis']), evidenceIds: z.array(z.string()).max(12) }).strict()).max(12), missingInformation: z.array(z.string().max(600)).max(12), nextSteps: z.array(z.string().max(600)).max(12) }).strict();
+export const maintenanceReportSchema = z.object({ summary: z.string().min(1).max(2000), findings: z.array(z.object({ title: z.string().max(200), detail: z.string().max(2000), certainty: z.enum(['supported', 'hypothesis']), evidenceIds: z.array(z.string()).max(12) }).strict()).max(12), missingInformation: z.array(z.string().max(600)).max(12), nextSteps: z.array(z.string().max(600)).max(12), scopeLimitations: z.array(z.string().trim().min(1).max(600)).max(12).optional() }).strict();
 
 export function checkedMaintenanceReport(value: unknown, task: MaintenanceTask) {
   const report = maintenanceReportSchema.parse(value);

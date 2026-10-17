@@ -1,4 +1,5 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
+import { planPrerequisites } from '@/shared/lib/execution-readiness';
 import { db } from '../audit/store';
 import type { RepoSnapshot } from '../../contracts/audit';
 import type { ContributorJourneyContext, Draft, IssueCategory, IssuePriority, IssueTriage, IssueWorkflowStatus, Project, PullRequestReview, ReproductionJob, ReproductionPlan, Usage } from '../../contracts/workbench';
@@ -177,6 +178,9 @@ export function queueReproductionJob(owner: string, id: string, repoUrl: string,
     const job = JSON.parse(row.state) as ReproductionJob;
     if (job.repoUrl !== repoUrl) throw new Error('复现任务不属于当前项目。');
     if (job.status !== 'awaiting-confirmation') throw new Error('复现任务不在等待确认状态。');
+    if (planPrerequisites(job).blockers.length) throw new Error('计划仍有未解决的执行前置条件。');
+    const prerequisitesReview = job.prerequisiteReviews?.at(-1);
+    if (prerequisitesReview && prerequisitesReview.planHash !== createHash('sha256').update(JSON.stringify(job.plan)).digest('hex')) throw new Error('前置条件复核与计划不匹配。');
     if (job.verification && (!review || review.fingerprint !== job.verification.fingerprint || review.requirementIds.length !== job.verification.requirements.length || new Set(review.requirementIds).size !== review.requirementIds.length || job.verification.requirements.some(requirement => !review.requirementIds.includes(requirement.id)))) throw new Error('请逐条核对需求、共享测试及故障判据后确认当前版本。');
     validateBeforeQueue?.();
     const active = database.prepare("SELECT COUNT(*) AS n FROM reproduction_jobs WHERE owner=? AND repo_url=? AND status IN ('queued','running')").get(owner, repoUrl) as { n: number };

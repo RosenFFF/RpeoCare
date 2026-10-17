@@ -1,6 +1,7 @@
 import type { MaintenanceTask } from '@/contracts/agent';
 import type { ReproductionJob } from '@/contracts/workbench';
 import { assessVerification, verificationNextAction } from './maintenance-verification';
+import { planPrerequisites, reportPrerequisites } from './execution-readiness';
 
 export type MaintenanceAction = 'start' | 'stop' | 'restart' | 'supplement' | 'review' | 'read-results' | 'prepare-verification' | 'resume' | 'patch';
 export function maintenanceWorkflow(task: MaintenanceTask | undefined, jobs: ReproductionJob[], stale = false) {
@@ -24,7 +25,7 @@ export function maintenanceWorkflow(task: MaintenanceTask | undefined, jobs: Rep
   else if (outdated) next = { action: 'restart', title: '输入已变化，需要重新核对', detail: '历史记录仍可查看，请基于当前内容准备新方案。', label: '基于当前版本重新准备', model: true };
   else if (executing) next = { action: 'review', title: '隔离验证正在进行', detail: '分别记录原版与候选版的命令结果，完成后再判断改动。', label: '查看执行进度', model: false };
   else if (task.status === 'cancelled') next = { action: 'resume', title: '当前调查已停止', detail: '已有方案与记录保留，恢复调查后再继续准备或确认。', label: '恢复当前调查', model: true };
-  else if (task.status === 'waiting-input' || relevantJobs.some(job => job.plan.missingInformation.length)) next = { action: 'supplement', title: '补齐线索后继续', detail: task.report?.missingInformation[0] || '执行方案仍缺必要信息，请查看缺口并补充。', label: '补充所需信息', model: false };
+  else if ((task.status === 'waiting-input' && !task.report && !waiting) || reportPrerequisites(task).blockers.length || relevantJobs.some(job => planPrerequisites(job).blockers.length)) next = { action: waiting ? 'review' : 'supplement', title: '核对执行前置条件', detail: '真正缺少的环境或需求信息需要补齐；仅影响结论范围的条目可在计划中逐项复核，并保留理由。', label: waiting ? '核对阻塞与范围' : '补充所需信息', model: false };
   else if (waiting) next = { action: 'review', title: '方案已保存，等待你审阅', detail: '核对补丁、测试与预期故障信号，再分别确认两组执行。', label: '审阅并确认计划', model: false };
   else if (relevantJobs.length && !hasReadResults) next = { action: 'read-results', title: '执行已结束，整理实际结论', detail: '读取本次执行记录，说明已验证行为与未覆盖范围。', label: '读取结果并整理结论', model: true,
     prompt: `请先用 read_execution 读取执行记录 ${relevantJobs.map(job => job.id).join('、')}，基于逐次输出整理阶段结论、额外回归和未覆盖范围。不要重新生成相同计划，不自动执行或发布。` };

@@ -81,7 +81,7 @@ function requiresDependencyNetwork(job: ReproductionJob) {
   });
 }
 
-async function runSandbox(job: ReproductionJob, workspace: string, outputDir: string, phase: 'dependencies' | 'execution', network: 'none' | 'bridge', save: SaveJob): Promise<SandboxResult> {
+async function runSandbox(job: ReproductionJob, workspace: string, outputDir: string, phase: 'dependencies' | 'execution' | 'preflight', network: 'none' | 'bridge', save: SaveJob): Promise<SandboxResult> {
   assertScratchPath(outputDir);
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true });
@@ -93,7 +93,7 @@ async function runSandbox(job: ReproductionJob, workspace: string, outputDir: st
     '--tmpfs', '/tmp:rw,nosuid,nodev,size=512m',
     '-e', 'REPRO_PLAN=/input/plan.json', '-e', 'REPRO_WORKSPACE=/workspace', '-e', 'REPRO_ARTIFACTS=/artifacts',
     '-e', `REPRO_PHASE=${phase}`, '-e', `REPRO_TIMEOUT_MS=${timeoutMs()}`,
-    '-v', `${dockerPath(workspace)}:/workspace:rw`, '-v', `${dockerPath(outputDir)}:/artifacts:rw`, '-v', `${dockerPath(planPath)}:/input/plan.json:ro`,
+    '-v', `${dockerPath(workspace)}:/workspace:${phase === 'preflight' ? 'ro' : 'rw'}`, '-v', `${dockerPath(outputDir)}:/artifacts:rw`, '-v', `${dockerPath(planPath)}:/input/plan.json:ro`,
     job.environment?.runnerImageId || image(),
   ];
   if (typeof process.getuid === 'function' && typeof process.getgid === 'function') args.splice(args.length - 1, 0, '--user', `${process.getuid()}:${process.getgid()}`);
@@ -105,7 +105,7 @@ async function runSandbox(job: ReproductionJob, workspace: string, outputDir: st
       if (raw === lastProgress) return;
       lastProgress = raw;
       const progress = JSON.parse(raw) as { phase?: ReproductionPhase; currentStep?: number; totalSteps?: number; currentStepLabel?: string };
-      save({ phase: progress.phase || phase, currentAttempt: job.currentAttempt || 0, currentStep: progress.currentStep, totalSteps: progress.totalSteps || job.totalSteps, currentStepLabel: progress.currentStepLabel, progress: progress.currentStepLabel || `正在执行第 ${progress.currentStep || 0}/${progress.totalSteps || job.totalSteps || 0} 步` });
+      save({ phase: progress.phase || (phase === 'preflight' ? 'execution' : phase), currentAttempt: job.currentAttempt || 0, currentStep: progress.currentStep, totalSteps: progress.totalSteps || job.totalSteps, currentStepLabel: progress.currentStepLabel, progress: progress.currentStepLabel || `正在执行第 ${progress.currentStep || 0}/${progress.totalSteps || job.totalSteps || 0} 步` });
     } catch { /* Runner may not have written progress yet. */ }
   }, 750);
   try {
@@ -191,6 +191,23 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
     job = save({ phase: 'source', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '正在获取仓库并锁定提交版本', progress: '正在获取仓库并锁定提交版本', environment: { ...docker, runnerImage: image(), network: requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK === 'true' ? 'dependency preparation only; execution disabled' : 'disabled', isolation: 'read-only rootfs, no capabilities, resource limits' } });
     const source = await prepareSource(job, workspace, job.branch);
     await writeFile(resolve(jobDir, 'source.log'), source.log, 'utf8');
+    if (job.purpose === 'environment-preflight') {
+      const directory = resolve(jobDir, 'preflight');
+      const inspected = await runSandbox(job, workspace, directory, 'preflight', 'none', save);
+      if (inspected.error) throw Object.assign(new Error(inspected.error), { failureKind: 'setup' });
+      const raw = JSON.parse(await readFile(resolve(directory, 'preflight.json'), 'utf8')) as import('@/contracts/execution-readiness').EnvironmentPreflight;
+      if (!['ready', 'review', 'blocked'].includes(raw.status) || !Array.isArray(raw.checks) || raw.checks.length > 80) throw new Error('预检结果格式不完整。');
+      if (requiresDependencyNetwork(job) && process.env.REPOCARE_REPRO_ALLOW_NETWORK !== 'true') { raw.checks.push({ id: 'dependency-network', status: 'blocked', title: '依赖准备尚未启用', detail: '计划包含依赖安装，当前准备阶段网络默认关闭。', remedy: '核对依赖来源并由管理员显式配置受支持的准备环境。' }); raw.status = 'blocked'; }
+      const preflight = { ...raw, checkedAt: new Date().toISOString(), planHash: createHash('sha256').update(JSON.stringify(job.plan)).digest('hex'), commitSha: source.commitSha, runnerImageId: docker.runnerImageId };
+      const artifacts = await collectArtifacts(jobDir);
+      save({ status: preflight.status === 'blocked' ? 'blocked' : 'reproduced', phase: 'evidence', preflight, artifacts, finishedAt: new Date().toISOString(), progress: preflight.status === 'blocked' ? '静态预检发现执行条件受阻；未运行项目代码。' : '静态预检完成，仍需核对范围与人工确认执行。' });
+      return;
+    }
+    if (job.preflightJobId) {
+      const { getReproductionJob } = await import('../workbench/store');
+      const check = getReproductionJob(owner, job.preflightJobId).preflight;
+      if (!check || check.runnerImageId !== docker.runnerImageId || check.planHash !== createHash('sha256').update(JSON.stringify(job.plan)).digest('hex')) throw Object.assign(new Error('Runner 镜像或计划已变化，请重新预检后准备执行。'), { failureKind: 'sandbox' });
+    }
     const total = attemptLimit(job);
     job = save({ commitSha: source.commitSha, phase: 'execution', phaseStartedAt: new Date().toISOString(), currentAttempt: 0, currentStep: 0, currentStepLabel: '固定提交已准备，等待第一次验证', progress: `固定提交已准备，正在进行 ${total} 次独立验证` });
     const history: ReproductionAttempt[] = [];

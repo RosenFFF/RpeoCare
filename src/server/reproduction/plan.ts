@@ -36,6 +36,7 @@ export const reproductionPlanSchema = z.object({
   evidence: z.array(z.enum(['stdout', 'stderr', 'screenshot', 'trace', 'video', 'network', 'console', 'stacktrace', 'test-result'])).min(1).max(10),
   risks: z.array(z.string().max(500)).max(20),
   missingInformation: z.array(z.string().max(500)).max(20),
+  scopeLimitations: z.array(z.string().trim().min(1).max(500)).max(20).optional(),
   requiresHumanApproval: z.literal(true),
 }).strict();
 

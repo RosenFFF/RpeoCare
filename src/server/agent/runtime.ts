@@ -12,6 +12,7 @@ import { recordModelFailure } from '../models/request-diagnostics';
 import { maintenanceProgressHint } from '../../shared/lib/maintenance-progress';
 import { checkedMaintenanceReport, deliveredDialogueIds } from './report';
 const prompt = `你是 RepoCare 专属仓库维护 Agent。你服务于维护者，也帮助贡献者形成可审阅的解决方案。用中文完成用户目标。
+计划与报告均可使用scopeLimitations表达未覆盖范围，例如仅验证一个接口、未运行完整套件。missingInformation只写真正阻止选定命令执行或阻止判断需求的缺口。等待确认、待运行、已明确接受的限定范围不能写入missingInformation。不能把缺失依赖或版本不符伪装成范围限制。
 准备测试计划前调用read_verification_environment核对执行器声明，声明不等于当前环境实测。src布局自动加入PYTHONPATH；不要把未安装editable包本身当作导入阻塞。额外依赖和生成元数据仍须按固定源码核对。
 用read_patch_file检查已保存候选的实际内容，特别是分阶段修订后的测试断言与生产改动是否一致。验证原文目标之外，也保留同一接口的相反开关值、正常输入和相关边界行为；这些正常行为放regressionCommands，不能要求它们原版失败。不要凭空改动已读取的正常预期。
 修订候选文件优先使用propose_patch的basePatchId指定read_patch_file返回的当前补丁ID，此时before匹配候选内容。服务端会还原最终Diff相对原始提交的before；不会把候选作为执行基准。省略basePatchId时仍以原始提交为替换基准。
@@ -176,6 +177,7 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
                 throw new Error('阶段报告过长。');
             const report = checkedMaintenanceReport(reportSubmitted ? task.report : JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, '')), task);
             task.report = report;
+            if (!reportSubmitted) task.reportRevision = (task.reportRevision || 0) + 1;
             task.dialogue.push({ id: randomUUID(), role: 'assistant', content: report.summary, at: new Date().toISOString() });
             const pendingAfter = syncDialogue(claim).filter(m => !injected.has(m.id));
             const awaiting = task.artifacts.filter(a=>!a.superseded).flatMap(a => a.jobIds || []).some(id => getReproductionJob(claim.owner, id).status === 'awaiting-confirmation');

@@ -12,6 +12,7 @@ RUN apt-get update \
 
 COPY runner.mjs /opt/repocare/runner.mjs
 COPY commands.mjs /opt/repocare/commands.mjs
+COPY preflight.py /opt/repocare/preflight.py
 
 USER repocare
 ENTRYPOINT ["node", "/opt/repocare/runner.mjs"]

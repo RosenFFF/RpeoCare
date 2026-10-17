@@ -74,6 +74,7 @@ export interface ReproductionOracle {
   value: string;
 }
 export interface ReproductionPlan {
+  scopeLimitations?: string[];
   workingDirectory?: string;
   mode: ReproductionMode;
   confidence: IssueConfidence;
@@ -138,6 +139,10 @@ export interface VerificationStepResult {
   ok: boolean;
 }
 export interface ReproductionJob {
+  prerequisiteReviews?: import('./execution-readiness').PrerequisiteReview[];
+  preflightJobId?: string;
+  preflightForJobId?: string;
+  preflight?: import('./execution-readiness').EnvironmentPreflight;
   failureKind?: ExecutionFailureKind;
   dependencySteps?: VerificationStepResult[];
   executionEnvironment?: Record<string, string>;
@@ -147,7 +152,7 @@ export interface ReproductionJob {
   branch?: string;
   issueNumber: number;
   sourceUpdatedAt: string;
-  purpose?: 'issue-reproduction' | 'contributor-journey' | 'agent-verification';
+  purpose?: 'issue-reproduction' | 'contributor-journey' | 'agent-verification' | 'environment-preflight';
   agentTaskId?: string;
   verificationRole?: 'baseline' | 'patched';
   auditRunId?: string;

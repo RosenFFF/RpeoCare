@@ -15,7 +15,7 @@ export const verificationRequirementsSchema = z.array(z.object({
 }).strict()).min(1).max(8);
 
 /** Build the routine pytest plan from explicit model proposals; all execution still requires review. */
-export function maintenanceTestPlan(input: { requirements: unknown; regressionCommands?: string[]; setupCommands?: string[]; missingInformation?: string[] }): ReproductionPlan {
+export function maintenanceTestPlan(input: { requirements: unknown; regressionCommands?: string[]; setupCommands?: string[]; missingInformation?: string[]; scopeLimitations?: string[] }): ReproductionPlan {
   const requirements = verificationRequirementsSchema.parse(input.requirements);
   const commands = [...new Set([...requirements.map(requirement => requirement.command), ...(input.regressionCommands || [])])];
   return validateReproductionPlan({ mode: 'test', confidence: 'medium', summary: `逐条需求对照：${requirements.map(requirement => requirement.text).join('；')}`.slice(0, 1800),
@@ -23,7 +23,7 @@ export function maintenanceTestPlan(input: { requirements: unknown; regressionCo
     setup: (input.setupCommands || []).map(command => ({ type: 'run-command', command })),
     steps: commands.map(command => ({ type: 'run-test', command })), oracle: { type: 'all-steps-pass', value: '所有计划内验证命令退出码为 0' },
     expected: '目标需求测试和额外回归命令均通过。', evidence: ['stdout', 'stderr', 'test-result'],
-    risks: ['测试与原文要求的语义对应仍需人工核对。'], missingInformation: input.missingInformation || [], requiresHumanApproval: true });
+    risks: ['测试与原文要求的语义对应仍需人工核对。'], missingInformation: input.missingInformation || [], ...(input.scopeLimitations ? { scopeLimitations: input.scopeLimitations } : {}), requiresHumanApproval: true });
 }
 export const verificationHash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export const testPath = (path: string) => /(^|\/)(?:tests?\/|test_[^/]+\.py$|[^/]+_test\.py$|conftest\.py$)/.test(path);
