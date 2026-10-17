@@ -16,7 +16,7 @@
 .as-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
 .as-welcome { min-height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 45px 24px; }
 .as-welcome-icon { color: var(--accent); margin-bottom: 22px; }
-.as-welcome h2 { font-size: clamp(20px, 2vw, 28px); letter-spacing: -.8px; font-weight: 500; margin: 0; line-height: 1.5; }
+.as-welcome :is(h1, h2) { font-size: clamp(20px, 2vw, 28px); letter-spacing: -.8px; font-weight: 500; margin: 0; line-height: 1.5; }
 .as-welcome > p { margin: 17px 0 24px; font-size: 12px; line-height: 2; color: var(--muted); max-width: 430px; }
 .as-scope { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; color: var(--muted); font-size: 11px; }
 .as-scope > span { display: inline-flex; align-items: center; gap: 6px; }
@@ -129,7 +129,7 @@
 .as-content .aw-report-stats > p { grid-column: 1 / -1; padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--line); }
 .as-content .aw-section-heading { flex-wrap: wrap; }
 .as-placeholder { padding: 65px 24px; text-align: center; color: var(--muted); }
-.as-placeholder h2 { font-size: 18px; color: var(--ink); margin: 19px 0 12px; font-weight: 500; }
+.as-placeholder :is(h1, h2) { font-size: 18px; color: var(--ink); margin: 19px 0 12px; font-weight: 500; }
 .as-placeholder p { font-size: 12px; line-height: 1.9; }
 .as-placeholder button { margin-top: 20px; border: 0; background: transparent; color: var(--accent); font-size: 12px; cursor: pointer; }
 .as-history-panel { position: absolute; z-index: 30; top: 48px; right: 280px; width: min(400px, 100%); max-height: 420px; overflow: auto; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; padding: 15px; box-shadow: 0 10px 30px #00000012; }
@@ -142,7 +142,7 @@
 .as-history-panel > p { font-size: 12px; color: var(--muted); line-height: 1.8; }
 @media (max-width: 1150px) { .as-workspace { grid-template-columns: minmax(0, 1fr) 238px; } .as-inspector { padding-inline: 14px; } .as-conversation { padding-inline: 20px; } .as-toolbar { padding-inline: 16px; } .as-toolbar nav { gap: 15px; } .as-readonly { display: none; } .as-stage-label { display: none; } .as-scope { gap: 12px; } }
 @media (max-width: 960px) { .as-workspace { grid-template-columns: 1fr; height: auto; max-height: none; } .as-main { min-height: 640px; } .as-content { max-height: 650px; min-height: 360px; } .as-inspector { border-left: 0; border-top: 1px solid var(--line); } .as-timeline { display: flex; flex-wrap: wrap; margin-bottom: 8px; } .as-timeline li { flex: 1 1 120px; padding-bottom: 0; } .as-timeline li::after { display: none; } .as-context dl { grid-template-columns: 45px 1fr; } .as-boundary { display: none; } }
-@media (max-width: 760px) { .main-content.view-audit { padding: 20px 12px 0; } .as-toolbar { padding-inline: 13px; } .as-toolbar nav { flex: 1; justify-content: space-between; gap: 8px; } .as-toolbar nav button { font-size: 11px; } .as-welcome { padding: 37px 18px; } .as-welcome h2 { font-size: 21px; } .as-scope { flex-direction: column; gap: 13px; text-align: left; } .as-main { min-height: 610px; } .as-composer-area { padding: 12px; } .as-composer { padding-inline: 12px; } .as-input-row input { font-size: 12px; } .as-conversation { padding: 23px 14px; } .as-user-message { max-width: 95%; } .as-agent-message { gap: 8px; } .as-result { padding: 13px; } .as-content > .aw-report { padding: 20px 14px; } .as-history-panel { top: 50px; right: 0; } }
+@media (max-width: 760px) { .main-content.view-audit { padding: 20px 12px 0; } .as-toolbar { padding-inline: 13px; } .as-toolbar nav { flex: 1; justify-content: space-between; gap: 8px; } .as-toolbar nav button { font-size: 11px; } .as-welcome { padding: 37px 18px; } .as-welcome :is(h1, h2) { font-size: 21px; } .as-scope { flex-direction: column; gap: 13px; text-align: left; } .as-main { min-height: 610px; } .as-composer-area { padding: 12px; } .as-composer { padding-inline: 12px; } .as-input-row input { font-size: 12px; } .as-conversation { padding: 23px 14px; } .as-user-message { max-width: 95%; } .as-agent-message { gap: 8px; } .as-result { padding: 13px; } .as-content > .aw-report { padding: 20px 14px; } .as-history-panel { top: 50px; right: 0; } }
 
 .as-toolbar-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
 @media (max-width: 760px) {
