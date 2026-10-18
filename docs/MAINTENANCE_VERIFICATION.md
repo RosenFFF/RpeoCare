@@ -105,6 +105,14 @@ Python 安装可能执行项目构建代码，仍需人工审阅并在受限容�
 
 Humanize 固定版本的真实 VCS 版本生成、cattrs 声明依赖组安装及正常行为检查见 [新案例实测](MAINTENANCE_FRESH_EVALUATION.md)。`scripts/accept-python-preparation.ts` 提供显式 `--reviewed` 验收；只有额外传入 `--allow-network` 才启用该次准备联网。它使用隔离数据库与制品目录，不改变 Web 服务的持久配置，也不提供模型调用。
 
+## 按固定预检声明准备环境
+
+`reproduction/preflight.py`使用现有`tomllib`和安全文本读取，列出根目录已声明的requirements、项目、至多八个依赖组及八个扩展。未知、动态或不受支持的名称不生成安装选项。返回`preparationOptions`只代表读到声明，不代表已安装、兼容或测试通过。
+
+Agent通过`read_execution`取得独立返回的`preparationSource`，可在`prepare_verification`中提交`preparationFrom: {jobId, optionIds}`。服务端从原预检的选项解析实际命令；该方式不能与手写`setupCommands`或高级`planJson`混用。准备来源必须属于同一任务、固定版本及规则，计划指纹一致，预检在三十分钟有效期内；至多选择四个不重复选项。未知选项、改写的命令、其他账户和过期记录均拒绝。
+
+服务端将选中的声明、命令和预检ID保存为交付物的执行依据。原模型方案保留，新方案重新预检并分别人工确认两版执行；网络、Runner和原执行限制继续生效。旧预检没有选项时，可重新预检或依据已读取声明显式提供命令，不能推断选项不存在就表示无需依赖。
+
 ## 验收边界
 
 源码、静态检查和生产构建不能证明真实模型的需求提取正确，也不能替代 Docker、跨版本回归或浏览器交互验收。真实效果需要使用当前产品版本和固定案例单独记录。受控样例、真实历史输入和维护者采用分开统计，详见工作区执行计划。

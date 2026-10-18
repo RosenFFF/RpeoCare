@@ -14,6 +14,8 @@ import { GET, POST } from '../../src/app/api/workbench/agent/route';
 import { verificationCoverage, verificationDecision } from '../../src/shared/lib/maintenance-verification';
 import { RepositoryReader } from '../../src/server/agent/repository';
 import { maintenanceTools } from '../../src/server/agent/tools';
+import { preparationFromPreflight } from '../../src/server/agent/preparation';
+import type { ClaimedTask } from '../../src/server/agent/store';
 
 const root = mkdtempSync(join(tmpdir(), 'repocare-acceptance-'));
 process.env.REPOCARE_DB_PATH = join(root, 'test.sqlite');
@@ -94,6 +96,37 @@ test('a failed import preflight cannot be disguised by a scope-only model revisi
   await assert.rejects(() => prepare.execute('scope-only', { requirements: [{ text: r.text, quote: r.quote, command: r.command, failureSignal: r.failureSignal, changedPaths: r.changedPaths }], scopeLimitations: ['安装依赖的说明不能代替实际准备步骤。'] }), /setupCommands/);
   claim.task.status = 'awaiting-confirmation'; saveClaim(claim);
 });
+test('fixed preflight choices create real setup steps without executing or replacing the original plan', async () => {
+  const p = fixture();
+  const check = createReproductionJob(p.owner, { repoUrl: p.task.repoUrl, commitSha: p.task.commitSha!, issueNumber: 1, sourceUpdatedAt: p.task.sourceUpdatedAt!, plan: p.jobs[0].plan });
+  const prefix = 'python3 -m pip install --target .repocare-python --no-compile ';
+  updateReproductionJob(p.owner, check.id, { purpose: 'environment-preflight', preflightForJobId: p.jobs[0].id, status: 'blocked', preflight: { status: 'blocked', checks: [{ id: 'import-hypothesis-test_value.py', title: 'missing', detail: 'not installed', status: 'blocked' }], limitations: [], runtime: {}, checkedAt: new Date().toISOString(), planHash: verificationHash(p.jobs[0].plan), commitSha: p.task.commitSha!, runnerImageId: 'fixed-image', preparationOptions: [{ id: 'group:test', path: 'pyproject.toml', command: prefix+'--group test' }, { id: 'project', path: 'pyproject.toml', command: prefix+'--no-build-isolation .' }] } });
+  updateReproductionJob(p.owner, p.jobs[0].id, { preflightJobId: check.id });
+  mutateTask(p.owner, p.task.id, 'message', '根据已有预检修订。');
+  const claim = claimTask('preparation-options')!;
+  const tools = await maintenanceTools(new RepositoryReader(claim, new AbortController().signal));
+  const r = p.artifact.verification.requirements[0];
+  await tools.find(tool => tool.name === 'prepare_verification')!.execute('choices', { requirements: [{ text: r.text, quote: r.quote, command: r.command, failureSignal: r.failureSignal, changedPaths: r.changedPaths }], preparationFrom: { jobId: p.jobs[0].id, optionIds: ['group:test', 'project'] } });
+  const latest = claim.task.artifacts.at(-1)!;
+  const job = getReproductionJob(p.owner, latest.jobIds![0]);
+  assert.deepEqual(job.plan.setup.filter(step => step.type === 'run-command').map(step => step.command), [prefix+'--group test', prefix+'--no-build-isolation .']);
+  assert.equal(job.status, 'awaiting-confirmation');
+  assert.deepEqual(getReproductionJob(p.owner, p.jobs[0].id).plan, p.jobs[0].plan);
+  const source = { owner: p.owner, task: claim.task, internal: claim.internal } as ClaimedTask;
+  assert.throws(() => preparationFromPreflight(source, p.jobs[0].id, ['group:absent']), /选项/);
+  assert.throws(() => preparationFromPreflight(source, p.jobs[0].id, ['project', 'project']), /不重复/);
+  const validReport = getReproductionJob(p.owner, check.id).preflight!;
+  updateReproductionJob(p.owner, check.id, { preflight: { ...validReport, checkedAt: new Date(Date.now() - 31 * 60000).toISOString() } });
+  assert.throws(() => preparationFromPreflight(source, p.jobs[0].id, ['project']), /过期/);
+  updateReproductionJob(p.owner, check.id, { preflight: { ...validReport, preparationOptions: [{ id: 'project', path: 'pyproject.toml', command: prefix+'--no-build-isolation . --index-url https://bad.example' }] } });
+  assert.throws(() => preparationFromPreflight(source, p.jobs[0].id, ['project']), /选项/);
+  updateReproductionJob(p.owner, check.id, { preflight: validReport });
+  assert.throws(() => preparationFromPreflight({ ...source, owner: 'another-owner' }, p.jobs[0].id, ['project']));
+  updateReproductionJob(p.owner, p.jobs[0].id, { plan: { ...p.jobs[0].plan, summary: 'changed' } });
+  assert.throws(() => preparationFromPreflight(source, p.jobs[0].id, ['project']), /指纹/);
+  claim.task.status = 'awaiting-confirmation'; saveClaim(claim);
+});
+
 test('acceptance HTTP requires origin and ownership; export retains source and observed status', async () => {
   const p = fixture();
   const request = (origin: string) => new NextRequest('http://localhost/api/workbench/agent', { method: 'POST', headers: { origin, cookie: `repocare_audit_session=${p.owner}`, 'content-type': 'application/json' }, body: JSON.stringify({ ...p.input, action: 'prepare-acceptance', id: p.task.id }) });

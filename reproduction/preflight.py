@@ -17,6 +17,7 @@ from packaging.requirements import Requirement, InvalidRequirement
 def inspect(workspace, plan):
     root = Path(workspace).resolve()
     checks = []
+    preparation_options = []
     seen_checks = set()
     visited = set()
     overlays = {step['path']: step.get('content', '') for step in plan['setup'] if step['type'] == 'create-file'}
@@ -88,6 +89,20 @@ def inspect(workspace, plan):
         project = manifest.get('project', {})
         extras = project.get('optional-dependencies', {})
         groups = manifest.get('dependency-groups', {})
+        # Offer only declarations; pip and a fresh preflight still validate a selected plan.
+        if not prefix:
+            pip = 'python3 -m pip install --target .repocare-python --no-compile '
+            for name in ['requirements-dev.txt', 'requirements-test.txt', 'requirements.txt']:
+                if text(name) is not None:
+                    preparation_options.append(dict(id='requirements:'+name, path=name, command=pip+'-r '+name))
+            if project or manifest.get('build-system'):
+                preparation_options.append(dict(id='project', path='pyproject.toml', command=pip+'--no-build-isolation .'))
+            for kind, values, suffix in [('group', groups, '--group '), ('extra', extras, '--no-build-isolation .[')]:
+                if not isinstance(values, dict):
+                    continue
+                for name in sorted(values)[:8]:
+                    if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,39}', name) and isinstance(values[name], list):
+                        preparation_options.append(dict(id=kind+':'+name, path='pyproject.toml', command=pip+suffix+name+(']' if kind == 'extra' else '')))
         for group in requested_groups:
             add('group-'+group, 'pass' if group in groups else 'blocked', '项目依赖组 '+group, '已读取根目录pyproject.toml声明；具体解析和安装仍由pip完成。' if group in groups else '根目录清单没有声明此依赖组。', prefix+'pyproject.toml')
         for extra in sorted(requested_extras):
@@ -225,7 +240,7 @@ def inspect(workspace, plan):
             root_conftest = prefix+'conftest.py'
             if text(root_conftest) is not None:
                 scan(root_conftest)
-    return dict(status='blocked' if any(c['status']=='blocked' for c in checks) else 'review' if any(c['status'] in ('warning','unknown') for c in checks) else 'ready', runtime=runtime, checks=checks,
+    return dict(status='blocked' if any(c['status']=='blocked' for c in checks) else 'review' if any(c['status'] in ('warning','unknown') for c in checks) else 'ready', runtime=runtime, checks=checks, preparationOptions=preparation_options,
                 limitations=['仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。', '条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。'])
 
 

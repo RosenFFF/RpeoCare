@@ -1,0 +1,52 @@
+{
+  "repoUrl": "https://github.com/pallets/itsdangerous",
+  "branch": "1.1.0",
+  "commitSha": "6e6359864be6055860adf1e11d8bb0db69ff1840",
+  "expected": "not-reproduced",
+  "plan": {
+    "mode": "test",
+    "confidence": "medium",
+    "summary": "Fixed historical future-timestamp and normal-behavior checks; baseline only.",
+    "environment": {
+      "language": "Python",
+      "dependencies": []
+    },
+    "setup": [
+      {
+        "type": "create-file",
+        "path": "test_repocare_future.py",
+        "content": "import pytest\nfrom itsdangerous import TimestampSigner, BadTimeSignature, BadSignature\n\nclass ClockSigner(TimestampSigner):\n    def __init__(self, now):\n        self.now = now\n        super().__init__('test-only-key')\n    def get_timestamp(self):\n        return self.now\n\ndef test_future_timestamp_is_rejected():\n    token = ClockSigner(200).sign(b'payload')\n    try:\n        ClockSigner(100).unsign(token, max_age=60)\n    except BadTimeSignature:\n        return\n    pytest.fail('FUTURE_TIMESTAMP_ACCEPTED')\n\ndef test_normal_timestamps_and_tamper():\n    for age in (0, 20, 60):\n        token = ClockSigner(100-age).sign(b'payload')\n        assert ClockSigner(100).unsign(token, max_age=60) == b'payload'\n        assert ClockSigner(100).unsign(token) == b'payload'\n    old = ClockSigner(39).sign(b'payload')\n    with pytest.raises(BadTimeSignature):\n        ClockSigner(100).unsign(old, max_age=60)\n    with pytest.raises(BadSignature):\n        ClockSigner(100).unsign(old+b'tampered', max_age=60)\n"
+      }
+    ],
+    "steps": [
+      {
+        "type": "run-test",
+        "command": "python3 -m pytest test_repocare_future.py::test_future_timestamp_is_rejected -q"
+      },
+      {
+        "type": "run-test",
+        "command": "python3 -m pytest test_repocare_future.py::test_normal_timestamps_and_tamper -q"
+      }
+    ],
+    "oracle": {
+      "type": "all-steps-pass",
+      "value": "All listed test commands exit zero"
+    },
+    "expected": "Observe the fixed criteria on baseline; no Agent candidate is available.",
+    "evidence": [
+      "stdout",
+      "stderr",
+      "test-result"
+    ],
+    "risks": [
+      "Only selected behaviors, not the full suite."
+    ],
+    "missingInformation": [],
+    "scopeLimitations": [
+      "No model candidate was saved in the bounded stage.",
+      "Future-timestamp criterion was frozen by the operator before the model calls.",
+      "Historical source and issue, not a blind benchmark."
+    ],
+    "requiresHumanApproval": true
+  }
+}

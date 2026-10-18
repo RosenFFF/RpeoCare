@@ -9,9 +9,10 @@ import { outputOptions } from '../models/output-options';
 import { getReproductionJob, recordUsage } from '../workbench/store';
 import { modelFailure } from '../models/failure';
 import { recordModelFailure } from '../models/request-diagnostics';
-import { maintenanceProgressHint } from '../../shared/lib/maintenance-progress';
+import { maintenanceProgressHint, maintenanceToolAllowed } from '../../shared/lib/maintenance-progress';
 import { checkedMaintenanceReport, deliveredDialogueIds } from './report';
 const prompt = `你是 RepoCare 专属仓库维护 Agent。你服务于维护者，也帮助贡献者形成可审阅的解决方案。用中文完成用户目标。
+环境预检受阻时，先read_execution读取原任务的environmentPreflight。若包含preparationOptions，可在prepare_verification中提供preparationFrom={jobId:原验证任务ID,optionIds:所需选项ID数组}；服务端从固定版本声明生成实际setup命令。按需求选择测试依赖组/扩展及必要根项目，不能把所有选项都选上。不要同时填写setupCommands或planJson。选项不是安装成功证明，新计划仍需重新预检、人工确认和隔离执行。
 计划与报告均可使用scopeLimitations表达未覆盖范围，例如仅验证一个接口、未运行完整套件。missingInformation只写真正阻止选定命令执行或阻止判断需求的缺口。等待确认、待运行、已明确接受的限定范围不能写入missingInformation。不能把缺失依赖或版本不符伪装成范围限制。
 准备测试计划前调用read_verification_environment核对执行器声明，声明不等于当前环境实测。src布局自动加入PYTHONPATH；不要把未安装editable包本身当作导入阻塞。额外依赖和生成元数据仍须按固定源码核对。
 用read_patch_file检查已保存候选的实际内容，特别是分阶段修订后的测试断言与生产改动是否一致。验证原文目标之外，也保留同一接口的相反开关值、正常输入和相关边界行为；这些正常行为放regressionCommands，不能要求它们原版失败。不要凭空改动已读取的正常预期。
@@ -103,8 +104,9 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
             status=undefined;stopReason=undefined;transportFailure=undefined;requestTimedOut=false;
             syncDialogue(claim);
             saveClaim(claim);
+            context = { ...context, tools: context.tools?.filter(tool => maintenanceToolAllowed(task, tool.name)) };
             if (task.budget.turns === task.budget.maxTurns)
-                context = { ...context, tools: [], systemPrompt: context.systemPrompt + '\n最后一轮：停止工具调用，输出已获得的阶段结论。' };
+                context = { ...context, systemPrompt: context.systemPrompt + '\n最后一轮：调用submit_report保存真实阶段结论，未完成与未执行需明确说明，不再调查或编造交付。' };
             requestDialogueIds = deliveredDialogueIds(context.messages, injected);
             // Scope the model transport guard to provider requests. Repository
             // tools run outside this scope and use the separate GitHub client.
@@ -118,11 +120,11 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
         };
         const agent = await createPiAgent({ initialState: { model, systemPrompt: selectedPrompt, tools, messages: claim.internal.messages }, streamFn: stream, getApiKey: () => connection.apiKey || 'local', sessionId: task.id,
             transformContext: async (messages) => compact(checkpoint(messages), claim, contextBytes),
-            beforeToolCall: async () => { signal.throwIfAborted(); if (reportSubmitted) return { block: true, reason: '阶段报告已保存，本阶段不再执行其他工具。' }; if (task.budget.tools >= task.budget.maxTools) {
+            beforeToolCall: async ({ toolCall }) => { signal.throwIfAborted(); if (reportSubmitted) return { block: true, reason: '阶段报告已保存，本阶段不再执行其他工具。' }; if (task.budget.tools >= task.budget.maxTools) {
                 budgetStopped = true;
                 agent.abort();
                 return { block: true, reason: '工具预算已用完，请保存阶段结论。' };
-            } task.budget.tools++; syncDialogue(claim); saveClaim(claim); return undefined; },
+            } if (!maintenanceToolAllowed(task, toolCall.name)) return { block: true, reason: '调查预算进入收尾，最后工具额度保留给submit_report。请保存已有最小候选、计划或真实未完成结论。' }; task.budget.tools++; syncDialogue(claim); saveClaim(claim); return undefined; },
         });
         const stop = () => agent.abort();
         signal.addEventListener('abort', stop, { once: true });

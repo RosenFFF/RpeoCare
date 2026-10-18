@@ -15,4 +15,5 @@ export interface EnvironmentPreflight {
   runtime: { python?: string; pytest?: string };
   checks: { id: string; status: 'pass' | 'warning' | 'blocked' | 'unknown'; title: string; detail: string; path?: string; remedy?: string }[];
   limitations: string[];
+  preparationOptions?: { id: string; path: string; command: string }[];
 }

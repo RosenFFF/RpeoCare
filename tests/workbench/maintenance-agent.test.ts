@@ -73,7 +73,34 @@ for (const lateFollowUp of [false, true]) test(`tool pipeline settles without du
     assert.equal(rows.length, 2); assert.ok(rows.every(row => row.status === 'awaiting-confirmation'));
     const stored = db().prepare('SELECT internal FROM maintenance_tasks WHERE id=?').get(task.id) as { internal: string };
     assert.ok(JSON.parse(stored.internal).consumed.includes(saved.dialogue[0].id));
-    if (lateFollowUp) assert.ok(!JSON.parse(stored.internal).consumed.includes(saved.dialogue.find(message => message.content === '新的独立问题')!.id));
+    if (lateFollowUp) { assert.ok(!JSON.parse(stored.internal).consumed.includes(saved.dialogue.find(message => message.content === '新的独立问题')!.id)); mutateTask(owner, task.id, 'cancel'); }
+  } finally { sdk.registerApiProvider(original); }
+});
+
+test('final report remains callable within request and tool limits', async () => {
+  const owner = 'report-budget';
+  saveConnection(owner, { name: 'mock', provider: 'custom', protocol: 'openai-completions', baseUrl: 'https://model.example/v1', modelId: 'mock', apiKey: 'mock', keyAction: 'replace', contextWindow: 128000, maxTokens: 2048 });
+  const task = createTask(owner, { repoUrl: 'https://github.com/example/project' }, { kind: 'issue', number: 1, goal: '核对问题并保存阶段结论' });
+  const claim = claimTask('budget-worker')!;
+  assert.equal(claim.task.id, task.id);
+  claim.task.commitSha = 'a'.repeat(40); claim.task.budget.maxTurns = 2; claim.task.budget.maxTools = 2;
+  claim.internal.cache.item = JSON.stringify({ number: 1, body: 'A question to inspect.' }); saveClaim(claim);
+  const sdk = await import('@mariozechner/pi-ai'), original = sdk.getApiProvider('openai-completions')!;
+  let calls = 0, finalTools: string[] = [];
+  const stream = (_model: unknown, context: { tools?: { name: string }[] }) => {
+    calls++;
+    if (calls === 2) finalTools = context.tools?.map(tool => tool.name) || [];
+    const content = calls === 1 ? [{ type: 'toolCall' as const, id: 'read-one', name: 'read_item', arguments: {} }, { type: 'toolCall' as const, id: 'read-two', name: 'read_item', arguments: {} }]
+      : [{ type: 'toolCall' as const, id: 'report-final', name: 'submit_report', arguments: { summary: '已读取问题，尚未完成源码调查或验证。', findings: [], missingInformation: [], scopeLimitations: ['本阶段预算有限，未完成调查。'], nextSteps: ['缩小目标后继续'] } }];
+    const message: AssistantMessage = { role: 'assistant', api: 'openai-completions', provider: 'custom', model: 'mock', stopReason: 'toolUse', timestamp: Date.now(), content, usage: { input: 10, output: 20, cacheRead: 0, cacheWrite: 0, totalTokens: 30, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } } };
+    const events = sdk.createAssistantMessageEventStream(); events.push({ type: 'done', reason: 'toolUse', message }); events.end(message); return events;
+  };
+  sdk.registerApiProvider({ api: 'openai-completions', stream, streamSimple: stream });
+  try {
+    await executeMaintenance(claim, new AbortController().signal);
+    const saved = getTask(owner, task.id)!;
+    assert.deepEqual(finalTools, ['submit_report']); assert.equal(saved.status, 'completed'); assert.equal(saved.budget.turns, 2); assert.equal(saved.budget.tools, 2);
+    assert.equal(saved.artifacts.length, 0); assert.match(saved.report!.summary, /尚未完成/);
   } finally { sdk.registerApiProvider(original); }
 });
 

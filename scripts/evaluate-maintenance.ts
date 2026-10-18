@@ -82,7 +82,7 @@ async function main() {
   const rows: unknown[] = [];
   const sourceDigest = createHash('sha256').update(JSON.stringify({ revision, item, tree })).digest('hex');
   const cacheDigest = createHash('sha256').update(JSON.stringify(cache)).digest('hex');
-  const implementationFiles = ['src/server/agent/runtime.ts', 'src/server/agent/tools.ts', 'src/server/agent/patch.ts', 'src/server/agent/report.ts', 'src/server/models/adapter.ts', 'src/server/workbench/maintenance-verification.ts', 'src/shared/lib/maintenance-progress.ts'];
+  const implementationFiles = ['src/server/agent/runtime.ts', 'src/server/agent/tools.ts', 'src/server/agent/preparation.ts', 'src/server/agent/patch.ts', 'src/server/agent/report.ts', 'src/server/models/adapter.ts', 'src/server/workbench/maintenance-verification.ts', 'src/shared/lib/maintenance-progress.ts', 'reproduction/preflight.py', 'reproduction/commands.mjs'];
   const implementationDigest = createHash('sha256').update(JSON.stringify(implementationFiles.map(path => ({ path, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') })))).digest('hex');
   const order = process.argv.find(value => value.startsWith('--order='))?.slice(8) || 'generic-first';
   if (!['generic-first', 'repocare-first'].includes(order)) throw new Error('Invalid variant order.');

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-18",
+  "kind": "bounded exploratory system-prompt ablation",
+  "protocol": {
+    "evidence": "data/bounded-evaluation-2026-10-18/protocol.json",
+    "sha256": "132947038fb984bafdfdf4f9064bcc543a152aa68780707fb59fed9f624eea91",
+    "correction": "data/bounded-evaluation-2026-10-18/protocol-budget-correction.json",
+    "closed": "data/bounded-evaluation-2026-10-18/closed.json",
+    "maxCalls": 48,
+    "actualCalls": 47,
+    "maxCallsPerVariant": 12,
+    "maxToolsPerVariant": 24,
+    "maxOutputTokens": 4096,
+    "temperature": 0,
+    "modelRetry": false
+  },
+  "usage": {
+    "inputTokens": 518954,
+    "outputTokens": 6502,
+    "scope": "Provider-reported usage; not billing or measured human effort."
+  },
+  "cases": [
+    {
+      "key": "itsdangerous",
+      "repo": "pallets/itsdangerous",
+      "issue": 126,
+      "commit": "6e6359864be6055860adf1e11d8bb0db69ff1840",
+      "sourceSha256": "288d3e41d741431e67ab309456d0f82d4719f9926be85fc22ce334d8bc789fcc",
+      "goalSha256": "76ee3caa9862dc83a4c085eeaf70b49e512d5e977609b0d584733a4a5ed389bf",
+      "evidence": "data/model-pilot-2026-10-18T01-26-16-057Z-e7de4360-471a-4cd4-bb0b-c2a1c61dbc63/pilot.json",
+      "evidenceSha256": "a5e636b453a002fb3d8130ab05f9bbcf047511c8f67a3aa11600188ae7f0f8c1",
+      "variants": [
+        {
+          "variant": "repocare",
+          "modelId": "deepseek-flash",
+          "comparison": "system-prompt ablation with the same RepoCare tools, runtime and safeguards",
+          "sourceDigest": "c93e08c67137388ba4cdcdf903aef32731839e9579f7deda5d72419ac7accd7d",
+          "implementationDigest": "c7378a173136cf3932e3931d5ebbd5c6fe9a12e916899e4453136e52ffc2c152",
+          "status": "failed",
+          "calls": 12,
+          "tools": 24,
+          "inputTokens": 149811,
+          "outputTokens": 1120,
+          "artifacts": [],
+          "observation": "No saved patch or valid phase report within budget.",
+          "reviewer": "operator, not an independent external annotator"
+        },
+        {
+          "variant": "generic",
+          "modelId": "deepseek-flash",
+          "comparison": "system-prompt ablation with the same RepoCare tools, runtime and safeguards",
+          "sourceDigest": "c93e08c67137388ba4cdcdf903aef32731839e9579f7deda5d72419ac7accd7d",
+          "implementationDigest": "c7378a173136cf3932e3931d5ebbd5c6fe9a12e916899e4453136e52ffc2c152",
+          "status": "failed",
+          "calls": 12,
+          "tools": 22,
+          "inputTokens": 150473,
+          "outputTokens": 981,
+          "artifacts": [],
+          "observation": "No saved patch or valid phase report within budget.",
+          "reviewer": "operator, not an independent external annotator"
+        }
+      ]
+    },
+    {
+      "key": "blinker",
+      "repo": "pallets-eco/blinker",
+      "issue": 179,
+      "commit": "876a12a1988c1789799a1d6919abdce38a62a0ff",
+      "sourceSha256": "b4322c95864ebab79b0d3e0f7cbc21cd03ef3fa2e4e01c4b6cacac2d764b216e",
+      "goalSha256": "f938cdcf382918c93025cd10feec9329f9821e5b5939f981373356883ee17314",
+      "evidence": "data/model-pilot-2026-10-18T01-30-30-464Z-8348019f-a4dd-4734-a03a-472c2efb12e2/pilot.json",
+      "evidenceSha256": "3386a59456664899f0186b64ff0e69cfe915c651a833d955ba0316592e8c896b",
+      "variants": [
+        {
+          "variant": "generic",
+          "modelId": "deepseek-flash",
+          "comparison": "system-prompt ablation with the same RepoCare tools, runtime and safeguards",
+          "sourceDigest": "5b38ba58af4a8ddc444be85db5f916bbb2c9df51e25406ce3bfd8a8c62dc3db0",
+          "implementationDigest": "2beb719f4c0aa5bd88532bda145fe46e54e325c9474633f5b54ded0b45687bd8",
+          "status": "waiting-input",
+          "calls": 12,
+          "tools": 18,
+          "inputTokens": 135766,
+          "outputTokens": 2691,
+          "artifacts": [],
+          "observation": "Initially called documented behavior a defect and attempted a production patch; file-size bound rejected it. Final report also asks for maintainer semantics.",
+          "reviewer": "operator, not an independent external annotator"
+        },
+        {
+          "variant": "repocare",
+          "modelId": "deepseek-flash",
+          "comparison": "system-prompt ablation with the same RepoCare tools, runtime and safeguards",
+          "sourceDigest": "5b38ba58af4a8ddc444be85db5f916bbb2c9df51e25406ce3bfd8a8c62dc3db0",
+          "implementationDigest": "2beb719f4c0aa5bd88532bda145fe46e54e325c9474633f5b54ded0b45687bd8",
+          "status": "waiting-input",
+          "calls": 11,
+          "tools": 15,
+          "inputTokens": 82904,
+          "outputTokens": 1710,
+          "artifacts": [],
+          "observation": "Identified documented undefined ordering; requested maintainer semantics; no production patch.",
+          "reviewer": "operator, not an independent external annotator"
+        }
+      ]
+    }
+  ],
+  "controlledChecks": {
+    "containerStaticTests": 17,
+    "scope": "Synthetic inspector fixtures and mock tool/runtime integration; not model recovery success."
+  },
+  "limits": [
+    "Historical public issue bodies are visible; not a blind or training-data-free evaluation.",
+    "Acceptance criteria written before calls; not provided to the models.",
+    "Operator reads sources; independence is a procedural declaration, not proven by the system.",
+    "Two new tasks only; repeats and variants do not increase the sample count.",
+    "Runtime budget handling changed between tasks. No aggregate success rate or causal benefit estimate.",
+    "No additional model continuation because only one request remained below the total cap.",
+    "Source snapshot initially decoded three documentation images; validation rejected before model calls, original record preserved.",
+    "No browser interaction or video was performed because the earlier automatic safety review blocked browser access."
+  ],
+  "baselineReplay": {
+    "firstAttempt": {
+      "evidence": "data/python-preparation-6de693bb-a02f-490b-a732-50b5a3a71df0/results.json",
+      "status": "blocked",
+      "phase": "source",
+      "reason": "GitHub TLS clone failure during execution preparation; tests were not run."
+    },
+    "retry": {
+      "evidence": "data/python-preparation-9273fcc9-9fa2-4c21-a523-e28004faaef6/results.json",
+      "sha256": "27f0afe3f8d17d66541a746db7e0236ade9b46a005c204939d1d2c55055633b0",
+      "status": "not-reproduced",
+      "runnerImageId": "sha256:417031393320a29033a813c41433a975a87b70a3a6e9f92ac96e79715d6f5604",
+      "attempts": [
+        {
+          "index": 1,
+          "environmentFingerprint": "ed404229cbac6727326f5383c4f910d82350807115f3d0dfb6b199cb55db7a19",
+          "steps": [
+            {
+              "command": "python3 -m pytest test_repocare_future.py::test_future_timestamp_is_rejected -q",
+              "code": 1,
+              "failureKind": "assertion"
+            },
+            {
+              "command": "python3 -m pytest test_repocare_future.py::test_normal_timestamps_and_tamper -q",
+              "code": 0,
+              "failureKind": null
+            }
+          ]
+        }
+      ]
+    },
+    "candidateAvailable": false,
+    "scope": "One successful baseline replay only; no model repair or candidate verification."
+  }
+}

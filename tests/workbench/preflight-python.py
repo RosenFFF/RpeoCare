@@ -89,6 +89,18 @@ class PreflightTests(unittest.TestCase):
             report = self.check_plan({'pyproject.toml': '[project]\nname="local"\n[project.optional-dependencies]\ntest=[]\n', 'test_value.py': 'def test_value(): pass\n'}, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --no-build-isolation .['+name+']'}])
             self.assertEqual(report['status'], status)
 
+    def test_preparation_options_only_offer_supported_declarations(self):
+        report = self.check_plan({'pyproject.toml': '[project]\nname="local"\n[project.optional-dependencies]\ntest=[]\n[dependency-groups]\ntest=[]\n"bad;command"=[]\n', 'requirements.txt': 'pytest\n', 'test_value.py': 'import repocare_missing_dependency\n'})
+        self.assertEqual(report['status'], 'blocked')
+        options = {value['id']: value for value in report['preparationOptions']}
+        self.assertEqual(set(options), {'project', 'extra:test', 'group:test', 'requirements:requirements.txt'})
+        self.assertTrue(options['group:test']['command'].endswith('--group test'))
+        self.assertFalse(any(check['id'] == 'group-test' for check in report['checks']))
+
+    def test_invalid_manifest_never_offers_guessed_options(self):
+        report = self.check_plan({'pyproject.toml': '[invalid', 'test_value.py': 'def test_value(): pass\n'})
+        self.assertEqual(report['preparationOptions'], [])
+
     def test_declared_group_is_read_without_installing(self):
         files = {'pyproject.toml': '[dependency-groups]\ntest=["pytest>=999"]\n', 'test_value.py': 'def test_value(): pass\n'}
         report = self.check_plan(files, setup=[{'type': 'run-command', 'command': 'python3 -m pip install --target .repocare-python --no-compile --group test'}])

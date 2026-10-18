@@ -1,5 +1,13 @@
 import type { MaintenanceTask } from '../../contracts/agent';
 
+const explorationTools = new Set(['read_item', 'list_files', 'search_files', 'read_file', 'read_project_rules', 'read_verification_environment']);
+/** Keep the hard budget, reserving a report slot and a short delivery window. */
+export function maintenanceToolAllowed(task: MaintenanceTask, name: string) {
+  if (task.budget.turns >= task.budget.maxTurns || task.budget.tools >= task.budget.maxTools - 1) return name === 'submit_report';
+  const hasContext = task.evidence.some(e => e.kind === 'issue' || e.kind === 'pr') && task.evidence.some(e => e.kind === 'file');
+  return !(hasContext && task.budget.maxTurns - task.budget.turns <= 2 && explorationTools.has(name));
+}
+
 /** A bounded handoff hint, not evidence of correctness or permission to execute. */
 export function maintenanceProgressHint(task: MaintenanceTask) {
   const wantsPatch = /补丁|修复|\bpatch\b|\bfix\b/i.test(task.goal);
@@ -11,5 +19,5 @@ export function maintenanceProgressHint(task: MaintenanceTask) {
     : wantsPatch && !facts.patch ? '当前未保存补丁。证据足够时调用 propose_patch；修改现有文件时 before/after 使用最小且唯一的原文片段，通常数行，不要复制整个文件。证据不足时准确列出缺口。'
       : wantsVerification && facts.patch && !facts.verification ? '当前已有候选补丁，但未保存需求对照。读取必要测试与依赖声明，调用 prepare_verification 或说明具体阻塞。不要重复生成相同补丁。'
         : '核对已保存交付物与真实执行记录，返回本阶段报告。待确认计划不等于已执行。若仅等待人工确认或执行，请在summary注明未运行，missingInformation留空；只有阻止选定步骤执行的真实缺口才列入missingInformation。';
-  return `阶段检查点（服务端记录）：${JSON.stringify(facts)}。${next}剩余调用少时优先交付可审阅的已有成果和明确缺口；不能为了交付捏造证据或声称测试通过。`;
+  return `阶段检查点（服务端记录）：${JSON.stringify(facts)}。${next}${facts.remainingCalls <= 4 ? '现在进入收尾：停止扩展无关源码范围，优先保存已有最小候选、可审阅计划或明确的未完成结论。' : ''}剩余调用少时优先交付可审阅的已有成果和明确缺口；不能为了交付捏造证据或声称测试通过。`;
 }

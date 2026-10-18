@@ -11,3 +11,5 @@
 PDF审阅版位于工作区`作品提交/RepoCare-参赛技术报告-审阅版.pdf`。生成版本应在负责人核对共同权属、第三方许可、AI工具声明和演示证据后再次冻结。学校名称、学校标识与指导教师信息不进入评审材料。
 
 已知cattrs历史案例的可复查代码与使用说明见仓库`evaluation/cattrs-800/README.md`。这是已参与开发的示例，不作为新的留出样本。
+
+两项受限新任务的首次失败、澄清与用量见[调查预算实测](../MAINTENANCE_BOUNDED_EVALUATION.md)；ItsDangerous原版检查见`evaluation/itsdangerous-126/README.md`。阶段报告成功与模型修复成功分别记录。

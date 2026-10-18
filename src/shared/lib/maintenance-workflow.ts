@@ -28,7 +28,7 @@ export function maintenanceWorkflow(task: MaintenanceTask | undefined, jobs: Rep
   else if (task.status === 'cancelled') next = { action: 'resume', title: '当前调查已停止', detail: '已有方案与记录保留，恢复调查后再继续准备或确认。', label: '恢复当前调查', model: true };
   else if ((task.status === 'waiting-input' && !task.report && !waiting) || reportPrerequisites(task).blockers.length || relevantJobs.some(job => planPrerequisites(job).blockers.length)) next = { action: waiting ? 'review' : 'supplement', title: '核对执行前置条件', detail: '真正缺少的环境或需求信息需要补齐；仅影响结论范围的条目可在计划中逐项复核，并保留理由。', label: waiting ? '核对阻塞与范围' : '补充所需信息', model: false };
   else if (waiting && environmentBlocked) next = { action: 'read-results', title: '运行环境未就绪，先修订准备步骤', detail: '已有静态检查发现阻塞，先核对依赖与项目声明，当前计划不能执行。', label: '核对环境并修订计划', model: true,
-    prompt: `先用read_execution读取当前两版记录 ${relevantJobs.map(job => job.id).join('、')} 的environmentPreflight。依据固定仓库声明修订必要的setupCommands；若依赖或组没有声明则保留阻塞并追问。不要只修改scopeLimitations，不禁用配置或测试，不自动执行或发布。原模型计划与预检记录继续保留。` };
+    prompt: `先用read_execution读取当前两版记录 ${relevantJobs.map(job => job.id).join('、')} 的environmentPreflight。优先选择preparationOptions中的必要声明，用preparationFrom的jobId和optionIds生成实际准备命令；没有选项时依据已读取仓库声明修订setupCommands，无法确认则保留阻塞并追问。不要只修改scopeLimitations，不禁用配置或测试，不自动执行或发布。原模型计划与预检记录继续保留。` };
   else if (waiting) next = { action: 'review', title: '方案已保存，等待你审阅', detail: '核对补丁、测试与预期故障信号，再分别确认两组执行。', label: '审阅并确认计划', model: false };
   else if (relevantJobs.length && !hasReadResults) next = { action: 'read-results', title: '执行已结束，整理实际结论', detail: '读取本次执行记录，说明已验证行为与未覆盖范围。', label: '读取结果并整理结论', model: true,
     prompt: `请先用 read_execution 读取执行记录 ${relevantJobs.map(job => job.id).join('、')}，基于逐次输出整理阶段结论、额外回归和未覆盖范围。不要重新生成相同计划，不自动执行或发布。` };
