@@ -36,7 +36,7 @@ export interface AgentArtifact {
     verification?: import('./maintenance-verification').VerificationContext;
     verificationStale?: boolean;
     id: string;
-    kind: 'reply' | 'patch' | 'reproduction' | 'verification';
+    kind: 'reply' | 'patch' | 'reproduction' | 'verification' | 'acceptance';
     title: string;
     draftId?: string;
     jobIds?: string[];

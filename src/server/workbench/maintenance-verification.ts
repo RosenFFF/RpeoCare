@@ -80,13 +80,14 @@ export function prepareMaintenanceVerification(input: { task: MaintenanceTask; p
 }
 
 /** Read every changed file at pinned revisions; partial PRs cannot become execution claims. */
-export async function pullVerificationFiles(owner: string, repoUrl: string, item: GitItem, signal?: AbortSignal): Promise<AgentPatchFile[]> {
+export async function pullVerificationFiles(owner: string, repoUrl: string, item: GitItem, signal?: AbortSignal, pinnedRead?: (path: string, sha: string) => Promise<{ content: string }>): Promise<AgentPatchFile[]> {
   if (!item.baseSha || !item.headSha || !item.files?.length || item.filesTruncated || item.files.length > 4 || item.totalChangedFiles !== item.files.length) throw new Error('PR 对照当前限完整可读且至多四个文件的改动；大 PR 请继续使用证据审查。');
   const files: AgentPatchFile[] = [];
   for (const file of item.files) {
     repositoryPath(file.path);
     if (!['modified', 'added'].includes(file.status)) throw new Error('PR 对照暂不支持删除、重命名或二进制文件。');
     const read = async (sha: string) => {
+      if (pinnedRead) return (await pinnedRead(file.path, sha)).content;
       const raw = await githubApi(owner, `${repoPath(repoUrl)}/contents/${file.path.split('/').map(encodeURIComponent).join('/')}?ref=${sha}`, { signal });
       if (raw.type !== 'file' || raw.encoding !== 'base64' || raw.size > 20000) throw new Error('PR 对照文件必须是至多 20KB 的普通文本。');
       const content = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.from(raw.content, 'base64'));

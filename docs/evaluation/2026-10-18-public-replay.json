@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "kind": "known historical public replay, no model invoked",
+  "date": "2026-10-18",
+  "case": "cattrs PR #800",
+  "baseSha": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+  "headSha": "41c7397b9b87b479ea272d0f679d7c6538ad367f",
+  "checksSha256": "0e4c15477973f9d659245430972eb2add41710fd834f056900a92e98945a28f4",
+  "modelInvoked": false,
+  "firstAttempt": {
+    "date": "2026-10-17",
+    "baselineStatus": "not-reproduced",
+    "patchedStatus": "not executed",
+    "blocker": "GitHub source clone failed with TLS connect error during patched preflight.",
+    "evidence": [
+      "data/python-preparation-3fadbb91-11b5-4798-8898-124276ddeb6c/results.json",
+      "data/python-preparation-d5849fdf-060a-4331-9974-423ce83cc5b5/results.json"
+    ]
+  },
+  "retry": {
+    "source": "data/public-replay-bacfba41-6d9a-423c-8793-31dde40f6d7f/source.json",
+    "versions": [
+      {
+        "role": "baseline",
+        "status": "not-reproduced",
+        "evidence": "data/python-preparation-19048663-ae1b-4fca-9668-6e658583af7d/results.json",
+        "evidenceSha256": "9d1f2d97955e68e8cc2b7144bfb1cb30da8c0a39457fb61956ce94ec6a58a06d",
+        "attempts": [
+          {
+            "index": 1,
+            "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+            "steps": [
+              {
+                "command": "python3 -m pytest test_repocare_public_acceptance.py::test_factory_ambiguity_matches_attrs -q",
+                "code": 1,
+                "failureKind": "assertion"
+              },
+              {
+                "command": "python3 -m pytest test_repocare_public_acceptance.py::test_required_unique_field_still_selects_class -q",
+                "code": 0,
+                "failureKind": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "role": "patched",
+        "status": "reproduced",
+        "evidence": "data/python-preparation-9f0f8cfe-3d5d-434c-b63b-d9b5f1618611/results.json",
+        "evidenceSha256": "9864a6a81ad16e5773587c9393618d205e9ed2c1463c7e01781362475ba0fdfb",
+        "attempts": [
+          {
+            "index": 1,
+            "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+            "steps": [
+              {
+                "command": "python3 -m pytest test_repocare_public_acceptance.py::test_factory_ambiguity_matches_attrs -q",
+                "code": 0,
+                "failureKind": null
+              },
+              {
+                "command": "python3 -m pytest test_repocare_public_acceptance.py::test_required_unique_field_still_selects_class -q",
+                "code": 0,
+                "failureKind": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "Known historical example; not a held-out evaluation.",
+    "Existing PR production change, not a new model repair.",
+    "One attempt per version in the public replay; no full-suite or browser claim."
+  ]
+}

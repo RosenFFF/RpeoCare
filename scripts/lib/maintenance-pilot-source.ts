@@ -10,6 +10,7 @@ const snapshotSchema = z.object({
   issue: z.object({ number: z.number().int().positive(), title: z.string(), body: z.string(), updated_at: z.string(), state: z.enum(['open', 'closed']), html_url: z.string().url(), user: z.object({ login: z.string() }) }),
   tree: z.object({ truncated: z.literal(false), tree: z.array(z.object({ path: z.string(), type: z.string(), mode: z.string(), sha, size: z.number().int().nonnegative().optional() })) }),
   blobs: z.record(z.string(), z.string()),
+  revisionTrees: z.record(z.string(), z.object({ truncated: z.literal(false), tree: z.array(z.object({ path: z.string(), type: z.string(), mode: z.string(), sha, size: z.number().int().nonnegative().optional() })) })).optional(),
 });
 
 /** Canonical Git blobs only. This reads data, never imports or executes target code. */
@@ -26,9 +27,12 @@ export function maintenancePilotSource(input: unknown) {
     try { repositoryPath(entry.path); return true; } catch { return false; }
   });
   const cache: Record<string, string> = { tree: JSON.stringify({ tree, truncated: false, occupied: entries.map(entry => entry.path), blockedParents: entries.filter(entry => entry.mode === '120000' || entry.type === 'commit').map(entry => entry.path) }), item: JSON.stringify(item), visibility: 'public' };
+  const revisionEntries = Object.entries(snapshot.revisionTrees || {});
+  if (revisionEntries.length > 1 || revisionEntries.some(([revision, value]) => kind !== 'pr' || revision !== snapshot.pullRequest?.baseSha || value.tree.length > 15000)) throw new Error('Only the pinned PR base tree may supplement a snapshot.');
+  for (const [revision, value] of revisionEntries) cache[`revision-tree:${revision}`] = JSON.stringify(value);
   let total = 0;
   for (const [blobSha, text] of Object.entries(snapshot.blobs)) {
-    const entry = tree.find(entry => entry.sha === blobSha);
+    const entry = [...tree, ...revisionEntries.flatMap(([, value]) => value.tree)].find(entry => entry.sha === blobSha && entry.type === 'blob' && ['100644', '100755'].includes(entry.mode) && (() => { try { repositoryPath(entry.path); return true; } catch { return false; } })());
     if (!entry) throw new Error('Snapshot contains a blob outside the readable tree.');
     const bytes = Buffer.byteLength(text);
     if (entry.size !== bytes || bytes > 120000 || createHash('sha1').update(`blob ${bytes}\0`).update(text).digest('hex') !== blobSha) throw new Error('Snapshot blob hash or size mismatch.');

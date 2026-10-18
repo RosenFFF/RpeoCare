@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import type { AgentArtifact, MaintenanceTask } from '../../src/contracts/agent';
 import type { GitItem, ReproductionJob, ReproductionPlan } from '../../src/contracts/workbench';
 import { maintenanceTestPlan, prepareMaintenanceVerification } from '../../src/server/workbench/maintenance-verification';
-import { assessVerification, verificationCoverage, verificationNextAction } from '../../src/shared/lib/maintenance-verification';
+import { assessVerification, verificationCoverage, verificationNextAction, verificationDecision } from '../../src/shared/lib/maintenance-verification';
 import { commandTokens, dependencyCommand } from '../../reproduction/commands.mjs';
 import { maintenanceProgressHint } from '../../src/shared/lib/maintenance-progress';
 
@@ -159,4 +159,24 @@ test('a known failing requirement remains prominent when another target is incon
   assert.equal(assessment.requirements[1].outcome, 'still-failing');
   assert.equal(assessment.state, 'still-failing');
   assert.match(verificationNextAction(p.context, p.jobs)!.title, /失败用例/);
+});
+
+test('combined decision never promotes a local target improvement to a complete acceptance', () => {
+  const p = pair();
+  assert.match(verificationDecision(p.context, p.jobs).title, /尚未核验/);
+  assert.equal(verificationDecision(p.context, p.jobs, true).tone, 'unknown');
+  const normal = 'python3 -m pytest tests/test_value.py::test_normal -q';
+  p.context.regressionCommands = [normal];
+  for (const job of p.jobs) for (const attempt of job.attemptHistory) attempt.steps!.push({ phase: 'verify', command: normal, code: 0, ok: true } as never);
+  assert.equal(verificationDecision(p.context, p.jobs).tone, 'success');
+  p.jobs[1].status = 'not-reproduced';
+  for (const attempt of p.jobs[1].attemptHistory) { const step = attempt.steps!.find(step => step.command === normal)!; step.code = 1; step.ok = false; step.failureKind = 'assertion'; }
+  assert.match(verificationDecision(p.context, p.jobs).title, /不能交付/);
+});
+
+test('a blocked preflight is visible before target confirmation', () => {
+  const p = pair();
+  p.jobs[0].status = 'awaiting-confirmation'; p.jobs[0].id = 'original'; p.jobs[0].preflightJobId = 'check';
+  const check = { id: 'check', purpose: 'environment-preflight', preflightForJobId: 'original', status: 'blocked', preflight: { status: 'blocked', commitSha: p.context.baseSha, checkedAt: new Date().toISOString() } } as ReproductionJob;
+  assert.match(verificationDecision(p.context, [...p.jobs,check]).title, /环境受阻/);
 });

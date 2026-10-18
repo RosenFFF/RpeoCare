@@ -26,7 +26,8 @@ async function main() {
   const { planPrerequisites, reportPrerequisites } = await import('../src/shared/lib/execution-readiness');
   const { db } = await import('../src/server/audit/store');
   const task = getTask('pilot', taskId); assert.ok(task); assert.ok(!['queued', 'running', 'cancelled'].includes(task.status));
-  const artifact = task.artifacts.find(a => a.kind === 'verification' && !a.superseded); assert.ok(artifact?.verification);
+  const artifactFlag = process.argv.find(value => value.startsWith('--artifact='))?.slice(11);
+  const artifact = task.artifacts.find(a => !a.superseded && (artifactFlag === 'acceptance' ? a.kind === 'acceptance' : artifactFlag ? a.id === artifactFlag : a.kind === 'verification')); assert.ok(artifact?.verification);
   const context = artifact.verification; assert.equal(task.kind === 'pr' ? context.headSha : context.baseSha, task.commitSha); assert.equal(artifact.jobIds?.length, 2);
   const output = join(root, `execution-${variant}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`), jobs = [], preflights = [];
   try {

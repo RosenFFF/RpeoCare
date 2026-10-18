@@ -64,3 +64,9 @@ Issue／PR／回复和文档草稿生成使用当前账户默认模型，保存�
 诊断保存在本机 model_request_diagnostics，仅包含账户归属、任务种类、配置 ID/版本、协议、HTTP 状态、耗时、错误类别和固定文案；不保存 API Key、请求/响应正文、URL、原始异常或隐藏推理。每账户保留最近50条，设置页只显示该账户最近5条。旧失败不能从缺失记录补推；返回结果含用量时保留真实token数量，未知不虚构费用。
 
 未自动重试、增加输出预算、修改用户连接或主动发起真实模型测试。连接测试按钮仍是用户主动动作，可能产生服务商费用。2026-10-07 后续更新：草稿/分诊不再额外压至4096输出token，最大输出按用户值或协议自动模式处理；60秒请求超时与30,000字符存储边界仍保留并在界面说明。错误分类只是可观测性修复，具体服务商故障需新请求证据确认。
+
+## 人工验收与固定PR源码
+
+PR准备对照复用`RepositoryReader.revisionFile`，按固定head/base目录定位Git blob，校验普通文件、20KB边界、UTF-8、内容指纹和凭据筛查。逐文件保存检查点，失败后继续复用已有内容；不回退到浮动分支。评测快照可附一个完整的固定base目录及对应blob，按需重放仍不预占源码读取预算。它不替代产品HTTP执行确认时的最新上下文检查。
+
+隔离pilot中人工验收入口：`npx tsx scripts/prepare-maintenance-acceptance.ts data/model-pilot-... proposal.json --reviewed`。proposal包含`content`、`note`、`declaration`、`targets`（原requirementId、testName、failureSignal）和`normalTests`。之后先核对实际两版计划，再运行`npx tsx scripts/execute-maintenance-pilot.ts data/model-pilot-... --artifact=acceptance --reviewed`；确需声明依赖准备联网时显式增加`--allow-dependencies`。所有制品留在独立数据库和忽略目录，不发布上游内容。

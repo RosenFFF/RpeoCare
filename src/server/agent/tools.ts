@@ -39,7 +39,8 @@ export async function maintenanceTools(reader: RepositoryReader, readOnly=false)
         const versions=task.artifacts.filter(a=>a.kind===value.kind);
         if(versions.length>=3)throw new Error('此类交付物已达三版上限，请新建范围更小的任务。');
         versions.forEach(a=>{a.superseded=true;});
-        if(value.kind==='patch')task.artifacts.filter(a=>a.kind==='verification').forEach(a=>{a.superseded=true;});
+        if(value.kind==='patch')task.artifacts.filter(a=>a.kind==='verification'||a.kind==='acceptance').forEach(a=>{a.superseded=true;});
+        if(value.kind==='verification')task.artifacts.filter(a=>a.kind==='acceptance').forEach(a=>{a.superseded=true;});
         const created = { ...value, revision:versions.length+1, id: randomUUID(), createdAt: new Date().toISOString() };
         task.artifacts.push(created);
         saveClaim(claim);
@@ -109,11 +110,16 @@ export async function maintenanceTools(reader: RepositoryReader, readOnly=false)
             if (claim.internal.cache.visibility === 'private') throw new Error('当前隔离执行器仅支持公开仓库。');
             if (p.planJson && (p.regressionCommands || p.setupCommands || p.missingInformation || p.scopeLimitations)) throw new Error('高级 planJson 与快捷计划参数不可混用。');
             const plan = p.planJson ? validateReproductionPlan(JSON.parse(p.planJson)) : maintenanceTestPlan(p);
+            const previousJobs = task.artifacts.filter(a => a.kind === 'verification').flatMap(a => a.jobIds || []);
+            if (!plan.setup.some(step => step.type === 'run-command') && previousJobs.some(id => {
+                const job = getReproductionJob(claim.owner, id);
+                return JSON.stringify(job.plan.steps) === JSON.stringify(plan.steps) && job.preflightJobId && getReproductionJob(claim.owner, job.preflightJobId).preflight?.checks.some(check => check.status === 'blocked' && check.id.startsWith('import-'));
+            })) throw new Error('相同测试的环境预检已发现导入依赖缺失。请依据仓库声明提供实际setupCommands，不能仅修改范围说明或声明已安排安装。');
             const item: GitItem = JSON.parse(claim.internal.cache.item || '{}');
             let patch = task.artifacts.find(a => a.kind === 'patch' && !a.superseded);
             let proposed: AgentArtifact | undefined;
             if (task.kind === 'pr') {
-                const files = await pullVerificationFiles(claim.owner, task.repoUrl, item, signal);
+                const files = await pullVerificationFiles(claim.owner, task.repoUrl, item, signal, (path, sha) => reader.revisionFile(path, sha));
                 const key = fingerprint(files);
                 if (!patch || patch.fingerprint !== key) {
                     const evidenceId = reader.evidence('pr', `PR #${task.number} 固定 head/base 文件`, JSON.stringify({ head: item.headSha, base: item.baseSha, paths: files.map(file => file.path) }));

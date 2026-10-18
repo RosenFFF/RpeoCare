@@ -11,9 +11,11 @@ import { verificationSourceFingerprint, verificationHash } from '@/server/workbe
 import { assessVerification, verificationCoverage } from '@/shared/lib/maintenance-verification';
 import { planPrerequisites, reportPrerequisites, requiresPythonPreflight } from '@/shared/lib/execution-readiness';
 import { assertEnvironmentPreflight, prerequisiteReviewSchema, requestEnvironmentPreflight, reviewPrerequisites } from '@/server/agent/readiness';
+import { acceptanceInputSchema, prepareAcceptance } from '@/server/agent/acceptance';
 export const runtime = 'nodejs';
 const id = z.string().uuid();
 const actions = z.discriminatedUnion('action', [
+    acceptanceInputSchema.extend({ action: z.literal('prepare-acceptance'), id }).strict(),
     prerequisiteReviewSchema.extend({ action: z.literal('review-prerequisites'), id }).strict(),
     z.object({ action: z.literal('preflight'), id, artifactId: id, fingerprint: z.string().min(1).max(100), jobId: id }).strict(),
     z.object({ action: z.literal('create'), repoUrl:z.string().url().max(500), branch:z.string().max(200).optional(), kind: z.enum(['repository', 'issue', 'pr', 'docs']), anchor:z.string().max(200).optional(), sourceCommitSha:z.string().regex(/^[a-f0-9]{40}$/i).optional(), number: z.number().int().positive().optional(), goal: z.string().trim().min(8).max(4000) }).strict(),
@@ -45,7 +47,7 @@ export async function GET(request: NextRequest) {
         jobs.push(...jobs.filter(job => job.preflightJobId).map(job => getReproductionJob(owner, job.preflightJobId!)));
         if (task) {
             const revision = activePolicy(owner, project.repoUrl)?.revision || 0;
-            task.artifacts.forEach(artifact => { if (artifact.verification) artifact.verificationStale = artifact.verification.policyRevision !== revision || !!artifact.superseded; });
+            task.artifacts.forEach(artifact => { if (artifact.verification) artifact.verificationStale = artifact.verification.policyRevision !== revision || !!artifact.superseded || !!artifact.verification.acceptanceSource && !task.artifacts.some(parent => parent.kind === 'verification' && !parent.superseded && parent.verification?.fingerprint === artifact.verification!.acceptanceSource!.parentFingerprint); });
         }
         const exported = request.nextUrl.searchParams.get('export');
         if (exported) {
@@ -64,7 +66,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         ensureSameOrigin(request);
-        const { owner, project } = context(request), input = actions.parse(await smallJson(request, 16000));
+        const { owner, project } = context(request), input = actions.parse(await smallJson(request, 40000));
         if (input.action === 'create') {
             if(input.repoUrl!==project.repoUrl||(input.branch||'')!==(project.branch||''))throw new Error('项目或分支已切换，请刷新后重新发起任务。');
             if (['issue', 'pr'].includes(input.kind) && !input.number)
@@ -78,6 +80,10 @@ export async function POST(request: NextRequest) {
             return jsonResponse({ ok: true });
         }
         const task = ownedTask(owner, input.id, project);
+        if (input.action === 'prepare-acceptance') {
+            const { action: _action, id: _id, ...proposal } = input;
+            return jsonResponse({ task: prepareAcceptance(owner, task.id, proposal) });
+        }
         if (input.action === 'review-prerequisites') {
             const { action: _action, id: _id, ...review } = input;
             return jsonResponse({ task: reviewPrerequisites(owner, task.id, review) });

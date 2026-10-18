@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "case": "cattrs PR #800",
+  "kind": "known-case reliability regression with human acceptance",
+  "baseSha": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+  "headSha": "41c7397b9b87b479ea272d0f679d7c6538ad367f",
+  "firstStageCalls": 15,
+  "totalModelCalls": 25,
+  "humanFeedbackRounds": 2,
+  "originalModelPlansExecuted": false,
+  "modelPlanLimitation": "Three saved model plans omitted dependency installation despite narrative claims; static preflight blocked execution.",
+  "acceptanceSource": {
+    "kind": "maintainer-supplied",
+    "declaration": "withheld",
+    "note": "执行者在原模型调用前固定的cattrs-holdout.py；未将其正文提供给生成方案的模型。执行者看过公开PR和现有候选，非盲测。独立性不由系统自动证明。依赖准备由执行者依据固定pyproject声明补充。",
+    "recordedAt": "2026-10-17T12:57:16.154Z",
+    "testPath": "repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py",
+    "contentHash": "779e81c2d4cd7aa8ae668eeda482294e4b9c179617f7c938a505f71adee2a9c4",
+    "parentFingerprint": "ea0a3a9010fcc20b162f46aa13a45b8a9320c1708ec3cb75fde83952d018efc2"
+  },
+  "assessment": "improved",
+  "requirements": [
+    {
+      "id": "R1-029a703dcd",
+      "outcome": "improved"
+    }
+  ],
+  "versions": [
+    {
+      "role": "baseline",
+      "status": "not-reproduced",
+      "planHash": "c1ef0c097edc1b05b80cea8253741d5395152eaa559c13fffcf58bbd09af67e7",
+      "attempts": [
+        {
+          "index": 1,
+          "result": "not-reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": "assertion",
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 1,
+              "ok": false,
+              "failureKind": "assertion"
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "result": "not-reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": "assertion",
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 1,
+              "ok": false,
+              "failureKind": "assertion"
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "result": "not-reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": "assertion",
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 1,
+              "ok": false,
+              "failureKind": "assertion"
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "patched",
+      "status": "reproduced",
+      "planHash": "9419701882861cece2cfc25853e20cb12d188e9a612cf78e99a2c186793c156b",
+      "attempts": [
+        {
+          "index": 1,
+          "result": "reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": null,
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "result": "reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": null,
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "result": "reproduced",
+          "environmentFingerprint": "6d4ee30635c1a231f0129518e6a96e31a2395e4a01ad1f4f68ca0f67f3178916",
+          "failureKind": null,
+          "steps": [
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_factory_ambiguity_matches_attrs -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            },
+            {
+              "command": "python3 -m pytest repocare_acceptance_448bfe1360fb488e90dfd0a05054cd3a.py::test_required_unique_field_still_selects_class -q",
+              "code": 0,
+              "ok": true,
+              "failureKind": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "evidence": "data/model-pilot-2026-10-17T12-52-40-667Z-0f561f08-1441-4586-adb9-ab833c409e2f/execution-repocare-2026-10-17T12-57-31-373Z.json",
+  "evidenceSha256": "02e9249040acae41c2c369cd5023f048234542c33d616c6cb2e88cf8298ed052",
+  "boundaries": [
+    "Historical PR already inspected; not a fresh held-out task.",
+    "Production change comes from the existing upstream PR, not a model-generated new repair.",
+    "Human supplied declared preparation commands and previously frozen tests.",
+    "CLI execution does not cover browser clicks or HTTP latest-context confirmation.",
+    "No upstream publication, maintainer adoption or general model superiority claim."
+  ]
+}

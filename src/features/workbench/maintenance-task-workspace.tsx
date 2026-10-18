@@ -33,7 +33,8 @@ export function MaintenanceTaskWorkspace({ title, actionLabel, data, error, busy
   const nextDisabled = busy || !data || (next.model && !data.workerOnline);
   const artifacts = task?.artifacts.filter(artifact => !artifact.superseded) || [];
   const history = task?.artifacts.filter(artifact => artifact.superseded) || [];
-  const ordered = [...artifacts].sort((a, b) => Number(b.kind === 'verification') - Number(a.kind === 'verification'));
+  const rank = (kind: string) => kind === 'acceptance' ? 2 : kind === 'verification' ? 1 : 0;
+  const ordered = [...artifacts].sort((a, b) => rank(b.kind) - rank(a.kind));
   const prepare = () => task && onAction({ action: 'message', id: task.id, content: '请读取当前问题原文、项目规则和测试配置，准备逐条需求与同测试双版本对照。requirements 只列原版预期失败的缺陷要求；另在 regressionCommands 安排正常行为回归。引用精确原文并核对首个失败信号，不能编造、执行或发布。' });
   const runNext = () => {
     if (next.action === 'start' || next.action === 'restart') { void onStart(); return; }

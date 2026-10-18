@@ -55,3 +55,13 @@ test('lazy snapshot replay does not consume the source budget before a file read
   assert.equal(delegated, 3);
   assert.ok(source.cache['blob:' + sha]);
 });
+
+test('base revision supplement preserves pinned PR blobs without preloading them', async () => {
+  const head = fixture(), base = fixture('value = 0\n');
+  const input = { ...head, kind: 'pr', issue: { ...head.issue, html_url: 'https://github.com/example/project/pull/2' }, pullRequest: { baseSha: 'b'.repeat(40), headSha: head.commit, baseRef: 'main', headRef: 'fix', headRepository: 'example/project', totalChangedFiles: 1, filesTruncated: false, files: [{ path: 'src/value.py', status: 'modified', additions: 1, deletions: 1, patch: '@@', patchTruncated: false }] }, revisionTrees: { ['b'.repeat(40)]: base.tree }, blobs: { ...head.blobs, ...base.blobs } };
+  const result = maintenancePilotSource(input), replay = pilotBlobReplay(result);
+  assert.ok(replay.cache['revision-tree:' + 'b'.repeat(40)]);
+  const response = await replay.fetch('https://api.github.com/repos/example/project/git/blobs/' + Object.keys(base.blobs)[0]);
+  assert.equal(Buffer.from((await response.json()).content, 'base64').toString(), 'value = 0\n');
+  assert.throws(() => maintenancePilotSource({ ...input, revisionTrees: { ['c'.repeat(40)]: base.tree } }), /pinned PR base/);
+});

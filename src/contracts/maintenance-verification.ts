@@ -9,6 +9,15 @@ export interface VerificationRequirement {
 }
 
 export interface VerificationContext {
+  acceptanceSource?: {
+    kind: 'maintainer-supplied';
+    declaration: 'withheld' | 'reviewed-candidate';
+    note: string;
+    recordedAt: string;
+    testPath: string;
+    contentHash: string;
+    parentFingerprint: string;
+  };
   baseSha: string;
   headSha?: string;
   sourceFingerprint: string;

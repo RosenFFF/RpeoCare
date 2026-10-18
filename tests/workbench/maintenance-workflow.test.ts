@@ -43,3 +43,18 @@ test('adding verification requires an active candidate; historical patch is excl
   assert.equal(maintenanceWorkflow(task({ artifacts: [patch] }), []).next.action, 'prepare-verification');
   assert.equal(maintenanceWorkflow(task({ artifacts: [{ ...patch, superseded: true }] }), []).next.action, 'resume');
 });
+
+test('blocked preflight directs the next action to actual environment repair', () => {
+  const base = { ...job('base', 'awaiting-confirmation'), commitSha: 'a'.repeat(40), preflightJobId: 'check' };
+  const check = { ...job('check', 'reproduced'), purpose: 'environment-preflight', preflightForJobId: 'base', preflight: { status: 'blocked', commitSha: base.commitSha, checkedAt: new Date().toISOString() } } as ReproductionJob;
+  const result = maintenanceWorkflow(task(), [base, check]);
+  assert.equal(result.next.model, true); assert.match(result.next.title, /环境未就绪/); assert.match(result.next.prompt!, /setupCommands/);
+});
+
+test('separately saved acceptance becomes the current execution action without deleting model verification', () => {
+  const acceptance = { ...verification, kind: 'acceptance', id: 'acceptance', jobIds: ['human-base', 'human-candidate'] } as AgentArtifact;
+  const t = task({ artifacts: [patch, verification, acceptance] });
+  const result = maintenanceWorkflow(t, [job('base', 'reproduced'), job('human-base', 'awaiting-confirmation'), job('human-candidate', 'awaiting-confirmation')]);
+  assert.deepEqual(result.relevantJobs.map(job => job.id), ['human-base', 'human-candidate']);
+  assert.equal(result.verification?.id, 'acceptance'); assert.equal(t.artifacts.length, 3);
+});

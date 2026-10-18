@@ -234,7 +234,7 @@ export async function executeReproduction(owner: string, initial: ReproductionJo
     const result: ReproductionResult = history.some(attempt => attempt.result === 'blocked') ? 'blocked' : reproduced >= threshold ? 'reproduced' : failures === total ? 'failed' : 'not-reproduced';
     const status = result;
     const artifacts = await collectArtifacts(jobDir);
-    save({ status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: total, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: job.plan.oracle.type === 'all-steps-pass' ? result === 'reproduced' ? '此版本计划内命令全部通过，执行证据已保存' : '此版本命令验证存在阻塞，执行证据已保存' : reproduced >= threshold ? `稳定复现：${total} 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：${total} 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
+    save({ status, result, artifacts, phase: 'evidence', phaseStartedAt: new Date().toISOString(), currentAttempt: total, currentStep: job.plan.setup.length + job.plan.steps.length, currentStepLabel: '证据已收集，报告已生成', progress: job.plan.oracle.type === 'all-steps-pass' ? result === 'reproduced' ? '此版本计划内命令全部通过，执行证据已保存' : '此版本存在未通过命令，执行证据已保存' : reproduced >= threshold ? `稳定复现：${total} 次中 ${reproduced} 次命中机器判据` : `未达到稳定复现阈值：${total} 次中 ${reproduced} 次命中`, finishedAt: new Date().toISOString() });
   } catch (error) {
     const message = error instanceof Error ? error.message : '复现执行失败。';
     const blocked = /尚未启用|Docker|Runner 镜像|仓库快照|沙箱网络默认关闭/.test(message);

@@ -2,6 +2,7 @@
 import { loadEnvConfig } from '@next/env';
 import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { resolve, dirname, join, relative, isAbsolute } from 'node:path';
+import { maintenancePilotSource, pilotBlobReplay } from './lib/maintenance-pilot-source';
 
 async function main() {
   loadEnvConfig(process.cwd());
@@ -13,6 +14,13 @@ async function main() {
   if (!taskId) throw new Error('No RepoCare task in this pilot.');
   const content = readFileSync(resolve(process.argv[3]), 'utf8');
   if (!content.trim() || content.length > 6000) throw new Error('Continuation note must contain at most 6000 characters.');
+  const snapshotFlag = process.argv.find(value => value.startsWith('--snapshot='));
+  if (snapshotFlag) {
+    const source = maintenancePilotSource(JSON.parse(readFileSync(resolve(snapshotFlag.slice(11)), 'utf8')));
+    const original = previous.rows.find((row: { variant: string }) => row.variant === 'repocare').task;
+    if (source.revision !== original.commitSha || source.repoUrl !== original.repoUrl || source.number !== original.number) throw new Error('Continuation source must match the original pinned task.');
+    globalThis.fetch = pilotBlobReplay(source).fetch;
+  }
   const originalDb = resolve(process.env.REPOCARE_DB_PATH || 'data/repocare.sqlite');
   if (!process.env.REPOCARE_MASTER_KEY) process.env.REPOCARE_MASTER_KEY = readFileSync(join(dirname(originalDb), '.model-key')).toString('hex');
   process.env.REPOCARE_DB_PATH = join(root, 'pilot.sqlite');

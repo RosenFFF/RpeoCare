@@ -118,6 +118,45 @@ export class RepositoryReader {
         if (Buffer.byteLength(cache[key]) > 120000) throw new Error('文件超过 120KB 的按需读取限制。');
         return { path, sha: entry.sha, content: cache[key] };
     }
+    /** Reuse checkpointed blobs, but bind each file to a verified revision tree. */
+    async revisionFile(path: string, revision: string, limit = 20000) {
+        repositoryPath(path);
+        if (!/^[a-f0-9]{40}$/.test(revision)) throw new Error('必须指定固定提交。');
+        const cache = this.claim.internal.cache;
+        const treeKey = `revision-tree:${revision}`;
+        let tree: Tree;
+        if (revision === this.claim.task.commitSha) tree = await this.tree();
+        else {
+            if (!cache[treeKey]) {
+                const commit = await this.api<{ tree: { sha: string } }>(`/git/commits/${revision}`);
+                if (!/^[a-f0-9]{40}$/.test(commit.tree?.sha)) throw new Error('目录版本无效。');
+                const found = await this.api<Tree>(`/git/trees/${commit.tree.sha}?recursive=1`);
+                if (!Array.isArray(found.tree) || found.tree.length > 15000) throw new Error('对照目录超过读取范围。');
+                cache[treeKey] = JSON.stringify(found);
+                this.onInitialize();
+            }
+            tree = JSON.parse(cache[treeKey]);
+        }
+        const entry = tree.tree.find(file => file.path === path);
+        if (!entry || entry.type !== 'blob' || !['100644', '100755'].includes(entry.mode)) throw new Error('固定目录中没有可读取的普通文件。');
+        if (!/^[a-f0-9]{40}$/.test(entry.sha) || entry.size === undefined || entry.size > limit) throw new Error('PR 对照文件必须是至多 20KB 的普通文本。');
+        const key = `blob:${entry.sha}`;
+        if (cache[key] === undefined) {
+            const blob = await this.api<{ content: string; encoding: string; size: number }>(`/git/blobs/${entry.sha}`);
+            if (blob.encoding !== 'base64' || blob.size !== entry.size) throw new Error('固定文件元数据不匹配。');
+            const bytes = Buffer.from(blob.content, 'base64');
+            if (bytes.length !== entry.size || bytes.length > limit) throw new Error('固定文件大小不匹配。');
+            const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+            assertReadableSource(content);
+            if (Object.entries(cache).filter(([name]) => name.startsWith('blob:')).reduce((size, [, text]) => size + text.length, 0) + content.length > 600000) throw new Error('任务源码缓存达到上限，请缩小范围。');
+            cache[key] = content;
+        }
+        const content = cache[key], bytes = Buffer.byteLength(content);
+        assertReadableSource(content);
+        if (bytes !== entry.size || bytes > limit || createHash('sha1').update(`blob ${bytes}\0`).update(content).digest('hex') !== entry.sha) throw new Error('固定文件内容与 Git blob 指纹不匹配。');
+        this.onInitialize();
+        return { path, sha: entry.sha, content };
+    }
     evidence(kind: AgentEvidence['kind'], label: string, excerpt: string, url?: string) {
         const task = this.claim.task, shortened = excerpt.slice(0, 12000);
         const id = 'E' + createHash('sha256').update(`${task.commitSha}:${kind}:${label}:${shortened}`).digest('hex').slice(0, 12);

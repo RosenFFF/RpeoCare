@@ -24,7 +24,7 @@ npm run dev
 | Issue / PR | Issue 问题地形图、随全局主题切换的 2D 分支导航、舒展的 PR 汇流图与 Issue↔PR 证据桥；保留可解释分诊、固定提交审查、结构化 AI 发现、CI/Status、Diff 证据校验和列表模式；分诊按需读取源码、引用证据与项目约定；详情内可继续调查并下载修复补丁；Bug 可生成复现计划并在 Docker/Playwright 隔离环境中三次验证、留存证据 |
 | PR 证据化审查 | 固定 head/base、分块进度持久化、失败块重试、未审范围、Diff 坐标校验、Checks/Status、项目规则、人工筛选与 COMMENT 草稿；详情可深入核对关联源码 |
 | 项目专属规则 | 从仓库读取候选或手动编辑，维护者确认后用于分诊和 PR 审查；展示字段、版本、标签、检查与来源依据 |
-| 需求与改动对照 | Issue 候选补丁和支持范围内的小型 PR，可准备原文要求、生产改动及共享 pytest 测试的双版本计划；逐条确认后在隔离环境执行，展示环境受阻、目标断言和改进证据，支持报告导出 |
+| 需求与改动对照 | Issue 候选补丁和支持范围内的小型 PR，可准备原文要求、生产改动及共享 pytest 测试的双版本计划；逐条确认后在隔离环境执行，展示环境受阻、目标断言和改进证据，支持报告导出；人工可另供带来源声明的验收测试，保留原模型计划并单独确认执行 |
 | 文档维护 | 从报告结合源码生成 README / CONTRIBUTING / Issue / PR 模板，核对已保存草稿的影响；文档资产导航、编辑／预览／Diff、来源追溯、保存、重新生成和下载 |
 | GitHub 写回 | 确认后发布 Issue 评论、COMMENT 审阅或独立分支的草稿 PR；不自动合并 |
 | 账户 | GitHub OAuth + PKCE、邮箱注册 / 验证 / 登录 / 密码重置、退出 |
@@ -88,6 +88,8 @@ npm run cleanup -- --apply
 - [维护链路实测与失败记录](docs/MAINTENANCE_ACCEPTANCE.md)
 - [三个公开仓库的 DeepSeek 维护实测](docs/MAINTENANCE_FIELD_TESTS.md)
 - [新 Issue/PR、依赖准备与系统提示消融](docs/MAINTENANCE_FRESH_EVALUATION.md)
+- [固定 PR 读取与人工验收实测](docs/MAINTENANCE_PR_RELIABILITY.md)
+- [公开历史用例复查](evaluation/cattrs-800/README.md)
 - [PR 审查历史记录](docs/PR_REVIEW.md)
 - [项目维护 Agent](docs/MAINTENANCE_AGENT.md)
 - [Bug 复现实验室](docs/REPRODUCTION.md)
@@ -97,3 +99,7 @@ npm run cleanup -- --apply
 常规项目体检不会运行被检查仓库的代码。贡献路径与 Issue 复现都要求维护者先审阅计划并明确确认，随后才由独立 Worker 在 Docker Runner 中执行受限命令。Docker 未启用时安全阻塞，不回退宿主机。贡献路径绑定体检时的固定快照，依赖准备与断网验证分开执行；结果只说明该快照下被选中的最小路径是否走通。多语言支持是配置识别，不是全语言静态分析。文档工作台的预览和 Diff 只用于内容审阅，尚未接入 Markdown 链接、命令或渲染安全的完整自动检查。草稿保留原体检报告的来源信息，仍须由维护者核对证据后发布。旧任务没有文件快照时仍能阅读报告，生成替换草稿需重新体检。
 
 GitHub、邮箱和匿名本地会话目前为独立身份空间，不按同名邮箱自动合并。Gitee/GitLab 尚未接入。多 Worker 只支持同机共享数据库，跨主机分布式部署尚需独立数据库和队列。公网部署必须配置 HTTPS、认证与反向代理限流。
+
+## 许可证
+
+RepoCare自主代码采用[Apache-2.0](LICENSE)，版权及声明见[NOTICE](NOTICE)。第三方依赖、模型服务和案例材料保留各自的权利及许可，资源盘点与自研边界见[参赛材料核对包](docs/competition/README.md)。

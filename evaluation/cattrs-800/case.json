@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "historical-existing-pr",
+  "repoUrl": "https://github.com/python-attrs/cattrs",
+  "number": 800,
+  "baseSha": "73fa273b1239fc5c110c4f9b6674972284a2f456",
+  "headSha": "41c7397b9b87b479ea272d0f679d7c6538ad367f",
+  "productionPath": "src/cattrs/disambiguators.py",
+  "checkSha256": "0e4c15477973f9d659245430972eb2add41710fd834f056900a92e98945a28f4",
+  "targetNode": "test_factory_ambiguity_matches_attrs",
+  "normalNode": "test_required_unique_field_still_selects_class",
+  "failureSignal": "DID NOT RAISE",
+  "sourceIssue": "https://github.com/python-attrs/cattrs/issues/796",
+  "sourcePull": "https://github.com/python-attrs/cattrs/pull/800",
+  "limits": [
+    "Known historical example; not a held-out evaluation.",
+    "Existing PR production change, not a new model repair.",
+    "One attempt per version in the public replay; no full-suite or browser claim."
+  ]
+}

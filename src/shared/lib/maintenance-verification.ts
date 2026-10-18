@@ -1,5 +1,6 @@
 import type { VerificationContext, VerificationAssessment, RequirementOutcome } from '@/contracts/maintenance-verification';
 import type { ReproductionJob } from '@/contracts/workbench';
+import { preflightReadiness } from './execution-readiness';
 
 export const requirementOutcomeLabels: Record<RequirementOutcome, string> = {
   unconfirmed: '待核对要求', pending: '等待执行', blocked: '环境受阻', improved: '观察到改进', 'still-failing': '改动后仍失败', 'not-demonstrated': '未证明改进', inconclusive: '证据不足', stale: '版本已过期',
@@ -38,8 +39,21 @@ export function verificationCoverage(context: VerificationContext, jobs: Reprodu
   const regressed = results.filter(result => result.regressed).length;
   return { state, label: regressed ? `候选引入回归 · ${regressed} 项` : labels[state], passed: results.filter(result => result.state === 'passed').length, total: commands.length, results,
     detail: regressed ? '同环境的全部尝试中，这些正常行为命令在原版通过、候选出现断言失败。目标通过仍不能接受该候选。' : state === 'passed' ? '两版全部尝试中的额外回归命令均通过，仅覆盖所列命令。' : state === 'not-planned' ? '目前只检查目标要求，其他行为尚未由额外命令验证。' : '核对两版逐次记录后再判断其他行为是否受影响。',
-    testSource: context.sharedTestPaths.length ? '候选测试共享到两版' : '复用仓库现有测试',
-    independent: '未记录独立验收来源', independentDetail: '当前记录没有独立验收测试的来源标记，不能推断已由独立测试验证。' };
+    testSource: context.acceptanceSource ? '人工提供测试，共享到两版' : context.sharedTestPaths.length ? '候选测试共享到两版' : '复用仓库现有测试',
+    independent: context.acceptanceSource ? context.acceptanceSource.declaration === 'withheld' ? '提交者声明未提供给模型' : '提供者已看过候选' : '未记录独立验收来源',
+    independentDetail: context.acceptanceSource ? '来源声明和内容指纹已保存；系统无法证明作者身份或测试独立性，仍需核对执行与覆盖范围。' : '当前记录没有独立验收测试的来源标记，不能推断已由独立测试验证。' };
+}
+
+/** A readable decision combines target behavior and regressions without approving a merge. */
+export function verificationDecision(context: VerificationContext, jobs: ReproductionJob[], stale = false) {
+  const target = assessVerification(context, jobs, stale), coverage = verificationCoverage(context, jobs, stale);
+  if (stale) return { tone: 'unknown', title: '历史结果，需要重新核对', detail: target.reason };
+  if (jobs.some(job => job.verification?.pairId === context.pairId && job.status === 'awaiting-confirmation' && preflightReadiness(job, jobs).state === 'blocked')) return { tone: 'warning', title: '运行环境受阻，尚不能执行对照', detail: '环境预检发现未满足的条件。先核对准备命令与仓库声明，不能把未执行当作目标测试失败。' };
+  if (coverage.results.some(result => result.regressed)) return { tone: 'danger', title: '候选引入回归，暂不能交付', detail: coverage.detail };
+  if (target.state === 'improved') return coverage.state === 'passed'
+    ? { tone: 'success', title: '所列目标与正常行为检查已通过', detail: '仅支持本次列出的行为，仍需人工审阅改动及未覆盖范围。' }
+    : { tone: 'warning', title: '目标有改进，其他行为尚未核验清楚', detail: coverage.detail };
+  return { tone: target.state === 'still-failing' ? 'danger' : 'unknown', title: requirementOutcomeLabels[target.state], detail: target.reason };
 }
 
 /** Derive the next investigation from saved evidence; this never queues execution or calls a model. */
