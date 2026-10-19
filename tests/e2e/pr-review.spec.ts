@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, showList } from './fixtures';
 import type { GitItem, PullRequestReview } from '../../src/contracts/workbench';
 const sha='a'.repeat(40), base='b'.repeat(40);
 const project={repoUrl:'https://github.com/example/project',fullName:'example/project'};
@@ -8,7 +8,7 @@ const report: PullRequestReview={id:'bbd21770-a427-4c8f-b915-b6c5b7b02d72',revis
 test('PR review links real context, CI failure, finding decisions, drafts and history',async({page})=>{
   let review: PullRequestReview|null=null, analyzeCalls=0, drafts=0;
   await page.route('**/api/workbench',r=>r.fulfill({json:{project,runs:[],drafts:[],github:null,usage:{}}}));
-  await page.route('**/api/workbench/items**',r=>r.fulfill({json:{items:[item]}}));
+  await page.route('**/api/workbench/items**',r=>r.fulfill({json:{items:[item],repoUrl:project.repoUrl,base:'main'}}));
   await page.route('**/api/workbench/review**',async r=>{
     if(r.request().method()==='POST') {
       const body=r.request().postDataJSON();
@@ -20,7 +20,7 @@ test('PR review links real context, CI failure, finding decisions, drafts and hi
     return r.fulfill({json:{item,review}});
   });
   await page.route('**/api/workbench/drafts',r=>{drafts++;return r.fulfill({json:{draft:{id:'draft1'}}});});
-  await page.goto('/pull-requests');
+  await page.goto('/pull-requests');await showList(page,'PR');
   await expect(page.getByRole('heading',{name:'PR 审查',exact:true})).toBeVisible();
   await page.getByRole('button',{name:/#45 Refactor reader/}).click();
   await expect(page.locator('.pr-workbench .issue-detail-panel')).toBeVisible();
@@ -47,12 +47,12 @@ test('PR review links real context, CI failure, finding decisions, drafts and hi
 
 test('PR update disables old findings and permits fresh analysis only',async({page})=>{
   await page.route('**/api/workbench',r=>r.fulfill({json:{project,runs:[],drafts:[],github:null,usage:{}}}));
-  await page.route('**/api/workbench/items**',r=>r.fulfill({json:{items:[item]}}));
+  await page.route('**/api/workbench/items**',r=>r.fulfill({json:{items:[item],repoUrl:project.repoUrl,base:'main'}}));
   await page.route('**/api/workbench/review**',r=>r.fulfill({json:{item:{...item,headSha:'c'.repeat(40)},review:report}}));
-  await page.goto('/pull-requests');
+  await page.goto('/pull-requests');await showList(page,'PR');
   await page.getByRole('button',{name:/#45 Refactor reader/}).click();
   await expect(page.locator('.pr-workbench .issue-detail-panel')).toBeVisible();
-  await expect(page.locator('.pr-review-alert[role=alert]')).toContainText('旧提交审查');
+  await expect(page.locator('.pr-review-alert[role=alert]')).toContainText('历史审查');
   await expect(page.getByRole('button',{name:'确认发现'})).toBeDisabled();
   await expect(page.getByRole('button',{name:'生成已筛选审阅草稿'})).toBeDisabled();
   await expect(page.getByRole('button',{name:'审查最新提交'})).toBeEnabled();

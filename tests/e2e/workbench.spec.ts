@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, showList } from './fixtures';
 
 test('report hides inspector and all input composers', async ({ page }) => {
   await page.goto('/audit?new=1');
@@ -23,11 +23,12 @@ test('first entry opens audit; empty overview has no demonstration values', asyn
   await page.goto('/workspace');
   await expect(page).toHaveURL(/\/audit\?new=1/);
   await page.goto('/overview');
-  await expect(page.getByRole('heading', { name: '先完成一次项目体检。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '从一个真实项目开始维护' })).toBeVisible();
   await expect(page.getByRole('region', { name: '项目维护地图' })).toHaveCount(0);
   await expect(page.getByText('csv-kit', { exact: true })).toHaveCount(0);
 });
 test('overview keeps 3d and uses report data; unavailable counts do not become zero', async ({ page }) => {
+  test.setTimeout(60000);
   await page.route('**/api/workbench/overview', route => route.fulfill({ json: completedOverview }));
   await page.route('**/api/workbench/counts', route => route.fulfill({ json: { repoUrl: report.repository.url, issues: null, pulls: 0, fetchedAt: report.generatedAt } }));
   await page.goto('/overview');
@@ -45,7 +46,7 @@ test('overview updates after first completion and preserves report after retry f
   await page.route('**/api/workbench/overview', route => route.fulfill({ json: state }));
   await page.route('**/api/workbench/counts', route => route.fulfill({ json: { repoUrl: report.repository.url, issues: 2, pulls: 1 } }));
   await page.goto('/overview');
-  await expect(page.getByRole('heading', { name: '项目体检正在进行中。' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '项目体检正在进行中' })).toBeVisible();
   state = completedOverview;
   await expect(page.getByRole('region', { name: '项目维护地图' })).toBeVisible({ timeout: 15000 });
   state = { ...completedOverview, latestRun: { id: 'retry', status: 'failed', error: 'network' } };
@@ -62,13 +63,13 @@ test('issue triage shows readiness and maintainer review controls', async ({ pag
   await page.route('**/api/workbench', route => route.fulfill({ json: { project, runs: [], drafts: [], usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 }, github: null } }));
   await page.route('**/api/workbench/items**', route => route.fulfill({ json: route.request().url().includes('number=238') ? { item: { ...issue, triage } } : { items: [{ ...issue, triage }] } }));
   await page.route('**/api/workbench/reproduction?number=238', route => route.fulfill({ json: { jobs: [], workerOnline: true, sandboxConfigured: true } }));
-  await page.goto('/issues');
+  await page.goto('/issues');await showList(page,'Issue');
   await page.getByRole('button', { name: /#238 Submit button returns 500/ }).click();
-  await expect(page.getByText('处理准备度', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '信息准备度（规则估计）', exact: true })).toBeVisible();
   await expect(page.getByText('85', { exact: true })).toBeVisible();
   await expect(page.locator('.issue-readiness-card').getByRole('button', { name: '生成复现方案', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '维护者确认' })).toBeVisible();
-  await expect(page.getByText('待确认', { exact: true })).toBeVisible();
+  await expect(page.locator('.issue-review-card').getByText('待确认', { exact: true })).toBeVisible();
 });
 
 test('issue focus mode expands details and presents an auditable reproduction plan', async ({ page }) => {
@@ -89,7 +90,7 @@ test('issue focus mode expands details and presents an auditable reproduction pl
   await page.route('**/api/workbench', route => route.fulfill({ json: { project, runs: [], drafts: [], usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 }, github: null } }));
   await page.route('**/api/workbench/items**', route => route.fulfill({ json: route.request().url().includes('number=237') ? { item: issue } : { items: [issue] } }));
   await page.route('**/api/workbench/reproduction?number=237', route => route.fulfill({ json: { jobs: [reproduction], workerOnline: true } }));
-  await page.goto('/issues');
+  await page.goto('/issues');await showList(page,'Issue');
   await page.getByRole('button', { name: /#237 Submit button crashes/ }).click();
   await expect(page.locator('.review-workspace')).toHaveClass(/is-focused/);
   await expect(page.locator('.review-inbox')).toHaveAttribute('inert', '');

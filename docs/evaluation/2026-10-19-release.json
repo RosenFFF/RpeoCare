@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-19",
+  "kind": "Two public historical case studies with agent feedback; not blind, human adoption, a fair model comparison or general effectiveness estimate",
+  "model": "deepseek-flash",
+  "totals": {
+    "requests": 31,
+    "tools": 46,
+    "inputTokens": 360878,
+    "outputTokens": 13161
+  },
+  "cases": [
+    {
+      "case": "jsonpointer-63",
+      "issue": "https://github.com/stefankoegl/python-json-pointer/issues/63",
+      "commit": "f3643addecf9dc66cb7bd120532a8373f19b1e23",
+      "protocolSha256": "a2a08f111033d49a6fc020f6c1d32e855ee33ba62d1b70db90a8e15770f169c6",
+      "holdoutSha256": "342cb937582913dbf19d5ddae95d86194dae1400de81317660b7d68f0f593b03",
+      "first": {
+        "requests": 13,
+        "tools": 25,
+        "inputTokens": 149439,
+        "outputTokens": 3211,
+        "assessment": "partial-delivery",
+        "defect": "Native failureSignal mismatched actual unittest assertion."
+      },
+      "feedback": {
+        "requests": 2,
+        "tools": 2,
+        "inputTokens": 41465,
+        "outputTokens": 1167,
+        "limits": {
+          "additionalRequests": 8,
+          "additionalTools": 16,
+          "maxOutput": 8192,
+          "wallSeconds": 180
+        }
+      },
+      "externalAcceptance": {
+        "assessment": "improved",
+        "versions": [
+          {
+            "role": "baseline",
+            "attempts": 1,
+            "targetPassed": 0,
+            "targetTotal": 2,
+            "normalPassed": 2,
+            "normalTotal": 2
+          },
+          {
+            "role": "patched",
+            "attempts": 1,
+            "targetPassed": 2,
+            "targetTotal": 2,
+            "normalPassed": 2,
+            "normalTotal": 2
+          }
+        ]
+      }
+    },
+    {
+      "case": "cachetools-420",
+      "issue": "https://github.com/tkem/cachetools/issues/420",
+      "commit": "3c082c654c2804b9354e4b62dbd2994f1aac464d",
+      "protocolSha256": "fa523cddb3c8d8cd3a8df2c0037a2bbe6c842aa362a1d236f5e06bbd8cb3e0b2",
+      "holdoutSha256": "c1db3cb23b2fc201e58b7e8d63daa62d98e2152cd48a4a3bd14e965adcd1461e",
+      "first": {
+        "requests": 11,
+        "tools": 13,
+        "inputTokens": 80625,
+        "outputTokens": 2944,
+        "assessment": "partial-delivery",
+        "defect": "Only cache attribute fixed; cache_clear/cache_info still wrong; three requirements used same node with unreachable later failure signals."
+      },
+      "feedback": {
+        "requests": 5,
+        "tools": 6,
+        "inputTokens": 89349,
+        "outputTokens": 5839,
+        "limits": {
+          "additionalRequests": 12,
+          "additionalTools": 24,
+          "maxOutput": 8192,
+          "wallSeconds": 180
+        }
+      },
+      "externalAcceptance": {
+        "assessment": "improved",
+        "versions": [
+          {
+            "role": "baseline",
+            "attempts": 1,
+            "targetPassed": 0,
+            "targetTotal": 3,
+            "normalPassed": 2,
+            "normalTotal": 2
+          },
+          {
+            "role": "patched",
+            "attempts": 1,
+            "targetPassed": 3,
+            "targetTotal": 3,
+            "normalPassed": 2,
+            "normalTotal": 2
+          }
+        ]
+      }
+    }
+  ],
+  "runnerImageId": "sha256:ab8f5657d7f07351be64c722df7dd728623c14abbccd81c56e9ed4d56ce79cd0",
+  "localEvidence": {
+    "directory": "output/release-evaluation-2026-10-19 (private parent workspace)",
+    "resultSummarySha256": "64167fb8e6e9e0542e166305e726f7bf7d19b2013f05d4bc7675dccee8c7425d",
+    "finalAuditSha256": "932d263b55affbc076277cef5fa78440f5031c2990b9aa115aa3b0a3bbed6b45"
+  },
+  "limitations": [
+    "Agent operator read issue and pinned code before authoring checks; issue includes diagnostic or repair hints.",
+    "Checks frozen before first generation, withheld through candidate and feedback generation; acceptance body enters task only after feedback completed.",
+    "Each acceptance version ran once; extra standalone diagnostics are separately retained.",
+    "No generic baseline, random sample, independent-human review, GitHub publication or upstream adoption.",
+    "This operator did not perform browser acceptance or confirm model-native jobs.",
+    "External scope is the specified target and normal-behavior checks, not full upstream, concurrency or platform coverage."
+  ]
+}

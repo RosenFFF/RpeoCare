@@ -91,6 +91,8 @@ npm run cleanup -- --apply
 - [固定 PR 读取与人工验收实测](docs/MAINTENANCE_PR_RELIABILITY.md)
 - [调查预算与声明准备实测](docs/MAINTENANCE_BOUNDED_EVALUATION.md)
 - [报告收尾与插件预检回归](docs/MAINTENANCE_RECOVERY_EVALUATION.md)
+- [新任务交付与反馈恢复实测](docs/MAINTENANCE_RELEASE_EVALUATION.md)
+- [依赖审计与兼容性核对](docs/DEPENDENCY_REVIEW.md)
 - [公开历史用例复查](evaluation/cattrs-800/README.md)
 - [PR 审查历史记录](docs/PR_REVIEW.md)
 - [项目维护 Agent](docs/MAINTENANCE_AGENT.md)

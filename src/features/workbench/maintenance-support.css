@@ -7,3 +7,4 @@
 @media(prefers-reduced-motion:reduce){.ma-spin{animation:none}}
 
 .maintenance-memory{border-top:1px solid var(--line);padding:10px 0}.maintenance-memory p,.maintenance-support-evidence li{font-size:12px;line-height:1.8;overflow-wrap:anywhere}.maintenance-memory small{display:block;color:var(--muted);font-size:10px;line-height:1.8}.maintenance-memory button{border:0;background:none;color:var(--muted);font-size:11px;cursor:pointer;padding:6px 0}
+.ma-confirm input[type=checkbox],.ma-requirement-confirm input[type=checkbox]{flex:0 0 16px;width:16px;min-width:16px;max-width:16px;height:16px;min-height:16px;padding:0}.ma-requirement-confirm label>span{flex:1;min-width:0}

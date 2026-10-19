@@ -35,6 +35,10 @@ test('maintenance tools accept root browsing and normalize common plan status wi
   const environment = JSON.parse((await invoke('read_verification_environment', {})).content.filter(block => block.type === 'text').map(block => block.text).join('')).untrustedData;
   assert.equal(environment.observed, false); assert.ok(environment.moduleSearchPaths.includes('<workspace>/src'));
   assert.equal(environment.limits.automaticExecution, false);
+  assert.equal(environment.planSchema, undefined);
+  const advanced = JSON.parse((await invoke('read_verification_environment', { includePlanSchema: true })).content.filter(block => block.type === 'text').map(block => block.text).join('')).untrustedData;
+  assert.ok(advanced.planSchema.properties.steps);
+  assert.equal(advanced.observed, false);
 
   claim.task.artifacts = [{ id: 'old', kind: 'patch', title: '旧版本', createdAt: '', evidenceIds: [], superseded: true, revision: 1, files: [{ path: 'src/value.py', before: '', after: 'OLD' }] },
     { id: 'current', kind: 'patch', title: '候选', createdAt: '', evidenceIds: [], revision: 2, files: [{ path: 'src/value.py', before: '', after: Array.from({ length: 125 }, (_, i) => String(i + 1)).join('\n') }] }];
