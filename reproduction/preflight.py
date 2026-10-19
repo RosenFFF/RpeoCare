@@ -27,6 +27,11 @@ def inspect(workspace, plan):
     project_installs = [step['command'] for step in plan['setup'] if re.search(r'--no-build-isolation\s+[\"\']?\.(?:\[|[\"\']?$)', step.get('command', ''))]
     requested_extras = set()
     requested_groups = [shlex.split(step['command'])[-1] for step in plan['setup'] if 'pip install ' in step.get('command', '') and ' --group ' in step['command']]
+    pytest_commands = []
+    for step in plan['steps']:
+        tokens = shlex.split(step.get('command', ''))
+        if tokens and (tokens[0] == 'pytest' or tokens[:3] in (['python', '-m', 'pytest'], ['python3', '-m', 'pytest'])):
+            pytest_commands.append(tokens)
     for command in project_installs:
         target = shlex.split(command)[-1]
         if target.startswith('.['):
@@ -83,6 +88,7 @@ def inspect(workspace, plan):
         except InvalidSpecifier:
             add('requested-python', 'unknown', '计划版本要求需核对', requested)
 
+    manifest = {}
     try:
         manifest_text = text(prefix+'pyproject.toml')
         manifest = tomllib.loads(manifest_text) if manifest_text else {}
@@ -132,11 +138,6 @@ def inspect(workspace, plan):
                 add('project-pytest', 'pass' if matches else 'warning' if installs else 'blocked', '项目声明的pytest要求', str(requirement), prefix+'pyproject.toml', None if matches else '使用符合项目声明的pytest；依赖准备后的实际版本仍需核对。')
             except InvalidRequirement:
                 add('project-requirement', 'unknown', '依赖声明未解析', '需人工核对项目测试依赖。', prefix+'pyproject.toml')
-        config = manifest.get('tool', {}).get('pytest', {})
-        minimum = config.get('minversion') or config.get('ini_options', {}).get('minversion')
-        if minimum and runtime['pytest']:
-            matches = SpecifierSet('>='+str(minimum)).contains(runtime['pytest'])
-            add('pytest-minimum', 'pass' if matches else 'warning' if installs else 'blocked', 'pytest配置的最低版本', str(minimum), prefix+'pyproject.toml', None if matches else '更新受支持Runner的pytest版本后再检查。')
         build = manifest.get('build-system', {})
         for requirement_text in build.get('requires', []):
             try:
@@ -151,19 +152,96 @@ def inspect(workspace, plan):
     except (ValueError, tomllib.TOMLDecodeError):
         add('pyproject', 'unknown', '项目清单无法完整解析', '未据此推断依赖或版本满足。', prefix+'pyproject.toml')
 
-    for filename, section in (('pytest.ini', 'pytest'), ('setup.cfg', 'tool:pytest'), ('tox.ini', 'pytest')):
+    def pytest_config(tokens):
+        explicit = next((tokens[i+1] for i, value in enumerate(tokens[:-1]) if value == '-c'), None)
+        explicit = explicit or next((value[2:] for value in tokens if value.startswith('-c') and len(value) > 2), None)
+        names = [explicit] if explicit else ['pytest.toml', '.pytest.toml', 'pytest.ini', '.pytest.ini', 'pyproject.toml', 'tox.ini', 'setup.cfg']
+        for filename in names:
+            path = prefix+filename
+            try:
+                value = text(path)
+                if value is None:
+                    if explicit:
+                        add('config-'+path, 'unknown', '指定的测试配置不可读', '不能推断配置选项或插件满足。', path)
+                    continue
+                if filename.endswith('.toml'):
+                    data = tomllib.loads(value)
+                    config = data.get('tool', {}).get('pytest') if Path(filename).name == 'pyproject.toml' else data.get('pytest', {})
+                    if config is None and not explicit:
+                        continue
+                    config = config or {}
+                    if not isinstance(config, dict):
+                        raise ValueError('Invalid pytest settings')
+                    config = config.get('ini_options', config)
+                else:
+                    parser = configparser.ConfigParser(interpolation=None)
+                    parser.read_string(value)
+                    section = 'tool:pytest' if filename.endswith('setup.cfg') else 'pytest'
+                    if not parser.has_section(section) and filename not in ('pytest.ini', '.pytest.ini') and not explicit:
+                        continue
+                    config = dict(parser.items(section)) if parser.has_section(section) else {}
+                if not isinstance(config, dict):
+                    raise ValueError('Invalid pytest settings')
+                return path, config
+            except (ValueError, configparser.Error, OSError, UnicodeError):
+                add('config-'+path, 'unknown', '测试配置需核对', '配置未完整读取，不回退到低优先级配置或推断插件满足。', path)
+                return path, {}
+        return None, {}
+
+    legacy = manifest.get('tool', {}).get('poetry', {}).get('dev-dependencies', {})
+    if pytest_commands:
+        if isinstance(legacy, dict) and legacy:
+            names = sorted(name for name in legacy if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,79}', name))[:20]
+            add('poetry-dev-dependencies', 'unknown', '旧Poetry开发依赖需单独准备', '声明包含 '+', '.join(names)+'；根项目安装不等于安装这些开发依赖。当前不转换Poetry版本约束或自动安装此表。', prefix+'pyproject.toml', '提供已审阅的受支持requirements、项目扩展、标准依赖组，或使用已具备所需插件的Runner。')
+    cov_options = {'--cov', '--cov-report', '--cov-config', '--cov-fail-under', '--cov-append', '--cov-branch', '--cov-context', '--cov-reset', '--no-cov', '--no-cov-on-fail'}
+    for tokens in pytest_commands:
+        path, config = pytest_config(tokens)
         try:
-            value = text(prefix+filename)
-            if not value:
-                continue
-            config = configparser.ConfigParser(interpolation=None)
-            config.read_string(value)
-            minimum = config.get(section, 'minversion', fallback=None)
+            minimum = config.get('minversion')
             if minimum and runtime['pytest']:
-                matches = SpecifierSet('>='+minimum).contains(runtime['pytest'])
-                add('pytest-minimum-'+filename, 'pass' if matches else 'warning' if installs else 'blocked', 'pytest配置的最低版本', minimum, prefix+filename, None if matches else '按项目配置准备兼容的pytest后再核对。')
-        except (ValueError, configparser.Error):
-            add('config-'+filename, 'unknown', '测试配置需核对', '未据此推断pytest版本满足。', prefix+filename)
+                matches = SpecifierSet('>='+str(minimum)).contains(runtime['pytest'])
+                add('pytest-minimum-'+str(path), 'pass' if matches else 'warning' if installs else 'blocked', 'pytest配置的最低版本', str(minimum), path, None if matches else '按生效配置准备兼容的pytest后再核对。')
+            options = config.get('addopts', [])
+            options = shlex.split(options) if isinstance(options, str) else options
+            if not isinstance(options, list) or any(not isinstance(value, str) for value in options):
+                raise ValueError('Invalid addopts')
+            if any(value in ('-o', '--override-ini') or value.startswith(('--override-ini=', '-oaddopts=')) for value in tokens):
+                add('pytest-override-'+str(path), 'unknown', '命令覆盖pytest配置需核对', '静态检查不合并命令覆盖，不据此推断插件满足。', path)
+                continue
+            options = options+tokens
+            required = config.get('required_plugins', [])
+            required = shlex.split(required) if isinstance(required, str) else required
+            if not isinstance(required, list) or any(not isinstance(value, str) for value in required):
+                raise ValueError('Invalid required_plugins')
+            if len(required) > 12:
+                add('pytest-required-limit', 'unknown', '插件声明达到检查上限', '仅检查前十二项声明。', path)
+            requirements = [Requirement(value) for value in required[:12]]
+            needs_cov = any(value.split('=', 1)[0] in cov_options for value in options)
+            if needs_cov and not any(re.sub(r'[-_.]+', '-', req.name).lower() == 'pytest-cov' for req in requirements):
+                requirements.append(Requirement('pytest-cov'))
+            plugins = [options[i+1] for i, value in enumerate(options[:-1]) if value == '-p']
+            for requirement in requirements:
+                if requirement.marker and not requirement.marker.evaluate():
+                    continue
+                name = re.sub(r'[-_.]+', '-', requirement.name).lower()
+                installed = version(requirement.name)
+                matches = bool(installed) and requirement.specifier.contains(installed, prereleases=True)
+                disabled = name == 'pytest-cov' and (any(value in ('no:cov', 'no:pytest_cov') for value in plugins) or bool(os.environ.get('PYTEST_DISABLE_PLUGIN_AUTOLOAD')) and not any(value in ('cov', 'pytest_cov', 'pytest_cov.plugin') for value in plugins))
+                install_steps = [step for step in plan['setup'] if 'pip install ' in step.get('command', '')]
+                root_only = bool(install_steps) and len(install_steps) == len(project_installs) and not requested_extras
+                legacy_names = {re.sub(r'[-_.]+', '-', key).lower() for key in legacy} if isinstance(legacy, dict) else set()
+                main_names = {re.sub(r'[-_.]+', '-', key).lower() for key in manifest.get('tool', {}).get('poetry', {}).get('dependencies', {})}
+                for dependency in manifest.get('project', {}).get('dependencies', []):
+                    try:
+                        main_names.add(re.sub(r'[-_.]+', '-', Requirement(dependency).name).lower())
+                    except InvalidRequirement:
+                        pass
+                unprepared_legacy = root_only and name in legacy_names and name not in main_names
+                status = 'blocked' if disabled else 'pass' if matches else 'warning' if installs and not unprepared_legacy else 'blocked'
+                detail = '插件被命令或Runner自动加载设置禁用。' if disabled else '发行包 '+installed+' 已安装；未实际加载插件或收集测试。' if matches else '当前镜像没有满足要求的 '+str(requirement)+'；覆盖率参数需要pytest-cov插件。' if name == 'pytest-cov' else '当前镜像没有满足要求的 '+str(requirement)+'。'
+                add('pytest-plugin-'+name+'-'+str(path), status, 'pytest插件 '+name, detail, path, None if status == 'pass' else '按固定源码声明审阅依赖准备；根项目安装不会自动安装开发依赖，不能通过删除配置参数消除缺口。')
+        except (ValueError, InvalidRequirement, InvalidSpecifier):
+            add('pytest-options-'+str(path), 'unknown', 'pytest选项或插件声明需核对', '没有加载插件或执行项目代码，不能证明配置可用。', path)
 
     def local_module(module):
         relative = module.replace('.', '/')
@@ -241,7 +319,7 @@ def inspect(workspace, plan):
             if text(root_conftest) is not None:
                 scan(root_conftest)
     return dict(status='blocked' if any(c['status']=='blocked' for c in checks) else 'review' if any(c['status'] in ('warning','unknown') for c in checks) else 'ready', runtime=runtime, checks=checks, preparationOptions=preparation_options,
-                limitations=['仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。', '条件导入、动态插件、运行时服务及完整套件兼容性仍需实际验证。'])
+                limitations=['仅静态读取选定文件、祖先conftest和有限顶层导入；不执行仓库代码、不收集测试、不安装依赖。', '插件检查覆盖required_plugins发行包要求及已知pytest-cov参数；不执行插件，条件导入、自定义插件、运行时服务及完整套件兼容性仍需实际验证。'])
 
 
 if __name__ == '__main__':

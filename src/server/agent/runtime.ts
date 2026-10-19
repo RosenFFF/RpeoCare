@@ -9,7 +9,7 @@ import { outputOptions } from '../models/output-options';
 import { getReproductionJob, recordUsage } from '../workbench/store';
 import { modelFailure } from '../models/failure';
 import { recordModelFailure } from '../models/request-diagnostics';
-import { maintenanceProgressHint, maintenanceToolAllowed } from '../../shared/lib/maintenance-progress';
+import { maintenanceHandoff, maintenanceProgressHint, maintenanceToolAllowed } from '../../shared/lib/maintenance-progress';
 import { checkedMaintenanceReport, deliveredDialogueIds } from './report';
 const prompt = `你是 RepoCare 专属仓库维护 Agent。你服务于维护者，也帮助贡献者形成可审阅的解决方案。用中文完成用户目标。
 环境预检受阻时，先read_execution读取原任务的environmentPreflight。若包含preparationOptions，可在prepare_verification中提供preparationFrom={jobId:原验证任务ID,optionIds:所需选项ID数组}；服务端从固定版本声明生成实际setup命令。按需求选择测试依赖组/扩展及必要根项目，不能把所有选项都选上。不要同时填写setupCommands或planJson。选项不是安装成功证明，新计划仍需重新预检、人工确认和隔离执行。
@@ -65,7 +65,7 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
     const { task, connection } = claim, controller = new AbortController(), started = Date.now();
     const signal = AbortSignal.any([controller.signal, shutdown]), deadline = setTimeout(() => controller.abort(), 180000);
     let status: number | undefined, stopReason: string | undefined, transportFailure: 'network' | 'blocked-endpoint' | undefined, modelFailed = false, budgetStopped = false, requestTimedOut = false;
-    let phase: 'source' | 'model' | 'report' = 'source', localNotice: string | undefined, reportSubmitted = false;
+    let phase: 'source' | 'model' | 'report' = 'source', localNotice: string | undefined, reportSubmitted = false, reportRejected = false;
     delete claim.internal.cache.reportSubmitted;
     const cancellation = setInterval(() => { try {
         if (!claimActive(claim))
@@ -100,7 +100,7 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
                 throw new Error('模型轮数预算已用完。');
             }
             task.budget.turns++;
-            context = { ...context, systemPrompt: `${context.systemPrompt}\n${maintenanceProgressHint(task)}` };
+            context = { ...context, systemPrompt: `${context.systemPrompt}\n${maintenanceProgressHint(task, reportRejected)}` };
             status=undefined;stopReason=undefined;transportFailure=undefined;requestTimedOut=false;
             syncDialogue(claim);
             saveClaim(claim);
@@ -144,6 +144,7 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
                 event(tools.find(t => t.name === e.toolName)?.label || '调用工具', e.toolName);
             if (e.type === 'tool_execution_end') {
                 event(e.isError ? '工具未完成，可调整范围后重试' : '工具已完成', e.toolName, e.isError);
+                if (e.toolName === 'submit_report' && e.isError) reportRejected = true;
                 if (e.toolName === 'submit_report' && !e.isError && claim.internal.cache.reportSubmitted === 'true') { reportSubmitted = true; agent.abort(); }
             }
             if (e.type === 'turn_end') {
@@ -206,6 +207,10 @@ export async function executeMaintenance(claim: ClaimedTask, shutdown: AbortSign
             }
             else
                 task.notice = localNotice || (budgetStopped ? '本阶段预算已用完，已保存检查点。可补充范围后继续。' : signal.aborted ? '执行已暂停，已有证据与交付物保留。可手动继续。' : phase === 'source' ? '无法固定仓库提交或读取讨论，请核对GitHub授权、分支与编号后继续。' : '模型阶段报告格式或证据引用核验未通过，已有依据和交付物保留。可补充要求后继续。');
+            if (!reportSubmitted && (budgetStopped || reportRejected || phase === 'report')) {
+                task.notice = maintenanceHandoff(task, reportRejected || phase === 'report');
+                task.dialogue.push({ id: randomUUID(), role: 'assistant', content: task.notice, at: new Date().toISOString() });
+            }
             event(task.notice, undefined, true);
             saveClaim(claim);
         }

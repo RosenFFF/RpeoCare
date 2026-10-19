@@ -109,9 +109,46 @@ test('delivery recognizes SDK text blocks but never tool-result or unsubmitted u
   assert.deepEqual(deliveredDialogueIds([{ role: 'user', content: [{ type: 'text', text: '[message:one]' }] }, { role: 'user', content: '[message:two]' }, { role: 'toolResult', content: '[message:three]' }], injected), ['one', 'two']);
 });
 
+for (const correctReport of [true, false]) test(`report correction stays within the original budget; corrected=${correctReport}`, async () => {
+  const owner = `report-recovery-${correctReport}`;
+  saveConnection(owner, { name: 'mock', provider: 'custom', protocol: 'openai-completions', baseUrl: 'https://model.example/v1', modelId: 'mock', apiKey: 'mock', keyAction: 'replace', contextWindow: 128000, maxTokens: 2048 });
+  const task = createTask(owner, { repoUrl: 'https://github.com/example/project' }, { kind: 'issue', number: 1, goal: '核对问题并保存真实结论' });
+  const claim = claimTask(`recovery-worker-${correctReport}`)!;
+  assert.equal(claim.task.id, task.id);
+  claim.task.commitSha = 'a'.repeat(40); claim.task.budget.maxTurns = 4; claim.task.budget.maxTools = 6;
+  claim.internal.cache = { visibility: 'public', item: JSON.stringify({ number: 1, body: 'Inspect the selected input.' }),
+    tree: JSON.stringify({ tree: [{ path: 'value.py', sha: 'b'.repeat(40), type: 'blob', mode: '100644', size: 10 }], occupied: ['value.py'], truncated: false }), [`blob:${'b'.repeat(40)}`]: 'VALUE = 1\n' };
+  saveClaim(claim);
+  const sdk = await import('@mariozechner/pi-ai'), original = sdk.getApiProvider('openai-completions')!;
+  let calls = 0;
+  const stream = (_model: unknown, context: { systemPrompt?: string; tools?: { name: string }[] }) => {
+    calls++;
+    const tool = (name: string, args: Record<string, unknown>, index = 0) => ({ type: 'toolCall' as const, id: `${calls}-${index}`, name, arguments: args });
+    if (calls >= 3) assert.deepEqual(context.tools?.map(t => t.name), ['submit_report']);
+    if (calls === 4) { assert.match(context.systemPrompt || '', /上次报告未通过/); assert.ok(context.systemPrompt?.includes(claim.task.evidence[0].id)); }
+    const valid = calls === 4 && correctReport;
+    const content: AssistantMessage['content'] = calls === 1 ? [tool('read_item', {}), tool('read_file', { path: 'value.py' }, 1)]
+      : calls === 2 ? [tool('set_plan', { steps: ['保存阶段结论'] })]
+        : [tool('submit_report', { summary: valid ? '已读取选定源码，未运行测试或生成补丁。' : 'UNVALIDATED_SUCCESS', findings: [{ title: '源码观察', detail: '仅观察已读取文件。', certainty: 'supported', evidenceIds: valid ? [claim.task.evidence[0].id] : [claim.task.evidence[0].id.slice(0, -1)] }], missingInformation: [], nextSteps: [] })];
+    const message: AssistantMessage = { role: 'assistant', api: 'openai-completions', provider: 'custom', model: 'mock', stopReason: 'toolUse', timestamp: Date.now(), content, usage: { input: 10, output: 20, cacheRead: 0, cacheWrite: 0, totalTokens: 30, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } } };
+    const events = sdk.createAssistantMessageEventStream(); events.push({ type: 'done', reason: 'toolUse', message }); events.end(message); return events;
+  };
+  sdk.registerApiProvider({ api: 'openai-completions', stream, streamSimple: stream });
+  try {
+    await executeMaintenance(claim, new AbortController().signal);
+    const saved = getTask(owner, task.id)!;
+    assert.equal(calls, 4); assert.equal(saved.budget.turns, 4); assert.ok(saved.budget.tools <= 6);
+    assert.equal(saved.artifacts.length, 0);
+    if (correctReport) { assert.equal(saved.status, 'completed'); assert.match(saved.report!.summary, /未运行测试/); }
+    else { assert.equal(saved.status, 'paused'); assert.equal(saved.report, undefined); assert.match(saved.notice || '', /系统阶段记录.*未通过/); assert.ok(saved.dialogue.some(m => m.content.startsWith('系统阶段记录'))); }
+    assert.ok(!JSON.stringify({ report: saved.report, notice: saved.notice, dialogue: saved.dialogue }).includes('UNVALIDATED_SUCCESS'));
+  } finally { sdk.registerApiProvider(original); }
+});
+
 test('report validation rejects artifact IDs and permits honest delivery summaries without findings', () => {
   const task = { evidence: [{ id: 'Eknown' }] } as Parameters<typeof checkedMaintenanceReport>[1];
   const report = { summary: '待核对', findings: [], missingInformation: [], nextSteps: [] };
   assert.equal(checkedMaintenanceReport(report, task).summary, '待核对');
   assert.throws(() => checkedMaintenanceReport({ ...report, findings: [{ title: '原文', detail: '引用', certainty: 'supported', evidenceIds: ['artifact-uuid'] }] }, task), /UUID/);
+  assert.throws(() => checkedMaintenanceReport({ ...report, findings: [{ title: '原文', detail: '引用', certainty: 'supported', evidenceIds: ['Eknow'] }] }, task), /当前证据编号/);
 });

@@ -52,7 +52,9 @@ Markdown 导出包含覆盖说明与额外回归命令；现有 JSON 导出增�
 
 维护 Agent 的 Python 测试计划在 HTTP 确认执行前要求环境预检。点击“检查运行环境”创建独立的 `environment-preflight` 队列任务，原测试计划继续等待确认。Worker 在断网、源码只读的容器中运行镜像自带的 `reproduction/preflight.py`，使用隔离 Python 解释器。它读取固定源码与候选写入的数据，不应用补丁、不安装依赖、不导入项目模块，也不执行测试收集。
 
-检查内容包括实际 Python、pytest 版本，计划版本要求，`pyproject.toml` 的 Python、pytest 与构建依赖声明，以及 `pytest.ini`、`setup.cfg`、`tox.ini` 的 pytest 最低版本。静态扫描覆盖命令中显式指定的 `.py` 文件、祖先 `conftest.py` 和有限的无条件顶层导入。候选新增或修改的文件以虚拟内容参与检查。文件、导入和输出均有限额，达到检查上限时保留未知项。
+检查内容包括实际 Python、pytest 版本，计划版本要求，以及 `pyproject.toml` 的 Python、pytest 与构建依赖声明。pytest命令按当前执行目录候选配置的优先级读取最低版本、`required_plugins`和已知pytest-cov参数；支持pytest原生TOML、INI、pyproject、tox与setup配置，显式`-c`单独读取，不合并低优先级配置。插件检查只查询镜像的发行包元数据，不加载插件；缺包且无安装计划时阻塞，有准备计划时标为待核对，明确禁用所需插件时仍阻塞。命令覆盖配置、完整配置发现和自定义插件行为仍需实际核对。
+
+静态扫描覆盖命令中显式指定的 `.py` 文件、祖先 `conftest.py` 和有限的无条件顶层导入。候选新增或修改的文件以虚拟内容参与检查。unittest命令不会因pytest的覆盖率参数被阻塞。文件、导入和输出均有限额，达到检查上限时保留未知项。
 
 | 结果 | 确认规则 |
 | --- | --- |
@@ -108,6 +110,8 @@ Humanize 固定版本的真实 VCS 版本生成、cattrs 声明依赖组安装�
 ## 按固定预检声明准备环境
 
 `reproduction/preflight.py`使用现有`tomllib`和安全文本读取，列出根目录已声明的requirements、项目、至多八个依赖组及八个扩展。未知、动态或不受支持的名称不生成安装选项。返回`preparationOptions`只代表读到声明，不代表已安装、兼容或测试通过。
+
+旧`tool.poetry.dev-dependencies`在pytest预检中单独提示，当前不转换其版本约束或生成安装命令。根项目安装不等于安装开发依赖；缺失pytest插件仍按实际配置阻塞或要求核对。需要受支持的依赖声明或具备所需插件的Runner，不能通过删除覆盖率参数宣称环境已准备完成。
 
 Agent通过`read_execution`取得独立返回的`preparationSource`，可在`prepare_verification`中提交`preparationFrom: {jobId, optionIds}`。服务端从原预检的选项解析实际命令；该方式不能与手写`setupCommands`或高级`planJson`混用。准备来源必须属于同一任务、固定版本及规则，计划指纹一致，预检在三十分钟有效期内；至多选择四个不重复选项。未知选项、改写的命令、其他账户和过期记录均拒绝。
 

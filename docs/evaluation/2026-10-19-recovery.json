@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-19",
+  "kind": "same-case development regression by authorized agent",
+  "source": {
+    "issue": "https://github.com/msiemens/tinydb/issues/517",
+    "commit": "10644a0e07ad180c5b756aba272ee6b0dbd12df8",
+    "snapshotSha256": "c15a38626993e6d94c2692598b9387f26a373ee8b74eee5802f2a5236bfd6db6",
+    "goalSha256": "2ca074b5132fadff34a2c662ca63fdfc527d1400d9e6b9276ca44a5272b945a2",
+    "externalChecksSha256": "0de8937f7a2855df6341bc7f5af8aaefaae70faad42f18c8c9d44c9b931decac",
+    "nativeManifestSha256": "1ff0ee883f16a7abb980517a391f7f34e152ef0bdfc8405e77ff5ed58a3a125c",
+    "reusedByteForByte": true,
+    "externalCheckAuthor": "authorized agent, not independent human",
+    "externalChecksProvidedToModel": false
+  },
+  "execution": {
+    "beforeUtc": "2026-10-19T07:32:22.580Z",
+    "afterUtc": "2026-10-19T07:34:08.772Z",
+    "baselineHead": "db5b2afb8b2b0805ef4a1a9d9fbeada3b3feac7a",
+    "uncommittedImplementationChanges": true,
+    "implementationDigest": "c4e2ad3bb1b5870ef0dde00065baaa0087351e20d220a596d7988069b49e9340",
+    "implementationUnchangedDuringExecution": true,
+    "runnerImageId": "sha256:db4b9b9b73cb645098811dbcc916b99aa5175d6a2976006d068d597461b6424d"
+  },
+  "budget": {
+    "requests": 12,
+    "tools": 24,
+    "maxOutputTokensPerCall": 4096,
+    "wallSeconds": 180,
+    "variants": 1,
+    "autoRetry": false,
+    "continuation": false
+  },
+  "model": {
+    "id": "deepseek-flash",
+    "status": "waiting-input",
+    "requests": 11,
+    "tools": 18,
+    "wallMs": 34269,
+    "inputTokens": 120558,
+    "outputTokens": 2494,
+    "formatAndEvidenceValidatedReports": 1,
+    "systemStageRecords": 0,
+    "patches": 0,
+    "verificationPlans": 0,
+    "semanticReview": "Direct freeze(args) advice does not account for the pinned freeze implementation returning tuples unchanged. No saved candidate or candidate execution.",
+    "budgetClaimReview": "One read_file was blocked by handoff reservation, not literal exhaustion of the 24-tool cap."
+  },
+  "nativeDiagnostic": {
+    "preflightStatus": "blocked",
+    "missingPlugin": "pytest-cov",
+    "configuration": "pytest.ini",
+    "legacyPoetryDevelopmentDependencies": "unknown, no automatic conversion or installation",
+    "projectJobStatus": "awaiting-confirmation",
+    "projectAttempts": 0,
+    "scriptExitCode": 1,
+    "network": "disabled"
+  },
+  "localEvidence": {
+    "directory": "output/simulated-github-user-retest-2026-10-19 (private parent workspace, not in public repository)",
+    "sha256": {
+      "result-summary.json": "c2b263608f8fccc32ee2a7ef910353c95f45622e015ae78129befb21124b6a9f",
+      "model-stage.json": "6239a255c3131da260fdeca75a0a969940529db895d706eed6a6e16785f0e101",
+      "native-pytest-results.json": "75c67f75bb1692c4298e61ecc64ece42bd77a4f496ada9b603b489723d9192de",
+      "execution-state-before.json": "4400a10b890c0869216798a9d455326f370491308ae15da4f3b7fe70d886d1d7",
+      "execution-state-after.json": "b6c46281e4db706dc6cb6562854c0cdb7ea0a5ef1f02f76f1cea5bacc08a338d"
+    }
+  },
+  "limitations": [
+    "Same historical input already used for development; no new sample or fair effectiveness comparison.",
+    "Schema and evidence-ID validation do not establish semantic correctness.",
+    "Real-model report correction and system handoff fallback were not triggered; mock checks cover these branches separately.",
+    "No patch, verification plan, candidate execution, two-version comparison or full-suite claim.",
+    "No browser walkthrough, independent human feedback or upstream publication."
+  ]
+}
