@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { ensureSameOrigin, errorResponse, jsonResponse, session, smallJson } from '@/server/audit/http';
-import { getDraft, getProject, listDrafts, updateDraft, withOperation, draftVersions, updateDraftBatch } from '@/server/workbench/store';
+import { getDraft, getProject, updateDraft, withOperation, draftVersions, updateDraftBatch } from '@/server/workbench/store';
+import { queryDrafts } from '@/server/workbench/draft-list';
 import { fileDraft, itemDraft } from '@/server/workbench/drafts';
 import { publishDraft, publishFileDrafts, PublishPreconditionError } from '@/server/github/api';
 import { githubAccount } from '@/server/github/connection';
@@ -11,7 +12,8 @@ import { getOverview } from '@/server/workbench/overview';
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionOwner = session(request); if (!sessionOwner) return jsonResponse({ drafts: [], report: null, offset: 0, pageSize: 100 }); const owner: string = sessionOwner;
+    const empty = { drafts: [], report: null, offset: 0, pageSize: 100, total: 0, projectTotal: 0, hasNext: false, siblingCounts: {} };
+    const sessionOwner = session(request); if (!sessionOwner) return jsonResponse(empty); const owner: string = sessionOwner;
     const project = getProject(owner), id = request.nextUrl.searchParams.get('id');
     if (id) {
       const draft = getDraft(owner, z.string().uuid().parse(id));
@@ -19,7 +21,11 @@ export async function GET(request: NextRequest) {
       return jsonResponse({ draft, versions: draftVersions(owner, id), qualityContext: qualityContext(owner, draft) });
     }
     const offset = z.coerce.number().int().min(0).max(10000).parse(request.nextUrl.searchParams.get('offset') || 0);
-    return jsonResponse({ drafts: project ? listDrafts(owner, project.repoUrl, offset) : [], report: getOverview(owner).report, offset, pageSize: 100 });
+    const category = z.enum(['all','file','issue','review']).parse(request.nextUrl.searchParams.get('category') || 'all');
+    const status = z.enum(['all','active','draft','publishing','uncertain','published','archived']).parse(request.nextUrl.searchParams.get('status') || 'all');
+    const query = z.string().max(200).parse(request.nextUrl.searchParams.get('q') || '').trim();
+    const grouped = request.nextUrl.searchParams.get('grouped') === '1';
+    return jsonResponse(project ? { ...queryDrafts(owner, project.repoUrl, { offset, category, status, query, grouped }), report: getOverview(owner).report } : empty);
   } catch { return errorResponse('无法读取草稿，请检查当前项目并重试。'); }
 }
 export async function POST(request: NextRequest) {

@@ -13,6 +13,7 @@ import { inspectDraft } from '../../src/shared/lib/draft-quality';
 import { qualityContext } from '../../src/server/workbench/draft-quality';
 import { checkPublication } from '../../src/server/workbench/draft-publication';
 import { fileDraft } from '../../src/server/workbench/drafts';
+import { queryDrafts } from '../../src/server/workbench/draft-list';
 import type { Draft } from '../../src/contracts/workbench';
 
 const directory = mkdtempSync(join(tmpdir(), 'repocare-draft-upgrade-'));
@@ -23,6 +24,37 @@ const cookie = saveGithubAccount('draft-upgrade', 'example', 'fake-draft-token',
 saveProject(owner, { repoUrl, fullName: 'example/project' });
 const input = (path = 'README.md'): Omit<Draft, 'id' | 'revision' | 'status' | 'createdAt'> => ({ kind: 'file', repoUrl, path, branch: 'main', baseSha: sha, title: `docs: improve ${path}`, before: '# Hello\n', content: '# Hello\n\nNew content.\n' });
 const request = (body: unknown) => new NextRequest('http://localhost/api/workbench/drafts', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost', cookie: `repocare_login=${cookie}` }, body: JSON.stringify(body) });
+
+test('draft search and grouping happen before pagination and preserve account, repo and branch boundaries', () => {
+  const scope = 'draft-search-owner';
+  const first = createDraft(scope, { ...input(), title: '中文针点 100% literal' });
+  for (let i = 0; i < 105; i++) createDraft(scope, { ...input(`docs/${i}.md`), title: `document ${i}` });
+  createDraft('other', { ...input(), title: first.title });
+  createDraft(scope, { ...input(), repoUrl: repoUrl + '-other', title: first.title });
+  const options = { offset: 0, category: 'all', status: 'active', query: '', grouped: true };
+  const match = queryDrafts(scope, repoUrl, { ...options, query: '中文针点 100%' });
+  assert.deepEqual(match.drafts.map(row => row.id), [first.id]); assert.equal(match.total, 1); assert.equal(match.projectTotal, 106);
+  const latest = createDraft(scope, input());
+  const dev = createDraft(scope, { ...input(), branch: 'dev' });
+  const grouped = queryDrafts(scope, repoUrl, { ...options, query: 'README.md' });
+  assert.equal(grouped.total, 2); assert.equal(grouped.siblingCounts[latest.id], 2); assert.ok(grouped.drafts.some(row => row.id === dev.id));
+  assert.equal(queryDrafts(scope, repoUrl, { ...options, query: 'README.md', grouped: false }).total, 3);
+  const page = queryDrafts(scope, repoUrl, options); assert.equal(page.drafts.length, 100); assert.equal(page.hasNext, true);
+  const last = queryDrafts(scope, repoUrl, { ...options, offset: 10000 }); assert.equal(last.offset, 100); assert.equal(last.hasNext, false);
+});
+
+test('uncertain filter includes expired publication leases; archived records use their own filter', async () => {
+  const scope = 'draft-filter-owner';
+  const pending = createDraft(scope, input()); updateDraft(scope, pending.id, 1, { status: 'publishing' });
+  const archived = createDraft(scope, { ...input('CONTRIBUTING.md'), archived: true });
+  const options = { offset: 0, category: 'file', status: 'uncertain', query: '', grouped: false };
+  const found = queryDrafts(scope, repoUrl, options);
+  assert.equal(found.total, 1); assert.equal(found.drafts[0].status, 'uncertain');
+  assert.equal(queryDrafts(scope, repoUrl, { ...options, status: 'archived' }).drafts[0].id, archived.id);
+  assert.equal(queryDrafts(scope, repoUrl, { ...options, status: 'active' }).total, 1);
+  const invalid = await GET(new NextRequest('http://localhost/api/workbench/drafts?category=invalid', { headers: { cookie: `repocare_login=${cookie}` } }));
+  assert.equal(invalid.status, 400);
+});
 
 test('true diff counts equal-length replacements and preserves line numbers/CRLF', () => {
   const diff = draftDiff('hello\r\nnpm install\r\n', 'hello\nnpm ci\n');
