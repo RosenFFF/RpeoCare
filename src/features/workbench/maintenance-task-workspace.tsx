@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useActivityFeed } from './use-project-activity';
 import { ArrowRight, Check, CircleHelp, FileCode2, GitCommitHorizontal, LoaderCircle, RefreshCw, Search, Square, Workflow } from 'lucide-react';
 import type { AgentWorkspaceData } from '@/contracts/agent';
 import { reportPrerequisites } from '@/shared/lib/execution-readiness';
@@ -19,18 +21,20 @@ function reveal(id: string) {
   if (focus instanceof HTMLElement) { if (focus.tagName !== 'SUMMARY' && !focus.hasAttribute('tabindex')) focus.tabIndex = -1; focus.focus({ preventScroll: true }); }
 }
 
-export function MaintenanceTaskWorkspace({ title, actionLabel, data, error, busy, stale, onStart, onAction, onRefresh }: {
-  title: string; actionLabel: string; data: AgentWorkspaceData | null; error: string; busy: boolean; stale: boolean;
+export function MaintenanceTaskWorkspace({ title, actionLabel, returnPath, data, error, busy, stale, onStart, onAction, onRefresh }: {
+  title: string; actionLabel: string; returnPath: string; data: AgentWorkspaceData | null; error: string; busy: boolean; stale: boolean;
   onStart: () => Promise<boolean>; onAction: (body: unknown) => Promise<boolean>; onRefresh: () => void;
 }) {
   const [message, setMessage] = useState('');
+  const activity = useActivityFeed();
   const task = data?.task;
   const workflow = maintenanceWorkflow(task, data?.jobs || [], stale);
   const { next } = workflow;
   const scope = `maintenance-${task?.id || 'new'}`;
   const active = !!task && ['queued', 'running'].includes(task.status);
   const status = task ? ({ queued: '等待处理', running: '调查中', 'waiting-input': '需要补充', 'awaiting-confirmation': '等待审阅', completed: '阶段结束', paused: '已暂停', failed: '需要处理', cancelled: '已停止' })[task.status] : '尚未开始';
-  const nextDisabled = busy || !data || (next.model && !data.workerOnline);
+  const missingModel = activity?.data ? !activity.data.modelConfigured : false;
+  const nextDisabled = busy || !data || (next.model && (!data.workerOnline || missingModel));
   const artifacts = task?.artifacts.filter(artifact => !artifact.superseded) || [];
   const history = task?.artifacts.filter(artifact => artifact.superseded) || [];
   const rank = (kind: string) => kind === 'acceptance' ? 2 : kind === 'verification' ? 1 : 0;
@@ -51,6 +55,8 @@ export function MaintenanceTaskWorkspace({ title, actionLabel, data, error, busy
     {!data ? <p className="ma-loading" role="status">{error ? '暂时无法读取维护记录，请刷新重试。' : '正在读取当前问题的维护记录…'}</p> : <>
       <ol className="ma-journey" aria-label="修复与验证流程">{workflow.stages.map((stage, index) => <li key={stage.label} className={`is-${stage.state}`} aria-current={stage.state === 'current' ? 'step' : undefined}><span>{stage.state === 'done' ? <Check size={13} aria-hidden="true" /> : String(index + 1).padStart(2, '0')}</span><strong>{stage.label}</strong><small>{stage.state === 'done' ? '已有记录' : stage.state === 'current' ? '当前阶段' : stage.state === 'stale' ? '需重新核对' : '尚未到达'}</small></li>)}</ol>
       <div className="ma-next-action"><div className="ma-next-icon"><ArrowRight size={20} aria-hidden="true" /></div><div><span className="ma-section-kicker">下一步</span><h4>{next.title}</h4><p role="status" aria-atomic="true">{next.detail}</p></div><div className="ma-next-control"><button type="button" className={`button ${next.action === 'stop' ? 'button-secondary' : 'button-primary'}`} onClick={runNext} disabled={nextDisabled}>{next.action === 'stop' ? <Square size={13} aria-hidden="true" /> : null}{next.action === 'start' ? actionLabel : next.label}{next.action !== 'stop' && <ArrowRight size={14} aria-hidden="true" />}</button><small>{next.model ? '此操作会调用已配置模型' : next.action === 'stop' ? '保留已保存结果' : '查看记录，不调用模型'}</small></div></div>
+      {missingModel && <div className="ma-setup-links"><span>开始 AI 调查前，请先设置默认模型。已有记录仍可查看。</span><Link href={`/settings?section=models&returnTo=${encodeURIComponent(returnPath)}`}>配置模型并返回</Link></div>}
+      {!missingModel && error && <div className="ma-setup-links"><Link href={`/settings?section=models&returnTo=${encodeURIComponent(returnPath)}`}>检查模型连接</Link><Link href={`/settings?section=github&returnTo=${encodeURIComponent(returnPath)}`}>检查 GitHub 授权</Link></div>}
       {!data.workerOnline && <p className="ma-inline-note">调查服务暂未连接，已有结果仍可查看；模型操作暂不可用。</p>}
       {task?.notice && !active && <p className="ma-notice">{task.notice.replaceAll('Agent', '调查')}</p>}
       {workflow.outdated && <p className="ma-notice">当前显示历史版本依据，不能据此确认新执行或推断当前版本通过。</p>}

@@ -14,6 +14,9 @@ interface Row { id: string; owner: string; state: string; internal: string; conn
 export interface ReviewClaim { owner: string; task: PullReviewTask; internal: ReviewInternal; connection: RuntimeConnection; worker: string; block: ReviewBlock }
 function database() { const db = workbenchDb(); db.exec('CREATE TABLE IF NOT EXISTS pull_review_tasks(id TEXT PRIMARY KEY,owner TEXT NOT NULL,repo TEXT NOT NULL,number INTEGER NOT NULL,status TEXT NOT NULL,state TEXT NOT NULL,internal TEXT NOT NULL,connection TEXT NOT NULL,worker TEXT,lease INTEGER NOT NULL DEFAULT 0); CREATE INDEX IF NOT EXISTS pull_review_task_scope ON pull_review_tasks(owner,repo,number);'); return db; }
 export function latestReviewTask(owner: string, repo: string, number: number): PullReviewTask | null { const row = database().prepare('SELECT state FROM pull_review_tasks WHERE owner=? AND repo=? AND number=? ORDER BY rowid DESC LIMIT 1').get(owner, repo, number) as { state: string } | undefined; return row ? JSON.parse(row.state) : null; }
+export function recentReviewTasks(owner: string, repo: string): PullReviewTask[] {
+  return (database().prepare('SELECT state FROM pull_review_tasks WHERE owner=? AND repo=? ORDER BY rowid DESC LIMIT 40').all(owner, repo) as { state: string }[]).map(row => JSON.parse(row.state));
+}
 function rowFor(owner: string, id: string) { return database().prepare('SELECT * FROM pull_review_tasks WHERE id=? AND owner=?').get(id, owner) as Row | undefined; }
 export function createReviewTask(owner: string, repo: string, item: GitItem, policy: ProjectPolicy | null, connection: RuntimeConnection, force: boolean) {
   const db = database(), fingerprint = reviewSourceFingerprint(item), now = new Date().toISOString(); db.exec('BEGIN IMMEDIATE');

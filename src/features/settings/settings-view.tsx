@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { safeSettingsReturn } from '@/shared/lib/settings-navigation';
+import '@/features/workbench/project-activity.css';
 import { Check, FileCheck2, GitFork, Globe2, HeartPulse, Info, LockKeyhole, MessageSquareText, PlugZap, Puzzle, RotateCcw, Save, Settings2, ShieldCheck, UserCheck } from 'lucide-react';
 import './settings-view.css';
 import { GithubConnection } from '@/features/workbench/project-overview';
@@ -41,7 +44,7 @@ type SettingsSection = 'workspace' | 'plugins' | 'review' | 'github' | 'models' 
 const SETTINGS_SECTIONS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
   { id: 'policy', label: '项目专属规则', description: '项目约定、依据与确认版本', icon: ShieldCheck },
   { id: 'workspace', label: '本地工作区', description: '项目名称与语言偏好', icon: Settings2 },
-  { id: 'plugins', label: '官方插件', description: '管理辅助能力', icon: Puzzle },
+  { id: 'plugins', label: '功能说明', description: '已集成能力与使用入口', icon: Puzzle },
   { id: 'review', label: '维护者审核', description: '发布前的安全边界', icon: UserCheck },
   { id: 'github', label: 'GitHub 账户', description: '仓库访问与发布权限', icon: GitFork },
   { id: 'models', label: '模型连接', description: '默认模型、服务地址与连接诊断', icon: PlugZap },
@@ -92,11 +95,22 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [savedAt, setSavedAt] = useState('');
-  const [activeSection, setActiveSection] = useState<SettingsSection>('workspace');
-  const [visited, setVisited] = useState<SettingsSection[]>(['workspace']);
+  const [activeSection, setActiveSection] = useState<SettingsSection>('models');
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+  const [visited, setVisited] = useState<SettingsSection[]>(['models']);
   const activeNavItem = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => { if (new URLSearchParams(window.location.search).get('section') === 'policy') { setActiveSection('policy'); setVisited(current => current.includes('policy') ? current : [...current, 'policy']); } }, []);
+  useEffect(() => {
+    const read = () => {
+      const params = new URLSearchParams(window.location.search);
+      const section = SETTINGS_SECTIONS.find(item => item.id === params.get('section'))?.id || 'models';
+      setActiveSection(section);
+      setVisited(current => current.includes(section) ? current : [...current, section]);
+      setReturnTo(safeSettingsReturn(params.get('returnTo')));
+    };
+    read(); window.addEventListener('popstate', read);
+    return () => window.removeEventListener('popstate', read);
+  }, []);
 
   useEffect(() => {
     const revealActiveModule = () => {
@@ -129,7 +143,6 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   }, []);
 
   const dirty = JSON.stringify(settings) !== JSON.stringify(savedSettings);
-  const enabledCount = PLUGINS.filter(({ id }) => settings.plugins[id]).length;
 
   function persist(next: WorkspaceSettings, message: string) {
     if (!next.projectName.trim()) {
@@ -157,6 +170,9 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   const localSection = activeSection === 'workspace' || activeSection === 'plugins' || activeSection === 'review';
 
   function selectSection(section: SettingsSection) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('section', section);
+    window.history.replaceState({}, '', url);
     setActiveSection(section);
     setVisited(current => current.includes(section) ? current : [...current, section]);
   }
@@ -186,9 +202,9 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
 
     if (activeSection === 'plugins') {
       return <section className="sv-section sv-plugin-section sv-panel-section" aria-labelledby="sv-plugins-heading">
-        <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">02</span><div><h2 id="sv-plugins-heading">官方插件</h2><p>保留需要的辅助能力，让维护工作更专注。</p></div><span className="sv-plugin-count">{enabledCount} / 4 已启用</span></div>
-        <div className="sv-plugin-list">{PLUGINS.map(({ id, name, description, icon: Icon }) => <div className={`sv-plugin-row${settings.plugins[id] ? '' : ' sv-plugin-off'}`} key={id}><span className="sv-plugin-icon"><Icon size={20} strokeWidth={1.7} aria-hidden="true" /></span><div className="sv-plugin-text"><div className="sv-plugin-title"><h3>{name}</h3><span>官方</span></div><p id={`sv-${id}-help`}>{description}</p></div><span className="sv-plugin-status">{settings.plugins[id] ? '已启用' : '已停用'}</span><Toggle checked={settings.plugins[id]} onChange={(value) => setSettings((current) => ({ ...current, plugins: { ...current.plugins, [id]: value } }))} label={`${name}插件`} describedBy={`sv-${id}-help`} disabled={!ready} /></div>)}</div>
-        <p className="sv-plugin-note"><Puzzle size={14} aria-hidden="true" /> 此处保存演示插件配置，不会安装软件或连接 GitHub。</p>
+        <div className="sv-section-heading"><span className="sv-section-number" aria-hidden="true">02</span><div><h2 id="sv-plugins-heading">已集成的维护能力</h2><p>从对应页面使用功能；这里不会启用或停用后台服务。</p></div><span className="sv-plugin-count">4 项能力</span></div>
+        <div className="sv-plugin-list">{PLUGINS.map(({ id, name, description, icon: Icon }) => <div className="sv-plugin-row" key={id}><span className="sv-plugin-icon"><Icon size={20} strokeWidth={1.7} aria-hidden="true" /></span><div className="sv-plugin-text"><h3>{name}</h3><p>{description}</p></div><Link className="button button-secondary" href={id === 'issue-triage' ? '/issues' : id === 'pr-check' ? '/pull-requests' : id === 'project-audit' ? '/audit' : '/improvements'}>打开</Link></div>)}</div>
+        <p className="sv-plugin-note"><Puzzle size={14} aria-hidden="true" /> 分析与生成需要模型；隔离执行还需要 Docker 和后台执行服务。</p>
       </section>;
     }
 
@@ -201,14 +217,15 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
   function renderLocalForm() {
     return <form onSubmit={(event) => { event.preventDefault(); persist(settings, '工作区设置已保存在当前浏览器。'); }}>
       {renderLocalSection()}
-      <div className="sv-storage-note"><Info size={16} aria-hidden="true" /><p>以上偏好仅保存在当前浏览器；模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p></div>
+      {activeSection !== 'plugins' && <><div className="sv-storage-note"><Info size={16} aria-hidden="true" /><p>以上偏好仅保存在当前浏览器；模型连接独立保存于本机服务端。清除浏览器 Cookie 后将无法访问原会话的模型连接。</p></div>
       {error && <p className="sv-error" role="alert">{error}</p>}
-      <footer className="sv-actions"><div className="sv-save-state" aria-live="polite">{dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}{savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}</div><div className="sv-action-buttons"><button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button><button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置</button></div></footer>
+      <footer className="sv-actions"><div className="sv-save-state" aria-live="polite">{dirty ? <><span className="sv-unsaved-dot" /> 有未保存的更改</> : <><Check size={15} aria-hidden="true" /> {savedAt ? '设置已保存' : '当前为默认配置'}</>}{savedAt && !dirty && <span className="sv-save-time">{new Date(savedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>}</div><div className="sv-action-buttons"><button className="button button-secondary sv-reset-button" type="button" onClick={() => persist(DEFAULT_SETTINGS, '已恢复并保存默认设置。')} disabled={!ready}><RotateCcw size={15} aria-hidden="true" /> 恢复默认</button><button className="button button-primary sv-save-button" type="submit" disabled={!ready}><Save size={15} aria-hidden="true" /> 保存设置</button></div></footer></>}
     </form>;
   }
 
   return (
     <div className="sv-page">
+      {returnTo && <Link href={returnTo} className="pa-back">← 返回原任务</Link>}
       <header className="page-heading sv-heading">
         <div>
           <h1>工作区设置</h1>
@@ -220,7 +237,7 @@ export function SettingsView({ onNotify }: { onNotify: (message: string) => void
         <nav className="sv-module-nav" aria-label="设置模块">
           <p className="sv-nav-label">设置模块</p>
           <div className="sv-nav-list">
-            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} id={`sv-nav-${id}`} ref={activeSection === id ? activeNavItem : undefined} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} aria-pressed={activeSection === id} aria-controls={id === 'workspace' || id === 'plugins' || id === 'review' ? 'sv-panel-local' : `sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">{enabledCount}</span>}</button>)}
+            {SETTINGS_SECTIONS.map(({ id, label, description, icon: Icon }) => <button key={id} id={`sv-nav-${id}`} ref={activeSection === id ? activeNavItem : undefined} type="button" className={`sv-nav-item${activeSection === id ? ' sv-nav-item-active' : ''}`} aria-pressed={activeSection === id} aria-controls={id === 'workspace' || id === 'plugins' || id === 'review' ? 'sv-panel-local' : `sv-panel-${id}`} onClick={() => selectSection(id)}><Icon size={17} aria-hidden="true" /><span className="sv-nav-copy"><strong>{label}</strong><small>{description}</small></span>{id === 'plugins' && <span className="sv-nav-badge">4</span>}</button>)}
           </div>
           <p className="sv-nav-hint">切换模块保留填写内容，保存后生效。</p>
         </nav>

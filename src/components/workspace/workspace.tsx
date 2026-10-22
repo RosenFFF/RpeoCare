@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BrandMark } from "../../shared/components/brand-mark";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowRight, Bell, BookOpen, Check, ChevronDown, ChevronRight, CircleHelp, Command, GitBranch, GitFork, Menu, PanelLeftClose, PanelLeftOpen, Search, Sparkles, X } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, Bell, BookOpen, Check, ChevronDown, ChevronRight, CircleHelp, Command, GitFork, Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
 import { ThemePicker } from "../../shared/components/theme-picker";
 import { useAppearance } from "@/shared/lib/use-appearance";
 import { navigation, type ViewId } from "@/shared/lib/navigation";
@@ -15,6 +15,8 @@ import { OverviewView } from "../../features/overview/overview-view";
 import { AuditView } from "../../features/audit/audit-view";
 import { SettingsView } from "../../features/settings/settings-view";
 
+import { ProjectActivityContext, useProjectActivity } from '@/features/workbench/use-project-activity';
+import { ActivityNotifications } from '@/features/workbench/project-activity';
 import { RepositoryChooser } from "@/features/workbench/repository-chooser";
 
 type Modal = "search" | "project" | "help" | "notifications" | null;
@@ -35,7 +37,7 @@ export function Workspace({ view }: { view: ViewId }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
-  const [notificationRead, setNotificationRead] = useState(false);
+  const activity = useProjectActivity(workbench?.project?.repoUrl, workbench?.project?.branch || '');
   const dialogRef = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
@@ -100,7 +102,7 @@ export function Workspace({ view }: { view: ViewId }) {
   }, [modal]);
   const searchItems = navigation.filter(item => `${item.label} ${item.english}`.toLowerCase().includes(query.toLowerCase()));
 
-  return <div className="app-shell">
+  return <ProjectActivityContext.Provider value={activity}><div className="app-shell">
     <a className="skip-link" href="#main-content">跳到主要内容</a>
     {mobileOpen && <button className="sidebar-scrim" aria-label="关闭导航" onClick={() => setMobileOpen(false)} />}
     <aside id="workspace-sidebar" ref={sidebarRef} inert={isMobile && !mobileOpen} className={`sidebar ${mobileOpen ? "is-open" : ""}`} aria-label="主导航">
@@ -112,7 +114,7 @@ export function Workspace({ view }: { view: ViewId }) {
       <div className="sidebar-bottom"><Link href="/settings" aria-label="工作区设置" title="工作区设置" onClick={() => setMobileOpen(false)} className={`nav-link ${view === "settings" ? "active" : ""}`} aria-current={view === "settings" ? "page" : undefined}><SettingsIcon /><span>工作区设置</span></Link><button type="button" className="nav-link" aria-label="使用指南" title="使用指南" onClick={() => {setMobileOpen(false); setModal("help");}}><CircleHelp size={18} strokeWidth={1.7} /><span>使用指南</span><ArrowDownLeft size={14} /></button><div className="profile" title="维护工作区"><span className="profile-avatar">M</span><div>{workbench?.github?.login || "Maintainer"}<small>{workbench?.github ? "GitHub 账户" : "本地会话"}</small></div><span className="profile-status" title="会话状态" /></div></div>
     </aside>
     <div className="main-shell">
-      <header className="topbar"><div className="breadcrumb"><button type="button" className="icon-button sidebar-toggle" aria-label={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} aria-expanded={!appearance.sidebarCollapsed} aria-controls="workspace-sidebar" onClick={() => updateAppearance({ sidebarCollapsed: !appearance.sidebarCollapsed })}>{appearance.sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button><button type="button" className="icon-button mobile-menu" aria-label="打开导航" aria-controls="workspace-sidebar" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Menu size={19} /></button><span className="breadcrumb-project"><GitFork size={16} /><span>{workspaceName}</span></span><ChevronRight size={13} /><span>{current.label}</span></div><div className="topbar-actions"><span className="demo-badge"><span />{workbench?.project ? "项目已连接" : "等待连接项目"}</span><button type="button" className="search-button" aria-label="快速跳转" onClick={() => { setQuery(""); setModal("search"); }}><Search size={16} /><span>快速跳转</span><kbd>Ctrl K</kbd></button><ThemePicker theme={appearance.theme} onChange={theme => updateAppearance({ theme })} /><div className="topbar-divider"/><button type="button" className="icon-button notification-button" aria-label="查看通知" onClick={() => { setModal("notifications"); setNotificationRead(true); }}><Bell size={18}/>{!notificationRead && <span />}</button></div></header>
+      <header className="topbar"><div className="breadcrumb"><button type="button" className="icon-button sidebar-toggle" aria-label={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={appearance.sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} aria-expanded={!appearance.sidebarCollapsed} aria-controls="workspace-sidebar" onClick={() => updateAppearance({ sidebarCollapsed: !appearance.sidebarCollapsed })}>{appearance.sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button><button type="button" className="icon-button mobile-menu" aria-label="打开导航" aria-controls="workspace-sidebar" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><Menu size={19} /></button><span className="breadcrumb-project"><GitFork size={16} /><span>{workspaceName}</span></span><ChevronRight size={13} /><span>{current.label}</span></div><div className="topbar-actions"><span className="demo-badge"><span />{workbench?.project ? "项目已连接" : "等待连接项目"}</span><button type="button" className="search-button" aria-label="快速跳转" onClick={() => { setQuery(""); setModal("search"); }}><Search size={16} /><span>快速跳转</span><kbd>Ctrl K</kbd></button><ThemePicker theme={appearance.theme} onChange={theme => updateAppearance({ theme })} /><div className="topbar-divider"/><button type="button" className="icon-button notification-button" aria-label={activity.unread ? `查看通知，${activity.unread} 条未读` : "查看通知"} onClick={() => { setModal("notifications"); activity.markRead(); }}><Bell size={18}/>{activity.unread > 0 && <span />}</button></div></header>
       <main id="main-content" className={`main-content view-${view}`} tabIndex={-1}>
         {view === "overview" && <OverviewView onNotify={notify} />}
         {view === "audit" && <AuditView onNotify={notify} />}
@@ -128,10 +130,10 @@ export function Workspace({ view }: { view: ViewId }) {
       <div className="modal-header"><div><span className="eyebrow">REPOCARE WORKSPACE</span><h2 id="modal-title">{modal === "search" ? "想去哪里？" : modal === "project" ? "连接你的开源项目" : modal === "notifications" ? "工作区动态" : "让维护工作，有条不紊。"}</h2></div><button type="button" className="icon-button" aria-label="关闭弹窗" onClick={() => setModal(null)}><X size={20}/></button></div>
       {modal === "search" && <><div className="command-input"><Search size={19}/><input aria-label="搜索页面" autoFocus placeholder="搜索页面，如 Issue、体检…" value={query} onChange={e => setQuery(e.target.value)} /></div><div className="command-results">{searchItems.length ? searchItems.map(item => <button type="button" key={item.id} onClick={() => { setModal(null); router.push(item.href); }}><item.icon size={18}/><span>{item.label}<small>{item.english}</small></span><ArrowRight size={16}/></button>) : <div className="empty-state">没有找到匹配页面，试试「体检」或「设置」。</div>}</div><div className="command-footer"><Command size={13}/> Ctrl / ⌘ + K 打开 <span>Esc 关闭</span></div></>}
       {modal === "project" && (workbench ? <RepositoryChooser github={workbench.github} currentProject={workbench.project?.fullName} onConnected={() => { setModal(null); window.location.assign('/workspace'); }}/> : <p role="status">正在读取账户信息…</p>)}
-      {modal === "help" && <div className="help-content"><p>这里是维护者的工作台。先看清项目现状，再核对证据、审阅建议，最后由你决定交付哪些改进。</p>{[{n:"01",title:"看清项目现状",text:"先进入项目概览，再从固定提交开始体检。",href:"/overview"},{n:"02",title:"核对协作证据",text:"在 Issue 与 PR 中核对原文、Diff 和检查状态。",href:"/issues"},{n:"03",title:"审阅并交付",text:"集中编辑文档、回复和评论草稿，确认后再交付。",href:"/improvements"}].map(item=><Link key={item.n} href={item.href} onClick={()=>setModal(null)}><span>{item.n}</span><div><strong>{item.title}</strong><p>{item.text}</p></div><ArrowRight size={17}/></Link>)}<div className="help-note"><BookOpen size={17}/><p>连接项目后可体检、查看报告、分析 Issue 和 PR，并审阅修改草稿。发布需明确确认；不会执行仓库代码。</p></div></div>}
-      {modal === "notifications" && <div className="notification-content"><div className="notification-row"><span className="notice-icon"><Sparkles size={18}/></span><div><strong>工作区已准备好</strong><p>连接项目后，查看真实 Issue、PR 和体检历史。</p><small>工作区提示</small></div></div><div className="notification-row"><span className="notice-icon"><GitBranch size={18}/></span><div><strong>每一次建议都可以回看</strong><p>在详情中查看原文、检查依据和修改草稿，确认后再继续。</p><small>使用提示</small></div></div></div>}
+      {modal === "help" && <div className="help-content"><p>这里是维护者的工作台。先看清项目现状，再核对证据、审阅建议，最后由你决定交付哪些改进。</p>{[{n:"01",title:"看清项目现状",text:"先进入项目概览，再从固定提交开始体检。",href:"/overview"},{n:"02",title:"核对协作证据",text:"在 Issue 与 PR 中核对原文、Diff 和检查状态。",href:"/issues"},{n:"03",title:"审阅并交付",text:"集中编辑文档、回复和评论草稿，确认后再交付。",href:"/improvements"}].map(item=><Link key={item.n} href={item.href} onClick={()=>setModal(null)}><span>{item.n}</span><div><strong>{item.title}</strong><p>{item.text}</p></div><ArrowRight size={17}/></Link>)}<div className="help-note"><BookOpen size={17}/><p>连接项目后可体检、查看报告、分析 Issue 和 PR，并审阅修改草稿。常规体检只读取仓库。复现与对照验证需你审阅确认后，在 Docker 隔离环境执行；发布也需要另行确认。</p></div></div>}
+      {modal === "notifications" && <ActivityNotifications onOpen={() => setModal(null)} />}
     </div></div>}
-  </div>;
+  </div></ProjectActivityContext.Provider>;
 }
 
 function SettingsIcon() { const Icon = navigation[5].icon; return <Icon size={18} strokeWidth={1.7}/>; }

@@ -56,8 +56,9 @@ function workspaceFixture(): AgentWorkspaceData {
   return { tasks: [task], task, memories: [], jobs: [...jobs, ...preflights], workerOnline: true, reproductionWorkerOnline: true, sandboxConfigured: true };
 }
 
-async function mockWorkspace(page: Page) {
+async function mockWorkspace(page: Page, missingModel = false) {
   const workspace = workspaceFixture();
+  if (missingModel) { workspace.task = undefined; workspace.tasks = []; workspace.jobs = []; }
   const mutations: string[] = [];
   await page.route('**/api/workbench**', route => {
     const request = route.request(), url = new URL(request.url());
@@ -67,6 +68,7 @@ async function mockWorkspace(page: Page) {
     }
     if (url.pathname === '/api/workbench/branches') return route.fallback();
     if (url.pathname === '/api/workbench') return route.fulfill({ json: { project, runs: [], drafts: [], github: null, usage: { calls: 0, inputTokens: 0, outputTokens: 0, failures: 0 } } });
+    if (url.pathname === '/api/workbench/activity') return route.fulfill({ json: { scope: 'layout-account', repoUrl: project.repoUrl, branch: 'main', items: [], modelConfigured: !missingModel, workerOnline: true, sandboxConfigured: true, reproductionWorkerOnline: true } });
     if (url.pathname === '/api/workbench/items') return route.fulfill({ json: url.searchParams.has('number') ? { item: issue } : { items: [issue], hasNext: false } });
     if (url.pathname === '/api/workbench/agent') return route.fulfill({ json: workspace });
     if (url.pathname === '/api/workbench/reproduction') return route.fulfill({ json: { jobs: [], workerOnline: true, sandboxConfigured: true } });
@@ -76,7 +78,7 @@ async function mockWorkspace(page: Page) {
 }
 
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-  test(`maintenance confirmation boxes preserve text and blockers at ${viewport.width}px`, async ({ page }) => {
+  test(`maintenance confirmation boxes preserve text and blockers at ${viewport.width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     const mutations = await mockWorkspace(page);
     await page.goto('/issues');
@@ -84,6 +86,16 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     await page.getByRole('button', { name: /#91 Preserve independent cache controls/ }).click();
     const workspace = page.getByRole('region', { name: '修复与验证', exact: true });
     await expect(workspace.getByText('等待审阅', { exact: true })).toBeVisible();
+    const verification = workspace.getByRole('region', { name: '需求与改动验证' });
+    await expect(verification.getByText('目标有没有改善？', { exact: true })).toBeVisible();
+    await expect(verification.getByText('其他行为验证到哪里？', { exact: true })).toBeVisible();
+    await expect(verification.getByText('测试来源', { exact: true })).not.toBeVisible();
+    await verification.scrollIntoViewIfNeeded();
+    await expect(page.locator('.skip-link')).not.toBeFocused();
+    expect(await page.locator('.skip-link').evaluate(element => element.getBoundingClientRect().bottom)).toBeLessThanOrEqual(0);
+    await page.screenshot({ path: testInfo.outputPath(`verification-${viewport.width}.png`) });
+    await verification.locator('.mv-provenance > summary').click();
+    await expect(verification.getByText('测试来源', { exact: true })).toBeVisible();
     await workspace.locator('.ma-plan-review > summary').click();
     const plans = workspace.locator('.ma-execution-grid > .ma-execution');
     await expect(plans).toHaveCount(2);
@@ -139,3 +151,17 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     expect(mutations).toEqual([]);
   });
 }
+
+test('model setup returns to the selected issue before any investigation exists', async ({ page }) => {
+  const mutations = await mockWorkspace(page, true);
+  await page.goto('/issues?number=91');
+  const workspace = page.getByRole('region', { name: '修复与验证', exact: true });
+  const setup = workspace.getByRole('link', { name: '配置模型并返回' });
+  await expect(setup).toHaveAttribute('href', '/settings?section=models&returnTo=%2Fissues%3Fnumber%3D91');
+  await expect(workspace.locator('.ma-next-control button')).toBeDisabled();
+  await setup.click();
+  await expect(page.getByRole('link', { name: '← 返回原任务' })).toHaveAttribute('href', '/issues?number=91');
+  await page.getByRole('link', { name: '← 返回原任务' }).click();
+  await expect(workspace).toBeVisible();
+  expect(mutations).toEqual([]);
+});

@@ -30,12 +30,14 @@ export function MaintenanceVerification({ artifact, task, jobs, stale, busy, act
   return <section className="mv-panel" aria-label="需求与改动验证">
     <header className="mv-heading"><div><GitCompareArrows size={18} aria-hidden="true" /><h4>{context.acceptanceSource ? '人工验收对照' : '需求对照'}</h4><small>第 {artifact.revision || 1} 版</small></div><span className={`mv-state mv-${assessment.state}`}>{targetIcon}{requirementOutcomeLabels[assessment.state]}</span></header>
     <div className={`mv-decision is-${decision.tone}`} role="status"><strong>{decision.title}</strong><p>{decision.detail}</p></div>
-    <div className="mv-summary"><strong>{improved}<small> / {context.requirements.length}</small></strong><div><span>目标要求观察到改进</span><p>{assessment.reason}</p></div></div>
-    <div className="mv-coverage" aria-label="本次验证覆盖">
-      <div className={`mv-coverage-item is-${coverage.state}`}><span>额外回归</span><strong>{coverage.label}</strong><p>{coverage.total ? `${coverage.passed} / ${coverage.total} 条命令在两版全部尝试中通过。` : coverage.detail}</p></div>
+    <div className="mv-coverage mv-outcomes" aria-label="本次验证覆盖">
+      <div className="mv-coverage-item"><span>目标有没有改善？</span><strong>{improved} / {context.requirements.length} 项要求观察到改进</strong><p>{assessment.reason}</p></div>
+      <div className={`mv-coverage-item is-${coverage.state}`}><span>其他行为验证到哪里？</span><strong>{coverage.label}</strong><p>{coverage.total ? `${coverage.passed} / ${coverage.total} 条额外命令在两版全部尝试中通过。` : coverage.detail}</p></div>
+    </div>
+    <details className="mv-provenance"><summary>测试与验收来源 · {coverage.independent}</summary><div className="mv-coverage">
       <div className="mv-coverage-item"><span>测试来源</span><strong>{coverage.testSource}</strong><p>{context.sharedTestPaths.length ? `${context.sharedTestPaths.length} 个测试文件在两组中保持相同。` : '当前计划没有新增共享测试改动。'}测试语义仍需人工核对。</p></div>
       <div className="mv-coverage-item is-unknown"><span>验收来源</span><strong>{coverage.independent}</strong><p>{coverage.independentDetail}</p></div>
-    </div>
+    </div></details>
     <div className="mv-version-pair" aria-label="双版本执行状态"><div><span>01 · 原始版本</span><strong>{outdated ? '历史记录' : assessment.state === 'improved' ? '命中约定目标故障' : jobLabel(pair.find(job => job.verificationRole === 'baseline'))}</strong><code>{context.baseSha.slice(0, 10)}</code></div><GitCompareArrows size={20} aria-hidden="true" /><div><span>02 · 候选版本</span><strong>{outdated ? '历史记录' : jobLabel(pair.find(job => job.verificationRole === 'patched'))}</strong><code>{context.headSha ? context.headSha.slice(0, 10) : '应用当前候选补丁'}</code></div></div>
     <div className="mv-requirements">{assessment.requirements.map(({ requirement, outcome, reason }, index) => <article className={`mv-requirement mv-${outcome}`} key={requirement.id}>
       <div className="mv-requirement-title"><span className="mv-number">{String(index + 1).padStart(2, '0')}</span><h5>{requirement.text}</h5><span className="mv-state">{outcome === 'improved' ? <CheckCircle2 size={14} aria-hidden="true" /> : outcome === 'blocked' || outcome === 'still-failing' ? <ShieldAlert size={14} aria-hidden="true" /> : <CircleHelp size={14} aria-hidden="true" />}{requirementOutcomeLabels[outcome]}</span></div>
