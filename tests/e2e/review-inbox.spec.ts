@@ -12,6 +12,48 @@ async function setup(page:Page,items:GitItem[],connected=true){
   await page.route('**/api/workbench/reproduction**',r=>r.fulfill({json:{jobs:[],workerOnline:false,sandboxConfigured:false}}));
 }
 async function noOverflow(page:Page){await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);}
+
+for (const width of [1440, 390]) test(`PR map exposes selection and truthful review states at ${width}px`, async ({page}, testInfo) => {
+  const items: GitItem[] = [pulls[0], {...pulls[1], checksAvailable:true, checks:[{name:'unit',status:'completed',conclusion:'failure'}], reviewSnapshot:{state:'current',coverageStatus:'partial',completedBlocks:1,totalBlocks:3,findingCount:0,openFindingCount:0,acceptedFindingCount:0,analyzedAt:base.updatedAt}}];
+  let reads=0, writes=0;
+  await page.setViewportSize({width,height:1000});await setup(page,items);
+  await page.route('**/api/workbench/review**', r => {
+    if(r.request().method() === 'POST') writes++;
+    else reads++;
+    const number=Number(new URL(r.request().url()).searchParams.get('number'));
+    return r.fulfill({json:{item:items.find(item=>item.number===number) ?? items[0],review:null}});
+  });
+  await page.goto('/pull-requests');
+  await page.getByRole('button',{name:/^展开 main 分支的开放 PR/}).click();
+  const selection=page.locator('.confluence-selection');
+  await expect(selection).toContainText(items[0].title);
+  await expect(selection).toContainText('CI · 检查待读取');
+  await expect(selection).toContainText('AI · 尚未审查');
+  await expect(page.locator('.inbox-canvas-count')).toHaveText('本页显示 2 / 2 条');
+  await expect(page.getByRole('textbox',{name:'搜索 PR'})).toHaveAttribute('placeholder',/^搜索本页/);
+  await expect(page.locator('.inbox-canvas-list').filter({hasText:'列表'})).toBeVisible();
+  await expect(page.locator('#inbox-row-pulls-43')).toContainText('部分审查 1/3');
+  await noOverflow(page);
+  await page.locator('.review-page').screenshot({path:testInfo.outputPath(`pr-map-${width}.png`)});
+  await page.locator('#inbox-row-pulls-43').click();
+  const inspector=page.getByRole('complementary',{name:'选中 PR 的观察面板'});
+  await expect(inspector).toContainText(items[1].title);
+  await expect(inspector).toContainText('1 项未通过');
+  await expect(inspector).toContainText('部分审查 1/3');
+  expect(reads).toBe(0);expect(writes).toBe(0);
+  await noOverflow(page);
+  if(width===390) {
+    const panel=await inspector.boundingBox(), map=await page.locator('.confluence-map').boundingBox();
+    expect(panel!.y+panel!.height).toBeLessThanOrEqual(map!.y+1);
+  }
+  await page.locator('.review-page').screenshot({path:testInfo.outputPath(`pr-selected-${width}.png`)});
+  await inspector.getByRole('button',{name:'关闭 PR 观察面板'}).click();
+  await expect(selection).toContainText(items[1].title);
+  await selection.getByRole('button',{name:'进入 PR 审查'}).click();
+  await expect(page.locator('.issue-detail-panel')).toBeVisible();
+  expect(writes).toBe(0);
+});
+
 test('Issue inbox separates dimensions, restores filter and keyboard focus after detail',async({page})=>{
   await page.setViewportSize({width:1440,height:1000});await setup(page,issues);await page.goto('/issues');await showList(page,'Issue');
   await expect(page.locator('.inbox-row')).toHaveCount(3);await expect(page.locator('.issue-detail-panel')).toHaveCount(0);

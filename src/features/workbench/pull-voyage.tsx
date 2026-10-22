@@ -99,6 +99,10 @@ export function PullVoyage({ items, busy, onOpen, baseBranch }: Props) {
   const loading = inspection?.key === active?.key && inspection.status === 'loading';
   return <section className="pull-voyage" aria-label="PR 分支变更图">
     {active && <>
+      {!observing && <div className="confluence-selection" aria-label="当前选中 PR" aria-live="polite">
+        <div className="confluence-selection-copy"><span>当前选中 · #{active.item.number} · {active.item.isDraft ? '草稿' : 'Open PR'}</span><h3>{active.item.title}</h3><p>{active.item.author || '未知作者'} · {inboxDate(active.item.updatedAt)} 更新</p><div className="confluence-selection-signals"><span className={`tone-${active.checks.tone}`}>CI · {active.checks.label}</span><span className={`tone-${active.review.tone}`}>AI · {active.review.label}</span></div></div>
+        <div className="confluence-selection-actions"><button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button><button type="button" className="button button-secondary" disabled={busy} onClick={() => setObserving(true)}>查看详情与证据</button><small>选择下方节点可切换 PR</small></div>
+      </div>}
       <div className={`confluence-layout${observing ? ' has-inspector' : ''}`}>
         <PullConfluence baseBranch={baseBranch} items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onShowInspector={() => setObserving(true)} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
         {observing && <aside className="confluence-inspector" aria-label="选中 PR 的观察面板" aria-live="polite">
