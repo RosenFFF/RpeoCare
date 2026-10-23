@@ -9,3 +9,5 @@
 @media(prefers-reduced-motion:reduce){.branch-spin{animation:none}}
 .branch-field-actions{display:flex;align-items:center;gap:4px}.branch-field-actions:empty{display:none}.branch-map-control{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer}.branch-map-control:hover{background:var(--surface-subtle);color:var(--accent)}.branch-map-control:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media(max-width:700px){.branch-map-control{width:44px;height:44px}.branch-atlas-toolbar>div:last-child{gap:6px;min-width:0}}
+
+@media(max-width:700px){.branch-atlas-toolbar>div:last-child{flex:1 0 100%;width:100%}.branch-search{min-width:100px}.branch-search>svg,.branch-refresh,.branch-field-actions{flex-shrink:0}}

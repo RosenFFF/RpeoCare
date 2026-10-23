@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, GitBranch, GitCommitHorizontal, LocateFixed, Pause, Play, ShieldCheck, Star } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, GitBranch, GitCommitHorizontal, LocateFixed, Pause, Play, ShieldCheck, Star } from 'lucide-react';
 import type { RepositoryBranch } from '@/contracts/branches';
 import { layoutBranchField } from './branch-field-layout';
 import './branch-orbit-field.css';
@@ -21,6 +21,9 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
   const [width, setWidth] = useState(0);
   const [maximumHeight, setMaximumHeight] = useState<number>();
   const [dragging, setDragging] = useState(false);
+  const [selected, setSelected] = useState<string>();
+  const [copyResult, setCopyResult] = useState<{ name: string; success: boolean }>();
+  const selectedBranch = branches.find(branch => branch.name === selected) ?? branches.find(branch => branch.name === defaultBranch) ?? branches[0];
   const drag = useRef<{ id: number; x: number; y: number; left: number; top: number } | null>(null);
   const layout = useMemo(() => layoutBranchField(branches, width || 1000, defaultBranch), [branches, width, defaultBranch]);
 
@@ -29,15 +32,16 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
     if (!element) return;
     const atlas = field.current?.parentElement;
     const legend = field.current?.querySelector('.branch-orbit-legend');
+    const detail = field.current?.querySelector('.branch-selection-detail');
     const resize = () => {
       if (!element.getClientRects().length) return;
       if (element.clientWidth) setWidth(element.clientWidth);
       const footer = atlas?.querySelector('.branch-atlas-footer')?.getBoundingClientRect().height ?? 0;
-      const reserved = (legend?.getBoundingClientRect().height ?? 42) + footer + 24;
+      const reserved = (legend?.getBoundingClientRect().height ?? 42) + (detail?.getBoundingClientRect().height ?? 0) + footer + 24;
       setMaximumHeight(Math.max(240, Math.min(920, Math.floor(window.innerHeight - element.getBoundingClientRect().top - reserved))));
     };
     const observer = new ResizeObserver(resize);
-    observer.observe(element); if (atlas) observer.observe(atlas); if (legend) observer.observe(legend);
+    observer.observe(element); if (atlas) observer.observe(atlas); if (legend) observer.observe(legend); if (detail) observer.observe(detail);
     window.addEventListener('resize', resize); resize();
     return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
   }, []);
@@ -69,8 +73,7 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
     const element = scroller.current;
     if (!element || !width) return;
     if (scrollMemory.current) { element.scrollTo(scrollMemory.current); return; }
-    const node = element.querySelector<HTMLButtonElement>('.branch-portal-default') ?? element.querySelector<HTMLButtonElement>('.branch-portal');
-    if (node) element.scrollTo({ left: Math.max(0, node.offsetLeft + node.offsetWidth / 2 - element.clientWidth / 2), top: Math.max(0, node.offsetTop + node.offsetHeight / 2 - element.clientHeight / 2) });
+    element.scrollTo({ left: 0, top: 0 });
     scrollMemory.current = { top: element.scrollTop, left: element.scrollLeft };
   }, [scrollMemory, width]);
 
@@ -93,11 +96,18 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
   function locateDefault() {
-    const node = scroller.current?.querySelector<HTMLButtonElement>('.branch-portal-default');
+    const node = scroller.current?.querySelector<HTMLElement>('.branch-portal-default');
     if (node && scroller.current) {
       scroller.current.scrollTo({ left: Math.max(0, node.offsetLeft + node.offsetWidth / 2 - scroller.current.clientWidth / 2), top: Math.max(0, node.offsetTop + node.offsetHeight / 2 - scroller.current.clientHeight / 2) });
-      node.focus({ preventScroll: true });
+      node.querySelector<HTMLButtonElement>('.branch-portal-select')?.focus({ preventScroll: true });
     }
+  }
+
+  async function copyBranch(name: string) {
+    try {
+      await navigator.clipboard.writeText(name);
+      setCopyResult({ name, success: true });
+    } catch { setCopyResult({ name, success: false }); }
   }
 
   return <section ref={field} className="branch-orbit-field" aria-label="分支可视化导航" aria-busy={disabled} data-running={active && visible && tabVisible && !paused && !reduced}>
@@ -109,21 +119,26 @@ export function BranchOrbitField({ branches, defaultBranch, disabled, active, on
           {layout.nodes.map(({ branch, x, y, width: nodeWidth, height }) => {
             const isDefault = branch.name === defaultBranch;
             const tone = isDefault ? 'default' : branch.protected ? 'protected' : 'regular';
-            return <button key={branch.name} className={`branch-portal branch-portal-${tone}`} style={{ left: x, top: y, width: nodeWidth, height }} type="button" disabled={disabled} onClick={() => onSelect(branch.name)} aria-label={`展开 ${branch.name} 分支的开放 PR${isDefault ? '，默认分支' : ''}${branch.protected ? '，受保护' : ''}`}>
+            return <div key={branch.name} className={`branch-portal branch-portal-${tone}${selectedBranch?.name === branch.name ? ' is-selected' : ''}`} style={{ left: x, top: y, width: nodeWidth, height }} onFocus={() => setSelected(branch.name)}>
+              <button className="branch-portal-select" type="button" disabled={disabled} aria-pressed={selectedBranch?.name === branch.name} aria-label={`查看 ${branch.name} 分支详情`} onClick={() => setSelected(branch.name)}>
               <span className="branch-portal-art" aria-hidden="true">
                 <svg className="branch-portal-dial" viewBox="0 0 160 144" fill="none">
                   {isDefault ? <><circle className="branch-dial-track" cx="80" cy="72" r="51" /><circle className="branch-dial-trace" cx="80" cy="72" r="51" pathLength="100" /><circle className="branch-dial-inner" cx="80" cy="72" r="40" /><g className="branch-dial-signal"><circle cx="80" cy="21" r="3" /><circle cx="80" cy="123" r="2" /></g></> : <><path className="branch-dial-track" d="M80 12 139 43v58l-59 31-59-31V43Z" /><path className="branch-dial-trace" d="M80 12 139 43v58l-59 31-59-31V43Z" pathLength="100" /><circle className="branch-dial-inner" cx="80" cy="72" r="33" /></>}
                 </svg>
                 <span className="branch-portal-glyph">{isDefault ? <Star size={19} /> : branch.protected ? <ShieldCheck size={20} /> : <GitBranch size={20} />}</span>
               </span>
-              <span className="branch-portal-identity"><strong title={branch.name}>{branch.name}</strong><span className="branch-portal-badges">{isDefault && <em><Star size={11} />默认分支</em>}{branch.protected && <em><ShieldCheck size={11} />受保护</em>}{!isDefault && !branch.protected && <em><GitBranch size={11} />普通分支</em>}</span></span>
-              <span className="branch-portal-commit"><GitCommitHorizontal size={13} />最新提交 <code>{branch.commitSha?.slice(0, 10) || '未知'}</code></span>
-              <span className="branch-portal-action">展开 PR<ArrowUpRight size={14} /></span>
-            </button>;
+              <span className="branch-portal-identity"><strong title={branch.name}>{branch.name.split(/(?<=[/\-_])/).map((part, index) => <span key={index}>{part}<wbr /></span>)}</strong>{(isDefault || branch.protected) && <span className="branch-portal-badges">{isDefault && <em><Star size={11} />默认分支</em>}{branch.protected && <em><ShieldCheck size={11} />受保护</em>}</span>}</span>
+              </button>
+              <button type="button" className="branch-portal-action" disabled={disabled} onClick={() => onSelect(branch.name)} aria-label={`展开 ${branch.name} 分支的开放 PR${isDefault ? '，默认分支' : ''}${branch.protected ? '，受保护' : ''}`}>展开 PR<ArrowUpRight size={14} aria-hidden="true" /></button>
+            </div>;
           })}
         </div>
       </div>
     </div>
-    <div className="branch-orbit-legend"><span><i className="tone-default" /><Star size={12} />默认分支</span><span><i className="tone-protected" /><ShieldCheck size={12} />受保护分支</span><span><i className="tone-regular" /><GitBranch size={12} />普通分支</span><small title="位置仅用于浏览，不表示分支继承关系；PR 数量与检查状态在进入分支后读取">拖动浏览 · 点击展开 PR</small></div>
+    {selectedBranch && <section className="branch-selection-detail" aria-label="选中分支详情">
+      <div className="branch-selection-name"><span>选中分支</span><strong>{selectedBranch.name}</strong><div className="branch-selection-commit"><GitCommitHorizontal size={14} aria-hidden="true" /><span>最新提交</span><code>{selectedBranch.commitSha || '未知'}</code></div></div>
+      <div className="branch-selection-actions"><button type="button" className="button button-secondary" aria-label="复制分支名" onClick={() => void copyBranch(selectedBranch.name)}>{copyResult?.name === selectedBranch.name && copyResult.success ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}复制名称</button><button type="button" className="button button-primary" disabled={disabled} onClick={() => onSelect(selectedBranch.name)}>查看开放 PR<ArrowUpRight size={14} aria-hidden="true" /></button><span role="status">{copyResult?.name === selectedBranch.name ? copyResult.success ? '已复制分支名' : '复制失败，请选中名称手动复制' : '点击名称查看详情，展开 PR 进入审查'}</span></div>
+    </section>}
+    <div className="branch-orbit-legend"><span><Star size={12} />默认分支</span><span><ShieldCheck size={12} />受保护分支</span><small>位置仅用于导航，不表示分支继承关系</small></div>
   </section>;
 }
