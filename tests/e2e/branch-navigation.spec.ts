@@ -3,25 +3,16 @@ import type { RepositoryBranch } from '../../src/contracts/branches';
 
 const project = { repoUrl: 'https://github.com/example/branch-kit', fullName: 'example/branch-kit', branch: 'main' };
 const longName = 'copilot/fix-test-failures-and-mypy-errors-with-preserved-empty-input-behavior';
-const unknownName = 'fix/commit-not-returned';
 const branches: RepositoryBranch[] = [
   { name: 'main', protected: true, commitSha: 'a'.repeat(40) },
   { name: longName, protected: false, commitSha: 'b'.repeat(40) },
-  { name: unknownName, protected: false },
+  { name: 'fix/commit-not-returned', protected: false },
   { name: 'release/stable', protected: true, commitSha: 'c'.repeat(40) },
   ...['gh-pages', 'docs/notebook-setup', 'fix/maclaurin-series', 'dependabot/uv/lxml-6.1.0', 'feature/csv-export', 'fix/reader', 'refactor/graph-traversal', 'docs/contributing', 'maintenance/typing'].map((name, index) => ({ name, protected: false, commitSha: String(index + 1).repeat(40) })),
 ];
 
-async function setup(page: Page, clipboardFails = false) {
+async function setup(page: Page) {
   const requests = { bases: [] as string[], reviewReads: 0, writes: 0 };
-  await page.addInitScript(fails => {
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
-      writeText: async (value: string) => {
-        if (fails) throw new DOMException('Clipboard unavailable', 'NotAllowedError');
-        (window as Window & { copiedBranch?: string }).copiedBranch = value;
-      },
-    } });
-  }, clipboardFails);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route('**/api/workbench', route => route.fulfill({ json: { project, runs: [], drafts: [], github: null, usage: {} } }));
   await page.route('**/api/workbench/branches**', route => {
@@ -48,53 +39,47 @@ async function noHorizontalOverflow(page: Page) {
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 }
 
-for (const width of [1440, 390]) test(`branch map keeps full details and direct PR navigation at ${width}px`, async ({ page }, testInfo) => {
+for (const width of [1440, 390]) test(`PR page opens the default branch and switches from the compact selector at ${width}px`, async ({ page }, testInfo) => {
   await page.setViewportSize({ width, height: 1000 });
   const requests = await setup(page);
   await page.goto('/pull-requests');
-  const details = page.locator('[aria-label="选中分支详情"]');
-  await expect(page.getByRole('button', { name: /^查看 .+ 分支详情$/ })).toHaveCount(13);
-  await expect(details).toContainText('main');
-  await expect(details).toContainText('a'.repeat(40));
-  await expect(page.locator('.branch-portal-regular').filter({ hasText: '普通分支' })).toHaveCount(0);
-  await noHorizontalOverflow(page);
-  if (width === 390) await expect.poll(() => page.locator('.branch-orbit-space').evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
-  await page.locator('.review-page').screenshot({ path: testInfo.outputPath(`branch-map-${width}.png`) });
-
-  const longBranch = page.getByRole('button', { name: `查看 ${longName} 分支详情`, exact: true });
-  await longBranch.click();
-  await expect(details).toContainText(longName);
-  await expect(details).toContainText('b'.repeat(40));
-  await details.getByRole('button', { name: '复制分支名', exact: true }).click();
-  await expect(details).toContainText('已复制');
-  await expect.poll(() => page.evaluate(() => (window as Window & { copiedBranch?: string }).copiedBranch)).toBe(longName);
-  expect(requests.bases).toEqual([]);
-  expect(requests.reviewReads).toBe(0);
-  expect(requests.writes).toBe(0);
-  await noHorizontalOverflow(page);
-  await page.locator('.review-page').screenshot({ path: testInfo.outputPath(`branch-selected-${width}.png`) });
-
-  const search = page.getByRole('textbox', { name: '搜索已加载的分支' });
-  await search.fill('release/stable');
-  await expect(details).toContainText('release/stable');
-  await expect(details).not.toContainText(longName);
-  await page.getByRole('button', { name: /^展开 release\/stable 分支的开放 PR/ }).click();
-  await expect.poll(() => requests.bases).toEqual(['release/stable']);
+  await expect.poll(() => requests.bases).toEqual(['main']);
+  const trigger = page.getByRole('button', { name: /^目标分支 main/ });
+  await expect(trigger).toBeVisible();
   await expect(page.getByRole('heading', { name: '此分支当前页没有开放 PR' })).toBeVisible();
+  await noHorizontalOverflow(page);
+  await page.locator('.review-page').screenshot({ path: testInfo.outputPath(`branch-switcher-${width}.png`) });
+
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: '切换目标分支' });
+  const search = page.getByRole('textbox', { name: '搜索已加载的分支' });
+  await expect(search).toBeFocused();
+  await expect(dialog.getByRole('button', { name: /^切换到 / })).toHaveCount(branches.length);
+  await expect(dialog.getByRole('button', { name: /^切换到 / }).first()).toHaveAccessibleName(/^切换到 main 分支，默认分支，受保护/);
+  await expect(dialog.getByRole('button', { name: `切换到 ${longName} 分支`, exact: true })).toBeVisible();
+  await noHorizontalOverflow(page);
+  await page.locator('.review-page').screenshot({ path: testInfo.outputPath(`branch-switcher-open-${width}.png`) });
+
+  await search.fill('release/stable');
+  await expect(dialog.getByRole('button', { name: /^切换到 / })).toHaveCount(1);
+  await dialog.getByRole('button', { name: /^切换到 release\/stable 分支/ }).click();
+  await expect.poll(() => requests.bases).toEqual(['main', 'release/stable']);
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^目标分支 release\/stable/ })).toBeFocused();
   expect(requests.reviewReads).toBe(0);
   expect(requests.writes).toBe(0);
 });
 
-test('branch details follow keyboard focus and explain unavailable clipboard and commit', async ({ page }) => {
-  await setup(page, true);
+test('branch selector closes with Escape and reports unmatched searches', async ({ page }) => {
+  const requests = await setup(page);
   await page.goto('/pull-requests');
-  const details = page.locator('[aria-label="选中分支详情"]');
-  const target = page.getByRole('button', { name: `查看 ${unknownName} 分支详情`, exact: true });
-  await target.focus();
-  await expect(target).toBeFocused();
-  await expect(details).toContainText(unknownName);
-  await expect(details).toContainText('未知');
-  await details.getByRole('button', { name: '复制分支名', exact: true }).click();
-  await expect(details).toContainText(/无法复制|复制失败|手动复制/);
-  await expect(details).not.toContainText('已复制');
+  const trigger = page.getByRole('button', { name: /^目标分支 main/ });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: '切换目标分支' });
+  await page.getByRole('textbox', { name: '搜索已加载的分支' }).fill('no-such-branch');
+  await expect(dialog).toContainText('没有匹配的分支');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  expect(requests.bases).toEqual(['main']);
 });

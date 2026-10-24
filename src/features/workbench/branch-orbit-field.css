@@ -1,21 +1,130 @@
-.branch-orbit-field{position:relative;background:var(--surface);color:var(--ink)}
-.branch-orbit-viewport{position:relative;background:radial-gradient(color-mix(in srgb,var(--line) 60%,transparent) .7px,transparent .9px) 0 0/26px 26px,var(--surface)}
-.branch-orbit-space{max-height:clamp(240px,calc(100dvh - 340px),920px);overflow:auto;scrollbar-gutter:stable;position:relative;overscroll-behavior:contain;scrollbar-color:var(--accent-border) var(--surface);cursor:grab;user-select:none;scroll-padding:18px}.branch-orbit-space.is-dragging{cursor:grabbing}.branch-orbit-space:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.branch-orbit-layout{position:relative;isolation:isolate}.branch-field-contours{position:absolute;inset:0;pointer-events:none;fill:none;stroke:var(--accent-border);stroke-width:1;opacity:.16}
-.branch-portal{--portal-tone:var(--muted);position:absolute;display:grid;grid-template-rows:minmax(0,1fr) 44px;padding:7px 10px;border:1px solid transparent;border-radius:10px;color:var(--ink);background:color-mix(in srgb,var(--surface) 92%,transparent);text-align:left;transition:border-color 160ms,background 160ms;box-sizing:border-box}
-.branch-portal-default{--portal-tone:var(--accent)}.branch-portal-protected{--portal-tone:var(--accent-strong)}.branch-portal.is-selected{border-color:var(--accent-border);background:color-mix(in srgb,var(--accent-tint) 40%,var(--surface))}
-.branch-portal-select{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;min-width:0;min-height:44px;width:100%;padding:0;border:0;border-radius:5px;background:none;color:inherit;cursor:pointer;text-align:left;font:inherit}.branch-portal-default .branch-portal-select{grid-template-columns:56px minmax(0,1fr);gap:12px}
-.branch-portal-art{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--portal-tone)}.branch-portal-default .branch-portal-art{width:56px;height:56px;border-radius:50%;background:var(--accent-tint);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent-tint) 50%,transparent)}
-.branch-portal-dial{position:absolute;inset:0;width:100%;height:100%;stroke:currentColor;stroke-width:1.2;overflow:visible}.branch-dial-track{stroke:var(--line);stroke-width:1.4}.branch-dial-inner{stroke:var(--accent-border);stroke-width:.8;stroke-dasharray:2 5;opacity:.6}
-.branch-dial-trace{stroke-dasharray:22 5 3 70;stroke-linecap:round;stroke-width:2;animation:branch-trace-flow 14s linear infinite}.branch-dial-signal{fill:var(--surface);stroke:currentColor;stroke-width:1.5;transform-box:view-box;transform-origin:50% 50%;animation:branch-signal-flow 20s linear infinite}.branch-portal-protected .branch-dial-track{stroke:var(--accent-border);stroke-dasharray:4 4}.branch-portal-regular .branch-dial-trace{stroke-width:1.4;stroke-dasharray:9 6 2 83}
-.branch-portal-glyph{position:relative;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--surface);color:var(--portal-tone)}.branch-portal-glyph>svg{width:15px;height:15px}.branch-portal-default .branch-portal-glyph{width:30px;height:30px;background:var(--accent-tint)}.branch-portal-default .branch-portal-glyph>svg{width:19px;height:19px}
-.branch-portal-identity{display:grid;gap:4px;min-width:0}.branch-portal-identity>strong{font-size:14px;font-weight:500;line-height:1.4;color:var(--ink);max-width:100%;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.branch-portal-default .branch-portal-identity>strong{font-size:18px;font-weight:600}
-.branch-portal-badges{display:flex;align-items:center;flex-wrap:wrap;gap:6px}.branch-portal-badges em{display:flex;align-items:center;gap:3px;font-size:11px;font-style:normal;color:var(--portal-tone)}
-.branch-portal-action{justify-self:start;display:flex;align-items:center;gap:6px;min-height:44px;margin-left:54px;padding:0 4px;border:0;border-radius:5px;background:none;color:var(--accent);font:inherit;font-size:12px;cursor:pointer}.branch-portal-default .branch-portal-action{margin-left:68px}
-.branch-portal:has(button:not(:disabled):hover),.branch-portal:focus-within{border-color:var(--accent-border);background:var(--surface-subtle);z-index:2}.branch-portal-action:hover{text-decoration:underline;text-underline-offset:4px}.review-inbox .branch-orbit-field button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.branch-portal button:disabled{cursor:wait;opacity:.6}
-.branch-selection-detail{display:flex;align-items:center;gap:20px;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--line);background:var(--surface-subtle)}.branch-selection-name{min-width:0;flex:1;user-select:text}.branch-selection-name>span{font-size:11px;color:var(--muted)}.branch-selection-name>strong{display:block;margin-top:4px;overflow-wrap:anywhere;font-size:14px;font-weight:600;line-height:1.5}.branch-selection-commit{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:6px;font-size:11px;color:var(--muted)}.branch-selection-commit code{font-size:11px;overflow-wrap:anywhere;min-width:0}.branch-selection-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 8px;flex:0 0 270px}.branch-selection-actions .button{min-height:44px}.branch-selection-actions [role=status]{flex-basis:100%;text-align:right;color:var(--muted);font-size:11px;line-height:1.6}
-.branch-orbit-legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding:8px 14px;color:var(--muted);font-size:11px;line-height:1.6}.branch-orbit-legend>span{display:flex;align-items:center;gap:5px}.branch-orbit-legend small{margin-left:auto;font-size:11px}
-.branch-dial-trace,.branch-dial-signal{animation-play-state:paused}.branch-orbit-field[data-running=true] .branch-portal[data-visible=true] :is(.branch-dial-trace,.branch-dial-signal){animation-play-state:running}
-@keyframes branch-trace-flow{to{stroke-dashoffset:-100}}@keyframes branch-signal-flow{to{transform:rotate(360deg)}}
-@media(max-width:700px){.branch-orbit-legend{padding:8px 12px;gap:6px 12px}.branch-orbit-legend small{margin-left:0;width:100%}.branch-selection-detail{flex-direction:column;align-items:stretch;gap:10px;padding:12px}.branch-selection-actions{flex-basis:auto;justify-content:flex-start}.branch-selection-actions [role=status]{text-align:left}.branch-selection-actions .button{flex:1}.branch-field-contours{display:none}}
-@media(prefers-reduced-motion:reduce){.branch-dial-trace,.branch-dial-signal{animation:none}.branch-portal{transition:none}}
+/* Branch star chart: a night-sky observatory (overview) + a readable star catalog.
+   The sky stays dark in both themes on purpose; catalog colors follow the theme. */
+.star-chart{
+  --sky-pole:#f2cd73;
+  --sky-0:#8fd0cb;--sky-1:#9dc0ea;--sky-2:#cdb4e3;--sky-3:#ecc988;--sky-4:#b0d79a;--sky-5:#eeaabb;
+  --hue-0:#2f7074;--hue-1:#3f6890;--hue-2:#7a5c8e;--hue-3:#9a6b1f;--hue-4:#4d7a3a;--hue-5:#99566a;--pole:#b07c12;
+  position:relative;background:var(--surface);color:var(--ink)
+}
+:root[data-theme="dark"] .star-chart{--hue-0:#8fd0cb;--hue-1:#9dc0ea;--hue-2:#cdb4e3;--hue-3:#ecc988;--hue-4:#b0d79a;--hue-5:#eeaabb;--pole:#f2cd73}
+.star-chart .hue-0{--hue:var(--hue-0);--sky:var(--sky-0)}.star-chart .hue-1{--hue:var(--hue-1);--sky:var(--sky-1)}.star-chart .hue-2{--hue:var(--hue-2);--sky:var(--sky-2)}.star-chart .hue-3{--hue:var(--hue-3);--sky:var(--sky-3)}.star-chart .hue-4{--hue:var(--hue-4);--sky:var(--sky-4)}.star-chart .hue-5{--hue:var(--hue-5);--sky:var(--sky-5)}
+
+/* ── Observatory ───────────────────────────────────────────── */
+.star-observatory{display:grid;grid-template-columns:minmax(0,1fr) 300px;border-bottom:1px solid var(--line)}
+.star-sky{position:relative;min-width:0;overflow:hidden;background:
+  radial-gradient(60% 75% at 50% 48%,#1f3f44 0%,#132a30 48%,#0b181d 100%);color:#e8f1ef}
+.star-sky::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 60px rgba(0,0,0,.35)}
+.star-sky>svg{position:absolute;inset:0;display:block;overflow:visible;font-family:var(--font-sans)}
+.sky-orbits ellipse{fill:none;stroke:#9fd6d1;stroke-width:.8;stroke-dasharray:1 6;opacity:.32}
+.sky-dust circle{fill:#e6f3f1}
+.sky-dust .is-twinkle{animation:sky-twinkle 5.2s ease-in-out var(--delay,0ms) infinite;animation-play-state:paused}
+.sky-route{fill:none;stroke:var(--sky);stroke-width:1.2;stroke-dasharray:5 5;opacity:.75;animation:sky-flow 1.8s linear infinite;animation-play-state:paused}
+
+.sky-constellation{transition:opacity .25s}
+.sky-constellation.is-dim{opacity:.18}
+.sky-line{stroke:var(--sky);stroke-width:1;opacity:.4;stroke-linecap:round}
+.sky-constellation.is-lit .sky-line{opacity:.7}
+.sky-star{cursor:pointer}
+.sky-hit{fill:transparent}
+.sky-halo{fill:var(--sky);opacity:.16;transition:r .2s}
+.sky-star.is-lit .sky-halo{opacity:.28}
+.sky-ring{fill:none;stroke:var(--sky);stroke-width:1;opacity:.85}
+.sky-core{fill:var(--sky);filter:drop-shadow(0 0 3px var(--sky))}
+.sky-pulse{fill:none;stroke:var(--sky);stroke-width:1.2;transform-box:fill-box;transform-origin:center;animation:sky-pulse 2.4s ease-out infinite;animation-play-state:paused}
+.sky-label{fill:var(--sky);font-size:11px;font-weight:600;letter-spacing:.6px;font-family:var(--font-mono);paint-order:stroke;stroke:#0f2227;stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.sky-label tspan{fill:#a9bdba;font-weight:500}
+
+.sky-pole{cursor:pointer}
+.sky-pole-orbit{fill:none;stroke:var(--sky-pole);stroke-width:1;stroke-dasharray:3 4;opacity:.5;transform-box:fill-box;transform-origin:center;animation:sky-spin 50s linear infinite;animation-play-state:paused}
+.sky-pole-rays{transform-box:fill-box;transform-origin:center;animation:sky-spin 22s linear infinite reverse;animation-play-state:paused}.sky-pole-rays path{fill:var(--sky-pole);opacity:.28}
+.sky-pole-core{fill:var(--sky-pole);filter:drop-shadow(0 0 6px var(--sky-pole))}
+.sky-pole-name{fill:#fbefd0;font-size:14px;font-weight:600;paint-order:stroke;stroke:#10242a;stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.sky-tip{fill:#ffffff;font-size:12px;font-weight:600;paint-order:stroke;stroke:#0b181d;stroke-width:5px;stroke-linejoin:round;pointer-events:none}
+
+.sky-legend{position:absolute;left:12px;bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:11px;color:#b9cbc8;pointer-events:none}
+.sky-legend>span{display:inline-flex;align-items:center;gap:4px}
+.sky-legend .star-glyph{width:13px;height:13px}
+.sky-legend .star-glyph circle,.sky-legend .star-glyph path{fill:#cfe6e2}.sky-legend .star-glyph.is-pole path{fill:var(--sky-pole)}.sky-legend .star-glyph .ring{fill:none;stroke:#cfe6e2}
+.sky-legend-note{opacity:.75}
+
+/* ── Observation panel (selected branch) ─────────────────────── */
+.star-panel{display:flex;flex-direction:column;gap:10px;min-width:0;padding:18px 18px 16px;border-left:1px solid var(--line);background:var(--surface)}
+.star-panel-eyebrow{font-size:11px;font-weight:600;letter-spacing:.4px;color:var(--accent)}
+.star-panel-name{font-family:var(--font-mono);font-size:16px;font-weight:600;line-height:1.45;overflow-wrap:anywhere;user-select:text}
+.star-panel-badges{display:flex;flex-wrap:wrap;gap:6px}
+.star-panel-badges em{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-style:normal;background:var(--surface-subtle);color:var(--muted)}
+.star-panel-badges em.is-pole{background:color-mix(in srgb,var(--pole) 14%,var(--surface));color:color-mix(in srgb,var(--pole) 85%,var(--ink))}
+.star-panel-badges em.is-protected{background:var(--accent-tint);color:var(--accent)}
+.star-panel-facts{display:grid;gap:8px;margin:2px 0 0;padding:10px 0;border-block:1px solid var(--line)}
+.star-panel-facts>div{display:grid;gap:3px}.star-panel-facts dt{font-size:11px;color:var(--muted)}.star-panel-facts dd{margin:0;font-size:12px;overflow-wrap:anywhere;user-select:text}
+.star-panel-facts code{display:block;font-family:var(--font-mono);font-size:11.5px;line-height:1.55;color:var(--ink);word-break:break-all;text-wrap:balance}
+.star-panel .branch-selection-actions{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.star-panel .branch-selection-actions .button{justify-content:center;min-height:40px;width:100%}
+.star-panel-status{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* panel extras */
+.star-panel-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.star-panel-stats>div{display:grid;gap:2px;padding:10px 6px;border-radius:10px;background:var(--surface-subtle);text-align:center}
+.star-panel-stats b{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--ink)}.star-panel-stats span{font-size:11px;color:var(--muted)}
+.star-panel-siblings{display:grid;gap:8px}.star-panel-siblings>span{font-size:11px;color:var(--muted)}
+.star-panel-siblings>div{display:flex;flex-wrap:wrap;gap:6px}
+.star-panel-siblings button{max-width:100%;min-height:28px;padding:0 10px;border:1px solid color-mix(in srgb,var(--hue) 28%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--hue) 6%,var(--surface));color:var(--ink);font:inherit;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star-panel-siblings button:hover{border-color:var(--hue);color:var(--hue)}
+.star-panel-siblings small{font-size:11px;color:var(--muted);align-self:center}
+
+/* ── Star catalog ───────────────────────────────────────────── */
+.star-catalog-scroll{overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-color:var(--accent-border) transparent;background:var(--surface-subtle)}
+.star-catalog-scroll:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.star-catalog{columns:280px;column-gap:14px;padding:14px}
+.star-card{break-inside:avoid;margin:0 0 14px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);transition:opacity .25s,border-color .2s,box-shadow .2s}
+.star-card.is-dim{opacity:.4}
+.star-card.is-focus{border-color:color-mix(in srgb,var(--hue) 45%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--hue) 12%,transparent)}
+.star-card>header{display:flex;align-items:center;gap:8px;min-height:38px;padding:2px 6px 6px;border-bottom:1px dashed var(--line);margin-bottom:4px}
+.star-card.is-pole>header{color:var(--pole);font-size:13px;font-weight:600}.star-card.is-pole>header small{font-size:11px;font-weight:500;color:var(--muted)}
+.star-card.is-pole .star-card-mark path{fill:var(--pole)}
+.star-card.is-pole{border-color:color-mix(in srgb,var(--pole) 30%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--pole) 6%,var(--surface)),var(--surface) 70%)}
+.star-card-title{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:0 4px;border-radius:7px;background:none;color:var(--hue);font:inherit;text-align:left}
+.star-card-title span{font-family:var(--font-mono);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star-card-title small{margin-left:auto;min-width:22px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--hue) 10%,transparent);font-size:11px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+.star-card-title:hover,.star-card-title[aria-pressed=true]{background:color-mix(in srgb,var(--hue) 8%,transparent)}
+.star-card-mark{flex:none;width:44px;height:26px;overflow:visible}
+.star-card-mark line{stroke:currentColor;stroke-width:.9;opacity:.55}.star-card-mark circle{fill:currentColor}
+
+.star-row{display:flex;align-items:center;gap:2px;min-height:36px;border-radius:8px;transition:background .15s}
+.star-row .star-select{flex:1;min-width:0;min-height:36px;display:flex;align-items:center;gap:8px;padding:0 6px 0 8px;border-radius:8px;background:none;color:var(--ink);font:inherit;font-size:13px;text-align:left}
+.star-label{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star-shield{flex:none;color:var(--hue)}
+.star-sha{flex:none;font-family:var(--font-mono);font-size:11px;color:var(--subtle);opacity:.85}
+.star-glyph{flex:none;width:14px;height:14px;overflow:visible}
+.star-glyph circle,.star-glyph path{fill:var(--hue)}.star-glyph .ring{fill:none;stroke:var(--hue);stroke-width:1.3}
+.star-glyph.is-pole path{fill:var(--pole)}
+.star-action{flex:none;display:inline-flex;align-items:center;gap:2px;height:28px;padding:0 8px;border-radius:7px;background:none;color:var(--accent);font:inherit;font-size:11px;font-weight:700;opacity:0;transition:opacity .15s,background .15s}
+.star-row:hover,.star-row.is-lit{background:color-mix(in srgb,var(--hue,var(--accent)) 7%,transparent)}
+.star-row.is-selected{background:color-mix(in srgb,var(--hue,var(--accent)) 13%,transparent);box-shadow:inset 3px 0 0 var(--hue,var(--accent))}
+.star-card.is-pole .star-row.is-selected{--hue:var(--pole)}
+.star-row.is-selected .star-select{font-weight:600}
+.star-row:hover .star-action,.star-row:focus-within .star-action,.star-row.is-selected .star-action{opacity:1}
+.star-action:hover{background:var(--accent-tint)}
+@media(hover:none){.star-action{opacity:1}}
+.star-chart button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.star-chart button:disabled{cursor:wait;opacity:.6}
+
+/* ── Motion: only while visible, not paused and not reduced ─── */
+.star-chart[data-running=true] :is(.sky-dust .is-twinkle,.sky-route,.sky-pulse,.sky-pole-orbit,.sky-pole-rays){animation-play-state:running}
+@keyframes sky-twinkle{0%,100%{opacity:.15}50%{opacity:1}}
+@keyframes sky-flow{to{stroke-dashoffset:-20}}
+@keyframes sky-pulse{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.9)}}
+@keyframes sky-spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .star-observatory{grid-template-columns:minmax(0,1fr)}
+  .star-panel{border-left:0;border-top:1px solid var(--line)}
+  .star-panel .branch-selection-actions{flex-direction:row}.star-panel .branch-selection-actions .button{flex:1;width:auto}
+}
+@media(max-width:600px){
+  .star-catalog{columns:1;padding:10px}
+  .star-row,.star-row .star-select{min-height:44px}.star-row .star-select{font-size:14px}.star-action{height:40px;padding:0 10px}
+  .star-panel .branch-selection-actions .button{min-height:44px}
+  .sky-legend-note{display:none}
+}
+@media(prefers-reduced-motion:reduce){.star-chart *{animation:none!important;transition:none!important}}

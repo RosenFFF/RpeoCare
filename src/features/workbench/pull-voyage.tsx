@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, Check, FileCode2, GitBranch, GitPullRequest, Link2, LoaderCircle, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, ExternalLink, FileCode2, GitBranch, Link2, LoaderCircle, RefreshCw, ShieldCheck, X } from 'lucide-react';
 import type { GitItem } from '@/contracts/workbench';
-import { inboxDate, pullClassification, pullTypes } from './inbox-model';
+import { pullClassification, pullTypes } from './inbox-model';
 import { pullChangeSignal, pullCheckSignal, pullIdentity, pullReviewSignal } from './pull-voyage-model';
 import './pull-voyage.css';
-import { PullConfluence } from './pull-confluence';
+import { PullRunway, typeIcons } from './pull-runway';
+import { idleDays, idleLabel } from './pull-runway-model';
 
 type Props = { baseBranch?: string; items: GitItem[]; busy: boolean; onOpen: (item: GitItem) => void };
 type Inspection = { key: string; status: 'loading' | 'ready' | 'error'; item?: GitItem; error?: string; at?: string };
@@ -47,13 +48,13 @@ function EvidencePanel({ item, busy, at, onRefresh, onOpen }: { item: GitItem; b
   </div>;
 }
 
-export function PullVoyage({ items, busy, onOpen, baseBranch }: Props) {
-  const [observing, setObserving] = useState(false);
+export function PullVoyage({ items, busy, onOpen }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [showEvidence, setShowEvidence] = useState(false);
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [snapshots, setSnapshots] = useState<Record<string, Snapshot>>({});
   const controller = useRef<AbortController | null>(null);
+  const panel = useRef<HTMLElement>(null);
   useEffect(() => () => controller.current?.abort(), []);
   const rows = useMemo(() => items.map(original => {
     const key = pullIdentity(original);
@@ -88,8 +89,8 @@ export function PullVoyage({ items, busy, onOpen, baseBranch }: Props) {
 
   const active = rows.find(row => row.key === selected) ?? rows[0];
   function selectNode(item: GitItem) {
-    setObserving(true);
     const key = pullIdentity(item);
+    if (window.matchMedia('(max-width: 1100px)').matches) requestAnimationFrame(() => panel.current?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
     if (key === active?.key) return;
     controller.current?.abort();
     setSelected(key);
@@ -97,25 +98,35 @@ export function PullVoyage({ items, busy, onOpen, baseBranch }: Props) {
     setInspection(snapshots[key] ? { key, status: 'ready', at: snapshots[key].at } : null);
   }
   const loading = inspection?.key === active?.key && inspection.status === 'loading';
-  return <section className="pull-voyage" aria-label="PR 分支变更图">
+  const type = active ? pullClassification(active.item) : 'other';
+  const TypeIcon = typeIcons[type];
+  const days = active ? idleDays(active.item, Date.now()) : null;
+  const evidenceAt = active ? snapshots[active.key]?.at : undefined;
+  const findings = active?.item.reviewSnapshot;
+  return <section className="pull-voyage runway-voyage" aria-label="PR 审查航道">
     {active && <>
-      {!observing && <div className="confluence-selection" aria-label="当前选中 PR" aria-live="polite">
-        <div className="confluence-selection-copy"><span>当前选中 · #{active.item.number} · {active.item.isDraft ? '草稿' : 'Open PR'}</span><h3>{active.item.title}</h3><p>{active.item.author || '未知作者'} · {inboxDate(active.item.updatedAt)} 更新</p><div className="confluence-selection-signals"><span className={`tone-${active.checks.tone}`}>CI · {active.checks.label}</span><span className={`tone-${active.review.tone}`}>AI · {active.review.label}</span></div></div>
-        <div className="confluence-selection-actions"><button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button><button type="button" className="button button-secondary" disabled={busy} onClick={() => setObserving(true)}>查看详情与证据</button><small>选择下方节点可切换 PR</small></div>
-      </div>}
-      <div className={`confluence-layout${observing ? ' has-inspector' : ''}`}>
-        <PullConfluence baseBranch={baseBranch} items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onShowInspector={() => setObserving(true)} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
-        {observing && <aside className="confluence-inspector" aria-label="选中 PR 的观察面板" aria-live="polite">
-          <div className="confluence-inspector-top"><b><GitPullRequest size={17} aria-hidden="true" /> #{active.item.number}</b><span>{active.item.isDraft ? '草稿' : 'Open PR'}</span><button type="button" aria-label="关闭 PR 观察面板" onClick={() => { setObserving(false); requestAnimationFrame(() => document.getElementById(`inbox-row-pulls-${active.item.number}`)?.focus({ preventScroll: true })); }}><X size={16} aria-hidden="true" /></button></div>
-          <h4>{active.item.title}</h4><p>{active.item.author || '未知作者'} · {inboxDate(active.item.updatedAt)} 更新 · {pullTypes[pullClassification(active.item)]}</p>
-          <div className="confluence-inspector-branch"><GitBranch size={14} aria-hidden="true" /><code>{active.item.headRepository ? `${active.item.headRepository.split('/')[0]}:` : ''}{active.item.headRef || '来源分支未知'}</code><ArrowUpRight size={13} aria-hidden="true" /><code>{active.item.baseRef || '目标分支未知'}</code></div>
-          <dl className="confluence-signals"><div><dt>当前提交</dt><dd>{active.item.headSha?.slice(0, 7) || '未知'}</dd></div><div><dt>变更规模</dt><dd>{active.changes.read ? `${active.changes.count}${active.changes.partial ? '+ 已读' : ''} 个文件` : active.changes.total !== undefined ? `${active.changes.total} 个文件待核对` : '待读取'}</dd></div><div><dt>CI 检查</dt><dd className={`tone-${active.checks.tone}`}>{active.checks.label}</dd></div><div><dt>审查报告</dt><dd className={`tone-${active.review.tone}`}>{active.review.label}</dd></div></dl>
-          <button type="button" className="button button-secondary" disabled={busy || loading} onClick={() => void inspect(active.original)}>{loading ? <LoaderCircle size={14} aria-hidden="true" /> : <FileCode2 size={14} aria-hidden="true" />}{loading ? '正在读取证据' : '读取文件与检查'}</button>
-          <button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button>
-          <small>{snapshots[active.key]?.at ? `证据读取于 ${new Date(snapshots[active.key].at).toLocaleTimeString('zh-CN')}。` : '节点当前依据列表中已有数据。'}读取不调用 AI，进入审查后可核对原文与发现。</small>
-        </aside>}
+      <div className="runway-layout">
+        <PullRunway items={rows.map(row => row.item)} selected={pullIdentity(active.item)} busy={busy} onSelect={item => { const row = rows.find(candidate => candidate.item.number === item.number); if (row) selectNode(row.original); }} />
+        <aside className="runway-panel" ref={panel} aria-label="选中 PR 的观察面板" aria-live="polite">
+          <header className="runway-panel-head"><span className={`runway-chip type-${type}`}><TypeIcon size={13} aria-hidden="true" />{pullTypes[type]}</span><span className={`runway-chip ${active.item.isDraft ? 'is-draft' : 'is-open'}`}>{active.item.isDraft ? '草稿' : 'Open PR'}</span><a className="runway-panel-link" href={active.item.url} target="_blank" rel="noreferrer" aria-label={`在 GitHub 打开 PR #${active.item.number}`} title="在 GitHub 打开"><ExternalLink size={14} aria-hidden="true" /></a></header>
+          <span className="runway-panel-number">#{active.item.number}</span>
+          <h3>{active.item.title}</h3>
+          <p className="runway-panel-meta">{active.item.author || '未知作者'} · {idleLabel(days)}</p>
+          <div className="runway-panel-branch"><GitBranch size={13} aria-hidden="true" /><code title={active.item.headRef}>{active.item.headRepository ? `${active.item.headRepository.split('/')[0]}:` : ''}{active.item.headRef || '来源分支未知'}</code><ArrowRight size={12} aria-hidden="true" /><code>{active.item.baseRef || '目标分支未知'}</code></div>
+          <ol className="runway-steps" aria-label="审查进度">
+            <li className={evidenceAt ? 'is-done' : ''}><span>读取证据</span><small>{evidenceAt ? `已读取 ${new Date(evidenceAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}` : '尚未读取'}</small></li>
+            <li className={`tone-${active.review.tone}${findings ? ' is-done' : ''}`}><span>AI 审查</span><small>{active.review.label}</small></li>
+            <li className={findings && findings.state === 'current' && !findings.openFindingCount && (!findings.coverageStatus || findings.coverageStatus === 'completed') ? 'is-done' : ''}><span>维护者确认</span><small>{!findings ? '等待审查结果' : findings.openFindingCount ? `${findings.openFindingCount} 条待确认` : `已确认 ${findings.acceptedFindingCount} 条`}</small></li>
+          </ol>
+          <dl className="runway-facts"><div><dt>CI 检查</dt><dd className={`tone-${active.checks.tone}`}>{active.checks.label}</dd></div><div><dt>变更规模</dt><dd>{active.changes.read ? `${active.changes.count}${active.changes.partial ? '+' : ''} 个文件 · +${active.changes.additions} −${active.changes.deletions}` : active.changes.total !== undefined ? `${active.changes.total} 个文件待核对` : '待读取'}</dd></div><div><dt>当前提交</dt><dd><code>{active.item.headSha?.slice(0, 7) || '未知'}</code></dd></div></dl>
+          <div className="runway-panel-actions">
+            <button type="button" className="button button-primary" disabled={busy} onClick={() => onOpen(active.item)}>进入 PR 审查<ArrowUpRight size={14} aria-hidden="true" /></button>
+            <button type="button" className="button button-secondary" disabled={busy || loading} onClick={() => void inspect(active.original)}>{loading ? <LoaderCircle size={14} aria-hidden="true" /> : <FileCode2 size={14} aria-hidden="true" />}{loading ? '正在读取证据' : evidenceAt ? '查看文件与检查' : '读取文件与检查'}</button>
+          </div>
+          <small className="runway-panel-note">读取证据不调用 AI；进入审查后可核对原文、逐条确认发现。</small>
+        </aside>
       </div>
-      {showEvidence && inspection?.key === active.key && <section className="confluence-evidence" aria-label={`PR #${active.item.number} 代码与检查证据`}><header className="confluence-evidence-heading"><strong>#{active.item.number} 的代码与检查证据</strong><button type="button" onClick={() => { controller.current?.abort(); setShowEvidence(false); }} aria-label="收起选中 PR 的证据"><X size={15} aria-hidden="true" />收起</button></header>
+      {showEvidence && inspection?.key === active.key && <section className="runway-evidence" aria-label={`PR #${active.item.number} 代码与检查证据`}><header><strong>#{active.item.number} 的代码与检查证据</strong><button type="button" onClick={() => { controller.current?.abort(); setShowEvidence(false); }} aria-label="收起选中 PR 的证据"><X size={15} aria-hidden="true" />收起</button></header>
         {loading && <div className="voyage-loading" role="status"><LoaderCircle size={19} aria-hidden="true" /><strong>正在读取当前提交的文件与检查</strong></div>}
         {inspection?.key === active.key && inspection.status === 'error' && <div className="voyage-read-error" role="alert"><p>{inspection.error}</p><button type="button" onClick={() => void inspect(active.original, true)} disabled={busy}><RefreshCw size={14} aria-hidden="true" />重试读取</button></div>}
         {inspection?.key === active.key && inspection.status === 'ready' && snapshots[active.key] && <EvidencePanel item={snapshots[active.key].item} busy={busy} at={snapshots[active.key].at} onRefresh={() => void inspect(active.original, true)} onOpen={onOpen} />}

@@ -17,8 +17,12 @@ export function session(request: NextRequest) {
     && database.prepare('SELECT owner FROM email_accounts WHERE owner=?').get(value)) return undefined;
   return value;
 }
+// Node/undici surface transport failures as terse English strings ("fetch failed",
+// ECONNRESET …). Translate them once here so every route shows an actionable message.
+const transportFailure = /^(fetch failed|network error|socket hang up|terminated)$|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|UND_ERR_/i;
 export function errorResponse(error: string, status = 400) {
-  return NextResponse.json({ error }, { status, headers: { 'Cache-Control': 'no-store' } });
+  const message = transportFailure.test(error.trim()) ? '无法连接外部服务（GitHub 或模型接口）：网络超时、连接中断或被代理拦截，请检查网络后重试。' : error;
+  return NextResponse.json({ error: message }, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 export function jsonResponse(body: unknown, status = 200, owner?: string, request?: NextRequest) {
   const response = NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });

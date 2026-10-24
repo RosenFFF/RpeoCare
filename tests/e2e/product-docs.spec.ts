@@ -38,3 +38,29 @@ for (const width of [390, 1440]) {
     expect(apiRequests).toEqual([]);
   });
 }
+
+for (const width of [320, 390, 600, 1440]) {
+  test(`login header opens the manual at ${width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/login');
+    const docs = page.getByRole('navigation', { name: '首页导航' }).getByRole('link', { name: '产品文档', exact: true });
+    await expect(docs).toBeInViewport();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await page.locator('.entry-header').screenshot({ path: testInfo.outputPath(`login-header-${width}.png`) });
+    await docs.click();
+    await expect(page).toHaveURL(/\/docs$/);
+    await expect(page.getByRole('heading', { name: 'RepoCare 产品文档', exact: true })).toBeVisible();
+  });
+}
+
+test('mobile workspace guide opens docs and releases navigation scroll lock', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.route('**/api/workbench', route => route.fulfill({ json: { project: null, runs: [], drafts: [], github: null, usage: {} } }));
+  await page.goto('/overview');
+  await page.getByRole('button', { name: '打开导航', exact: true }).click();
+  await page.getByRole('link', { name: '使用指南', exact: true }).click();
+  await expect(page).toHaveURL(/\/docs$/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+});

@@ -1,72 +1,74 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { RepositoryBranch } from '../../src/contracts/branches';
-import { layoutBranchField } from '../../src/features/workbench/branch-field-layout';
+import { groupBranches, layoutStarSky, OTHER_GROUP, starLabel } from '../../src/features/workbench/branch-field-layout';
 
-const branches = (count: number): RepositoryBranch[] => Array.from({ length: count }, (_, index) => ({ name: index === count - 1 ? 'main' : `feature/long-branch-name-${index}`, protected: index % 5 === 0 }));
+const mixed: RepositoryBranch[] = [
+  { name: 'main', protected: true },
+  { name: 'release/stable', protected: true }, { name: 'release/1.x', protected: false },
+  { name: 'fix/reader', protected: false }, { name: 'fix/maclaurin-series', protected: false },
+  { name: 'gh-pages', protected: false }, { name: 'docs/contributing', protected: false },
+  { name: 'dependabot/uv/lxml-6.1.0', protected: false }, { name: 'maintenance/typing', protected: false },
+];
+const many = (count: number): RepositoryBranch[] => Array.from({ length: count }, (_, index) => ({ name: index === count - 1 ? 'main' : `${['feature', 'fix', 'docs', 'dependabot/pip'][index % 4]}/branch-${index}`, protected: index % 9 === 0 }));
 
-function assertReadable(layout: ReturnType<typeof layoutBranchField>, count: number) {
-  assert.equal(layout.nodes.length, count);
-  for (const node of layout.nodes) {
-    assert.ok(node.x >= 18 && node.y >= 18, `${node.branch.name} touches the leading edge`);
-    assert.ok(node.x + node.width <= layout.width - 18, `${node.branch.name} exceeds the right edge`);
-    assert.ok(node.y + node.height <= layout.height - 18, `${node.branch.name} exceeds the bottom edge`);
-    assert.ok(node.width >= 244 && node.height >= 104, 'labels retain readable space');
-    if (node.branch.protected) assert.equal(node.height, 124, 'protected labels reserve an extra badge row');
+test('the default branch is the pole and other branches form prefix constellations', () => {
+  const { pole, groups } = groupBranches(mixed, 'main');
+  assert.equal(pole?.name, 'main');
+  assert.equal(groups[0].key, 'release/', 'groups with protected members lead');
+  assert.deepEqual(groups[0].members.map(branch => branch.name), ['release/stable', 'release/1.x'], 'protected members come first');
+  const other = groups.find(group => group.key === OTHER_GROUP)!;
+  assert.equal(other.title, '其他分支');
+  assert.deepEqual(other.members.map(branch => branch.name).sort(), ['dependabot/uv/lxml-6.1.0', 'docs/contributing', 'gh-pages', 'maintenance/typing'].sort(), 'single-member prefixes are gathered');
+  assert.equal(groups.at(-1)?.key, OTHER_GROUP, 'the gathered group comes last');
+  groups.forEach((group, index) => assert.equal(group.hue, index % 6));
+  assert.equal(starLabel('release/stable', 'release/'), 'stable');
+  assert.equal(starLabel('gh-pages', OTHER_GROUP), 'gh-pages');
+  assert.equal(mixed[0].name, 'main', 'source order is not mutated');
+});
+
+function assertSky(sky: ReturnType<typeof layoutStarSky>, count: number, pole: boolean) {
+  const stars = sky.constellations.flatMap(group => group.stars);
+  assert.equal(stars.length + (sky.pole ? 1 : 0), count, 'every branch is drawn exactly once');
+  assert.equal(new Set(stars.map(star => star.branch.name)).size, stars.length);
+  for (const star of stars) {
+    const reach = Math.hypot((star.x - sky.center.x) / sky.rx, (star.y - sky.center.y) / sky.ry);
+    assert.ok(reach <= .98, `${star.branch.name} stays inside the sky`);
+    if (pole) assert.ok(reach >= .39, `${star.branch.name} keeps clear of the pole`);
+    assert.ok(star.x > 0 && star.x < sky.width && star.y > 0 && star.y < sky.height);
   }
-  layout.nodes.forEach((node, index) => {
-    for (const other of layout.nodes.slice(index + 1)) {
-      assert.ok(node.x + node.width + 18 <= other.x || other.x + other.width + 18 <= node.x || node.y + node.height + 18 <= other.y || other.y + other.height + 18 <= node.y, `${node.branch.name} overlaps ${other.branch.name}`);
-    }
-  });
+  for (const group of sky.constellations) {
+    if (group.stars.length > 1 && group.stars.length <= 40) assert.equal(group.edges.length, group.stars.length - 1, 'lines form a spanning tree');
+    assert.ok(group.label.x >= 10 && group.label.x <= sky.width - 10 && group.label.y >= 16 && group.label.y <= sky.height - 10);
+  }
 }
 
-test('13 desktop branches fit a compact constellation with the default at the top center', () => {
-  const source = branches(13);
-  for (const width of [1000, 1200, 1600]) {
-    const layout = layoutBranchField(source, width, 'main');
-    assertReadable(layout, 13);
-    const primary = layout.nodes.find(node => node.branch.name === 'main')!;
-    assert.equal(primary.x + primary.width / 2, width / 2);
-    assert.equal(primary.y, 18);
-    assert.ok(layout.height <= (width === 1600 ? 500 : 760));
-    assert.ok(new Set(layout.nodes.map(node => node.y)).size > 6, 'desktop positions remain staggered');
-    assert.deepEqual(layout, layoutBranchField(source, width, 'main'), 'layout is stable');
-  }
-  assert.equal(source.at(-1)?.name, 'main', 'default promotion must not mutate source ordering');
-});
-
-test('mobile and tablet retain every branch without horizontal overflow or overlapping targets', () => {
-  for (const width of [280, 320, 390, 599, 600, 800, 899]) {
-    const layout = layoutBranchField(branches(13), width, 'main');
-    assert.equal(layout.width, width);
-    assertReadable(layout, 13);
-    if (width < 600) assert.ok(layout.nodes.every(node => node.x + node.width / 2 === width / 2));
+test('sky layout keeps stars inside the chart, apart from the pole and readable', () => {
+  for (const [width, height] of [[900, 340], [1300, 360], [360, 250]]) {
+    const { pole, groups } = groupBranches(mixed, 'main');
+    const sky = layoutStarSky(groups, pole, width, height);
+    assertSky(sky, mixed.length, true);
+    assert.deepEqual(sky, layoutStarSky(groups, pole, width, height), 'layout is deterministic');
+    const stars = sky.constellations.flatMap(group => group.stars);
+    stars.forEach((star, index) => stars.slice(index + 1).forEach(other => assert.ok(Math.hypot(star.x - other.x, star.y - other.y) >= 9, `${star.branch.name} crowds ${other.branch.name}`)));
   }
 });
 
-test('large directories retain all nodes across independently packed clusters', () => {
-  const source = branches(100);
-  for (const width of [900, 1000, 1600]) {
-    const layout = layoutBranchField(source, width, 'main');
-    assertReadable(layout, 100);
-    assert.deepEqual(new Set(layout.nodes.map(node => node.branch.name)), new Set(source.map(branch => branch.name)));
+test('large directories keep every node and finite bounds', () => {
+  for (const count of [100, 600]) {
+    const { pole, groups } = groupBranches(many(count), 'main');
+    assertSky(layoutStarSky(groups, pole, 1100, 360), count, true);
   }
 });
 
-test('protected long names reserve badge height across staggered tablet rows', () => {
-  const source = Array.from({ length: 15 }, (_, index) => ({ name: `release/very-long-protected-branch-name-${index}`, protected: index % 3 !== 0 }));
-  for (const width of [390, 600, 800, 899, 1000]) {
-    const layout = layoutBranchField(source, width);
-    assertReadable(layout, source.length);
-    for (const node of layout.nodes) assert.equal(node.height, node.branch.protected ? 124 : 104);
-  }
-});
-
-test('empty, single and missing-default directories have finite bounds and no fabricated nodes', () => {
-  for (const width of [280, 390, 800, 1200]) {
-    assertReadable(layoutBranchField([], width, 'main'), 0);
-    assertReadable(layoutBranchField(branches(1), width, 'main'), 1);
-    assertReadable(layoutBranchField(branches(13), width, 'absent'), 13);
+test('empty, single and missing-default directories fabricate nothing', () => {
+  for (const width of [260, 900]) {
+    const empty = groupBranches([], 'main');
+    assertSky(layoutStarSky(empty.groups, empty.pole, width, 260), 0, false);
+    const single = groupBranches([{ name: 'main', protected: false }], 'main');
+    assertSky(layoutStarSky(single.groups, single.pole, width, 260), 1, true);
+    const absent = groupBranches(mixed, 'absent');
+    assert.equal(absent.pole, undefined);
+    assertSky(layoutStarSky(absent.groups, absent.pole, width, 260), mixed.length, false);
   }
 });

@@ -54,7 +54,7 @@ test('read status survives reload and meaningful state changes become unread', a
   await expect(page.getByRole('dialog').getByRole('link', { name: /环境受阻/ })).toHaveAttribute('href', '/issues?number=42');
 });
 
-test('empty notifications have no unread dot and help describes confirmed sandbox execution', async ({ page }) => {
+test('empty notifications have no unread dot and guide links directly to the manual', async ({ page }) => {
   await mock(page, () => ({ ...base, items: [] }));
   await page.goto('/overview');
   const bell = page.getByRole('button', { name: '查看通知', exact: true });
@@ -62,10 +62,10 @@ test('empty notifications have no unread dot and help describes confirmed sandbo
   await bell.click();
   await expect(page.getByText('暂无任务动态', { exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: '使用指南', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('在 Docker 隔离环境执行');
-  await expect(page.getByRole('dialog')).not.toContainText('不会执行仓库代码');
-  await page.keyboard.press('Escape');
+  await page.getByRole('link', { name: '使用指南', exact: true }).click();
+  await expect(page).toHaveURL(/\/docs$/);
+  await expect(page.getByRole('heading', { name: 'RepoCare 产品文档', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/settings?section=plugins&returnTo=https%3A%2F%2Fexample.com');
   await expect(page.getByRole('heading', { name: '已集成的维护能力' })).toBeVisible();
   await expect(page.getByRole('link', { name: '← 返回原任务' })).toHaveCount(0);

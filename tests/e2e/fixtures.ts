@@ -11,9 +11,9 @@ export const test = base.extend<{ branchDirectory: void }>({
   }, { auto: true }],
 });
 
-/** List checks explicitly enter the current navigation instead of assuming a default list. */
+/** PR pages open the default branch automatically; wait for its selector before switching to the list. */
 export async function showList(page: Page, kind: 'Issue' | 'PR') {
-  if (kind === 'PR') await page.getByRole('button', { name: /^展开 main 分支的开放 PR/ }).click();
+  if (kind === 'PR') await expect(page.getByRole('button', { name: /^目标分支 main/ })).toBeVisible();
   await page.getByRole('button', { name: `切换 ${kind} 列表`, exact: true }).click();
 }
 

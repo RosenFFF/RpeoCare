@@ -44,3 +44,17 @@
 .confluence-toolbar button,.confluence-inspector .button{min-height:44px}.confluence-inspector-top button{width:44px;height:44px}
 @media(max-width:1100px){.confluence-inspector{position:static;order:-1;width:auto;max-height:none;border-left:0;border-bottom:1px solid var(--line);box-shadow:none}.confluence-selection{gap:14px}.confluence-selection-actions{flex-basis:165px}}
 @media(max-width:600px){.confluence-selection{align-items:stretch;flex-direction:column;padding:14px;gap:12px}.confluence-selection-actions{flex-basis:auto}.confluence-selection-actions .button{flex:1 1 140px}.confluence-selection h3{font-size:15px}.confluence-toolbar .confluence-camera-controls button,.confluence-toolbar .confluence-type-nav button{min-height:44px}}
+
+/* Node polish: selected nodes read as a lifted card; status stays on one quiet line. */
+.confluence-node{isolation:isolate}
+.confluence-node::before{content:'';position:absolute;inset:-10px -4px -6px;z-index:-1;border-radius:14px;border:1px solid transparent;background:transparent;transition:background 160ms,border-color 160ms}
+.confluence-node:hover::before{background:color-mix(in srgb,var(--surface-subtle) 70%,var(--surface))}
+.confluence-node.is-selected::before{background:color-mix(in srgb,var(--pr-type) 7%,var(--surface));border-color:color-mix(in srgb,var(--pr-type) 32%,transparent);box-shadow:0 6px 18px color-mix(in srgb,var(--ink) 7%,transparent)}
+.confluence-node:is(.is-selected,:hover) :is(.confluence-title,.confluence-node-state){background:transparent}
+.confluence-node.is-selected .confluence-title{color:var(--ink)}
+.is-summary-view .confluence-node-state{flex-direction:row;flex-wrap:nowrap;gap:8px;height:20px;margin-top:5px}
+.is-summary-view .confluence-node-state svg{display:inline-block;flex:none}
+.confluence-node-state>.tone-unknown{color:var(--subtle)}
+.is-summary-view .confluence-review-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;background:var(--surface-subtle);font-size:11px}
+.is-summary-view .confluence-review-tag.tone-reviewed{background:var(--accent-tint)}
+@media(prefers-reduced-motion:reduce){.confluence-node::before{transition:none}}
