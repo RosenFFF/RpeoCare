@@ -1,20 +1,20 @@
-.category-bug { --issue-category-color:#ae4359; }
-.category-feature { --issue-category-color:#326aa2; }
-.category-question { --issue-category-color:#8056a0; }
-.category-documentation { --issue-category-color:#267968; }
-.category-performance { --issue-category-color:#966119; }
-.category-compatibility { --issue-category-color:#5260aa; }
-.category-security { --issue-category-color:#a14231; }
-.category-other { --issue-category-color:#526e78; }
+.category-bug { --issue-category-color:var(--data-rose); }
+.category-feature { --issue-category-color:var(--data-blue); }
+.category-question { --issue-category-color:var(--data-plum); }
+.category-documentation { --issue-category-color:var(--data-green); }
+.category-performance { --issue-category-color:var(--data-amber); }
+.category-compatibility { --issue-category-color:var(--data-indigo); }
+.category-security { --issue-category-color:var(--error); }
+.category-other { --issue-category-color:var(--data-grey); }
 .category-unknown { --issue-category-color:var(--muted); }
-:root[data-theme=dark] .category-bug { --issue-category-color:#efabb7; }
-:root[data-theme=dark] .category-feature { --issue-category-color:#9fc5f2; }
-:root[data-theme=dark] .category-question { --issue-category-color:#d0b3e6; }
-:root[data-theme=dark] .category-documentation { --issue-category-color:#92d4bd; }
-:root[data-theme=dark] .category-performance { --issue-category-color:#e8c48a; }
-:root[data-theme=dark] .category-compatibility { --issue-category-color:#b9bff2; }
-:root[data-theme=dark] .category-security { --issue-category-color:#f1b49f; }
-:root[data-theme=dark] .category-other { --issue-category-color:#afc8d1; }
+:root[data-theme=dark] .category-bug { --issue-category-color:var(--data-rose); }
+:root[data-theme=dark] .category-feature { --issue-category-color:var(--data-blue); }
+:root[data-theme=dark] .category-question { --issue-category-color:var(--data-plum); }
+:root[data-theme=dark] .category-documentation { --issue-category-color:var(--data-green); }
+:root[data-theme=dark] .category-performance { --issue-category-color:var(--data-amber); }
+:root[data-theme=dark] .category-compatibility { --issue-category-color:var(--data-indigo); }
+:root[data-theme=dark] .category-security { --issue-category-color:var(--error); }
+:root[data-theme=dark] .category-other { --issue-category-color:var(--data-grey); }
 .issue-category-legend { display:flex; align-items:center; gap:6px; margin:0 0 14px; padding-bottom:5px; overflow-x:auto; scrollbar-width:thin; white-space:nowrap; }
 .issue-category-legend>span { flex:none; color:var(--muted); font-size:12px; }
 .issue-category-legend>button { display:flex; align-items:center; gap:5px; flex:none; min-height:34px; padding:5px 9px; border:1px solid var(--line); border-radius:5px; background:var(--surface); color:var(--issue-category-color,var(--ink)); font-size:12px; }

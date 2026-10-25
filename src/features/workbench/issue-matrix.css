@@ -1,0 +1,84 @@
+/* Issue attention matrix. Shares the theme accent, stage ramp and categorical palette with the PR runway. */
+.issue-work-map{--module:var(--accent);--module-tint:var(--accent-tint);--module-border:var(--accent-border)}
+.issue-matrix{--q-act:var(--stage-strong);--q-clarify:var(--stage-soft);--q-schedule:var(--stage-faint);--q-watch:var(--stage-none);display:grid;gap:12px;min-width:0;padding:4px 0 6px}
+.quadrant-act{--q:var(--q-act)}.quadrant-clarify{--q:var(--q-clarify)}.quadrant-schedule{--q:var(--q-schedule)}.quadrant-watch{--q:var(--q-watch)}
+
+.issue-matrix-summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.issue-matrix-summary-steps{display:flex;flex:1 1 520px;min-width:0;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface-subtle)}
+.issue-matrix-summary-steps>button{position:relative;display:flex;align-items:baseline;gap:7px;flex:1 1 0;min-width:0;padding:8px 12px 9px;border:0;border-radius:9px;background:var(--surface);color:var(--muted);font:inherit;font-size:12px;text-align:left;overflow:hidden}
+.issue-matrix-summary-steps>button::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--q)}
+.issue-matrix-summary-steps>button b{font-size:19px;font-weight:650;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.issue-matrix-summary-steps>button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.issue-matrix-summary-steps>button:hover{background:color-mix(in srgb,var(--q) 8%,var(--surface))}
+.issue-matrix-summary-steps>button[aria-pressed=true]{background:color-mix(in srgb,var(--q) 14%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--q) 45%,transparent);color:var(--ink)}
+.issue-matrix-tray-count{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--surface-subtle);color:var(--muted);font-size:12px}
+.issue-matrix-tray-count b{color:var(--ink)}
+
+.issue-matrix-body{display:grid;grid-template-columns:232px minmax(0,1fr);gap:12px;min-width:0}
+.issue-matrix.has-no-tray .issue-matrix-body{grid-template-columns:minmax(0,1fr)}
+
+/* Untriaged tray */
+.issue-matrix-tray{display:flex;flex-direction:column;min-width:0;max-height:560px;padding:12px;border:1px dashed var(--border-strong);border-radius:12px;background:var(--surface-subtle)}
+.issue-matrix-tray>header{display:flex;align-items:center;gap:6px;color:var(--ink);font-size:13px}
+.issue-matrix-tray>header b{margin-left:auto;min-width:22px;padding:0 7px;border-radius:999px;background:var(--surface);font-size:11px;line-height:19px;text-align:center}
+.issue-matrix-tray>p{margin:6px 0 10px;font-size:11px;line-height:1.6;color:var(--muted)}
+.issue-matrix-tray-list{display:grid;gap:4px;overflow:auto;overscroll-behavior:contain;margin:0 -4px;padding:0 4px}
+.issue-matrix-tray-list button{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:6px;min-height:36px;padding:0 8px;border:1px solid transparent;border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:12px;text-align:left}
+.issue-matrix-tray-list button>i{width:8px;height:8px;border-radius:50%;background:var(--issue-category-color,var(--muted))}
+.issue-matrix-tray-list button>b{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.issue-matrix-tray-list button>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.issue-matrix-tray-list button>em{font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.issue-matrix-tray-list button:hover{border-color:var(--module-border)}
+.issue-matrix-tray-list button.is-selected{border-color:var(--module);box-shadow:0 0 0 3px color-mix(in srgb,var(--module) 18%,transparent)}
+
+/* Plot */
+.issue-matrix-plot{position:relative;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.issue-matrix-plot>svg{position:absolute;inset:0;display:block}
+.issue-matrix-zone{fill:color-mix(in srgb,var(--q) 6%,transparent);transition:opacity .2s}
+.issue-matrix-zone.quadrant-act{fill:color-mix(in srgb,var(--q) 10%,transparent)}
+.issue-matrix-zone.is-dim{opacity:.35}
+.issue-matrix-split{stroke:var(--border-strong);stroke-width:1;stroke-dasharray:4 5;opacity:.6}
+.issue-matrix-tick{fill:var(--subtle);font-size:11px;font-variant-numeric:tabular-nums}
+.issue-matrix-axis{fill:var(--muted);font-size:11px;font-weight:600}
+.issue-matrix-zone-label{fill:var(--ink);font-size:12px;font-weight:650}
+.issue-matrix-zone-label.quadrant-watch,.issue-matrix-zone-label.quadrant-schedule{fill:var(--muted)}
+.issue-matrix-zone-label tspan{fill:var(--muted);font-weight:500}
+.issue-matrix-split-label{fill:var(--subtle);font-size:10.5px}
+
+.issue-bubble{--c:var(--issue-category-color,var(--muted));position:absolute;transform:translate(-50%,-50%);padding:0;border:2px solid var(--c);border-radius:50%;background:color-mix(in srgb,var(--c) 70%,var(--surface));color:var(--ink);font:inherit;box-shadow:0 1px 3px color-mix(in srgb,var(--ink) 15%,transparent);transition:transform .15s,box-shadow .15s,opacity .2s;z-index:1}
+.issue-bubble.is-provisional{border-style:dashed;background:color-mix(in srgb,var(--c) 40%,var(--surface))}
+.issue-bubble.is-stale{background:var(--surface);border-style:double;border-width:4px}
+.issue-bubble:hover,.issue-bubble:focus-visible{transform:translate(-50%,-50%) scale(1.15);z-index:3}
+.issue-bubble.is-selected{z-index:4;box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--module),0 6px 16px color-mix(in srgb,var(--ink) 18%,transparent)}
+.issue-bubble.is-dim{opacity:.25}
+.issue-bubble:focus-visible{outline:2px solid var(--module);outline-offset:3px}
+.issue-bubble-label{position:absolute;left:calc(100% + 3px);top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:4px;padding:0 4px;border-radius:5px;background:color-mix(in srgb,var(--surface) 82%,transparent);font-family:var(--font-mono);font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none}
+.issue-bubble-label.is-left{left:auto;right:calc(100% + 3px)}
+.issue-bubble:disabled{cursor:wait}
+.issue-matrix-empty{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:24px;color:var(--muted);font-size:13px;text-align:center}
+.issue-matrix-readout{position:absolute;right:12px;bottom:40px;z-index:5;display:grid;gap:4px;width:min(320px,calc(100% - 24px));padding:10px 12px;border:1px solid var(--module-border);border-radius:10px;background:var(--surface);box-shadow:0 6px 18px color-mix(in srgb,var(--ink) 10%,transparent);pointer-events:none}
+.issue-matrix-readout b{font-size:11px;color:var(--module)}.issue-matrix-readout strong{font-size:13px;line-height:1.45;overflow-wrap:anywhere}.issue-matrix-readout span{font-size:11px;color:var(--muted)}
+
+.issue-matrix-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11px;color:var(--muted)}
+.issue-matrix-legend>span{display:inline-flex;align-items:center;gap:5px}
+.legend-bubble{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid var(--data-blue);background:color-mix(in srgb,var(--data-blue) 60%,var(--surface))}
+.legend-bubble.is-big{width:14px;height:14px}.legend-bubble.is-provisional{border-style:dashed;background:transparent}.legend-bubble.is-stale{border-style:double;border-width:3px;background:var(--surface)}
+
+
+@media(max-width:900px){
+  .issue-matrix-body{grid-template-columns:minmax(0,1fr)}
+  .issue-matrix-tray{max-height:260px}
+}
+@media(max-width:600px){.issue-matrix-summary-steps{flex-basis:100%;flex-wrap:wrap}.issue-matrix-summary-steps>button{flex:1 1 calc(50% - 4px);min-height:44px}.issue-matrix-tray-list button{min-height:44px}.issue-bubble-label{display:none}}
+@media(prefers-reduced-motion:reduce){.issue-bubble,.issue-matrix-zone{transition:none}.issue-bubble:hover,.issue-bubble:focus-visible{transform:translate(-50%,-50%)}}
+.issue-view-switch{display:inline-flex;padding:2px;border:1px solid var(--line);border-radius:9px;background:var(--surface-subtle)}
+.issue-view-switch>button{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 10px;border:0;border-radius:7px;background:none;color:var(--muted);font:inherit;font-size:12px}
+.issue-view-switch>button[aria-pressed=true]{background:var(--surface);color:var(--module);box-shadow:0 1px 2px color-mix(in srgb,var(--ink) 10%,transparent);font-weight:600}
+@media(max-width:600px){.issue-view-switch{width:100%}.issue-view-switch>button{flex:1;justify-content:center;min-height:40px}}
+
+/* Keep matrix controls at their designed size inside the review page's button styles. */
+.issue-work-map .issue-matrix-summary-steps>button{font-size:12px;line-height:1.3}
+.issue-work-map .issue-matrix-summary-steps>button b{font-size:19px}
+.issue-work-map .issue-matrix-tray-list button{font-size:12px;line-height:1.3}
+.issue-work-map .issue-matrix-tray-list button>span{font-size:12px}
+.issue-work-map .issue-view-switch>button{font-size:12px;line-height:1.2}

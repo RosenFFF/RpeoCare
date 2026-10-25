@@ -12,9 +12,9 @@
 .issue-action-nav>button[aria-pressed=true] { border-color:var(--accent-border); background:var(--accent-tint); color:var(--ink); }
 .issue-action-nav>button:hover { background:var(--surface-subtle); }
 .tone-teal { --map-tone:var(--accent); }
-.tone-amber { --map-tone:var(--warning); }
-.tone-violet { --map-tone:var(--purple); }
-.tone-blue { --map-tone:var(--accent); }
+.tone-amber { --map-tone:var(--stage-strong); }
+.tone-violet { --map-tone:var(--data-plum); }
+.tone-blue { --map-tone:var(--data-blue); }
 .tone-neutral { --map-tone:var(--muted); }
 .issue-map-stage { min-width:0; max-height:var(--issue-map-height,calc(100dvh - 180px)); min-height:min(340px,var(--issue-map-height,340px)); padding:12px 18px 20px; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; background:var(--surface-subtle); }
 .issue-map-stage-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; }

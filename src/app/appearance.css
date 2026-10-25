@@ -39,6 +39,22 @@
   --avatar-bg: #e2e8e4;
   --avatar-ink: #465f60;
   --avatar-border: #b8c8c4;
+  /* Shared categorical palette for Issue categories and PR change types: cool, low-saturation hues
+     only. Warning/error colors stay reserved for real states (failed or pending checks). */
+  /* Categorical palette: distinct, mid-saturation hues tuned to sit beside the teal theme. */
+  --data-blue: #336bb0;
+  --data-rose: #b4475e;
+  --data-plum: #7e5aa6;
+  --data-green: #2b7d62;
+  --data-amber: #a86818;
+  --data-indigo: #5161b3;
+  --data-grey: #5b6e78;
+  /* One teal ramp for workflow stages (PR review lanes, Issue matrix quadrants). */
+  --stage-strong: var(--accent-strong);
+  --stage-main: var(--accent);
+  --stage-soft: var(--accent-mid);
+  --stage-faint: var(--accent-border);
+  --stage-none: var(--border-strong);
 }
 
 :root[data-theme="dark"] {
@@ -80,6 +96,13 @@
   --avatar-bg: #2c3838;
   --avatar-ink: #cbdad7;
   --avatar-border: #5b7774;
+  --data-blue: #9cc3f3;
+  --data-rose: #f0a9b6;
+  --data-plum: #d1b5ea;
+  --data-green: #94d5bd;
+  --data-amber: #ecc58a;
+  --data-indigo: #b9bff4;
+  --data-grey: #b1c6cf;
 }
 
 .visually-hidden {

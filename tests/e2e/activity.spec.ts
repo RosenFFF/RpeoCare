@@ -64,7 +64,7 @@ test('empty notifications have no unread dot and guide links directly to the man
   await page.keyboard.press('Escape');
   await page.getByRole('link', { name: '使用指南', exact: true }).click();
   await expect(page).toHaveURL(/\/docs$/);
-  await expect(page.getByRole('heading', { name: 'RepoCare 产品文档', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'RepoCare 使用手册', exact: true })).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/settings?section=plugins&returnTo=https%3A%2F%2Fexample.com');
   await expect(page.getByRole('heading', { name: '已集成的维护能力' })).toBeVisible();

@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUpRight, Blocks, BookOpen, Bug, CheckCheck, ChevronRight, CircleDashed, CircleDot, Compass, FileQuestion, FlaskConical, Focus, Gauge, HelpCircle, Info, Lightbulb, Link2, Map, MessageSquare, Minus, Plus, RefreshCw, Scan, Shapes, ShieldAlert, ShieldQuestion, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Blocks, Grid2x2, LayoutGrid, BookOpen, Bug, CheckCheck, ChevronRight, CircleDashed, CircleDot, Compass, FileQuestion, FlaskConical, Focus, Gauge, HelpCircle, Info, Lightbulb, Link2, Map, MessageSquare, Minus, Plus, RefreshCw, Scan, Shapes, ShieldAlert, ShieldQuestion, X } from 'lucide-react';
 import type { GitItem } from '@/contracts/workbench';
 import { inboxDate, issueCategories, issueClassification, issuePriorities, issueStates } from './inbox-model';
 import { issueActionGroups, issueActionKey, issueActions, issueDiscussion, issueTitleNeedsContext, type IssueActionGroup, type IssueActionKey } from './issue-map-model';
 import { usePrCanvas } from './use-pr-canvas';
 import { attentionProfiles, signalCategoryOrder, visualCategoryNames, type IssueAttention, type IssueMapSignals, type IssueVisualSignal } from './issue-visual-signals';
+import { IssueMatrix } from './issue-matrix';
 import './issue-work-map.css';
 import './issue-visual-signals.css';
 
@@ -68,7 +69,9 @@ export function IssueWorkMap({ items, busy, onOpen, signals }: Props) {
   const groups = useMemo(() => issueActionGroups(items), [items]);
   const [focusKey, setFocusKey] = useState<IssueActionKey | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const [exploring, setExploring] = useState(false);
+  const [view, setView] = useState<'matrix' | 'regions' | 'explore'>('matrix');
+  const exploring = view === 'explore';
+  const matrix = view === 'matrix';
   const stage = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -123,17 +126,17 @@ export function IssueWorkMap({ items, busy, onOpen, signals }: Props) {
 
   return <section className="issue-work-map" aria-label="Issue 分诊工作地图" onKeyDown={event => { if (event.key === 'Escape' && active) { event.stopPropagation(); closeEvidence(); } }}>
     <div ref={body} className={`issue-map-body${active ? ' has-evidence' : ''}`}>
-      <div className={`issue-map-workspace${groups.length <= 1 ? ' is-single-group' : ''}`}>
-        {groups.length > 1 && <nav className="issue-action-nav" aria-label="按下一步动作聚焦"><button type="button" aria-pressed={!focusGroup} onClick={() => changeFocus(null)}><Map size={16} aria-hidden="true" /><span>全部分布</span><b>{items.length}</b></button>{groups.map(group => { const Icon = actionIcons[group.key]; return <button key={group.key} type="button" className={`tone-${issueActions[group.key].tone}`} aria-pressed={focusGroup?.key === group.key} onClick={() => changeFocus(group.key)}><Icon size={16} aria-hidden="true" /><span>{issueActions[group.key].label}</span><b>{group.items.length}</b></button>; })}</nav>}
+      <div className={`issue-map-workspace${groups.length <= 1 || matrix ? ' is-single-group' : ''}`}>
+        {groups.length > 1 && !matrix && <nav className="issue-action-nav" aria-label="按下一步动作聚焦"><button type="button" aria-pressed={!focusGroup} onClick={() => changeFocus(null)}><Map size={16} aria-hidden="true" /><span>全部分布</span><b>{items.length}</b></button>{groups.map(group => { const Icon = actionIcons[group.key]; return <button key={group.key} type="button" className={`tone-${issueActions[group.key].tone}`} aria-pressed={focusGroup?.key === group.key} onClick={() => changeFocus(group.key)}><Icon size={16} aria-hidden="true" /><span>{issueActions[group.key].label}</span><b>{group.items.length}</b></button>; })}</nav>}
         <div className="issue-map-stage" ref={stage}>
-          <div className="issue-map-stage-heading"><div><h3 ref={heading} tabIndex={-1}>{unifiedGroup ? issueActions[unifiedGroup.key].label : '全部分布'}</h3><span aria-live="polite">{unifiedGroup ? `${unifiedGroup.items.length} 条${focusGroup ? ' · 已全部展开' : ''}` : `${groups.length} 组`}</span>{high > 0 && <span className="issue-map-high">高优先级 {high}</span>}{stale > 0 && <span className="issue-map-updated">原文更新 {stale}</span>}</div><div className="issue-map-tools">
+          <div className="issue-map-stage-heading"><div><h3 ref={heading} tabIndex={-1}>{matrix ? '关注矩阵' : unifiedGroup ? issueActions[unifiedGroup.key].label : '全部分布'}</h3><span aria-live="polite">{matrix ? `${items.length} 条` : unifiedGroup ? `${unifiedGroup.items.length} 条${focusGroup ? ' · 已全部展开' : ''}` : `${groups.length} 组`}</span>{high > 0 && <span className="issue-map-high">高优先级 {high}</span>}{stale > 0 && <span className="issue-map-updated">原文更新 {stale}</span>}</div><div className="issue-map-tools">
             <label className="issue-attention-lens"><span>关注视角</span><select aria-label="关注视角，切换后按关注分排序" value={signals.profile} onChange={event => signals.onProfile(event.target.value as IssueMapSignals['profile'])}>{Object.entries(attentionProfiles).map(([key, profile]) => <option key={key} value={key}>{profile.label}</option>)}</select></label>
-            {focusGroup ? <button type="button" onClick={() => changeFocus(null)}><ArrowLeft size={14} />总览</button> : unifiedGroup && <button type="button" onClick={() => changeFocus(unifiedGroup.key)}><Focus size={15} />展开全部</button>}
-            <button type="button" aria-pressed={exploring} onClick={() => setExploring(value => !value)}>{exploring ? <><ArrowLeft size={15} />阅读视图</> : <><Scan size={15} />探索画布</>}</button>
+            {!matrix && (focusGroup ? <button type="button" onClick={() => changeFocus(null)}><ArrowLeft size={14} />总览</button> : unifiedGroup && <button type="button" onClick={() => changeFocus(unifiedGroup.key)}><Focus size={15} />展开全部</button>)}
+            <div className="issue-view-switch" role="group" aria-label="Issue 视图"><button type="button" aria-pressed={matrix} onClick={() => setView('matrix')}><Grid2x2 size={15} aria-hidden="true" />关注矩阵</button><button type="button" aria-pressed={view === 'regions'} onClick={() => setView('regions')}><LayoutGrid size={15} aria-hidden="true" />动作分区</button><button type="button" aria-pressed={exploring} onClick={() => setView('explore')}><Scan size={15} aria-hidden="true" />探索画布</button></div>
             <details className="issue-map-help"><summary aria-label="地图说明" title="地图说明"><Info size={16} /></summary><div><p>色标表示类别。实线表示当前维护者分类确认；虚线标出 AI 分析、标签或标题线索，文字显示具体来源。</p><p>关注分是本视角下已知信号的规则加权和，+ 表示仍有权重待评估。它辅助查看顺序，不表示问题严重程度。</p><p>点击类别可筛选；切换视角会调整权重并按关注分排序。未知优先级不视为低风险。</p></div></details>
           </div></div>
           <div className="issue-category-legend" role="group" aria-label="按类别筛选，包含待确认线索"><span>类别 / 线索</span><button type="button" aria-pressed={signals.category === 'all'} onClick={() => { changeFocus(null); signals.onCategory('all'); }}>全部<b>{Object.values(signals.counts).reduce((sum, count) => sum + (count ?? 0), 0)}</b></button>{signalCategoryOrder.filter(category => Boolean(signals.counts[category]) || signals.category === category).map(category => { const Icon = categoryIcons[category]; return <button key={category} type="button" className={`category-${category}`} aria-pressed={signals.category === category} onClick={() => { changeFocus(null); signals.onCategory(category); }}><Icon size={14} aria-hidden="true" />{visualCategoryNames[category]}<b>{signals.counts[category] ?? 0}</b></button>; })}<span className="issue-attention-sort-note">{signals.attentionSorted ? '按已知关注分排序' : '沿用当前排序'}</span></div>
-          {exploring ? <ExplorationCanvas groups={shownGroups} selected={active?.number ?? null} busy={busy} onSelect={selectItem} signals={signals.byUrl} /> : <div key={focusGroup?.key ?? 'overview'} className={`issue-action-regions${focusGroup ? ' is-focused' : ''}`}>
+          {matrix ? <IssueMatrix items={items} busy={busy} selected={active?.url ?? null} onSelect={item => selectItem(item)} signals={signals} /> : exploring ? <ExplorationCanvas groups={shownGroups} selected={active?.number ?? null} busy={busy} onSelect={selectItem} signals={signals.byUrl} /> : <div key={focusGroup?.key ?? 'overview'} className={`issue-action-regions${focusGroup ? ' is-focused' : ''}`}>
             {shownGroups.map(group => {
               const meta = issueActions[group.key];
               const Icon = actionIcons[group.key];

@@ -65,3 +65,7 @@
 .is-pr-canvas .inbox-canvas-list>span{display:inline}.is-pr-canvas .inbox-canvas-list{min-height:44px}.is-pr-canvas .inbox-canvas-toolbar .inbox-search{min-width:220px;height:40px}.is-pr-canvas .inbox-canvas-count{display:inline;white-space:nowrap}
 .inbox-row.is-pulls .inbox-tag.tone-dependency{color:var(--purple);background:var(--purple-bg);border-color:var(--line)}
 @media(max-width:700px){.is-pr-canvas .inbox-canvas-toolbar .inbox-search{flex-basis:100%;min-width:0}.is-pr-canvas .inbox-canvas-toolbar .inbox-canvas-count{display:inline;font-size:11px}.is-pr-canvas .inbox-filter select{height:44px}}
+
+/* Shared categorical palette for type tags: Issue categories and PR change types use the same hues. */
+.inbox-tag.tone-feature{--tag:var(--data-blue)}.inbox-tag:is(.tone-fix,.tone-bug){--tag:var(--data-rose)}.inbox-tag:is(.tone-docs,.tone-documentation){--tag:var(--data-green)}.inbox-tag:is(.tone-dependency,.tone-question){--tag:var(--data-plum)}.inbox-tag.tone-performance{--tag:var(--data-amber)}.inbox-tag.tone-compatibility{--tag:var(--data-indigo)}.inbox-tag.tone-security{--tag:var(--error)}.inbox-tag.tone-other{--tag:var(--data-grey)}
+.inbox-tag[class*="tone-"]:not(.tone-none):not(.tone-unknown){color:var(--tag,var(--muted));background:color-mix(in srgb,var(--tag,var(--muted)) 10%,var(--surface));border-color:color-mix(in srgb,var(--tag,var(--muted)) 30%,var(--line))}
