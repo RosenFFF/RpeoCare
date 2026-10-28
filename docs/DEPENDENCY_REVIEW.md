@@ -1,5 +1,21 @@
 # 依赖审计与兼容性核对
 
+## 2026-10-27 补丁升级
+
+复查时`npm audit --omit=dev`报告5个受影响包：next（critical）、undici与zod（high）、nodemailer与ip-address（moderate）。全部在同主版本内升级，未使用`--force`，升级后全部依赖及仅生产依赖的审计均为0项告警。
+
+| 依赖 | 版本变化 | 公告 |
+| --- | --- | --- |
+| next / @next/env | 16.3.8 → 16.4.3 | [图片优化接口处理SVG时的远程代码执行](https://github.com/advisories/GHSA-2464-fhr4-w9xw)、[`use cache`返回类型化数组时的远程代码执行](https://github.com/advisories/GHSA-673q-mjm6-r5xr)、[Server Actions拒绝服务](https://github.com/advisories/GHSA-p3m5-59mp-jv5r) |
+| zod | 4.6.5 → 4.6.7 | [超大受约束集合导致内存耗尽](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) |
+| nodemailer | 10.0.10 → 10.2.1 | 地址解析与SMTP认证正则的多项公告，如[GHSA-4ffr-jq9g-5ffx](https://github.com/advisories/GHSA-4ffr-jq9g-5ffx) |
+| undici（pi-ai传递依赖） | 7.29.1 → 7.30.1 | EventSource、重定向缓存与TLS选项等多项公告，如[GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx) |
+| ip-address（pi-ai代理链传递依赖） | 10.7.2 → 10.7.5 | [Address6区域标识二次复杂度](https://github.com/advisories/GHSA-rxp7-6hxx-x8q5) |
+
+升级后`npm run check`（lint、类型检查、227项业务测试、生产构建）通过，`npm run test:e2e`的40项浏览器回归通过。pi-agent-core与pi-ai仍为0.73.1，basic-ftp的override保持不变。第三方依赖清单已由`scripts/export-dependency-inventory.ts`按新锁文件重新生成。
+
+## 2026-10-19 处理记录
+
 2026-10-19的锁文件安装后，npm audit对全部依赖及仅生产依赖均返回0项告警。这是当日注册表审计结果，不证明不存在未知漏洞。模型ID、pi SDK版本、输出配置与执行权限没有因本次依赖处理而降级。
 
 | 依赖 | 固定版本 | 处理依据 |

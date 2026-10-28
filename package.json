@@ -27,10 +27,10 @@
   "dependencies": {
     "@mariozechner/pi-agent-core": "0.73.1",
     "@mariozechner/pi-ai": "0.73.1",
-    "@next/env": "16.3.8",
+    "@next/env": "16.4.3",
     "diff": "9.0.0",
     "lucide-react": "1.46.0",
-    "next": "16.3.8",
+    "next": "16.4.3",
     "nodemailer": "^10.0.10",
     "oauth4webapi": "^3.8.8",
     "react": "^19.2.0",

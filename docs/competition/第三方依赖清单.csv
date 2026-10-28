@@ -1,491 +1,491 @@
-name,version,license,scope,source,modification,usage,key_obligations,compliance_status,open_scope
-@anthropic-ai/sdk,0.91.1,MIT,runtime/transitive,github:anthropics/anthropic-sdk-typescript,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/client-bedrock-runtime,3.1136.0,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/core,3.978.0,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-env,3.972.71,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-http,3.972.73,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-ini,3.973.16,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-login,3.972.78,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-node,3.972.83,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-process,3.972.71,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-sso,3.973.15,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/token-providers,3.1129.0,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/credential-provider-web-identity,3.972.77,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/eventstream-handler-node,3.972.34,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/middleware-eventstream,3.972.29,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/middleware-websocket,3.972.53,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/nested-clients,3.997.45,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/signature-v4-multi-region,3.996.46,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/token-providers,3.1136.0,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/types,3.974.5,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws-sdk/xml-builder,3.972.40,Apache-2.0,runtime/transitive,https://github.com/aws/aws-sdk-js-v3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@aws/lambda-invoke-store,0.3.0,Apache-2.0,runtime/transitive,git+https://github.com/awslabs/aws-lambda-invoke-store.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@babel/code-frame,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/compat-data,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/core,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-semver,6.3.1,ISC,development/transitive,https://github.com/npm/node-semver.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/generator,7.29.8,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-compilation-targets,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-lru-cache,5.1.1,ISC,development/transitive,git://github.com/isaacs/node-lru-cache.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-semver,6.3.1,ISC,development/transitive,https://github.com/npm/node-semver.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-globals,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-module-imports,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-module-transforms,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-string-parser,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-validator-identifier,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helper-validator-option,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/helpers,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/parser,7.29.9,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/runtime,7.29.7,MIT,runtime/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@babel/template,7.29.7,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/traverse,7.29.8,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@babel/types,7.29.8,MIT,development/transitive,https://github.com/babel/babel.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@cacheable/memory,2.2.0,MIT,development/transitive,git+https://github.com/jaredwray/cacheable.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@cacheable/utils,2.5.0,MIT,development/transitive,git+https://github.com/jaredwray/cacheable.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@dimforge/rapier3d-compat,0.12.0,Apache-2.0,development/transitive,https://github.com/dimforge/rapier.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@emnapi/runtime,1.11.3,MIT,runtime/transitive/optional,git+https://github.com/toyobayashi/emnapi.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@esbuild/aix-ppc64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/android-arm,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/android-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/android-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/darwin-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/darwin-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/freebsd-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/freebsd-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-arm,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-ia32,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-loong64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-mips64el,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-ppc64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-riscv64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-s390x,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/linux-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/netbsd-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/netbsd-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/openbsd-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/openbsd-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/openharmony-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/sunos-x64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/win32-arm64,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/win32-ia32,0.28.2,MIT,development/transitive/optional,https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.28.2.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@esbuild/win32-x64,0.28.2,MIT,development/transitive/optional,git+https://github.com/evanw/esbuild.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint-community/eslint-utils,4.10.1,MIT,development/transitive,https://github.com/eslint-community/eslint-utils,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-eslint-visitor-keys,3.4.3,Apache-2.0,development/transitive,eslint/eslint-visitor-keys,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint-community/regexpp,4.12.2,MIT,development/transitive,https://github.com/eslint-community/regexpp,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/config-array,0.23.5,Apache-2.0,development/transitive,git+https://github.com/eslint/rewrite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/config-helpers,0.7.0,Apache-2.0,development/transitive,git+https://github.com/eslint/rewrite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/core,1.2.1,Apache-2.0,development/transitive,git+https://github.com/eslint/rewrite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/js,10.0.1,MIT,development/direct,https://github.com/eslint/eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,ESLint基础规则,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/object-schema,3.0.5,Apache-2.0,development/transitive,git+https://github.com/eslint/rewrite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@eslint/plugin-kit,0.7.3,Apache-2.0,development/transitive,git+https://github.com/eslint/rewrite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@google/genai,1.52.0,Apache-2.0,runtime/transitive,https://github.com/googleapis/js-genai.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@humanfs/core,0.19.2,Apache-2.0,development/transitive,git+https://github.com/humanwhocodes/humanfs.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@humanfs/node,0.16.8,Apache-2.0,development/transitive,git+https://github.com/humanwhocodes/humanfs.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@humanfs/types,0.15.0,Apache-2.0,development/transitive,git+https://github.com/humanwhocodes/humanfs.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@humanwhocodes/module-importer,1.0.1,Apache-2.0,development/transitive,git+https://github.com/humanwhocodes/module-importer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@humanwhocodes/retry,0.4.3,Apache-2.0,development/transitive,git+https://github.com/humanwhocodes/retry.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@img/colour,1.1.0,MIT,runtime/transitive/optional,git+https://github.com/lovell/colour.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-darwin-arm64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-darwin-x64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-freebsd-wasm32,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-freebsd-wasm32/-/sharp-freebsd-wasm32-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-darwin-arm64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-darwin-x64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-arm,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-arm64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-ppc64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-riscv64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-s390x,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linux-x64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linuxmusl-arm64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-libvips-linuxmusl-x64,1.3.4,LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.3.4.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-arm,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-arm64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-ppc64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-riscv64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-s390x,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linux-x64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linuxmusl-arm64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-linuxmusl-x64,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-wasm32,0.35.5,Apache-2.0 AND LGPL-3.0-or-later AND MIT,runtime/transitive/optional,git+https://github.com/lovell/sharp.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE;R-LGPL;R-MIT,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-webcontainers-wasm32,0.35.5,Apache-2.0,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-webcontainers-wasm32/-/sharp-webcontainers-wasm32-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-win32-arm64,0.35.5,Apache-2.0 AND LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE;R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-win32-ia32,0.35.5,Apache-2.0 AND LGPL-3.0-or-later,runtime/transitive/optional,https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.35.5.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE;R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@img/sharp-win32-x64,0.35.5,Apache-2.0 AND LGPL-3.0-or-later,runtime/transitive/optional,git+https://github.com/lovell/sharp.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE;R-LGPL,待负责人确认：原生链接、对应源码及替换机制,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@jridgewell/gen-mapping,0.3.13,MIT,development/transitive,git+https://github.com/jridgewell/sourcemaps.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@jridgewell/remapping,2.3.5,MIT,development/transitive,git+https://github.com/jridgewell/sourcemaps.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@jridgewell/resolve-uri,3.1.2,MIT,development/transitive,https://github.com/jridgewell/resolve-uri,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@jridgewell/sourcemap-codec,1.6.0,MIT,development/transitive,git+https://github.com/jridgewell/sourcemaps.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@jridgewell/trace-mapping,0.3.31,MIT,development/transitive,git+https://github.com/jridgewell/sourcemaps.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@keyv/bigmap,1.3.1,MIT,development/transitive,git+https://github.com/jaredwray/keyv.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@keyv/serialize,1.1.1,MIT,development/transitive,git+https://github.com/jaredwray/keyv.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@mariozechner/pi-agent-core,0.73.1,MIT,runtime/direct,git+https://github.com/badlogic/pi-mono.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,维护Agent循环与工具调度,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@mariozechner/pi-ai,0.73.1,MIT,runtime/direct,git+https://github.com/badlogic/pi-mono.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,模型协议与服务商适配,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@mistralai/mistralai,2.7.0,Apache-2.0,runtime/transitive,https://github.com/mistralai/client-ts.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@next/env,16.3.8,MIT,runtime/direct,https://github.com/vercel/next.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,Web及Worker环境变量载入,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@next/swc-darwin-arm64,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-darwin-x64,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-linux-arm64-gnu,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-linux-arm64-musl,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-linux-x64-gnu,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-linux-x64-musl,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-win32-arm64-msvc,16.3.8,MIT,runtime/transitive/optional,https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.3.8.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@next/swc-win32-x64-msvc,16.3.8,MIT,runtime/transitive/optional,https://github.com/vercel/next.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-@opentelemetry/semantic-conventions,1.43.0,Apache-2.0,runtime/transitive,open-telemetry/opentelemetry-js,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@playwright/test,1.63.0,Apache-2.0,runtime/direct,git+https://github.com/microsoft/playwright.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,工程浏览器回归工具,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/aspromise,1.1.2,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/base64,1.1.2,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/codegen,2.0.5,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/eventemitter,1.1.1,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/fetch,1.1.1,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/float,1.0.2,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/path,1.1.2,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/pool,1.1.0,BSD-3-Clause,runtime/transitive,https://github.com/dcodeIO/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@protobufjs/utf8,1.1.2,BSD-3-Clause,runtime/transitive,https://github.com/protobufjs/protobuf.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@reduxjs/toolkit,2.13.0,MIT,runtime/transitive,git+https://github.com/reduxjs/redux-toolkit.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/core,3.34.1,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/credential-provider-imds,4.5.2,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/fetch-http-handler,5.8.0,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/node-http-handler,4.12.1,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/signature-v4,5.7.3,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@smithy/types,4.18.0,Apache-2.0,runtime/transitive,https://github.com/smithy-lang/smithy-typescript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@standard-schema/spec,1.1.0,MIT,runtime/transitive,https://github.com/standard-schema/standard-schema,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@standard-schema/utils,0.3.0,MIT,runtime/transitive,https://github.com/standard-schema/standard-schema,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@swc/helpers,0.5.23,Apache-2.0,runtime/transitive,git+https://github.com/swc-project/swc.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@tootallnate/quickjs-emscripten,0.23.0,MIT,runtime/transitive,https://github.com/justjake/quickjs-emscripten,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@tweenjs/tween.js,23.1.3,MIT,development/transitive,https://github.com/tweenjs/tween.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/d3-array,3.2.2,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-color,3.1.3,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-ease,3.0.2,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-interpolate,3.0.4,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-path,3.1.1,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-scale,4.0.9,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-shape,3.2.0,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-time,3.0.4,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/d3-timer,3.0.2,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/debug,4.1.13,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/esrecurse,4.3.1,MIT,development/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/estree,1.0.9,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/estree-jsx,1.0.5,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/hast,3.0.5,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/json-schema,7.0.15,MIT,development/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/mdast,4.0.4,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/ms,2.1.0,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/node,24.13.4,MIT,runtime/direct,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/nodemailer,8.0.2,MIT,development/direct,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/react,19.3.0,MIT,runtime/direct,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/react-dom,19.3.0,MIT,development/direct,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/retry,0.12.0,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/stats.js,0.17.4,MIT,development/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/three,0.186.0,MIT,development/direct,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@types/unist,3.0.3,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/use-sync-external-store,0.0.6,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/webxr,0.5.24,MIT,development/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/eslint-plugin,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ignore,7.0.9,MIT,development/transitive,https://github.com/kaelzhang/node-ignore.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/parser,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/project-service,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/scope-manager,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/tsconfig-utils,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/type-utils,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/types,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/typescript-estree,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/utils,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@typescript-eslint/visitor-keys,8.70.0,MIT,development/transitive,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-@ungap/structured-clone,1.4.0,ISC,runtime/transitive,git+https://github.com/ungap/structured-clone.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-acorn,8.18.0,MIT,development/transitive,git+https://github.com/acornjs/acorn.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-acorn-jsx,5.3.2,MIT,development/transitive,https://github.com/acornjs/acorn-jsx,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-agent-base,7.1.4,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ajv,6.15.0,MIT,development/transitive,https://github.com/ajv-validator/ajv.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ansi-regex,6.3.0,MIT,development/transitive,chalk/ansi-regex,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ansi-styles,6.2.3,MIT,development/transitive,chalk/ansi-styles,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ast-types,0.13.4,MIT,runtime/transitive,git://github.com/benjamn/ast-types.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-bail,2.0.2,MIT,runtime/transitive,wooorm/bail,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-balanced-match,4.0.4,MIT,development/transitive,git://github.com/juliangruber/balanced-match.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-base64-js,1.5.1,MIT,runtime/transitive,git://github.com/beatgammit/base64-js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-baseline-browser-mapping,2.11.23,Apache-2.0,runtime/transitive,git+https://github.com/web-platform-dx/baseline-browser-mapping.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-basic-ftp,6.2.3,MIT,runtime/transitive,https://github.com/patrickjuchli/basic-ftp.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-bignumber.js,9.3.1,MIT,runtime/transitive,https://github.com/MikeMcl/bignumber.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-bowser,2.14.1,MIT,runtime/transitive,git+https://github.com/bowser-js/bowser.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-brace-expansion,5.0.12,MIT,development/transitive,git+https://github.com/juliangruber/brace-expansion.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-browserslist,4.29.0,MIT,development/transitive,browserslist/browserslist,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-buffer-equal-constant-time,1.0.1,BSD-3-Clause,runtime/transitive,git@github.com:goinstant/buffer-equal-constant-time.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-cacheable,2.5.0,MIT,development/transitive,git+https://github.com/jaredwray/cacheable.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-caniuse-lite,1.0.30001810,CC-BY-4.0,runtime/transitive,browserslist/caniuse-lite,按包调用；未修改第三方源码，许可义务仍需按分发核对,浏览器兼容性数据；实际分发范围待核对,R-CCBY,待复核：数据署名、许可链接与变更标记,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ccount,2.0.1,MIT,runtime/transitive,wooorm/ccount,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-chalk,5.6.2,MIT,runtime/transitive,chalk/chalk,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-character-entities,2.0.2,MIT,runtime/transitive,wooorm/character-entities,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-character-entities-html4,2.1.0,MIT,runtime/transitive,wooorm/character-entities-html4,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-character-entities-legacy,3.0.0,MIT,runtime/transitive,wooorm/character-entities-legacy,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-character-reference-invalid,2.0.1,MIT,runtime/transitive,wooorm/character-reference-invalid,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-client-only,0.0.1,MIT,runtime/transitive,https://registry.npmjs.org/client-only/-/client-only-0.0.1.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-cliui,9.0.1,ISC,development/transitive,yargs/cliui,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-clsx,2.1.1,MIT,runtime/transitive,lukeed/clsx,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-comma-separated-tokens,2.0.3,MIT,runtime/transitive,wooorm/comma-separated-tokens,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-concurrently,10.0.6,MIT,development/direct,https://github.com/open-cli-tools/concurrently.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,Web和Worker进程编排,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-convert-source-map,2.0.0,MIT,development/transitive,git://github.com/thlorenz/convert-source-map.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-cross-spawn,7.0.6,MIT,development/transitive,git@github.com:moxystudio/node-cross-spawn.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-csstype,3.2.3,MIT,runtime/transitive,https://github.com/frenic/csstype,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-array,3.2.4,ISC,runtime/transitive,https://github.com/d3/d3-array.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-color,3.1.0,ISC,runtime/transitive,https://github.com/d3/d3-color.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-ease,3.0.1,BSD-3-Clause,runtime/transitive,https://github.com/d3/d3-ease.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-format,3.1.2,ISC,runtime/transitive,https://github.com/d3/d3-format.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-interpolate,3.0.1,ISC,runtime/transitive,https://github.com/d3/d3-interpolate.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-path,3.1.0,ISC,runtime/transitive,https://github.com/d3/d3-path.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-scale,4.0.2,ISC,runtime/transitive,https://github.com/d3/d3-scale.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-shape,3.2.0,ISC,runtime/transitive,https://github.com/d3/d3-shape.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-time,3.1.0,ISC,runtime/transitive,https://github.com/d3/d3-time.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-time-format,4.1.0,ISC,runtime/transitive,https://github.com/d3/d3-time-format.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-d3-timer,3.0.1,ISC,runtime/transitive,https://github.com/d3/d3-timer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-data-uri-to-buffer,4.0.1,MIT,runtime/transitive,git://github.com/TooTallNate/node-data-uri-to-buffer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-debug,4.4.3,MIT,runtime/transitive,git://github.com/debug-js/debug.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-decimal.js-light,2.5.1,MIT,runtime/transitive,https://github.com/MikeMcl/decimal.js-light.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-decode-named-character-reference,1.3.0,MIT,runtime/transitive,wooorm/decode-named-character-reference,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-deep-is,0.1.4,MIT,development/transitive,http://github.com/thlorenz/deep-is.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-degenerator,5.0.1,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-dequal,2.0.3,MIT,runtime/transitive,lukeed/dequal,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-detect-libc,2.1.2,Apache-2.0,runtime/transitive/optional,git://github.com/lovell/detect-libc.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-devlop,1.1.0,MIT,runtime/transitive,wooorm/devlop,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-diff,9.0.0,BSD-3-Clause,runtime/direct,https://github.com/kpdecker/jsdiff.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,候选文件差异生成,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ecdsa-sig-formatter,1.0.11,Apache-2.0,runtime/transitive,git+ssh://git@github.com/Brightspace/node-ecdsa-sig-formatter.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-electron-to-chromium,1.5.433,ISC,development/transitive,git+https://github.com/Kilian/electron-to-chromium.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-emoji-regex,10.6.0,MIT,development/transitive,https://github.com/mathiasbynens/emoji-regex.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-es-toolkit,1.52.0,MIT,runtime/transitive,https://github.com/toss/es-toolkit.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-esbuild,0.28.2,MIT,development/transitive,git+https://github.com/evanw/esbuild.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-escalade,3.2.0,MIT,development/transitive,lukeed/escalade,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-escape-string-regexp,4.0.0,MIT,development/transitive,sindresorhus/escape-string-regexp,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-escodegen,2.1.0,BSD-2-Clause,runtime/transitive,http://github.com/estools/escodegen.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-eslint,10.11.0,MIT,development/direct,eslint/eslint,按包调用；未修改第三方源码，许可义务仍需按分发核对,工程静态检查,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-eslint-plugin-react-hooks,7.1.1,MIT,development/direct,https://github.com/facebook/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,React Hooks静态检查规则,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-eslint-scope,9.1.2,BSD-2-Clause,development/transitive,https://github.com/eslint/js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-eslint-visitor-keys,5.0.1,Apache-2.0,development/transitive,https://github.com/eslint/js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-espree,11.2.0,BSD-2-Clause,development/transitive,https://github.com/eslint/js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-esprima,4.0.1,BSD-2-Clause,runtime/transitive,https://github.com/jquery/esprima.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-esquery,1.7.0,BSD-3-Clause,development/transitive,https://github.com/estools/esquery.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-esrecurse,4.3.0,BSD-2-Clause,development/transitive,https://github.com/estools/esrecurse.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-estraverse,5.3.0,BSD-2-Clause,runtime/transitive,http://github.com/estools/estraverse.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-estree-util-is-identifier-name,3.0.0,MIT,runtime/transitive,syntax-tree/estree-util-is-identifier-name,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-esutils,2.0.3,BSD-2-Clause,runtime/transitive,http://github.com/estools/esutils.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-eventemitter3,5.0.4,MIT,runtime/transitive,git://github.com/primus/eventemitter3.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-extend,3.0.2,MIT,runtime/transitive,https://github.com/justmoon/node-extend.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-fast-deep-equal,3.1.3,MIT,development/transitive,git+https://github.com/epoberezkin/fast-deep-equal.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-fast-json-stable-stringify,2.1.0,MIT,development/transitive,git://github.com/epoberezkin/fast-json-stable-stringify.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-fast-levenshtein,2.0.6,MIT,development/transitive,https://github.com/hiddentao/fast-levenshtein.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-fdir,6.5.0,MIT,development/transitive,git+https://github.com/thecodrr/fdir.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-fetch-blob,3.2.0,MIT,runtime/transitive,https://github.com/node-fetch/fetch-blob.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-fflate,0.8.3,MIT,development/transitive,https://github.com/101arrowz/fflate,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-file-entry-cache,11.1.5,MIT,development/transitive,git+https://github.com/jaredwray/cacheable.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-find-up,5.0.0,MIT,development/transitive,sindresorhus/find-up,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-flat-cache,6.1.23,MIT,development/transitive,git+https://github.com/jaredwray/cacheable.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-flatted,3.4.4,ISC,development/transitive,git+https://github.com/WebReflection/flatted.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-formdata-polyfill,4.0.10,MIT,runtime/transitive,git+https://jimmywarting@github.com/jimmywarting/FormData.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-fsevents,2.3.3,MIT,development/transitive/optional,https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-gaxios,7.3.1,Apache-2.0,runtime/transitive,https://github.com/googleapis/google-cloud-node.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-gcp-metadata,8.1.2,Apache-2.0,runtime/transitive,https://github.com/googleapis/google-cloud-node-core.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-gensync,1.0.0-beta.2,MIT,development/transitive,https://github.com/loganfsmyth/gensync.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-get-caller-file,2.0.5,ISC,development/transitive,git+https://github.com/stefanpenner/get-caller-file.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-get-east-asian-width,1.7.0,MIT,development/transitive,sindresorhus/get-east-asian-width,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-get-uri,6.0.5,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-data-uri-to-buffer,6.0.2,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-glob-parent,6.0.2,ISC,development/transitive,gulpjs/glob-parent,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-google-auth-library,10.9.1,Apache-2.0,runtime/transitive,https://github.com/googleapis/google-cloud-node.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-google-logging-utils,1.1.3,Apache-2.0,runtime/transitive,https://github.com/googleapis/google-cloud-node-core.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-hashery,1.5.1,MIT,development/transitive,https://github.com/jaredwray/hashery.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-hast-util-to-jsx-runtime,2.3.6,MIT,runtime/transitive,syntax-tree/hast-util-to-jsx-runtime,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-hast-util-whitespace,3.0.0,MIT,runtime/transitive,syntax-tree/hast-util-whitespace,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-hermes-estree,0.25.1,MIT,development/transitive,git@github.com:facebook/hermes.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-hermes-parser,0.25.1,MIT,development/transitive,git@github.com:facebook/hermes.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-hookified,1.15.1,MIT,development/transitive,git+https://github.com/jaredwray/hookified.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-html-url-attributes,3.0.1,MIT,runtime/transitive,https://github.com/rehypejs/rehype-minify/tree/main/packages/html-url-attributes,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-http-proxy-agent,7.0.2,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-https-proxy-agent,7.0.6,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ignore,5.3.2,MIT,development/transitive,git@github.com:kaelzhang/node-ignore.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-immer,11.1.21,MIT,runtime/transitive,https://github.com/immerjs/immer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-imurmurhash,0.1.4,MIT,development/transitive,https://github.com/jensyt/imurmurhash-js,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-inline-style-parser,0.2.7,MIT,runtime/transitive,git+https://github.com/remarkablemark/inline-style-parser.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-internmap,2.0.3,ISC,runtime/transitive,https://github.com/mbostock/internmap.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ip-address,10.7.2,MIT,runtime/transitive,https://github.com/beaugunderson/ip-address.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-is-alphabetical,2.0.1,MIT,runtime/transitive,wooorm/is-alphabetical,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-is-alphanumerical,2.0.1,MIT,runtime/transitive,wooorm/is-alphanumerical,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-is-decimal,2.0.1,MIT,runtime/transitive,wooorm/is-decimal,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-is-extglob,2.1.1,MIT,development/transitive,jonschlinkert/is-extglob,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-is-glob,4.0.3,MIT,development/transitive,micromatch/is-glob,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-is-hexadecimal,2.0.1,MIT,runtime/transitive,wooorm/is-hexadecimal,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-is-plain-obj,4.1.0,MIT,runtime/transitive,sindresorhus/is-plain-obj,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-isexe,2.0.0,ISC,development/transitive,git+https://github.com/isaacs/isexe.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-js-tokens,4.0.0,MIT,development/transitive,lydell/js-tokens,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-jsesc,3.1.0,MIT,development/transitive,https://github.com/mathiasbynens/jsesc.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-json-bigint,1.0.0,MIT,runtime/transitive,git@github.com:sidorares/json-bigint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-json-schema-to-ts,3.1.1,MIT,runtime/transitive,git+https://github.com/ThomasAribart/json-schema-to-ts.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-json-schema-traverse,0.4.1,MIT,development/transitive,git+https://github.com/epoberezkin/json-schema-traverse.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-json-stable-stringify-without-jsonify,1.0.1,MIT,development/transitive,git://github.com/samn/json-stable-stringify.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-json5,2.2.3,MIT,development/transitive,git+https://github.com/json5/json5.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-jwa,2.0.1,MIT,runtime/transitive,git://github.com/brianloveswords/node-jwa.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-jws,4.0.1,MIT,runtime/transitive,git://github.com/brianloveswords/node-jws.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-keyv,5.6.0,MIT,development/transitive,git+https://github.com/jaredwray/keyv.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-levn,0.4.1,MIT,development/transitive,git://github.com/gkz/levn.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-locate-path,6.0.0,MIT,development/transitive,sindresorhus/locate-path,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-long,5.3.2,Apache-2.0,runtime/transitive,https://github.com/dcodeIO/long.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-longest-streak,3.1.0,MIT,runtime/transitive,wooorm/longest-streak,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-lru-cache,7.18.3,ISC,runtime/transitive,git://github.com/isaacs/node-lru-cache.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-lucide-react,1.46.0,ISC,runtime/direct,https://github.com/lucide-icons/lucide.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,业务界面图标,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-markdown-table,3.0.4,MIT,runtime/transitive,wooorm/markdown-table,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-find-and-replace,3.0.3,MIT,runtime/transitive,syntax-tree/mdast-util-find-and-replace,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-escape-string-regexp,5.0.0,MIT,runtime/transitive,sindresorhus/escape-string-regexp,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-from-markdown,2.1.0,MIT,runtime/transitive,syntax-tree/mdast-util-from-markdown,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm,3.1.0,MIT,runtime/transitive,syntax-tree/mdast-util-gfm,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm-autolink-literal,2.0.1,MIT,runtime/transitive,syntax-tree/mdast-util-gfm-autolink-literal,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm-footnote,2.1.0,MIT,runtime/transitive,syntax-tree/mdast-util-gfm-footnote,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm-strikethrough,2.0.1,MIT,runtime/transitive,syntax-tree/mdast-util-gfm-strikethrough,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm-table,2.0.0,MIT,runtime/transitive,syntax-tree/mdast-util-gfm-table,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-gfm-task-list-item,2.0.0,MIT,runtime/transitive,syntax-tree/mdast-util-gfm-task-list-item,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-mdx-expression,2.0.1,MIT,runtime/transitive,syntax-tree/mdast-util-mdx-expression,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-mdx-jsx,3.2.0,MIT,runtime/transitive,syntax-tree/mdast-util-mdx-jsx,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-mdxjs-esm,2.0.1,MIT,runtime/transitive,syntax-tree/mdast-util-mdxjs-esm,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-phrasing,4.1.0,MIT,runtime/transitive,syntax-tree/mdast-util-phrasing,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-to-hast,13.2.1,MIT,runtime/transitive,syntax-tree/mdast-util-to-hast,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-to-markdown,2.2.0,MIT,runtime/transitive,syntax-tree/mdast-util-to-markdown,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-mdast-util-to-string,4.0.0,MIT,runtime/transitive,syntax-tree/mdast-util-to-string,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-meshoptimizer,1.1.1,MIT,development/transitive,https://github.com/zeux/meshoptimizer,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-micromark,4.0.3,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-core-commonmark,2.0.4,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-core-commonmark,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm,3.0.0,MIT,runtime/transitive,micromark/micromark-extension-gfm,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-autolink-literal,2.1.0,MIT,runtime/transitive,micromark/micromark-extension-gfm-autolink-literal,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-footnote,2.1.0,MIT,runtime/transitive,micromark/micromark-extension-gfm-footnote,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-strikethrough,2.1.0,MIT,runtime/transitive,micromark/micromark-extension-gfm-strikethrough,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-table,2.1.2,MIT,runtime/transitive,micromark/micromark-extension-gfm-table,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-tagfilter,2.0.0,MIT,runtime/transitive,micromark/micromark-extension-gfm-tagfilter,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-extension-gfm-task-list-item,2.1.0,MIT,runtime/transitive,micromark/micromark-extension-gfm-task-list-item,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-factory-destination,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-factory-destination,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-factory-label,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-factory-label,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-factory-space,2.1.0,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-factory-space,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-factory-title,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-factory-title,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-factory-whitespace,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-factory-whitespace,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-character,2.1.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-character,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-chunked,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-chunked,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-classify-character,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-classify-character,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-combine-extensions,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-combine-extensions,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-decode-numeric-character-reference,2.0.2,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-numeric-character-reference,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-decode-string,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-string,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-edit-map,1.0.0,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-edit-map,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-encode,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-encode,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-html-tag-name,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-html-tag-name,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-normalize-identifier,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-normalize-identifier,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-resolve-all,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-resolve-all,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-sanitize-uri,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-sanitize-uri,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-subtokenize,2.1.0,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-subtokenize,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-symbol,2.0.1,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-symbol,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-micromark-util-types,2.0.3,MIT,runtime/transitive,https://github.com/micromark/micromark/tree/main/packages/micromark-util-types,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-minimatch,10.2.6,BlueOak-1.0.0,development/transitive,git@github.com:isaacs/minimatch,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BLUEOAK,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ms,2.1.3,MIT,runtime/transitive,vercel/ms,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-nanoid,3.3.19,MIT,runtime/transitive,ai/nanoid,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-natural-compare,1.4.0,MIT,development/transitive,git://github.com/litejs/natural-compare-lite.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-netmask,2.1.1,MIT,runtime/transitive,git://github.com/rs/node-netmask.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-next,16.3.8,MIT,runtime/direct,vercel/next.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,Web页面与API框架,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-node-domexception,1.0.0,MIT,runtime/transitive,git+https://github.com/jimmywarting/node-domexception.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-node-fetch,3.3.2,MIT,runtime/transitive,https://github.com/node-fetch/node-fetch.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-node-releases,2.0.56,MIT,development/transitive,https://github.com/chicoxyzzy/node-releases.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-nodemailer,10.0.10,MIT-0,runtime/direct,https://github.com/nodemailer/nodemailer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,邮件传输,R-MIT0,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-oauth4webapi,3.8.8,MIT,runtime/direct,panva/oauth4webapi,按包调用；未修改第三方源码，许可义务仍需按分发核对,OAuth授权流程,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-openai,6.26.0,Apache-2.0,runtime/transitive,github:openai/openai-node,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-optionator,0.9.4,MIT,development/transitive,git://github.com/gkz/optionator.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-p-limit,3.1.0,MIT,development/transitive,sindresorhus/p-limit,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-p-locate,5.0.0,MIT,development/transitive,sindresorhus/p-locate,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-p-retry,4.6.2,MIT,runtime/transitive,sindresorhus/p-retry,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-pac-proxy-agent,7.2.0,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-pac-resolver,7.0.1,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-parse-entities,4.0.2,MIT,runtime/transitive,wooorm/parse-entities,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-@types/unist,2.0.11,MIT,runtime/transitive,https://github.com/DefinitelyTyped/DefinitelyTyped.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-partial-json,0.1.7,MIT,runtime/transitive,https://github.com/promplate/partial-json-parser-js,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-path-exists,4.0.0,MIT,development/transitive,sindresorhus/path-exists,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-path-key,3.1.1,MIT,development/transitive,sindresorhus/path-key,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-picocolors,1.1.1,ISC,runtime/transitive,alexeyraspopov/picocolors,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-picomatch,4.0.7,MIT,development/transitive,micromatch/picomatch,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-playwright,1.63.0,Apache-2.0,runtime/transitive,git+https://github.com/microsoft/playwright.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-playwright-core,1.63.0,Apache-2.0,runtime/transitive,git+https://github.com/microsoft/playwright.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-postcss,8.5.23,MIT,runtime/transitive,postcss/postcss,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-prelude-ls,1.2.1,MIT,development/transitive,git://github.com/gkz/prelude-ls.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-property-information,7.2.0,MIT,runtime/transitive,wooorm/property-information,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-protobufjs,7.6.6,BSD-3-Clause,runtime/transitive,protobufjs/protobuf.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-proxy-agent,6.5.0,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-proxy-from-env,1.1.0,MIT,runtime/transitive,https://github.com/Rob--W/proxy-from-env.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-punycode,2.3.1,MIT,development/transitive,https://github.com/mathiasbynens/punycode.js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-qified,0.10.1,MIT,development/transitive,git+https://github.com/jaredwray/qified.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-hookified,2.2.0,MIT,development/transitive,git+https://github.com/jaredwray/hookified.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-react,19.3.0,MIT,runtime/direct,https://github.com/react/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,业务界面组件,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-react-dom,19.3.0,MIT,runtime/direct,https://github.com/react/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,业务界面渲染,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-react-is,19.3.0,MIT,runtime/direct,https://github.com/react/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-react-markdown,10.1.0,MIT,runtime/direct,remarkjs/react-markdown,按包调用；未修改第三方源码，许可义务仍需按分发核对,Markdown草稿预览,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-react-redux,9.3.0,MIT,runtime/transitive,github:reduxjs/react-redux,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-recharts,3.10.1,MIT,runtime/direct,git+https://github.com/recharts/recharts.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,检查构成及历史图表,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-redux,5.0.1,MIT,runtime/transitive,github:reduxjs/redux,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-redux-thunk,3.1.0,MIT,runtime/transitive,github:reduxjs/redux-thunk,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-remark-gfm,4.0.1,MIT,runtime/direct,remarkjs/remark-gfm,按包调用；未修改第三方源码，许可义务仍需按分发核对,草稿预览GFM语法,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-remark-parse,11.0.0,MIT,runtime/transitive,https://github.com/remarkjs/remark/tree/main/packages/remark-parse,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-remark-rehype,11.1.2,MIT,runtime/transitive,remarkjs/remark-rehype,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-remark-stringify,11.0.0,MIT,runtime/transitive,https://github.com/remarkjs/remark/tree/main/packages/remark-stringify,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-reselect,5.2.0,MIT,runtime/transitive,https://github.com/reduxjs/reselect.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-retry,0.13.1,MIT,runtime/transitive,git://github.com/tim-kos/node-retry.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-rxjs,7.8.2,Apache-2.0,development/transitive,https://github.com/reactivex/rxjs.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-safe-buffer,5.2.1,MIT,runtime/transitive,git://github.com/feross/safe-buffer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-scheduler,0.28.0,MIT,runtime/transitive,https://github.com/react/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-semver,7.8.5,ISC,runtime/transitive,git+https://github.com/npm/node-semver.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-sharp,0.35.5,Apache-2.0,runtime/transitive/optional,git+https://github.com/lovell/sharp.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,Next.js可选图像处理原生链；实际使用平台及产物待核对,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-shebang-command,2.0.0,MIT,development/transitive,kevva/shebang-command,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-shebang-regex,3.0.0,MIT,development/transitive,sindresorhus/shebang-regex,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-shell-quote,1.12.0,MIT,development/transitive,http://github.com/ljharb/shell-quote.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-smart-buffer,4.2.0,MIT,runtime/transitive,https://github.com/JoshGlazebrook/smart-buffer.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-socks,2.8.10,MIT,runtime/transitive,git+https://github.com/JoshGlazebrook/socks.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-socks-proxy-agent,8.0.5,MIT,runtime/transitive,https://github.com/TooTallNate/proxy-agents.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-source-map,0.6.1,BSD-3-Clause,runtime/transitive/optional,http://github.com/mozilla/source-map.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,可选平台传递依赖；安装及调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；可选平台包实际打包范围待核对；镜像分发另审
-source-map-js,1.2.2,BSD-3-Clause,runtime/transitive,7rulnik/source-map-js,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-BSD3,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-space-separated-tokens,2.0.2,MIT,runtime/transitive,wooorm/space-separated-tokens,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-string-width,7.2.0,MIT,development/transitive,sindresorhus/string-width,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-stringify-entities,4.0.4,MIT,runtime/transitive,wooorm/stringify-entities,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-strip-ansi,7.2.0,MIT,development/transitive,chalk/strip-ansi,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-style-to-js,1.1.21,MIT,runtime/transitive,git+https://github.com/remarkablemark/style-to-js.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-style-to-object,1.0.14,MIT,runtime/transitive,git+https://github.com/remarkablemark/style-to-object.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-styled-jsx,5.1.6,MIT,runtime/transitive,vercel/styled-jsx,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-supports-color,10.2.2,MIT,development/transitive,chalk/supports-color,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-three,0.186.0,MIT,runtime/direct,https://github.com/mrdoob/three.js,按包调用；未修改第三方源码，许可义务仍需按分发核对,概览3D维护地图,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-tiny-invariant,1.3.3,MIT,runtime/transitive,https://github.com/alexreardon/tiny-invariant.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-tinyglobby,0.2.17,MIT,development/transitive,git+https://github.com/SuperchupuDev/tinyglobby.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-tree-kill,1.2.2,MIT,development/transitive,git://github.com/pkrumins/node-tree-kill.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-trim-lines,3.0.1,MIT,runtime/transitive,wooorm/trim-lines,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-trough,2.2.0,MIT,runtime/transitive,wooorm/trough,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ts-algebra,2.0.0,MIT,runtime/transitive,git+https://github.com/ThomasAribart/ts-algebra.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-ts-api-utils,2.5.0,MIT,development/transitive,https://github.com/JoshuaKGoldberg/ts-api-utils,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-tslib,2.8.1,0BSD,runtime/transitive,https://github.com/Microsoft/tslib.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-0BSD,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-tsx,4.23.13,MIT,development/direct,privatenumber/tsx,按包调用；未修改第三方源码，许可义务仍需按分发核对,TypeScript脚本与测试入口,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-type-check,0.4.0,MIT,development/transitive,git://github.com/gkz/type-check.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-typebox,1.3.34,MIT,runtime/direct,https://github.com/sinclairzx81/typebox,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-typescript,5.9.3,Apache-2.0,development/direct,https://github.com/microsoft/TypeScript.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,工程类型检查,R-APACHE,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-typescript-eslint,8.70.0,MIT,development/direct,https://github.com/typescript-eslint/typescript-eslint.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,TypeScript静态检查规则,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-undici,7.29.1,MIT,runtime/transitive,git+https://github.com/nodejs/undici.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-undici-types,7.18.2,MIT,runtime/transitive,git+https://github.com/nodejs/undici.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unified,11.0.5,MIT,runtime/transitive,unifiedjs/unified,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unist-util-is,6.0.1,MIT,runtime/transitive,syntax-tree/unist-util-is,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unist-util-position,5.0.0,MIT,runtime/transitive,syntax-tree/unist-util-position,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unist-util-stringify-position,4.0.0,MIT,runtime/transitive,syntax-tree/unist-util-stringify-position,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unist-util-visit,5.1.0,MIT,runtime/transitive,syntax-tree/unist-util-visit,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-unist-util-visit-parents,6.0.2,MIT,runtime/transitive,syntax-tree/unist-util-visit-parents,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-update-browserslist-db,1.3.3,MIT,development/transitive,browserslist/update-db,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-uri-js,4.4.1,BSD-2-Clause,development/transitive,http://github.com/garycourt/uri-js,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-BSD2,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-use-sync-external-store,1.7.0,MIT,runtime/transitive,https://github.com/react/react.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-vfile,6.0.3,MIT,runtime/transitive,vfile/vfile,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-vfile-message,4.0.3,MIT,runtime/transitive,vfile/vfile-message,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-victory-vendor,37.3.6,MIT AND ISC,runtime/transitive,https://github.com/FormidableLabs/victory,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT;R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-web-streams-polyfill,3.3.3,MIT,runtime/transitive,git+https://github.com/MattiasBuelens/web-streams-polyfill.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-which,2.0.2,ISC,development/transitive,git://github.com/isaacs/node-which.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-word-wrap,1.2.5,MIT,development/transitive,jonschlinkert/word-wrap,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-wrap-ansi,9.0.2,MIT,development/transitive,chalk/wrap-ansi,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-ws,8.21.3,MIT,runtime/transitive,git+https://github.com/websockets/ws.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-y18n,5.0.8,ISC,development/transitive,yargs/y18n,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-yallist,3.1.1,ISC,development/transitive,git+https://github.com/isaacs/yallist.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-yargs,18.0.0,MIT,development/transitive,https://github.com/yargs/yargs.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-yargs-parser,22.0.0,ISC,development/transitive,https://github.com/yargs/yargs-parser.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-yocto-queue,0.1.0,MIT,development/transitive,sindresorhus/yocto-queue,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-zod,4.6.5,MIT,runtime/direct,git+https://github.com/colinhacks/zod.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,输入及模型结果结构校验,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-zod-to-json-schema,3.25.2,ISC,runtime/transitive,https://github.com/StefanTerdell/zod-to-json-schema,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-ISC,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
-zod-validation-error,4.0.2,MIT,development/transitive,git://github.com/causaly/zod-validation-error.git,按包调用；未修改第三方源码，许可义务仍需按分发核对,开发工具传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；开发工具未随ZIP分发；另带工具或构建产物时复核
-zwitch,2.0.4,MIT,runtime/transitive,wooorm/zwitch,按包调用；未修改第三方源码，许可义务仍需按分发核对,运行传递依赖；具体调用路径待核对,R-MIT,待复核：包内许可文本、实际分发产物及告知材料,源码ZIP不含node_modules；部署网页JS及另交构建或镜像按实际包含范围复核
+﻿"序号","名称","版本","许可证","依赖类型","来源","使用方式","关键义务/限制","团队修改","合规状态"
+"1","@anthropic-ai/sdk","0.91.1","MIT","运行 / 传递","github:anthropics/anthropic-sdk-typescript","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"2","@aws-sdk/client-bedrock-runtime","3.1136.0","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"3","@aws-sdk/core","3.978.0","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"4","@aws-sdk/credential-provider-env","3.972.71","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"5","@aws-sdk/credential-provider-http","3.972.73","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"6","@aws-sdk/credential-provider-ini","3.973.16","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"7","@aws-sdk/credential-provider-login","3.972.78","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"8","@aws-sdk/credential-provider-node","3.972.83","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"9","@aws-sdk/credential-provider-process","3.972.71","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"10","@aws-sdk/credential-provider-sso","3.973.15","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"11","@aws-sdk/token-providers","3.1129.0","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"12","@aws-sdk/credential-provider-web-identity","3.972.77","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"13","@aws-sdk/eventstream-handler-node","3.972.34","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"14","@aws-sdk/middleware-eventstream","3.972.29","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"15","@aws-sdk/middleware-websocket","3.972.53","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"16","@aws-sdk/nested-clients","3.997.45","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"17","@aws-sdk/signature-v4-multi-region","3.996.46","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"18","@aws-sdk/token-providers","3.1136.0","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"19","@aws-sdk/types","3.974.5","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"20","@aws-sdk/xml-builder","3.972.40","Apache-2.0","运行 / 传递","https://github.com/aws/aws-sdk-js-v3","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"21","@aws/lambda-invoke-store","0.3.0","Apache-2.0","运行 / 传递","https://github.com/awslabs/aws-lambda-invoke-store","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"22","@babel/code-frame","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"23","@babel/compat-data","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"24","@babel/core","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"25","semver","6.3.1","ISC","开发 / 传递","https://github.com/npm/node-semver","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"26","@babel/generator","7.29.8","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"27","@babel/helper-compilation-targets","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"28","lru-cache","5.1.1","ISC","开发 / 传递","git://github.com/isaacs/node-lru-cache","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"29","semver","6.3.1","ISC","开发 / 传递","https://github.com/npm/node-semver","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"30","@babel/helper-globals","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"31","@babel/helper-module-imports","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"32","@babel/helper-module-transforms","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"33","@babel/helper-string-parser","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"34","@babel/helper-validator-identifier","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"35","@babel/helper-validator-option","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"36","@babel/helpers","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"37","@babel/parser","7.29.9","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"38","@babel/runtime","7.29.7","MIT","运行 / 传递","https://github.com/babel/babel","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"39","@babel/template","7.29.7","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"40","@babel/traverse","7.29.8","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"41","@babel/types","7.29.8","MIT","开发 / 传递","https://github.com/babel/babel","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"42","@cacheable/memory","2.2.0","MIT","开发 / 传递","https://github.com/jaredwray/cacheable","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"43","@cacheable/utils","2.5.0","MIT","开发 / 传递","https://github.com/jaredwray/cacheable","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"44","@dimforge/rapier3d-compat","0.12.0","Apache-2.0","开发 / 传递","https://github.com/dimforge/rapier.js","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"45","@emnapi/runtime","1.11.3","MIT","运行 / 传递 / 可选平台包","https://github.com/toyobayashi/emnapi","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"46","@esbuild/aix-ppc64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"47","@esbuild/android-arm","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"48","@esbuild/android-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"49","@esbuild/android-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"50","@esbuild/darwin-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"51","@esbuild/darwin-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"52","@esbuild/freebsd-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"53","@esbuild/freebsd-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"54","@esbuild/linux-arm","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"55","@esbuild/linux-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"56","@esbuild/linux-ia32","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"57","@esbuild/linux-loong64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"58","@esbuild/linux-mips64el","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"59","@esbuild/linux-ppc64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"60","@esbuild/linux-riscv64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"61","@esbuild/linux-s390x","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"62","@esbuild/linux-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"63","@esbuild/netbsd-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"64","@esbuild/netbsd-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"65","@esbuild/openbsd-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"66","@esbuild/openbsd-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"67","@esbuild/openharmony-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"68","@esbuild/sunos-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"69","@esbuild/win32-arm64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"70","@esbuild/win32-ia32","0.28.2","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.28.2.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"71","@esbuild/win32-x64","0.28.2","MIT","开发 / 传递 / 可选平台包","https://github.com/evanw/esbuild","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"72","@eslint-community/eslint-utils","4.10.1","MIT","开发 / 传递","https://github.com/eslint-community/eslint-utils","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"73","eslint-visitor-keys","3.4.3","Apache-2.0","开发 / 传递","eslint/eslint-visitor-keys","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"74","@eslint-community/regexpp","4.12.2","MIT","开发 / 传递","https://github.com/eslint-community/regexpp","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"75","@eslint/config-array","0.23.5","Apache-2.0","开发 / 传递","https://github.com/eslint/rewrite","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"76","@eslint/config-helpers","0.7.0","Apache-2.0","开发 / 传递","https://github.com/eslint/rewrite","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"77","@eslint/core","1.2.1","Apache-2.0","开发 / 传递","https://github.com/eslint/rewrite","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"78","@eslint/js","10.0.1","MIT","开发 / 直接","https://github.com/eslint/eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"79","@eslint/object-schema","3.0.5","Apache-2.0","开发 / 传递","https://github.com/eslint/rewrite","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"80","@eslint/plugin-kit","0.7.3","Apache-2.0","开发 / 传递","https://github.com/eslint/rewrite","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"81","@google/genai","1.52.0","Apache-2.0","运行 / 传递","https://github.com/googleapis/js-genai","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"82","@humanfs/core","0.19.2","Apache-2.0","开发 / 传递","https://github.com/humanwhocodes/humanfs","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"83","@humanfs/node","0.16.8","Apache-2.0","开发 / 传递","https://github.com/humanwhocodes/humanfs","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"84","@humanfs/types","0.15.0","Apache-2.0","开发 / 传递","https://github.com/humanwhocodes/humanfs","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"85","@humanwhocodes/module-importer","1.0.1","Apache-2.0","开发 / 传递","https://github.com/humanwhocodes/module-importer","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"86","@humanwhocodes/retry","0.4.3","Apache-2.0","开发 / 传递","https://github.com/humanwhocodes/retry","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"87","@img/colour","1.1.0","MIT","运行 / 传递 / 可选平台包","https://github.com/lovell/colour","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"88","@img/sharp-darwin-arm64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"89","@img/sharp-darwin-x64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"90","@img/sharp-freebsd-wasm32","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-freebsd-wasm32/-/sharp-freebsd-wasm32-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"91","@img/sharp-libvips-darwin-arm64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"92","@img/sharp-libvips-darwin-x64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"93","@img/sharp-libvips-linux-arm","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"94","@img/sharp-libvips-linux-arm64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"95","@img/sharp-libvips-linux-ppc64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"96","@img/sharp-libvips-linux-riscv64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"97","@img/sharp-libvips-linux-s390x","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"98","@img/sharp-libvips-linux-x64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"99","@img/sharp-libvips-linuxmusl-arm64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"100","@img/sharp-libvips-linuxmusl-x64","1.3.4","LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.3.4.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"101","@img/sharp-linux-arm","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"102","@img/sharp-linux-arm64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"103","@img/sharp-linux-ppc64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"104","@img/sharp-linux-riscv64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"105","@img/sharp-linux-s390x","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"106","@img/sharp-linux-x64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"107","@img/sharp-linuxmusl-arm64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"108","@img/sharp-linuxmusl-x64","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"109","@img/sharp-wasm32","0.35.5","Apache-2.0 AND LGPL-3.0-or-later AND MIT","运行 / 传递 / 可选平台包","https://github.com/lovell/sharp","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"110","@img/sharp-webcontainers-wasm32","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-webcontainers-wasm32/-/sharp-webcontainers-wasm32-0.35.5.tgz","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"111","@img/sharp-win32-arm64","0.35.5","Apache-2.0 AND LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.35.5.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"112","@img/sharp-win32-ia32","0.35.5","Apache-2.0 AND LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.35.5.tgz","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"113","@img/sharp-win32-x64","0.35.5","Apache-2.0 AND LGPL-3.0-or-later","运行 / 传递 / 可选平台包","https://github.com/lovell/sharp","由 npm 安装后在运行时调用","分发二进制时提供 LGPL 文本、对应源码与替换机制；其余组件按各自许可保留声明","未修改第三方源码","已核验：作品只开放源码，不分发该原生二进制"
+"114","@jridgewell/gen-mapping","0.3.13","MIT","开发 / 传递","https://github.com/jridgewell/sourcemaps","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"115","@jridgewell/remapping","2.3.5","MIT","开发 / 传递","https://github.com/jridgewell/sourcemaps","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"116","@jridgewell/resolve-uri","3.1.2","MIT","开发 / 传递","https://github.com/jridgewell/resolve-uri","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"117","@jridgewell/sourcemap-codec","1.6.0","MIT","开发 / 传递","https://github.com/jridgewell/sourcemaps","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"118","@jridgewell/trace-mapping","0.3.31","MIT","开发 / 传递","https://github.com/jridgewell/sourcemaps","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"119","@keyv/bigmap","1.3.1","MIT","开发 / 传递","https://github.com/jaredwray/keyv","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"120","@keyv/serialize","1.1.1","MIT","开发 / 传递","https://github.com/jaredwray/keyv","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"121","@mariozechner/pi-agent-core","0.73.1","MIT","运行 / 直接","https://github.com/badlogic/pi-mono","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"122","@mariozechner/pi-ai","0.73.1","MIT","运行 / 直接","https://github.com/badlogic/pi-mono","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"123","@mistralai/mistralai","2.7.0","Apache-2.0","运行 / 传递","https://github.com/mistralai/client-ts","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"124","@next/env","16.4.3","MIT","运行 / 直接","https://github.com/vercel/next.js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"125","@next/swc-darwin-arm64","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"126","@next/swc-darwin-x64","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"127","@next/swc-linux-arm64-gnu","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"128","@next/swc-linux-arm64-musl","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"129","@next/swc-linux-x64-gnu","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"130","@next/swc-linux-x64-musl","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"131","@next/swc-win32-arm64-msvc","16.4.3","MIT","运行 / 传递 / 可选平台包","https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.4.3.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"132","@next/swc-win32-x64-msvc","16.4.3","MIT","运行 / 传递 / 可选平台包","https://github.com/vercel/next.js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"133","@opentelemetry/semantic-conventions","1.43.0","Apache-2.0","运行 / 传递","open-telemetry/opentelemetry-js","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"134","@playwright/test","1.63.0","Apache-2.0","运行 / 直接","https://github.com/microsoft/playwright","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"135","@protobufjs/aspromise","1.1.2","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"136","@protobufjs/base64","1.1.2","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"137","@protobufjs/codegen","2.0.5","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"138","@protobufjs/eventemitter","1.1.1","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"139","@protobufjs/fetch","1.1.1","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"140","@protobufjs/float","1.0.2","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"141","@protobufjs/path","1.1.2","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"142","@protobufjs/pool","1.1.0","BSD-3-Clause","运行 / 传递","https://github.com/dcodeIO/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"143","@protobufjs/utf8","1.1.2","BSD-3-Clause","运行 / 传递","https://github.com/protobufjs/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"144","@reduxjs/toolkit","2.13.0","MIT","运行 / 传递","https://github.com/reduxjs/redux-toolkit","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"145","@smithy/core","3.34.1","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"146","@smithy/credential-provider-imds","4.5.2","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"147","@smithy/fetch-http-handler","5.8.0","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"148","@smithy/node-http-handler","4.12.1","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"149","@smithy/signature-v4","5.7.3","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"150","@smithy/types","4.18.0","Apache-2.0","运行 / 传递","https://github.com/smithy-lang/smithy-typescript","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"151","@standard-schema/spec","1.1.0","MIT","运行 / 传递","https://github.com/standard-schema/standard-schema","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"152","@standard-schema/utils","0.3.0","MIT","运行 / 传递","https://github.com/standard-schema/standard-schema","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"153","@swc/helpers","0.5.23","Apache-2.0","运行 / 传递","https://github.com/swc-project/swc","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"154","@tootallnate/quickjs-emscripten","0.23.0","MIT","运行 / 传递","https://github.com/justjake/quickjs-emscripten","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"155","@tweenjs/tween.js","23.1.3","MIT","开发 / 传递","https://github.com/tweenjs/tween.js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"156","@types/d3-array","3.2.2","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"157","@types/d3-color","3.1.3","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"158","@types/d3-ease","3.0.2","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"159","@types/d3-interpolate","3.0.4","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"160","@types/d3-path","3.1.1","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"161","@types/d3-scale","4.0.9","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"162","@types/d3-shape","3.2.0","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"163","@types/d3-time","3.0.4","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"164","@types/d3-timer","3.0.2","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"165","@types/debug","4.1.13","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"166","@types/esrecurse","4.3.1","MIT","开发 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"167","@types/estree","1.0.9","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"168","@types/estree-jsx","1.0.5","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"169","@types/hast","3.0.5","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"170","@types/json-schema","7.0.15","MIT","开发 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"171","@types/mdast","4.0.4","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"172","@types/ms","2.1.0","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"173","@types/node","24.13.4","MIT","运行 / 直接","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"174","@types/nodemailer","8.0.2","MIT","开发 / 直接","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"175","@types/react","19.3.0","MIT","运行 / 直接","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"176","@types/react-dom","19.3.0","MIT","开发 / 直接","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"177","@types/retry","0.12.0","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"178","@types/stats.js","0.17.4","MIT","开发 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"179","@types/three","0.186.0","MIT","开发 / 直接","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"180","@types/unist","3.0.3","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"181","@types/use-sync-external-store","0.0.6","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"182","@types/webxr","0.5.24","MIT","开发 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"183","@typescript-eslint/eslint-plugin","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"184","ignore","7.0.9","MIT","开发 / 传递","https://github.com/kaelzhang/node-ignore","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"185","@typescript-eslint/parser","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"186","@typescript-eslint/project-service","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"187","@typescript-eslint/scope-manager","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"188","@typescript-eslint/tsconfig-utils","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"189","@typescript-eslint/type-utils","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"190","@typescript-eslint/types","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"191","@typescript-eslint/typescript-estree","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"192","@typescript-eslint/utils","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"193","@typescript-eslint/visitor-keys","8.70.0","MIT","开发 / 传递","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"194","@ungap/structured-clone","1.4.0","ISC","运行 / 传递","https://github.com/ungap/structured-clone","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"195","acorn","8.18.0","MIT","开发 / 传递","https://github.com/acornjs/acorn","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"196","acorn-jsx","5.3.2","MIT","开发 / 传递","https://github.com/acornjs/acorn-jsx","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"197","agent-base","7.1.4","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"198","ajv","6.15.0","MIT","开发 / 传递","https://github.com/ajv-validator/ajv","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"199","ansi-regex","6.3.0","MIT","开发 / 传递","chalk/ansi-regex","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"200","ansi-styles","6.2.3","MIT","开发 / 传递","chalk/ansi-styles","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"201","ast-types","0.13.4","MIT","运行 / 传递","git://github.com/benjamn/ast-types","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"202","bail","2.0.2","MIT","运行 / 传递","wooorm/bail","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"203","balanced-match","4.0.4","MIT","开发 / 传递","git://github.com/juliangruber/balanced-match","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"204","base64-js","1.5.1","MIT","运行 / 传递","git://github.com/beatgammit/base64-js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"205","baseline-browser-mapping","2.11.23","Apache-2.0","运行 / 传递","https://github.com/web-platform-dx/baseline-browser-mapping","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"206","basic-ftp","6.2.3","MIT","运行 / 传递","https://github.com/patrickjuchli/basic-ftp","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"207","bignumber.js","9.3.1","MIT","运行 / 传递","https://github.com/MikeMcl/bignumber.js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"208","bowser","2.14.1","MIT","运行 / 传递","https://github.com/bowser-js/bowser","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"209","brace-expansion","5.0.12","MIT","开发 / 传递","https://github.com/juliangruber/brace-expansion","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"210","browserslist","4.29.0","MIT","开发 / 传递","browserslist/browserslist","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"211","buffer-equal-constant-time","1.0.1","BSD-3-Clause","运行 / 传递","git@github.com:goinstant/buffer-equal-constant-time","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"212","cacheable","2.5.0","MIT","开发 / 传递","https://github.com/jaredwray/cacheable","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"213","caniuse-lite","1.0.30001810","CC-BY-4.0","运行 / 传递","browserslist/caniuse-lite","由 npm 安装后在运行时调用","分享时署名、附许可链接并标注修改","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"214","ccount","2.0.1","MIT","运行 / 传递","wooorm/ccount","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"215","chalk","5.6.2","MIT","运行 / 传递","chalk/chalk","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"216","character-entities","2.0.2","MIT","运行 / 传递","wooorm/character-entities","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"217","character-entities-html4","2.1.0","MIT","运行 / 传递","wooorm/character-entities-html4","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"218","character-entities-legacy","3.0.0","MIT","运行 / 传递","wooorm/character-entities-legacy","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"219","character-reference-invalid","2.0.1","MIT","运行 / 传递","wooorm/character-reference-invalid","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"220","client-only","0.0.1","MIT","运行 / 传递","https://registry.npmjs.org/client-only/-/client-only-0.0.1.tgz","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"221","cliui","9.0.1","ISC","开发 / 传递","yargs/cliui","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"222","clsx","2.1.1","MIT","运行 / 传递","lukeed/clsx","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"223","comma-separated-tokens","2.0.3","MIT","运行 / 传递","wooorm/comma-separated-tokens","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"224","concurrently","10.0.6","MIT","开发 / 直接","https://github.com/open-cli-tools/concurrently","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"225","convert-source-map","2.0.0","MIT","开发 / 传递","git://github.com/thlorenz/convert-source-map","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"226","cross-spawn","7.0.6","MIT","开发 / 传递","git@github.com:moxystudio/node-cross-spawn","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"227","csstype","3.2.3","MIT","运行 / 传递","https://github.com/frenic/csstype","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"228","d3-array","3.2.4","ISC","运行 / 传递","https://github.com/d3/d3-array","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"229","d3-color","3.1.0","ISC","运行 / 传递","https://github.com/d3/d3-color","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"230","d3-ease","3.0.1","BSD-3-Clause","运行 / 传递","https://github.com/d3/d3-ease","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"231","d3-format","3.1.2","ISC","运行 / 传递","https://github.com/d3/d3-format","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"232","d3-interpolate","3.0.1","ISC","运行 / 传递","https://github.com/d3/d3-interpolate","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"233","d3-path","3.1.0","ISC","运行 / 传递","https://github.com/d3/d3-path","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"234","d3-scale","4.0.2","ISC","运行 / 传递","https://github.com/d3/d3-scale","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"235","d3-shape","3.2.0","ISC","运行 / 传递","https://github.com/d3/d3-shape","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"236","d3-time","3.1.0","ISC","运行 / 传递","https://github.com/d3/d3-time","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"237","d3-time-format","4.1.0","ISC","运行 / 传递","https://github.com/d3/d3-time-format","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"238","d3-timer","3.0.1","ISC","运行 / 传递","https://github.com/d3/d3-timer","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"239","data-uri-to-buffer","4.0.1","MIT","运行 / 传递","git://github.com/TooTallNate/node-data-uri-to-buffer","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"240","debug","4.4.3","MIT","运行 / 传递","git://github.com/debug-js/debug","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"241","decimal.js-light","2.5.1","MIT","运行 / 传递","https://github.com/MikeMcl/decimal.js-light","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"242","decode-named-character-reference","1.3.0","MIT","运行 / 传递","wooorm/decode-named-character-reference","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"243","deep-is","0.1.4","MIT","开发 / 传递","http://github.com/thlorenz/deep-is","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"244","degenerator","5.0.1","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"245","dequal","2.0.3","MIT","运行 / 传递","lukeed/dequal","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"246","detect-libc","2.1.2","Apache-2.0","运行 / 传递 / 可选平台包","git://github.com/lovell/detect-libc","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"247","devlop","1.1.0","MIT","运行 / 传递","wooorm/devlop","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"248","diff","9.0.0","BSD-3-Clause","运行 / 直接","https://github.com/kpdecker/jsdiff","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"249","ecdsa-sig-formatter","1.0.11","Apache-2.0","运行 / 传递","ssh://git@github.com/Brightspace/node-ecdsa-sig-formatter","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"250","electron-to-chromium","1.5.433","ISC","开发 / 传递","https://github.com/Kilian/electron-to-chromium","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"251","emoji-regex","10.6.0","MIT","开发 / 传递","https://github.com/mathiasbynens/emoji-regex","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"252","es-toolkit","1.52.0","MIT","运行 / 传递","https://github.com/toss/es-toolkit","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"253","esbuild","0.28.2","MIT","开发 / 传递","https://github.com/evanw/esbuild","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"254","escalade","3.2.0","MIT","开发 / 传递","lukeed/escalade","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"255","escape-string-regexp","4.0.0","MIT","开发 / 传递","sindresorhus/escape-string-regexp","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"256","escodegen","2.1.0","BSD-2-Clause","运行 / 传递","http://github.com/estools/escodegen","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"257","eslint","10.11.0","MIT","开发 / 直接","eslint/eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"258","eslint-plugin-react-hooks","7.1.1","MIT","开发 / 直接","https://github.com/facebook/react","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"259","eslint-scope","9.1.2","BSD-2-Clause","开发 / 传递","https://github.com/eslint/js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"260","eslint-visitor-keys","5.0.1","Apache-2.0","开发 / 传递","https://github.com/eslint/js","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"261","espree","11.2.0","BSD-2-Clause","开发 / 传递","https://github.com/eslint/js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"262","esprima","4.0.1","BSD-2-Clause","运行 / 传递","https://github.com/jquery/esprima","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"263","esquery","1.7.0","BSD-3-Clause","开发 / 传递","https://github.com/estools/esquery","开发与测试工具，不进入产品运行","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"264","esrecurse","4.3.0","BSD-2-Clause","开发 / 传递","https://github.com/estools/esrecurse","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"265","estraverse","5.3.0","BSD-2-Clause","运行 / 传递","http://github.com/estools/estraverse","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"266","estree-util-is-identifier-name","3.0.0","MIT","运行 / 传递","syntax-tree/estree-util-is-identifier-name","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"267","esutils","2.0.3","BSD-2-Clause","运行 / 传递","http://github.com/estools/esutils","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"268","eventemitter3","5.0.4","MIT","运行 / 传递","git://github.com/primus/eventemitter3","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"269","extend","3.0.2","MIT","运行 / 传递","https://github.com/justmoon/node-extend","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"270","fast-deep-equal","3.1.3","MIT","开发 / 传递","https://github.com/epoberezkin/fast-deep-equal","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"271","fast-json-stable-stringify","2.1.0","MIT","开发 / 传递","git://github.com/epoberezkin/fast-json-stable-stringify","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"272","fast-levenshtein","2.0.6","MIT","开发 / 传递","https://github.com/hiddentao/fast-levenshtein","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"273","fdir","6.5.0","MIT","开发 / 传递","https://github.com/thecodrr/fdir","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"274","fetch-blob","3.2.0","MIT","运行 / 传递","https://github.com/node-fetch/fetch-blob","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"275","fflate","0.8.3","MIT","开发 / 传递","https://github.com/101arrowz/fflate","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"276","file-entry-cache","11.1.5","MIT","开发 / 传递","https://github.com/jaredwray/cacheable","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"277","find-up","5.0.0","MIT","开发 / 传递","sindresorhus/find-up","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"278","flat-cache","6.1.23","MIT","开发 / 传递","https://github.com/jaredwray/cacheable","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"279","flatted","3.4.4","ISC","开发 / 传递","https://github.com/WebReflection/flatted","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"280","formdata-polyfill","4.0.10","MIT","运行 / 传递","https://jimmywarting@github.com/jimmywarting/FormData","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"281","fsevents","2.3.3","MIT","开发 / 传递 / 可选平台包","https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"282","gaxios","7.3.1","Apache-2.0","运行 / 传递","https://github.com/googleapis/google-cloud-node","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"283","gcp-metadata","8.1.2","Apache-2.0","运行 / 传递","https://github.com/googleapis/google-cloud-node-core","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"284","gensync","1.0.0-beta.2","MIT","开发 / 传递","https://github.com/loganfsmyth/gensync","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"285","get-caller-file","2.0.5","ISC","开发 / 传递","https://github.com/stefanpenner/get-caller-file","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"286","get-east-asian-width","1.7.0","MIT","开发 / 传递","sindresorhus/get-east-asian-width","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"287","get-uri","6.0.5","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"288","data-uri-to-buffer","6.0.2","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"289","glob-parent","6.0.2","ISC","开发 / 传递","gulpjs/glob-parent","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"290","google-auth-library","10.9.1","Apache-2.0","运行 / 传递","https://github.com/googleapis/google-cloud-node","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"291","google-logging-utils","1.1.3","Apache-2.0","运行 / 传递","https://github.com/googleapis/google-cloud-node-core","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"292","hashery","1.5.1","MIT","开发 / 传递","https://github.com/jaredwray/hashery","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"293","hast-util-to-jsx-runtime","2.3.6","MIT","运行 / 传递","syntax-tree/hast-util-to-jsx-runtime","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"294","hast-util-whitespace","3.0.0","MIT","运行 / 传递","syntax-tree/hast-util-whitespace","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"295","hermes-estree","0.25.1","MIT","开发 / 传递","git@github.com:facebook/hermes","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"296","hermes-parser","0.25.1","MIT","开发 / 传递","git@github.com:facebook/hermes","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"297","hookified","1.15.1","MIT","开发 / 传递","https://github.com/jaredwray/hookified","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"298","html-url-attributes","3.0.1","MIT","运行 / 传递","https://github.com/rehypejs/rehype-minify/tree/main/packages/html-url-attributes","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"299","http-proxy-agent","7.0.2","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"300","https-proxy-agent","7.0.6","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"301","ignore","5.3.2","MIT","开发 / 传递","git@github.com:kaelzhang/node-ignore","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"302","immer","11.1.21","MIT","运行 / 传递","https://github.com/immerjs/immer","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"303","imurmurhash","0.1.4","MIT","开发 / 传递","https://github.com/jensyt/imurmurhash-js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"304","inline-style-parser","0.2.7","MIT","运行 / 传递","https://github.com/remarkablemark/inline-style-parser","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"305","internmap","2.0.3","ISC","运行 / 传递","https://github.com/mbostock/internmap","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"306","ip-address","10.7.5","MIT","运行 / 传递","https://github.com/beaugunderson/ip-address","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"307","is-alphabetical","2.0.1","MIT","运行 / 传递","wooorm/is-alphabetical","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"308","is-alphanumerical","2.0.1","MIT","运行 / 传递","wooorm/is-alphanumerical","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"309","is-decimal","2.0.1","MIT","运行 / 传递","wooorm/is-decimal","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"310","is-extglob","2.1.1","MIT","开发 / 传递","jonschlinkert/is-extglob","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"311","is-glob","4.0.3","MIT","开发 / 传递","micromatch/is-glob","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"312","is-hexadecimal","2.0.1","MIT","运行 / 传递","wooorm/is-hexadecimal","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"313","is-plain-obj","4.1.0","MIT","运行 / 传递","sindresorhus/is-plain-obj","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"314","isexe","2.0.0","ISC","开发 / 传递","https://github.com/isaacs/isexe","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"315","js-tokens","4.0.0","MIT","开发 / 传递","lydell/js-tokens","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"316","jsesc","3.1.0","MIT","开发 / 传递","https://github.com/mathiasbynens/jsesc","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"317","json-bigint","1.0.0","MIT","运行 / 传递","git@github.com:sidorares/json-bigint","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"318","json-schema-to-ts","3.1.1","MIT","运行 / 传递","https://github.com/ThomasAribart/json-schema-to-ts","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"319","json-schema-traverse","0.4.1","MIT","开发 / 传递","https://github.com/epoberezkin/json-schema-traverse","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"320","json-stable-stringify-without-jsonify","1.0.1","MIT","开发 / 传递","git://github.com/samn/json-stable-stringify","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"321","json5","2.2.3","MIT","开发 / 传递","https://github.com/json5/json5","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"322","jwa","2.0.1","MIT","运行 / 传递","git://github.com/brianloveswords/node-jwa","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"323","jws","4.0.1","MIT","运行 / 传递","git://github.com/brianloveswords/node-jws","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"324","keyv","5.6.0","MIT","开发 / 传递","https://github.com/jaredwray/keyv","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"325","levn","0.4.1","MIT","开发 / 传递","git://github.com/gkz/levn","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"326","locate-path","6.0.0","MIT","开发 / 传递","sindresorhus/locate-path","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"327","long","5.3.2","Apache-2.0","运行 / 传递","https://github.com/dcodeIO/long.js","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"328","longest-streak","3.1.0","MIT","运行 / 传递","wooorm/longest-streak","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"329","lru-cache","7.18.3","ISC","运行 / 传递","git://github.com/isaacs/node-lru-cache","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"330","lucide-react","1.46.0","ISC","运行 / 直接","https://github.com/lucide-icons/lucide","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"331","markdown-table","3.0.4","MIT","运行 / 传递","wooorm/markdown-table","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"332","mdast-util-find-and-replace","3.0.3","MIT","运行 / 传递","syntax-tree/mdast-util-find-and-replace","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"333","escape-string-regexp","5.0.0","MIT","运行 / 传递","sindresorhus/escape-string-regexp","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"334","mdast-util-from-markdown","2.1.0","MIT","运行 / 传递","syntax-tree/mdast-util-from-markdown","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"335","mdast-util-gfm","3.1.0","MIT","运行 / 传递","syntax-tree/mdast-util-gfm","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"336","mdast-util-gfm-autolink-literal","2.0.1","MIT","运行 / 传递","syntax-tree/mdast-util-gfm-autolink-literal","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"337","mdast-util-gfm-footnote","2.1.0","MIT","运行 / 传递","syntax-tree/mdast-util-gfm-footnote","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"338","mdast-util-gfm-strikethrough","2.0.1","MIT","运行 / 传递","syntax-tree/mdast-util-gfm-strikethrough","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"339","mdast-util-gfm-table","2.0.0","MIT","运行 / 传递","syntax-tree/mdast-util-gfm-table","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"340","mdast-util-gfm-task-list-item","2.0.0","MIT","运行 / 传递","syntax-tree/mdast-util-gfm-task-list-item","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"341","mdast-util-mdx-expression","2.0.1","MIT","运行 / 传递","syntax-tree/mdast-util-mdx-expression","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"342","mdast-util-mdx-jsx","3.2.0","MIT","运行 / 传递","syntax-tree/mdast-util-mdx-jsx","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"343","mdast-util-mdxjs-esm","2.0.1","MIT","运行 / 传递","syntax-tree/mdast-util-mdxjs-esm","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"344","mdast-util-phrasing","4.1.0","MIT","运行 / 传递","syntax-tree/mdast-util-phrasing","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"345","mdast-util-to-hast","13.2.1","MIT","运行 / 传递","syntax-tree/mdast-util-to-hast","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"346","mdast-util-to-markdown","2.2.0","MIT","运行 / 传递","syntax-tree/mdast-util-to-markdown","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"347","mdast-util-to-string","4.0.0","MIT","运行 / 传递","syntax-tree/mdast-util-to-string","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"348","meshoptimizer","1.1.1","MIT","开发 / 传递","https://github.com/zeux/meshoptimizer","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"349","micromark","4.0.3","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"350","micromark-core-commonmark","2.0.4","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-core-commonmark","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"351","micromark-extension-gfm","3.0.0","MIT","运行 / 传递","micromark/micromark-extension-gfm","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"352","micromark-extension-gfm-autolink-literal","2.1.0","MIT","运行 / 传递","micromark/micromark-extension-gfm-autolink-literal","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"353","micromark-extension-gfm-footnote","2.1.0","MIT","运行 / 传递","micromark/micromark-extension-gfm-footnote","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"354","micromark-extension-gfm-strikethrough","2.1.0","MIT","运行 / 传递","micromark/micromark-extension-gfm-strikethrough","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"355","micromark-extension-gfm-table","2.1.2","MIT","运行 / 传递","micromark/micromark-extension-gfm-table","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"356","micromark-extension-gfm-tagfilter","2.0.0","MIT","运行 / 传递","micromark/micromark-extension-gfm-tagfilter","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"357","micromark-extension-gfm-task-list-item","2.1.0","MIT","运行 / 传递","micromark/micromark-extension-gfm-task-list-item","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"358","micromark-factory-destination","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-factory-destination","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"359","micromark-factory-label","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-factory-label","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"360","micromark-factory-space","2.1.0","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-factory-space","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"361","micromark-factory-title","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-factory-title","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"362","micromark-factory-whitespace","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-factory-whitespace","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"363","micromark-util-character","2.1.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-character","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"364","micromark-util-chunked","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-chunked","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"365","micromark-util-classify-character","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-classify-character","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"366","micromark-util-combine-extensions","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-combine-extensions","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"367","micromark-util-decode-numeric-character-reference","2.0.2","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-numeric-character-reference","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"368","micromark-util-decode-string","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-string","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"369","micromark-util-edit-map","1.0.0","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-edit-map","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"370","micromark-util-encode","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-encode","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"371","micromark-util-html-tag-name","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-html-tag-name","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"372","micromark-util-normalize-identifier","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-normalize-identifier","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"373","micromark-util-resolve-all","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-resolve-all","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"374","micromark-util-sanitize-uri","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-sanitize-uri","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"375","micromark-util-subtokenize","2.1.0","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-subtokenize","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"376","micromark-util-symbol","2.0.1","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-symbol","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"377","micromark-util-types","2.0.3","MIT","运行 / 传递","https://github.com/micromark/micromark/tree/main/packages/micromark-util-types","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"378","minimatch","10.2.6","BlueOak-1.0.0","开发 / 传递","git@github.com:isaacs/minimatch","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"379","ms","2.1.3","MIT","运行 / 传递","vercel/ms","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"380","nanoid","3.3.19","MIT","运行 / 传递","ai/nanoid","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"381","natural-compare","1.4.0","MIT","开发 / 传递","git://github.com/litejs/natural-compare-lite","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"382","netmask","2.1.1","MIT","运行 / 传递","git://github.com/rs/node-netmask","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"383","next","16.4.3","MIT","运行 / 直接","vercel/next.js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"384","node-domexception","1.0.0","MIT","运行 / 传递","https://github.com/jimmywarting/node-domexception","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"385","node-fetch","3.3.2","MIT","运行 / 传递","https://github.com/node-fetch/node-fetch","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"386","node-releases","2.0.56","MIT","开发 / 传递","https://github.com/chicoxyzzy/node-releases","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"387","nodemailer","10.2.1","MIT-0","运行 / 直接","https://github.com/nodemailer/nodemailer","由 npm 安装后在运行时调用","无署名要求","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"388","oauth4webapi","3.8.8","MIT","运行 / 直接","panva/oauth4webapi","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"389","openai","6.26.0","Apache-2.0","运行 / 传递","github:openai/openai-node","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"390","optionator","0.9.4","MIT","开发 / 传递","git://github.com/gkz/optionator","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"391","p-limit","3.1.0","MIT","开发 / 传递","sindresorhus/p-limit","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"392","p-locate","5.0.0","MIT","开发 / 传递","sindresorhus/p-locate","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"393","p-retry","4.6.2","MIT","运行 / 传递","sindresorhus/p-retry","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"394","pac-proxy-agent","7.2.0","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"395","pac-resolver","7.0.1","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"396","parse-entities","4.0.2","MIT","运行 / 传递","wooorm/parse-entities","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"397","@types/unist","2.0.11","MIT","运行 / 传递","https://github.com/DefinitelyTyped/DefinitelyTyped","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"398","partial-json","0.1.7","MIT","运行 / 传递","https://github.com/promplate/partial-json-parser-js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"399","path-exists","4.0.0","MIT","开发 / 传递","sindresorhus/path-exists","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"400","path-key","3.1.1","MIT","开发 / 传递","sindresorhus/path-key","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"401","picocolors","1.1.1","ISC","运行 / 传递","alexeyraspopov/picocolors","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"402","picomatch","4.0.7","MIT","开发 / 传递","micromatch/picomatch","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"403","playwright","1.63.0","Apache-2.0","运行 / 传递","https://github.com/microsoft/playwright","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"404","playwright-core","1.63.0","Apache-2.0","运行 / 传递","https://github.com/microsoft/playwright","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"405","postcss","8.5.23","MIT","运行 / 传递","postcss/postcss","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"406","prelude-ls","1.2.1","MIT","开发 / 传递","git://github.com/gkz/prelude-ls","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"407","property-information","7.2.0","MIT","运行 / 传递","wooorm/property-information","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"408","protobufjs","7.6.6","BSD-3-Clause","运行 / 传递","protobufjs/protobuf.js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"409","proxy-agent","6.5.0","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"410","proxy-from-env","1.1.0","MIT","运行 / 传递","https://github.com/Rob--W/proxy-from-env","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"411","punycode","2.3.1","MIT","开发 / 传递","https://github.com/mathiasbynens/punycode.js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"412","qified","0.10.1","MIT","开发 / 传递","https://github.com/jaredwray/qified","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"413","hookified","2.2.0","MIT","开发 / 传递","https://github.com/jaredwray/hookified","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"414","react","19.3.0","MIT","运行 / 直接","https://github.com/react/react","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"415","react-dom","19.3.0","MIT","运行 / 直接","https://github.com/react/react","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"416","react-is","19.3.0","MIT","运行 / 直接","https://github.com/react/react","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"417","react-markdown","10.1.0","MIT","运行 / 直接","remarkjs/react-markdown","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"418","react-redux","9.3.0","MIT","运行 / 传递","github:reduxjs/react-redux","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"419","recharts","3.10.1","MIT","运行 / 直接","https://github.com/recharts/recharts","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"420","redux","5.0.1","MIT","运行 / 传递","github:reduxjs/redux","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"421","redux-thunk","3.1.0","MIT","运行 / 传递","github:reduxjs/redux-thunk","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"422","remark-gfm","4.0.1","MIT","运行 / 直接","remarkjs/remark-gfm","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"423","remark-parse","11.0.0","MIT","运行 / 传递","https://github.com/remarkjs/remark/tree/main/packages/remark-parse","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"424","remark-rehype","11.1.2","MIT","运行 / 传递","remarkjs/remark-rehype","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"425","remark-stringify","11.0.0","MIT","运行 / 传递","https://github.com/remarkjs/remark/tree/main/packages/remark-stringify","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"426","reselect","5.2.0","MIT","运行 / 传递","https://github.com/reduxjs/reselect","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"427","retry","0.13.1","MIT","运行 / 传递","git://github.com/tim-kos/node-retry","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"428","rxjs","7.8.2","Apache-2.0","开发 / 传递","https://github.com/reactivex/rxjs","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"429","safe-buffer","5.2.1","MIT","运行 / 传递","git://github.com/feross/safe-buffer","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"430","scheduler","0.28.0","MIT","运行 / 传递","https://github.com/react/react","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"431","semver","7.8.5","ISC","运行 / 传递","https://github.com/npm/node-semver","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"432","sharp","0.35.5","Apache-2.0","运行 / 传递 / 可选平台包","https://github.com/lovell/sharp","由 npm 安装后在运行时调用","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"433","shebang-command","2.0.0","MIT","开发 / 传递","kevva/shebang-command","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"434","shebang-regex","3.0.0","MIT","开发 / 传递","sindresorhus/shebang-regex","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"435","shell-quote","1.12.0","MIT","开发 / 传递","http://github.com/ljharb/shell-quote","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"436","smart-buffer","4.2.0","MIT","运行 / 传递","https://github.com/JoshGlazebrook/smart-buffer","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"437","socks","2.8.10","MIT","运行 / 传递","https://github.com/JoshGlazebrook/socks","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"438","socks-proxy-agent","8.0.5","MIT","运行 / 传递","https://github.com/TooTallNate/proxy-agents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"439","source-map","0.6.1","BSD-3-Clause","运行 / 传递 / 可选平台包","http://github.com/mozilla/source-map","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"440","source-map-js","1.2.2","BSD-3-Clause","运行 / 传递","7rulnik/source-map-js","由 npm 安装后在运行时调用","分发时保留版权与免责声明；不得以作者名义背书","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"441","space-separated-tokens","2.0.2","MIT","运行 / 传递","wooorm/space-separated-tokens","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"442","string-width","7.2.0","MIT","开发 / 传递","sindresorhus/string-width","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"443","stringify-entities","4.0.4","MIT","运行 / 传递","wooorm/stringify-entities","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"444","strip-ansi","7.2.0","MIT","开发 / 传递","chalk/strip-ansi","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"445","style-to-js","1.1.21","MIT","运行 / 传递","https://github.com/remarkablemark/style-to-js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"446","style-to-object","1.0.14","MIT","运行 / 传递","https://github.com/remarkablemark/style-to-object","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"447","styled-jsx","5.1.6","MIT","运行 / 传递","vercel/styled-jsx","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"448","supports-color","10.2.2","MIT","开发 / 传递","chalk/supports-color","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"449","three","0.186.0","MIT","运行 / 直接","https://github.com/mrdoob/three.js","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"450","tiny-invariant","1.3.3","MIT","运行 / 传递","https://github.com/alexreardon/tiny-invariant","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"451","tinyglobby","0.2.17","MIT","开发 / 传递","https://github.com/SuperchupuDev/tinyglobby","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"452","tree-kill","1.2.2","MIT","开发 / 传递","git://github.com/pkrumins/node-tree-kill","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"453","trim-lines","3.0.1","MIT","运行 / 传递","wooorm/trim-lines","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"454","trough","2.2.0","MIT","运行 / 传递","wooorm/trough","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"455","ts-algebra","2.0.0","MIT","运行 / 传递","https://github.com/ThomasAribart/ts-algebra","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"456","ts-api-utils","2.5.0","MIT","开发 / 传递","https://github.com/JoshuaKGoldberg/ts-api-utils","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"457","tslib","2.8.1","0BSD","运行 / 传递","https://github.com/Microsoft/tslib","由 npm 安装后在运行时调用","无署名要求","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"458","tsx","4.23.13","MIT","开发 / 直接","privatenumber/tsx","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"459","type-check","0.4.0","MIT","开发 / 传递","git://github.com/gkz/type-check","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"460","typebox","1.3.34","MIT","运行 / 直接","https://github.com/sinclairzx81/typebox","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"461","typescript","5.9.3","Apache-2.0","开发 / 直接","https://github.com/microsoft/TypeScript","开发与测试工具，不进入产品运行","分发时附许可副本，保留 NOTICE 与版权声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"462","typescript-eslint","8.70.0","MIT","开发 / 直接","https://github.com/typescript-eslint/typescript-eslint","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"463","undici","7.30.1","MIT","运行 / 传递","https://github.com/nodejs/undici","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"464","undici-types","7.18.2","MIT","运行 / 传递","https://github.com/nodejs/undici","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"465","unified","11.0.5","MIT","运行 / 传递","unifiedjs/unified","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"466","unist-util-is","6.0.1","MIT","运行 / 传递","syntax-tree/unist-util-is","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"467","unist-util-position","5.0.0","MIT","运行 / 传递","syntax-tree/unist-util-position","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"468","unist-util-stringify-position","4.0.0","MIT","运行 / 传递","syntax-tree/unist-util-stringify-position","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"469","unist-util-visit","5.1.0","MIT","运行 / 传递","syntax-tree/unist-util-visit","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"470","unist-util-visit-parents","6.0.2","MIT","运行 / 传递","syntax-tree/unist-util-visit-parents","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"471","update-browserslist-db","1.3.3","MIT","开发 / 传递","browserslist/update-db","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"472","uri-js","4.4.1","BSD-2-Clause","开发 / 传递","http://github.com/garycourt/uri-js","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"473","use-sync-external-store","1.7.0","MIT","运行 / 传递","https://github.com/react/react","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"474","vfile","6.0.3","MIT","运行 / 传递","vfile/vfile","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"475","vfile-message","4.0.3","MIT","运行 / 传递","vfile/vfile-message","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"476","victory-vendor","37.3.6","MIT AND ISC","运行 / 传递","https://github.com/FormidableLabs/victory","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"477","web-streams-polyfill","3.3.3","MIT","运行 / 传递","https://github.com/MattiasBuelens/web-streams-polyfill","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"478","which","2.0.2","ISC","开发 / 传递","git://github.com/isaacs/node-which","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"479","word-wrap","1.2.5","MIT","开发 / 传递","jonschlinkert/word-wrap","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"480","wrap-ansi","9.0.2","MIT","开发 / 传递","chalk/wrap-ansi","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"481","ws","8.21.3","MIT","运行 / 传递","https://github.com/websockets/ws","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"482","y18n","5.0.8","ISC","开发 / 传递","yargs/y18n","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"483","yallist","3.1.1","ISC","开发 / 传递","https://github.com/isaacs/yallist","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"484","yargs","18.0.0","MIT","开发 / 传递","https://github.com/yargs/yargs","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"485","yargs-parser","22.0.0","ISC","开发 / 传递","https://github.com/yargs/yargs-parser","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"486","yocto-queue","0.1.0","MIT","开发 / 传递","sindresorhus/yocto-queue","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"487","zod","4.6.7","MIT","运行 / 直接","https://github.com/colinhacks/zod","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"488","zod-to-json-schema","3.25.2","ISC","运行 / 传递","https://github.com/StefanTerdell/zod-to-json-schema","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"489","zod-validation-error","4.0.2","MIT","开发 / 传递","git://github.com/causaly/zod-validation-error","开发与测试工具，不进入产品运行","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
+"490","zwitch","2.0.4","MIT","运行 / 传递","wooorm/zwitch","由 npm 安装后在运行时调用","分发时保留版权与许可声明","未修改第三方源码","已核验：作品只开放源码，依赖由使用者通过 npm 安装，不再分发"
